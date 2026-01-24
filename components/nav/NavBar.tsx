@@ -5,7 +5,7 @@ import { Container } from "../layout/Container";
 import Link from "next/link";
 
 const links = [
-  { href: "https://www.cel3interactive.com/#work", label: "highlights"},
+  { href: "https://www.cel3interactive.com/#work", label: "Highlights"},
   { href: "https://www.cel3interactive.com/work", label: "Work" },
   { href: "https://www.cel3interactive.com/#capabilities", label: "Capabilities" },
   { href: "https://www.cel3interactive.com/#approach", label: "Approach" },
