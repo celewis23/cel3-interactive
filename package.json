@@ -9,7 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@portabletext/react": "^6.0.2",
+    "@sanity/client": "^7.14.1",
+    "@sanity/image-url": "^2.0.3",
     "next": "16.1.4",
+    "next-sanity": "^12.0.14",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
