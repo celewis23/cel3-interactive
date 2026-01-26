@@ -5,11 +5,11 @@ import { Container } from "../layout/Container";
 import Link from "next/link";
 
 const links = [
-  { href: "https://www.cel3interactive.com/#work", label: "Highlights"},
+  { href: "#work", label: "Highlights"},
   { href: "https://www.cel3interactive.com/work", label: "Work" },
-  { href: "https://www.cel3interactive.com/#capabilities", label: "Capabilities" },
-  { href: "https://www.cel3interactive.com/#approach", label: "Approach" },
-  { href: "https://www.cel3interactive.com/#fit", label: "Fit" },
+  { href: "#capabilities", label: "Capabilities" },
+  { href: "#approach", label: "Approach" },
+  { href: "#fit", label: "Fit" },
 ];
 
 export function NavBar() {

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { sanityClient } from "@/lib/sanity.client";
 import { featuredWorkQuery } from "@/lib/sanity.queries";
 import { urlFor } from "@/lib/sanity.image";
+import WorkPreviewClient from "./WorkPreviewClient";
 
 type Item = {
   _id: string;
@@ -11,10 +12,18 @@ type Item = {
   client?: string;
   industry?: string;
   heroImage?: any;
+  heroUrl?: string | null;
 };
 
 export default async function WorkPreview() {
-  const items = await sanityClient.fetch<Item[]>(featuredWorkQuery);
+  const raw = await sanityClient.fetch<Item[]>(featuredWorkQuery);
+
+  const items = raw.map((p) => ({
+    ...p,
+    heroUrl: p.heroImage
+      ? urlFor(p.heroImage).width(1400).height(900).fit("crop").url()
+      : null,
+  }));
 
   return (
     <section id="work" className="relative mx-auto max-w-6xl px-4 py-20">
@@ -37,54 +46,14 @@ export default async function WorkPreview() {
         </Link>
       </div>
 
-      <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {items.map((p) => {
-          const img = p.heroImage
-            ? urlFor(p.heroImage).width(1200).height(800).fit("crop").url()
-            : null;
-
-          return (
-            <Link
-              key={p._id}
-              href={`/work/${p.slug}`}
-              className="group rounded-2xl border border-white/10 bg-white/5 overflow-hidden hover:bg-white/[0.07] transition-colors"
-            >
-              <div className="relative aspect-[16/10] border-b border-white/10 bg-black/40">
-                {img ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={img}
-                    alt={p.title}
-                    className="h-full w-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-                  />
-                ) : (
-                  <div className="h-full w-full" />
-                )}
-              </div>
-
-              <div className="p-5">
-                <div className="text-lg font-semibold">{p.title}</div>
-                <div className="mt-1 text-xs text-white/50">
-                  {p.client ? p.client : "Client"} {p.industry ? `• ${p.industry}` : ""}
-                </div>
-
-                <p className="mt-3 text-sm text-white/70 line-clamp-3">
-                  {p.summary ?? "Full breakdown: problem → approach → build → results."}
-                </p>
-
-                <div className="mt-5 text-sm text-white/70 group-hover:text-white transition-colors">
-                  View case study →
-                </div>
-              </div>
-            </Link>
-          );
-        })}
-
-        {!items.length ? (
+      <div className="mt-10">
+        {items.length ? (
+          <WorkPreviewClient items={items} />
+        ) : (
           <div className="text-white/60">
             Mark at least one Project as <b>Featured</b> in Sanity to show it here.
           </div>
-        ) : null}
+        )}
       </div>
 
       <div className="mt-8 md:hidden">
