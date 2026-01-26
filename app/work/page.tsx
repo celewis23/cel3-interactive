@@ -16,7 +16,7 @@ export default async function WorkPage() {
         <Link href="/" className="text-sm text-white/60 hover:text-white transition-colors">
           ← Back to Home
         </Link>
-        <br />
+        <br /><br />
         <div className="flex items-end justify-between gap-6">
           <div>
             <p className="text-xs tracking-[0.25em] uppercase text-white/55">Work</p>
