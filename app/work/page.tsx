@@ -25,7 +25,7 @@ export default async function WorkPage() {
             </p>
           </div>
           <div className="hidden md:block text-sm text-white/50">
-            Updated automatically from Sanity
+            Last Udated: 1/26/2026 @ 9AM EST
           </div>
         </div>
 
