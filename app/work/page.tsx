@@ -12,8 +12,10 @@ export default async function WorkPage() {
 
   return (
     <main className="min-h-screen bg-black text-white">
-        <NavBar />
       <div className="mx-auto max-w-6xl px-4 pt-24 pb-16">
+        <Link href="/" className="text-sm text-white/60 hover:text-white transition-colors">
+          ← Back to Home
+        </Link>
         <div className="flex items-end justify-between gap-6">
           <div>
             <p className="text-xs tracking-[0.25em] uppercase text-white/55">Work</p>
