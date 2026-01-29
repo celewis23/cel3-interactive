@@ -18,22 +18,28 @@ function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
 }
 
+// Premium easing curve (smooth, not bouncy)
+const easePremium: [number, number, number, number] = [0.21, 0.47, 0.32, 0.98];
+
 function WorkCard({ item, index }: { item: Item; index: number }) {
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
 
-  // Smooth “magnetic” movement
-  const sx = useSpring(mx, { stiffness: 120, damping: 18, mass: 0.6 });
-  const sy = useSpring(my, { stiffness: 120, damping: 18, mass: 0.6 });
+  // Smoother “magnetic” movement (a touch heavier)
+  const sx = useSpring(mx, { stiffness: 110, damping: 18, mass: 0.7 });
+  const sy = useSpring(my, { stiffness: 110, damping: 18, mass: 0.7 });
 
   const onMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const px = (e.clientX - rect.left) / rect.width;  // 0..1
-    const py = (e.clientY - rect.top) / rect.height;  // 0..1
-    const dx = (px - 0.5) * 16;
-    const dy = (py - 0.5) * 12;
-    mx.set(clamp(dx, -12, 12));
-    my.set(clamp(dy, -10, 10));
+    const px = (e.clientX - rect.left) / rect.width; // 0..1
+    const py = (e.clientY - rect.top) / rect.height; // 0..1
+
+    // Gentle drift. Premium = subtle.
+    const dx = (px - 0.5) * 14;
+    const dy = (py - 0.5) * 10;
+
+    mx.set(clamp(dx, -10, 10));
+    my.set(clamp(dy, -8, 8));
   };
 
   const onLeave = () => {
@@ -43,15 +49,15 @@ function WorkCard({ item, index }: { item: Item; index: number }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 14 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.5, delay: index * 0.06 }}
+      viewport={{ once: true, margin: "-90px" }}
+      transition={{ duration: 0.55, ease: easePremium, delay: index * 0.06 }}
     >
       <motion.div
         style={{ x: sx, y: sy }}
-        whileHover={{ scale: 1.015 }}
-        transition={{ type: "spring", stiffness: 220, damping: 18 }}
+        whileHover={{ scale: 1.012 }}
+        transition={{ type: "spring", stiffness: 210, damping: 18 }}
         className="will-change-transform"
       >
         <Link
@@ -67,15 +73,20 @@ function WorkCard({ item, index }: { item: Item; index: number }) {
                 src={item.heroUrl}
                 alt={item.title}
                 className="h-full w-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-                whileHover={{ scale: 1.06 }}
-                transition={{ duration: 0.45 }}
+                whileHover={{ scale: 1.045 }}
+                transition={{ duration: 0.55, ease: easePremium }}
               />
             ) : (
               <div className="h-full w-full" />
             )}
 
-            {/* subtle overlay sheen */}
-            <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            {/* Premium vignette (subtle, adds depth without “filtery” look) */}
+            <div className="pointer-events-none absolute inset-0 opacity-60">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/10" />
+            </div>
+
+            {/* Subtle overlay sheen (slower, less flashy) */}
+            <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
               <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0" />
             </div>
           </div>
@@ -102,7 +113,6 @@ function WorkCard({ item, index }: { item: Item; index: number }) {
 }
 
 export default function WorkPreviewClient({ items }: { items: Item[] }) {
-  // Keep grid stable if you later limit/transform items
   const safeItems = useMemo(() => items.slice(0, 6), [items]);
 
   return (

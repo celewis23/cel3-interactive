@@ -43,11 +43,24 @@ export const workBySlugQuery = /* groq */ `
 export const featuredWorkQuery = /* groq */ `
   coalesce(
     *[_type == "project" && featured == true] | order(_createdAt desc)[0...6]{
-      _id, title, "slug": slug.current, summary, client, industry, heroImage
+      _id,
+      title,
+      "slug": slug.current,
+      summary,
+      client,
+      industry,
+      heroImage
     },
     *[_type == "project"] | order(_createdAt desc)[0...6]{
-      _id, title, "slug": slug.current, summary, client, industry, heroImage
+      _id,
+      title,
+      "slug": slug.current,
+      summary,
+      client,
+      industry,
+      heroImage
     }
   )
 `;
+
 

@@ -48,11 +48,9 @@ export default async function WorkPreview() {
 
       <div className="mt-10">
         {items.length ? (
-          <WorkPreviewClient items={items} />
+          <WorkPreviewClient items={items.slice(0, 6)} />
         ) : (
-          <div className="text-white/60">
-            Mark at least one Project as <b>Featured</b> in Sanity to show it here.
-          </div>
+          <div className="text-white/60">No projects yet.</div>
         )}
       </div>
 
