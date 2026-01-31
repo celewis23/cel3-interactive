@@ -11,6 +11,51 @@ const links = [
   { href: "/#approach", label: "Approach" },
 ];
 
+function MenuButton({
+  open,
+  onClick,
+  className = "",
+}: {
+  open: boolean;
+  onClick: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={open ? "Close menu" : "Open menu"}
+      aria-expanded={open}
+      onClick={onClick}
+      className={[
+        "inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white hover:bg-white/10 transition-colors",
+        className,
+      ].join(" ")}
+    >
+      {/* hamburger -> X */}
+      <span className="relative block h-4 w-5">
+        <span
+          className={[
+            "absolute left-0 top-0 h-[2px] w-5 bg-white transition-transform duration-200",
+            open ? "translate-y-[7px] rotate-45" : "",
+          ].join(" ")}
+        />
+        <span
+          className={[
+            "absolute left-0 top-[7px] h-[2px] w-5 bg-white transition-opacity duration-200",
+            open ? "opacity-0" : "opacity-100",
+          ].join(" ")}
+        />
+        <span
+          className={[
+            "absolute left-0 top-[14px] h-[2px] w-5 bg-white transition-transform duration-200",
+            open ? "translate-y-[-7px] -rotate-45" : "",
+          ].join(" ")}
+        />
+      </span>
+    </button>
+  );
+}
+
 export function NavBar() {
   const [active, setActive] = useState(false);
   const [open, setOpen] = useState(false);
@@ -73,36 +118,9 @@ export function NavBar() {
             </nav>
 
             {/* Mobile actions */}
-            <div className="md:hidden flex items-center gap-2">
-              <button
-                type="button"
-                aria-label={open ? "Close menu" : "Open menu"}
-                aria-expanded={open}
-                onClick={() => setOpen((v) => !v)}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white hover:bg-white/10 transition-colors"
-              >
-                {/* hamburger -> X */}
-                <span className="relative block h-4 w-5">
-                  <span
-                    className={[
-                      "absolute left-0 top-0 h-[2px] w-5 bg-white transition-transform duration-200",
-                      open ? "translate-y-[7px] rotate-45" : "",
-                    ].join(" ")}
-                  />
-                  <span
-                    className={[
-                      "absolute left-0 top-[7px] h-[2px] w-5 bg-white transition-opacity duration-200",
-                      open ? "opacity-0" : "opacity-100",
-                    ].join(" ")}
-                  />
-                  <span
-                    className={[
-                      "absolute left-0 top-[14px] h-[2px] w-5 bg-white transition-transform duration-200",
-                      open ? "translate-y-[-7px] -rotate-45" : "",
-                    ].join(" ")}
-                  />
-                </span>
-              </button>
+            <div className="md:hidden flex items-center">
+              {/* This button toggles open/close. When menu is open, it visually becomes X. */}
+              <MenuButton open={open} onClick={() => setOpen((v) => !v)} />
             </div>
           </div>
         </Container>
@@ -111,35 +129,30 @@ export function NavBar() {
       {/* Mobile overlay menu */}
       {open ? (
         <div className="md:hidden fixed inset-0 z-50">
-          {/* Backdrop (lowest layer) */}
+          {/* Backdrop (tap outside to close) */}
           <button
             aria-label="Close menu"
-            className="absolute inset-0 bg-black/60 z-40"
+            className="absolute inset-0 bg-black/60"
             onClick={() => setOpen(false)}
           />
 
-          {/* Panel (above backdrop) */}
-          <div className="absolute left-0 right-0 top-0 z-50">
+          {/* Panel */}
+          <div className="absolute left-0 right-0 top-0">
             <div className="pt-20 px-4">
               <div className="mx-auto max-w-6xl rounded-2xl border border-white/10 bg-black/70 backdrop-blur-md overflow-hidden relative">
-                
-                {/* X close button (top-right, highest layer) */}
-                <button
-                  type="button"
-                  aria-label="Close menu"
-                  onClick={() => setOpen(false)}
-                  className="absolute top-3 right-3 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white hover:bg-white/10 transition-colors z-60"
-                >
-                  <span className="relative block h-4 w-4">
-                    <span className="absolute left-0 top-1/2 h-[2px] w-4 bg-white -translate-y-1/2 rotate-45" />
-                    <span className="absolute left-0 top-1/2 h-[2px] w-4 bg-white -translate-y-1/2 -rotate-45" />
-                  </span>
-                </button>
+                {/* IMPORTANT:
+                    Render the SAME menu button inside the overlay so the X is clickable
+                    even though the overlay covers the navbar.
+                */}
+                <div className="absolute top-3 right-3">
+                  <MenuButton open={open} onClick={() => setOpen(false)} />
+                </div>
 
-                <div className="p-4">
+                <div className="p-4 pt-14">
                   <div className="text-xs tracking-[0.25em] uppercase text-white/55">
                     Navigation
                   </div>
+
                   <div className="mt-4 grid gap-2">
                     <Link
                       href="/work"
