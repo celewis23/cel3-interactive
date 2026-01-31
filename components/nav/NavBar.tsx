@@ -74,14 +74,6 @@ export function NavBar() {
 
             {/* Mobile actions */}
             <div className="md:hidden flex items-center gap-2">
-              <Link
-                href="/#fit"
-                className="text-xs text-white border border-white/20 rounded-full px-3 py-2"
-                onClick={() => setOpen(false)}
-              >
-                Fit
-              </Link>
-
               <button
                 type="button"
                 aria-label={open ? "Close menu" : "Open menu"}
