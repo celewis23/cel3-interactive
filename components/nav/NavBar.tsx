@@ -78,8 +78,7 @@ export function NavBar() {
                 type="button"
                 aria-label={open ? "Close menu" : "Open menu"}
                 aria-expanded={open}
-                onClick={() => setOpen(false)}
-                //onClick={() => setOpen((v) => !v)}
+                onClick={() => setOpen((v) => !v)}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white hover:bg-white/10 transition-colors"
               >
                 {/* hamburger -> X */}
@@ -112,22 +111,35 @@ export function NavBar() {
       {/* Mobile overlay menu */}
       {open ? (
         <div className="md:hidden fixed inset-0 z-50">
-          {/* Backdrop */}
+          {/* Backdrop (lowest layer) */}
           <button
             aria-label="Close menu"
-            className="absolute inset-0 bg-black/60"
+            className="absolute inset-0 bg-black/60 z-40"
             onClick={() => setOpen(false)}
           />
 
-          {/* Panel */}
-          <div className="absolute left-0 right-0 top-0">
+          {/* Panel (above backdrop) */}
+          <div className="absolute left-0 right-0 top-0 z-50">
             <div className="pt-20 px-4">
-              <div className="mx-auto max-w-6xl rounded-2xl border border-white/10 bg-black/70 backdrop-blur-md overflow-hidden">
+              <div className="mx-auto max-w-6xl rounded-2xl border border-white/10 bg-black/70 backdrop-blur-md overflow-hidden relative">
+                
+                {/* X close button (top-right, highest layer) */}
+                <button
+                  type="button"
+                  aria-label="Close menu"
+                  onClick={() => setOpen(false)}
+                  className="absolute top-3 right-3 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white hover:bg-white/10 transition-colors z-60"
+                >
+                  <span className="relative block h-4 w-4">
+                    <span className="absolute left-0 top-1/2 h-[2px] w-4 bg-white -translate-y-1/2 rotate-45" />
+                    <span className="absolute left-0 top-1/2 h-[2px] w-4 bg-white -translate-y-1/2 -rotate-45" />
+                  </span>
+                </button>
+
                 <div className="p-4">
                   <div className="text-xs tracking-[0.25em] uppercase text-white/55">
                     Navigation
                   </div>
-
                   <div className="mt-4 grid gap-2">
                     <Link
                       href="/work"
