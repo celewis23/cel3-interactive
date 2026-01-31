@@ -5,7 +5,7 @@ import { useMotionValue, useSpring, useReducedMotion } from "framer-motion";
 
 type ParallaxConfig = {
   maxTiltDeg?: number; // max rotation in degrees
-  maxShiftPx?: number; // max translate in px
+  maxShiftPx?: number; // max translate in px (foreground)
   spring?: { stiffness: number; damping: number; mass: number };
 };
 
@@ -44,8 +44,8 @@ export function useHeroParallax(config: ParallaxConfig = {}) {
     const nx = clamp((px - 0.5) * 2, -1, 1); // -1..1
     const ny = clamp((py - 0.5) * 2, -1, 1); // -1..1
 
-    const tiltY = nx * maxTiltDeg; // rotateY
-    const tiltX = -ny * maxTiltDeg; // rotateX (invert)
+    const tiltY = nx * maxTiltDeg;
+    const tiltX = -ny * maxTiltDeg;
 
     const sx = nx * maxShiftPx;
     const sy = ny * maxShiftPx;
@@ -89,9 +89,8 @@ export function useHeroParallax(config: ParallaxConfig = {}) {
     if (!motionEnabled) return;
 
     handlerRef.current = (e: DeviceOrientationEvent) => {
-      // gamma: left/right (-90..90), beta: front/back (-180..180)
-      const gamma = typeof e.gamma === "number" ? e.gamma : 0;
-      const beta = typeof e.beta === "number" ? e.beta : 0;
+      const gamma = typeof e.gamma === "number" ? e.gamma : 0; // left/right
+      const beta = typeof e.beta === "number" ? e.beta : 0; // forward/back
 
       const nx = clamp(gamma / 25, -1, 1);
       const ny = clamp(beta / 25, -1, 1);

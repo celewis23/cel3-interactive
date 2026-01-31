@@ -1,45 +1,96 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { Container } from "../layout/Container";
+import { HeroSystem } from "./HeroSystem";
+import { useScrollState } from ".././motion/useScrollState";
 import HeroParallax from "./HeroParallax";
 
-// If you already have a HeroSystem component, import it here:
-// import HeroSystem from "./HeroSystem";
-
 export function Hero() {
-  return (
-    <HeroParallax className="bg-black">
-      {/* 
-        IMPORTANT:
-        Put your EXISTING hero markup inside this container.
-        Do not change your layout structure unless you want to.
-      */}
-      <div className="mx-auto max-w-6xl px-4">
-        {/* Replace everything in this block with your current Hero content */}
-        <div className="py-16 md:py-24">
-          <p className="text-xs tracking-[0.25em] uppercase text-white/55">
-            CEL3 Interactive
-          </p>
-          <h1 className="mt-4 text-4xl md:text-6xl font-semibold tracking-tight text-white">
-            Systems that move.
-          </h1>
-          <p className="mt-5 max-w-2xl text-white/70 text-base md:text-lg">
-            Interactive design, motion systems, and premium builds that feel alive.
-          </p>
+  const scrollState = useScrollState(30);
+  const activated = scrollState === "activated";
 
-          <div className="mt-8 flex flex-wrap gap-3">
-            <a
-              href="/#fit"
-              className="rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-sm text-white hover:bg-white/15 transition-colors"
-            >
-              Let’s See If We’re a Fit →
-            </a>
-            <a
-              href="/work"
-              className="rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-sm text-white/85 hover:bg-white/10 transition-colors"
-            >
-              View Work
-            </a>
+  return (
+    <section id="top" className="relative min-h-[92vh] pt-24 md:pt-28">
+      {/* Keep HeroSystem OUTSIDE any 3D transform to avoid breaking its positioning */}
+      <HeroSystem />
+
+      <Container>
+        {/* Parallax only affects the foreground content */}
+        <HeroParallax className="relative">
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            <div className="lg:col-span-7">
+              <motion.h1
+                animate={{
+                  opacity: 1,
+                  y: activated ? -8 : 0,
+                  scale: activated ? 0.92 : 1,
+                }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+                className="text-5xl md:text-6xl font-semibold tracking-tight text-white origin-left"
+              >
+                Design That Responds.
+              </motion.h1>
+
+              <motion.p
+                animate={{
+                  opacity: activated ? 0.85 : 1,
+                  y: activated ? -2 : 0,
+                }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+                className="mt-6 text-base md:text-lg text-white/75 max-w-xl"
+              >
+                We build interactive digital systems for businesses ready to invest
+                in forward-thinking technology.
+              </motion.p>
+
+              <motion.p
+                animate={{ opacity: activated ? 0.35 : 0.6 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+                className="mt-6 text-sm text-white/55"
+              >
+                Move. Scroll. Watch the system react.
+              </motion.p>
+
+              <div className="mt-10 flex items-center gap-4">
+                <a
+                  href="#fit"
+                  className="rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm text-white hover:bg-white/10 transition-colors"
+                >
+                  Let’s See If We’re a Fit
+                </a>
+
+                <a
+                  href="#work"
+                  className="text-sm text-white/70 hover:text-white transition-colors"
+                >
+                  View Work
+                </a>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5">
+              <motion.div
+                animate={{
+                  opacity: activated ? 0.85 : 1,
+                  y: activated ? 8 : 0,
+                }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+                className="relative rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur"
+              >
+                <p className="text-xs tracking-[0.25em] uppercase text-white/50">
+                  System Signal
+                </p>
+                <p className="mt-3 text-white/80">
+                  Interactive experiences. Platforms. Data interfaces. AI-enhanced
+                  systems.
+                </p>
+                <div className="mt-6 h-24 rounded-xl border border-white/10 bg-white/5" />
+              </motion.div>
+            </div>
           </div>
-        </div>
-      </div>
-    </HeroParallax>
+        </HeroParallax>
+      </Container>
+    </section>
   );
 }
