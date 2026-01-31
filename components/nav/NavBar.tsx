@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Container } from "../layout/Container";
 import Link from "next/link";
+import { Logo } from "@/components/brand/Logo";
 
 const links = [
   { href: "/#work", label: "Highlights" },
@@ -87,7 +88,7 @@ export function NavBar() {
       >
         <Container>
           <div className="flex items-center justify-between py-4">
-            {/* Brand */}
+            {/* Brand 
             <Link
               href="/"
               className="text-white font-semibold tracking-tight"
@@ -95,7 +96,8 @@ export function NavBar() {
               onClick={() => setOpen(false)}
             >
               CEL3 Interactive
-            </Link>
+            </Link>*/}
+            <Logo />
 
             {/* Desktop nav */}
             <nav className="hidden md:flex items-center gap-7">
