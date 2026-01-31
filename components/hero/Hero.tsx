@@ -3,8 +3,20 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Container } from "../layout/Container";
 import { HeroSystem } from "./HeroSystem";
+import HeroParallax from "@/components/hero/HeroParallax";
 
 export function Hero() {
+  return (
+    <HeroParallax>
+      {/* your existing hero markup here */}
+      <div className="px-6 py-16 md:px-10 md:py-24">
+        {/* headline, subhead, buttons, etc */}
+      </div>
+    </HeroParallax>
+  );
+}
+
+/*export function Hero() {
   const { scrollY } = useScroll();
   const p = useTransform(scrollY, [0, 420], [0, 1]);
 
@@ -77,7 +89,7 @@ export function Hero() {
         </div>
       </Container>
 
-      {/* Scroll hint */}
+      //{/* Scroll hint }
       <motion.a
         href="#approach"
         style={{ opacity: hintOpacity }}
@@ -87,4 +99,4 @@ export function Hero() {
       </motion.a>
     </section>
   );
-}
+}*/
