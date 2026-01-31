@@ -78,7 +78,8 @@ export function NavBar() {
                 type="button"
                 aria-label={open ? "Close menu" : "Open menu"}
                 aria-expanded={open}
-                onClick={() => setOpen((v) => !v)}
+                onClick={() => setOpen(false)}
+                //onClick={() => setOpen((v) => !v)}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white hover:bg-white/10 transition-colors"
               >
                 {/* hamburger -> X */}
