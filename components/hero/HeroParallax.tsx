@@ -6,10 +6,12 @@ import { useHeroParallax } from "./useHeroParallax";
 
 export default function HeroParallax({
   children,
+  className = "",
 }: {
   children: React.ReactNode;
+  className?: string;
 }) {
-  const ref = useRef<HTMLDivElement | null>(null);
+  const ref = useRef<HTMLElement | null>(null);
 
   const p = useHeroParallax({
     maxTiltDeg: 6,
@@ -18,9 +20,17 @@ export default function HeroParallax({
   });
 
   return (
-    <div
+    <section
       ref={ref}
-      className="relative overflow-hidden rounded-3xl border border-white/10 bg-black/40 backdrop-blur-md"
+      className={[
+        // Do NOT clip by default (prevents breaking glows / hero systems)
+        "relative",
+        // Gives the hero a stable footprint, adjust if your hero already controls height
+        "min-h-[calc(100vh-80px)]",
+        // Prevent nav overlap
+        "pt-24",
+        className,
+      ].join(" ")}
       onMouseMove={(e) => {
         if (!ref.current) return;
         const rect = ref.current.getBoundingClientRect();
@@ -28,9 +38,9 @@ export default function HeroParallax({
       }}
       onMouseLeave={() => p.onPointerLeave()}
     >
-      {/* iOS motion permission prompt (only shows when required) */}
+      {/* iOS motion permission button (only when needed) */}
       {p.needsPermission && !p.motionEnabled ? (
-        <div className="absolute right-3 top-3 z-20">
+        <div className="absolute right-4 top-24 z-30">
           <button
             onClick={() => p.enableMotion()}
             className="rounded-full border border-white/15 bg-white/5 px-3 py-2 text-xs text-white/80 hover:bg-white/10 transition-colors"
@@ -40,9 +50,9 @@ export default function HeroParallax({
         </div>
       ) : null}
 
-      {/* Scene container (perspective) */}
+      {/* 3D scene container */}
       <motion.div
-        className="relative z-10"
+        className="relative"
         style={{
           transformStyle: "preserve-3d",
           perspective: 900,
@@ -50,18 +60,18 @@ export default function HeroParallax({
           rotateY: p.rotateY,
         }}
       >
-        {/* Far layer: subtle grid/noise */}
+        {/* Far layer: subtle texture/grid */}
         <motion.div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-60"
+          className="pointer-events-none absolute inset-0 opacity-55"
           style={{
-            x: p.shiftX, // move with shift but less depth by scaling via transform in css
+            x: p.shiftX,
             y: p.shiftY,
             translateZ: -30,
           }}
         >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.12),transparent_45%),radial-gradient(circle_at_80%_30%,rgba(255,255,255,0.08),transparent_50%)]" />
-          <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:48px_48px]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.10),transparent_45%),radial-gradient(circle_at_80%_30%,rgba(255,255,255,0.07),transparent_50%)]" />
+          <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:52px_52px]" />
         </motion.div>
 
         {/* Mid layer: glow */}
@@ -74,12 +84,12 @@ export default function HeroParallax({
             translateZ: 10,
           }}
         >
-          <div className="absolute -inset-12 opacity-30 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.14),transparent_55%)]" />
+          <div className="absolute -inset-16 opacity-25 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.14),transparent_55%)]" />
         </motion.div>
 
-        {/* Near layer: your actual content */}
+        {/* Foreground: your real hero content */}
         <motion.div
-          className="relative"
+          className="relative z-10"
           style={{
             x: p.shiftX,
             y: p.shiftY,
@@ -90,10 +100,10 @@ export default function HeroParallax({
         </motion.div>
       </motion.div>
 
-      {/* Vignette for depth */}
-      <div className="pointer-events-none absolute inset-0 z-0 opacity-70">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/0 to-black/35" />
+      {/* Vignette */}
+      <div className="pointer-events-none absolute inset-0 opacity-60">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/0 to-black/35" />
       </div>
-    </div>
+    </section>
   );
 }

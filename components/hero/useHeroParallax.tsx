@@ -4,8 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useMotionValue, useSpring, useReducedMotion } from "framer-motion";
 
 type ParallaxConfig = {
-  maxTiltDeg?: number;     // max rotation in degrees
-  maxShiftPx?: number;     // max translate in px for near layer
+  maxTiltDeg?: number; // max rotation in degrees
+  maxShiftPx?: number; // max translate in px
   spring?: { stiffness: number; damping: number; mass: number };
 };
 
@@ -22,7 +22,7 @@ export function useHeroParallax(config: ParallaxConfig = {}) {
   const tx = useMotionValue(0); // translateX
   const ty = useMotionValue(0); // translateY
 
-  // Smoothed values
+  // Smoothed motion values
   const rotateX = useSpring(rx, springCfg);
   const rotateY = useSpring(ry, springCfg);
   const shiftX = useSpring(tx, springCfg);
@@ -31,23 +31,22 @@ export function useHeroParallax(config: ParallaxConfig = {}) {
   const [needsPermission, setNeedsPermission] = useState(false);
   const [motionEnabled, setMotionEnabled] = useState(false);
 
-  const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
+  const clamp = (n: number, min: number, max: number) =>
+    Math.max(min, Math.min(max, n));
 
-  // --- Desktop mouse driver (call from onMouseMove) ---
+  // Desktop pointer driver
   function onPointerMove(clientX: number, clientY: number, rect: DOMRect) {
     if (reduceMotion) return;
 
-    const px = (clientX - rect.left) / rect.width;   // 0..1
-    const py = (clientY - rect.top) / rect.height;   // 0..1
+    const px = (clientX - rect.left) / rect.width; // 0..1
+    const py = (clientY - rect.top) / rect.height; // 0..1
 
     const nx = clamp((px - 0.5) * 2, -1, 1); // -1..1
     const ny = clamp((py - 0.5) * 2, -1, 1); // -1..1
 
-    // Premium: subtle tilt
-    const tiltY = nx * maxTiltDeg;       // rotateY
-    const tiltX = -ny * maxTiltDeg;      // rotateX (invert so up feels “back”)
+    const tiltY = nx * maxTiltDeg; // rotateY
+    const tiltX = -ny * maxTiltDeg; // rotateX (invert)
 
-    // Shift is a little stronger than tilt to sell depth
     const sx = nx * maxShiftPx;
     const sy = ny * maxShiftPx;
 
@@ -58,7 +57,10 @@ export function useHeroParallax(config: ParallaxConfig = {}) {
   }
 
   function onPointerLeave() {
-    ry.set(0); rx.set(0); tx.set(0); ty.set(0);
+    ry.set(0);
+    rx.set(0);
+    tx.set(0);
+    ty.set(0);
   }
 
   // --- Mobile motion driver (DeviceOrientation) ---
@@ -67,7 +69,6 @@ export function useHeroParallax(config: ParallaxConfig = {}) {
   useEffect(() => {
     if (reduceMotion) return;
 
-    // iOS permission check
     const anyWin = window as any;
     const hasRequestPermission =
       typeof anyWin.DeviceOrientationEvent !== "undefined" &&
@@ -75,9 +76,8 @@ export function useHeroParallax(config: ParallaxConfig = {}) {
 
     setNeedsPermission(!!hasRequestPermission);
 
-    // If not iOS-permission-gated, we can enable immediately
+    // If not iOS permission gated, enable automatically if supported
     if (!hasRequestPermission) {
-      // We still only enable if device orientation exists
       if ("DeviceOrientationEvent" in window) {
         setMotionEnabled(true);
       }
@@ -93,11 +93,9 @@ export function useHeroParallax(config: ParallaxConfig = {}) {
       const gamma = typeof e.gamma === "number" ? e.gamma : 0;
       const beta = typeof e.beta === "number" ? e.beta : 0;
 
-      // Map to -1..1 ranges with clamp
       const nx = clamp(gamma / 25, -1, 1);
       const ny = clamp(beta / 25, -1, 1);
 
-      // Same mapping as desktop, slightly softer for mobile
       const tiltY = nx * (maxTiltDeg * 0.9);
       const tiltX = -ny * (maxTiltDeg * 0.9);
 
@@ -111,8 +109,11 @@ export function useHeroParallax(config: ParallaxConfig = {}) {
     };
 
     window.addEventListener("deviceorientation", handlerRef.current, true);
+
     return () => {
-      if (handlerRef.current) window.removeEventListener("deviceorientation", handlerRef.current, true);
+      if (handlerRef.current) {
+        window.removeEventListener("deviceorientation", handlerRef.current, true);
+      }
     };
   }, [motionEnabled, reduceMotion, maxTiltDeg, maxShiftPx, rx, ry, tx, ty]);
 
@@ -126,20 +127,17 @@ export function useHeroParallax(config: ParallaxConfig = {}) {
         typeof anyWin.DeviceOrientationEvent.requestPermission === "function"
       ) {
         const res = await anyWin.DeviceOrientationEvent.requestPermission();
-        if (res === "granted") {
-          setMotionEnabled(true);
-        }
+        if (res === "granted") setMotionEnabled(true);
       } else {
         setMotionEnabled(true);
       }
     } catch {
-      // If permission fails, we just keep it off
       setMotionEnabled(false);
     }
   }
 
-  const api = useMemo(() => {
-    return {
+  return useMemo(
+    () => ({
       rotateX,
       rotateY,
       shiftX,
@@ -149,8 +147,16 @@ export function useHeroParallax(config: ParallaxConfig = {}) {
       enableMotion,
       onPointerMove,
       onPointerLeave,
-    };
-  }, [rotateX, rotateY, shiftX, shiftY, needsPermission, motionEnabled]);
-
-  return api;
+    }),
+    [
+      rotateX,
+      rotateY,
+      shiftX,
+      shiftY,
+      needsPermission,
+      motionEnabled,
+      onPointerMove,
+      onPointerLeave,
+    ]
+  );
 }
