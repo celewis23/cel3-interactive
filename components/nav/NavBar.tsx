@@ -111,7 +111,7 @@ export function NavBar() {
 
       {/* Mobile overlay menu */}
       {open ? (
-        <div className="md:hidden fixed inset-0 z-50">
+        <div className="md:hidden fixed inset-0 z-40">
           {/* Backdrop */}
           <button
             aria-label="Close menu"
