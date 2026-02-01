@@ -44,12 +44,13 @@ export function Logo({ href = "/" }: LogoProps) {
           animate={{
             scale: activated ? 0.96 : 1,
           }}
+          style={{marginLeft: "-6px"}}
           whileHover={{
-            scale: 1.05,
+            scale: 1.15,
           }}
           transition={{ duration: 0.25, ease: "easeOut" }}
         >
-          3
+         3
         </motion.span>
 
         {/* INTERACTIVE — now visible on mobile */}
