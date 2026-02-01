@@ -44,7 +44,7 @@ export function SystemSignalMini() {
 
   const deployClass =
     deploy === "synced"
-      ? "text-white/75"
+      ? "text-[rgb(var(--accent))]"
       : deploy === "warming"
         ? "text-white/75" // <- no accent color here (removes “bluey” feel)
         : "text-white/60";
