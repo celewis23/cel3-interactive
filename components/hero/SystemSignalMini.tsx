@@ -39,7 +39,6 @@ export function SystemSignalMini() {
     return () => clearInterval(t);
   }, [seed]);
 
-  // Latency influences wave amplitude (smooth, not gimmicky)
   // 26ms..64ms -> amp 0.95..1.22
   const amp = (() => {
     const t = (clamp(latency, 26, 64) - 26) / (64 - 26);
@@ -52,6 +51,9 @@ export function SystemSignalMini() {
       : deploy === "warming"
         ? "text-white/80"
         : "text-white/65";
+
+  // Short deploy label for compact UI
+  const deployShort = deploy === "synced" ? "SYNC" : deploy === "warming" ? "WARM" : "INDX";
 
   return (
     <div className="relative h-32 overflow-hidden rounded-xl border border-white/10 bg-white/5">
@@ -130,56 +132,92 @@ export function SystemSignalMini() {
 
           {/* RIGHT: metrics */}
           <div className="col-span-5 rounded-lg border border-white/10 bg-black/25 px-3 py-2 flex flex-col justify-end">
-            <div className="space-y-2 text-[10px] tracking-[0.18em] uppercase">
-              {/* LATENCY */}
-              <div className="flex flex-col items-start sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
-                <span className="text-white/45">
-                  <span className="hidden sm:inline">latency</span>
-                  <span className="inline sm:hidden tracking-widest">LAT</span>
-                </span>
+            {/* XS (really small phones): one-line abbreviated metrics, no stacking */}
+            <div className="sm:hidden">
+              <div className="flex items-center justify-between gap-2 text-[10px] tracking-[0.18em] uppercase">
+                <span className="text-white/45 whitespace-nowrap">LAT</span>
                 <motion.span
                   key={latency}
                   initial={{ opacity: 0, y: 2 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.22, ease: "easeOut" }}
-                  className="text-white/95"
+                  className="text-white/95 whitespace-nowrap"
                 >
                   {latency}ms
                 </motion.span>
-              </div>
 
-              {/* UPTIME */}
-              <div className="flex flex-col items-start sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
-                <span className="text-white/45">
-                  <span className="hidden sm:inline">uptime</span>
-                  <span className="inline sm:hidden tracking-widest">UPT</span>
-                </span>
+                <span className="text-white/25">•</span>
+
+                <span className="text-white/45 whitespace-nowrap">UPT</span>
                 <motion.span
                   key={uptime}
                   initial={{ opacity: 0, y: 2 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.22, ease: "easeOut" }}
-                  className="text-white/95"
+                  className="text-white/95 whitespace-nowrap"
                 >
                   {formatPct(uptime)}
                 </motion.span>
-              </div>
 
-              {/* DEPLOY */}
-              <div className="flex flex-col items-start sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
-                <span className="text-white/45">
-                  <span className="hidden sm:inline">deploy</span>
-                  <span className="inline sm:hidden tracking-widest">DPL</span>
-                </span>
+                <span className="text-white/25">•</span>
+
+                <span className="text-white/45 whitespace-nowrap">DPL</span>
                 <motion.span
                   key={deploy}
                   initial={{ opacity: 0, y: 2 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.22, ease: "easeOut" }}
-                  className={deployClass}
+                  className={`${deployClass} whitespace-nowrap`}
                 >
-                  {deploy}
+                  {deployShort}
                 </motion.span>
+              </div>
+            </div>
+
+            {/* SM+ (normal): keep your current “full label + value” layout */}
+            <div className="hidden sm:block">
+              <div className="space-y-2 text-[10px] tracking-[0.18em] uppercase">
+                {/* LATENCY */}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-white/45">latency</span>
+                  <motion.span
+                    key={latency}
+                    initial={{ opacity: 0, y: 2 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.22, ease: "easeOut" }}
+                    className="text-white/95"
+                  >
+                    {latency}ms
+                  </motion.span>
+                </div>
+
+                {/* UPTIME */}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-white/45">uptime</span>
+                  <motion.span
+                    key={uptime}
+                    initial={{ opacity: 0, y: 2 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.22, ease: "easeOut" }}
+                    className="text-white/95"
+                  >
+                    {formatPct(uptime)}
+                  </motion.span>
+                </div>
+
+                {/* DEPLOY */}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-white/45">deploy</span>
+                  <motion.span
+                    key={deploy}
+                    initial={{ opacity: 0, y: 2 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.22, ease: "easeOut" }}
+                    className={deployClass}
+                  >
+                    {deploy}
+                  </motion.span>
+                </div>
               </div>
             </div>
           </div>
