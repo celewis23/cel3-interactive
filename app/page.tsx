@@ -1,7 +1,7 @@
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { NavBar } from "@/components/nav/NavBar";
 import { Hero } from "@/components/hero/Hero";
-import { InteractiveByDesign } from "@/components/sections/InteractiveByDesign";
+import InteractiveByDesign  from "@/components/sections/InteractiveByDesign";
 import { CapabilityMatrix } from "@/components/sections/CapabilityMatrix";
 import WorkPreview from "@/components/sections/WorkPreview";
 import { WhoWeWorkWith } from "@/components/sections/WhoWeWorkWith";

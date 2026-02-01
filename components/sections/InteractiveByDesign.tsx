@@ -1,31 +1,51 @@
-import { Section } from "../layout/Section";
+import InteractiveCard from "@/components/ui/InteractiveCard";
 
-export function InteractiveByDesign() {
+export default function InteractiveByDesign() {
   return (
-    <Section
-      id="approach"
-      eyebrow="Approach"
-      title="Interactive by Design"
-      subtitle="We don’t design pages. We design systems that adapt. Behavior drives the experience."
-      variant="tight"
-    >
-      {/* Placeholder for future keyword highlight interactions */}
-      <div className="max-w-3xl text-white/65">
-        <ul className="grid gap-3 md:grid-cols-3">
-          <li className="rounded-xl border border-white/10 bg-white/5 p-4">
-            <p className="text-white/85 font-medium">Respond</p>
-            <p className="mt-2 text-sm">Interfaces that acknowledge intent.</p>
-          </li>
-          <li className="rounded-xl border border-white/10 bg-white/5 p-4">
-            <p className="text-white/85 font-medium">Adapt</p>
-            <p className="mt-2 text-sm">Layouts that shift with context.</p>
-          </li>
-          <li className="rounded-xl border border-white/10 bg-white/5 p-4">
-            <p className="text-white/85 font-medium">Evolve</p>
-            <p className="mt-2 text-sm">Systems built for long-term change.</p>
-          </li>
-        </ul>
+    <section id="capabilities" className="relative mx-auto max-w-6xl px-4 py-20">
+      <div className="flex items-end justify-between gap-6">
+        <div>
+          <p className="text-xs tracking-[0.25em] uppercase text-white/55">
+            Interactive by design
+          </p>
+          <h2 className="mt-3 text-3xl md:text-4xl font-semibold tracking-tight">
+            Interfaces that feel alive
+          </h2>
+          <p className="mt-3 max-w-2xl text-white/70">
+            Not animation for animation’s sake. Systems that respond to intent, adapt to context,
+            and communicate state with clarity.
+          </p>
+        </div>
       </div>
-    </Section>
+
+      <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <InteractiveCard
+          variant="respond"
+          eyebrow="Respond"
+          title="Design that reacts to intent"
+          desc="Hover, scroll, and input become signals. The UI acknowledges the user and guides the next move."
+          footLeft="Intent"
+          footRight="Locked"
+        />
+
+        <InteractiveCard
+          variant="adapt"
+          eyebrow="Adapt"
+          title="Layouts that reflow intelligently"
+          desc="Components shift like a living grid. Information prioritizes itself as context changes."
+          footLeft="Grid"
+          footRight="Reflow"
+        />
+
+        <InteractiveCard
+          variant="evolve"
+          eyebrow="Evolve"
+          title="Systems that communicate state"
+          desc="Micro-metrics, health indicators, and quiet motion make complex platforms feel simple."
+          footLeft="Status"
+          footRight="Stable"
+        />
+      </div>
+    </section>
   );
 }
