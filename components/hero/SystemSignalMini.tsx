@@ -52,9 +52,6 @@ export function SystemSignalMini() {
         ? "text-white/80"
         : "text-white/65";
 
-  // Short deploy label for compact UI
-  const deployShort = deploy === "synced" ? "SYNC" : deploy === "warming" ? "WARM" : "INDX";
-
   return (
     <div className="relative h-32 overflow-hidden rounded-xl border border-white/10 bg-white/5">
       {/* faint grid */}
@@ -130,12 +127,15 @@ export function SystemSignalMini() {
             />
           </div>
 
-          {/* RIGHT: metrics */}
+          {/* RIGHT: metrics (DESKTOP LAYOUT ALWAYS, ONLY LABELS CHANGE) */}
           <div className="col-span-5 rounded-lg border border-white/10 bg-black/25 px-3 py-2 flex flex-col justify-end">
-            {/* XS (really small phones): one-line abbreviated metrics, no stacking */}
-            <div className="sm:hidden">
-              <div className="flex items-center justify-between gap-2 text-[10px] tracking-[0.18em] uppercase">
-                <span className="text-white/45 whitespace-nowrap">LAT</span>
+            <div className="space-y-2 text-[10px] tracking-[0.18em] uppercase">
+              {/* LATENCY */}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-white/45 whitespace-nowrap">
+                  <span className="hidden sm:inline">latency</span>
+                  <span className="sm:hidden tracking-widest">LAT</span>
+                </span>
                 <motion.span
                   key={latency}
                   initial={{ opacity: 0, y: 2 }}
@@ -145,10 +145,14 @@ export function SystemSignalMini() {
                 >
                   {latency}ms
                 </motion.span>
+              </div>
 
-                <span className="text-white/25">•</span>
-
-                <span className="text-white/45 whitespace-nowrap">UPT</span>
+              {/* UPTIME */}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-white/45 whitespace-nowrap">
+                  <span className="hidden sm:inline">uptime</span>
+                  <span className="sm:hidden tracking-widest">UPT</span>
+                </span>
                 <motion.span
                   key={uptime}
                   initial={{ opacity: 0, y: 2 }}
@@ -158,10 +162,14 @@ export function SystemSignalMini() {
                 >
                   {formatPct(uptime)}
                 </motion.span>
+              </div>
 
-                <span className="text-white/25">•</span>
-
-                <span className="text-white/45 whitespace-nowrap">DPL</span>
+              {/* DEPLOY */}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-white/45 whitespace-nowrap">
+                  <span className="hidden sm:inline">deploy</span>
+                  <span className="sm:hidden tracking-widest">DPL</span>
+                </span>
                 <motion.span
                   key={deploy}
                   initial={{ opacity: 0, y: 2 }}
@@ -169,55 +177,8 @@ export function SystemSignalMini() {
                   transition={{ duration: 0.22, ease: "easeOut" }}
                   className={`${deployClass} whitespace-nowrap`}
                 >
-                  {deployShort}
+                  {deploy}
                 </motion.span>
-              </div>
-            </div>
-
-            {/* SM+ (normal): keep your current “full label + value” layout */}
-            <div className="hidden sm:block">
-              <div className="space-y-2 text-[10px] tracking-[0.18em] uppercase">
-                {/* LATENCY */}
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-white/45">latency</span>
-                  <motion.span
-                    key={latency}
-                    initial={{ opacity: 0, y: 2 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.22, ease: "easeOut" }}
-                    className="text-white/95"
-                  >
-                    {latency}ms
-                  </motion.span>
-                </div>
-
-                {/* UPTIME */}
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-white/45">uptime</span>
-                  <motion.span
-                    key={uptime}
-                    initial={{ opacity: 0, y: 2 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.22, ease: "easeOut" }}
-                    className="text-white/95"
-                  >
-                    {formatPct(uptime)}
-                  </motion.span>
-                </div>
-
-                {/* DEPLOY */}
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-white/45">deploy</span>
-                  <motion.span
-                    key={deploy}
-                    initial={{ opacity: 0, y: 2 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.22, ease: "easeOut" }}
-                    className={deployClass}
-                  >
-                    {deploy}
-                  </motion.span>
-                </div>
               </div>
             </div>
           </div>
@@ -233,12 +194,6 @@ export function SystemSignalMini() {
 }
 
 function SeamlessWave({ amp }: { amp: number }) {
-  /**
-   * Seamless loop:
-   * - repeatable tile patterns
-   * - inner group translates exactly one tile width
-   * - outer group scales Y based on latency (amp)
-   */
   return (
     <motion.svg
       className="h-full w-full"
@@ -247,7 +202,6 @@ function SeamlessWave({ amp }: { amp: number }) {
       aria-hidden="true"
     >
       <defs>
-        {/* Repeatable tile width = 200 units */}
         <pattern id="waveTileAccent" patternUnits="userSpaceOnUse" width="200" height="160">
           <path
             d="M0,80
@@ -298,19 +252,16 @@ function SeamlessWave({ amp }: { amp: number }) {
         </filter>
       </defs>
 
-      {/* Outer: amplitude scaling (smooth) */}
       <motion.g
         style={{ transformOrigin: "300px 80px" }}
         animate={{ scaleY: amp }}
         transition={{ type: "spring", stiffness: 90, damping: 18, mass: 0.7 }}
       >
-        {/* Inner: continuous scroll */}
         <motion.g
           initial={{ x: 0 }}
           animate={{ x: -200 }}
           transition={{ duration: 2.8, repeat: Infinity, ease: "linear" }}
         >
-          {/* Wide paint area so translation never shows empty */}
           <rect x="0" y="0" width="1000" height="160" fill="url(#waveTileWhite)" opacity="0.9" />
           <rect
             x="0"
