@@ -5,6 +5,8 @@ import { Container } from "../layout/Container";
 import { HeroSystem } from "./HeroSystem";
 import { useScrollState } from ".././motion/useScrollState";
 import HeroParallax from "./HeroParallax";
+import { SystemSignalMini } from "./SystemSignalMini";
+
 
 export function Hero() {
   const scrollState = useScrollState(30);
@@ -85,7 +87,9 @@ export function Hero() {
                   Interactive experiences. Platforms. Data interfaces. AI-enhanced
                   systems.
                 </p>
-                <div className="mt-6 h-24 rounded-xl border border-white/10 bg-white/5" />
+                <div className="mt-6 h-24 rounded-xl border border-white/10 bg-white/5">
+                  <SystemSignalMini />
+                </div>
               </motion.div>
             </div>
           </div>
