@@ -53,7 +53,7 @@ export function SystemSignalMini() {
   const bars = Array.from({ length: 18 });
 
   return (
-    <div className="relative h-24 overflow-hidden rounded-xl border border-white/10 bg-white/5">
+    <div className="relative h-32 overflow-hidden rounded-xl border border-white/10 bg-white/5">
       {/* subtle grid (very faint) */}
       <div
         className="absolute inset-0 opacity-[0.05]"
