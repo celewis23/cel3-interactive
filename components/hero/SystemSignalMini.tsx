@@ -39,12 +39,19 @@ export function SystemSignalMini() {
     return () => clearInterval(t);
   }, [seed]);
 
+  // Latency influences wave amplitude (smooth, not gimmicky)
+  // 26ms..64ms -> amp 0.95..1.22
+  const amp = (() => {
+    const t = (clamp(latency, 26, 64) - 26) / (64 - 26);
+    return 0.95 + t * 0.27;
+  })();
+
   const deployClass =
     deploy === "synced"
-      ? "text-[rgb(var(--accent))]/90"
+      ? "text-[rgb(var(--accent))]/95"
       : deploy === "warming"
-        ? "text-white/75"
-        : "text-white/60";
+        ? "text-white/80"
+        : "text-white/65";
 
   return (
     <div className="relative h-32 overflow-hidden rounded-xl border border-white/10 bg-white/5">
@@ -74,7 +81,7 @@ export function SystemSignalMini() {
       <div className="absolute left-3 top-3 z-20 flex items-center gap-2">
         <motion.span
           className="h-[6px] w-[6px] rounded-full bg-[rgb(var(--accent))]"
-          animate={{ opacity: [0.16, 0.38, 0.16] }}
+          animate={{ opacity: [0.14, 0.34, 0.14] }}
           transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
         />
         <span className="text-[10px] tracking-[0.25em] uppercase text-white/55">
@@ -90,17 +97,30 @@ export function SystemSignalMini() {
             {/* centerline */}
             <div className="absolute left-3 right-3 top-1/2 h-px -translate-y-1/2 bg-white/10" />
 
+            {/* deploy blip (subtle ping on change) */}
+            <motion.div
+              key={deploy}
+              className="absolute inset-0 z-10"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 0.18, 0] }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              style={{
+                background: "rgba(var(--accent), 0.12)",
+                mixBlendMode: "screen",
+              }}
+            />
+
             {/* seamless wave */}
-            <div className="absolute inset-0">
-              <SeamlessWave />
+            <div className="absolute inset-0 z-0">
+              <SeamlessWave amp={amp} />
             </div>
 
             {/* vignette */}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/35 via-transparent to-black/35" />
+            <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-r from-black/35 via-transparent to-black/35" />
 
             {/* faint glow */}
             <div
-              className="pointer-events-none absolute inset-0 opacity-[0.12]"
+              className="pointer-events-none absolute inset-0 z-20 opacity-[0.12]"
               style={{
                 background:
                   "radial-gradient(600px 140px at 35% 55%, rgba(255,255,255,0.18), transparent 60%)",
@@ -111,10 +131,11 @@ export function SystemSignalMini() {
           {/* RIGHT: metrics */}
           <div className="col-span-5 rounded-lg border border-white/10 bg-black/25 px-3 py-2 flex flex-col justify-end">
             <div className="space-y-2 text-[10px] tracking-[0.18em] uppercase">
-              <div className="flex items-center justify-between">
+              {/* LATENCY */}
+              <div className="flex flex-col items-start sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
                 <span className="text-white/45">
-                  <span className="sm:inline hidden">LATENCY</span>
-                  <span className="inline sm:hidden">LAT</span>
+                  <span className="hidden sm:inline">latency</span>
+                  <span className="inline sm:hidden tracking-widest">LAT</span>
                 </span>
                 <motion.span
                   key={latency}
@@ -127,12 +148,12 @@ export function SystemSignalMini() {
                 </motion.span>
               </div>
 
-              <div className="flex items-center justify-between">
+              {/* UPTIME */}
+              <div className="flex flex-col items-start sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
                 <span className="text-white/45">
-                  <span className="sm:inline hidden">UPTIME</span>
-                  <span className="inline sm:hidden">UPT</span>
+                  <span className="hidden sm:inline">uptime</span>
+                  <span className="inline sm:hidden tracking-widest">UPT</span>
                 </span>
-
                 <motion.span
                   key={uptime}
                   initial={{ opacity: 0, y: 2 }}
@@ -144,12 +165,12 @@ export function SystemSignalMini() {
                 </motion.span>
               </div>
 
-              <div className="flex items-center justify-between">
+              {/* DEPLOY */}
+              <div className="flex flex-col items-start sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
                 <span className="text-white/45">
-                  <span className="sm:inline hidden">DEPLOY</span>
-                  <span className="inline sm:hidden">DPL</span>
+                  <span className="hidden sm:inline">deploy</span>
+                  <span className="inline sm:hidden tracking-widest">DPL</span>
                 </span>
-
                 <motion.span
                   key={deploy}
                   initial={{ opacity: 0, y: 2 }}
@@ -173,13 +194,12 @@ export function SystemSignalMini() {
   );
 }
 
-function SeamlessWave() {
+function SeamlessWave({ amp }: { amp: number }) {
   /**
-   * Technique:
-   * - Make a repeatable path segment (one “tile” width)
-   * - Render it as a pattern
-   * - Animate the pattern translation endlessly
-   * Result: no seam, ever.
+   * Seamless loop:
+   * - repeatable tile patterns
+   * - inner group translates exactly one tile width
+   * - outer group scales Y based on latency (amp)
    */
   return (
     <motion.svg
@@ -191,7 +211,6 @@ function SeamlessWave() {
       <defs>
         {/* Repeatable tile width = 200 units */}
         <pattern id="waveTileAccent" patternUnits="userSpaceOnUse" width="200" height="160">
-          {/* This path starts and ends at the same Y = 80, so the tile edges match */}
           <path
             d="M0,80
                C25,80 35,30 60,30
@@ -222,7 +241,6 @@ function SeamlessWave() {
           />
         </pattern>
 
-        {/* Glow filters */}
         <filter id="accentGlow" x="-20%" y="-40%" width="140%" height="180%">
           <feGaussianBlur stdDeviation="2.4" result="blur" />
           <feColorMatrix
@@ -242,23 +260,30 @@ function SeamlessWave() {
         </filter>
       </defs>
 
-      {/* animate the pattern by translating a group */}
+      {/* Outer: amplitude scaling (smooth) */}
       <motion.g
-        initial={{ x: 0 }}
-        animate={{ x: -200 }}
-        transition={{ duration: 2.8, repeat: Infinity, ease: "linear" }}
+        style={{ transformOrigin: "300px 80px" }}
+        animate={{ scaleY: amp }}
+        transition={{ type: "spring", stiffness: 90, damping: 18, mass: 0.7 }}
       >
-        {/* We paint wider than the viewport so translation never exposes empty space */}
-        <rect x="0" y="0" width="1000" height="160" fill="url(#waveTileWhite)" opacity="0.9" />
-        <rect
-          x="0"
-          y="0"
-          width="1000"
-          height="160"
-          fill="url(#waveTileAccent)"
-          filter="url(#accentGlow)"
-          opacity="1"
-        />
+        {/* Inner: continuous scroll */}
+        <motion.g
+          initial={{ x: 0 }}
+          animate={{ x: -200 }}
+          transition={{ duration: 2.8, repeat: Infinity, ease: "linear" }}
+        >
+          {/* Wide paint area so translation never shows empty */}
+          <rect x="0" y="0" width="1000" height="160" fill="url(#waveTileWhite)" opacity="0.9" />
+          <rect
+            x="0"
+            y="0"
+            width="1000"
+            height="160"
+            fill="url(#waveTileAccent)"
+            filter="url(#accentGlow)"
+            opacity="1"
+          />
+        </motion.g>
       </motion.g>
     </motion.svg>
   );
