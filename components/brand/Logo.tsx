@@ -24,7 +24,7 @@ export function Logo({ href = "/" }: LogoProps) {
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="flex items-baseline gap-2 select-none"
       >
-        {/* CEL3 */}
+        {/* CEL */}
         <motion.span
           className="font-semibold text-white text-base tracking-[-0.02em]"
           animate={{
@@ -35,12 +35,26 @@ export function Logo({ href = "/" }: LogoProps) {
           }}
           transition={{ duration: 0.25, ease: "easeOut" }}
         >
-          CEL3
+          CEL
         </motion.span>
 
-        {/* INTERACTIVE — hidden on mobile */}
+        {/* 3 — accent + slightly larger */}
         <motion.span
-          className="hidden sm:inline-block text-white/65 text-xs uppercase tracking-[0.28em]"
+          className="font-semibold text-[1.15em] leading-none text-sky-400"
+          animate={{
+            scale: activated ? 0.96 : 1,
+          }}
+          whileHover={{
+            scale: 1.05,
+          }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+        >
+          3
+        </motion.span>
+
+        {/* INTERACTIVE — now visible on mobile */}
+        <motion.span
+          className="text-white/65 text-[0.65rem] sm:text-xs uppercase tracking-[0.28em]"
           animate={{
             opacity: activated ? 0.55 : 0.65,
           }}
