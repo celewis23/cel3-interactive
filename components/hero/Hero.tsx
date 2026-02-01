@@ -62,14 +62,14 @@ export function Hero() {
               <div className="mt-10 flex items-center gap-4">
                 <a
                   href="#fit"
-                  className="rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm text-white hover:bg-white/10 transition-colors"
+                  className="rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm text-white hover:bg-[rgb(var(--accent))]/10 transition-colors hover:border-[rgb(var(--accent))]"
                 >
                   Let’s See If We’re a Fit
                 </a>
 
                 <a
                   href="#work"
-                  className="text-sm text-white/70 hover:text-white transition-colors"
+                  className="text-sm text-white/70 hover:text-[rgb(var(--accent))] transition-colors"
                 >
                   View Work
                 </a>
