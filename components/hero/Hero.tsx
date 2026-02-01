@@ -3,24 +3,29 @@
 import { motion } from "framer-motion";
 import { Container } from "../layout/Container";
 import { HeroSystem } from "./HeroSystem";
-import { useScrollState } from ".././motion/useScrollState";
+import { useScrollState } from "../motion/useScrollState";
 import HeroParallax from "./HeroParallax";
 import { SystemSignalMini } from "./SystemSignalMini";
-
 
 export function Hero() {
   const scrollState = useScrollState(30);
   const activated = scrollState === "activated";
 
   return (
-    <section id="top" className="relative min-h-[92vh] pt-24 md:pt-28">
-      {/* Keep HeroSystem OUTSIDE any 3D transform to avoid breaking its positioning */}
-      <HeroSystem />
+    <section
+      id="top"
+      className="relative overflow-visible min-h-[92vh] md:min-h-[88vh] lg:min-h-[92vh] pt-24 md:pt-28 pb-16"
+    >
+      {/* Background system layer (kept out of 3D transforms) */}
+      <div className="pointer-events-none absolute inset-0 z-0">
+        <HeroSystem />
+      </div>
 
       <Container>
-        {/* Parallax only affects the foreground content */}
+        {/* Foreground only gets parallax */}
         <HeroParallax className="relative">
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            {/* Left: headline */}
             <div className="lg:col-span-7">
               <motion.h1
                 animate={{
@@ -71,23 +76,26 @@ export function Hero() {
               </div>
             </div>
 
+            {/* Right: system card */}
             <div className="lg:col-span-5">
               <motion.div
                 animate={{
-                  opacity: activated ? 0.85 : 1,
+                  opacity: activated ? 0.9 : 1,
                   y: activated ? 8 : 0,
                 }}
                 transition={{ duration: 0.35, ease: "easeOut" }}
-                className="relative rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur"
+                className="relative w-full max-w-[560px] rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur lg:ml-auto"
               >
                 <p className="text-xs tracking-[0.25em] uppercase text-white/50">
                   System Signal
                 </p>
+
                 <p className="mt-3 text-white/80">
-                  Interactive experiences. Platforms. Data interfaces. AI-enhanced
-                  systems.
+                  Interactive experiences. Platforms. Data interfaces. AI-enhanced systems.
                 </p>
-                <div className="mt-6 h-24 rounded-xl border border-white/10 bg-white/5">
+
+                {/* IMPORTANT: do NOT wrap in h-24, SystemSignalMini already controls its own height */}
+                <div className="mt-6">
                   <SystemSignalMini />
                 </div>
               </motion.div>
