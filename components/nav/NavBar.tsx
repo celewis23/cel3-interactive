@@ -105,7 +105,7 @@ export function NavBar() {
                 <Link
                   key={l.href}
                   href={l.href}
-                  className="text-sm text-white/70 hover:text-sky-400 transition-colors"
+                  className="text-sm text-white/70 hover:text-[rgb(var(--accent))] transition-colors"
                 >
                   {l.label}
                 </Link>
@@ -113,7 +113,7 @@ export function NavBar() {
 
               <Link
                 href="/#fit"
-                className="text-sm text-white border border-white/20 hover:border-sky-400 rounded-full px-4 py-2 transition-colors"
+                className="text-sm text-white border border-white/20 hover:border-[rgb(var(--accent))] rounded-full px-4 py-2 transition-colors"
               >
                 Let’s See If We’re a Fit
               </Link>
