@@ -3,21 +3,65 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --accent: 56 189 248;        /* sky-400 */
+  --accent-strong: 14 165 233; /* sky-500 */
+  --accent-soft: 125 211 252;  /* sky-300 */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
+    --accent: 56 189 248;        /* sky-400 */
+    --accent-strong: 14 165 233; /* sky-500 */
+    --accent-soft: 125 211 252;  /* sky-300 */
   }
 }
+
+@layer components {
+  .accent-link {
+    color: rgb(255 255 255 / 0.7);
+    transition: color 200ms ease;
+  }
+  .accent-link:hover {
+    color: rgb(var(--accent));
+  }
+
+  .accent-pill {
+    border-radius: 9999px;
+    border: 1px solid rgb(var(--accent) / 0.35);
+    background: rgb(var(--accent) / 0.1);
+    box-shadow:
+      0 0 0 1px rgb(var(--accent) / 0.22),
+      0 0 40px rgb(var(--accent) / 0.12);
+  }
+
+  .accent-card {
+    border: 1px solid rgb(255 255 255 / 0.1);
+    transition: border-color 200ms ease;
+  }
+  .accent-card:hover {
+    border-color: rgb(var(--accent) / 0.25);
+  }
+
+  .accent-kicker {
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgb(var(--accent) / 0.8);
+  }
+}
+
 
 body {
   background: var(--background);

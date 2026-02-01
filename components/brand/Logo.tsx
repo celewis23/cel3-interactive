@@ -40,7 +40,7 @@ export function Logo({ href = "/" }: LogoProps) {
 
         {/* 3 — accent + slightly larger */}
         <motion.span
-          className="font-semibold text-[1.15em] leading-none text-sky-400"
+          className="font-semibold text-[1.15em] leading-none text-[rgb(var(--accent))]"
           animate={{
             scale: activated ? 0.96 : 1,
           }}
