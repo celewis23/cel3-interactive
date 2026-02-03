@@ -31,7 +31,7 @@ export default async function WorkPreview() {
         <div>
           <p className="text-xs tracking-[0.25em] uppercase text-white/55">Work</p>
           <h2 className="mt-3 text-3xl md:text-4xl font-semibold tracking-tight">
-            Featured Case Studies
+            Featured Work
           </h2>
           <p className="mt-3 max-w-2xl text-white/70">
             A few recent builds. Full breakdowns live inside each case study.

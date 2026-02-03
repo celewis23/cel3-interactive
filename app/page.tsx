@@ -6,8 +6,10 @@ import { CapabilityMatrix } from "@/components/sections/CapabilityMatrix";
 import WorkPreview from "@/components/sections/WorkPreview";
 import { WhoWeWorkWith } from "@/components/sections/WhoWeWorkWith";
 import { FitCTA } from "@/components/sections/FitCTA";
+import FitSectionClient from "@/components/sections/FitSectionClient";
 import { FitFlow } from "@/components/sections/FitFlow";
 import { Footer } from "@/components/sections/Footer";
+
 
 export default function Page() {
   return (
@@ -20,6 +22,7 @@ export default function Page() {
         <WorkPreview />
         <WhoWeWorkWith />
         <FitCTA />
+        <FitSectionClient />
         <FitFlow />
         <Footer />
       </main>

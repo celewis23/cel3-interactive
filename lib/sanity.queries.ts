@@ -63,4 +63,18 @@ export const featuredWorkQuery = /* groq */ `
   )
 `;
 
+export const allWorkQuery = `
+  *[_type == "project"] | order(featured desc, _createdAt desc) {
+    _id,
+    title,
+    "slug": slug.current,
+    summary,
+    client,
+    industry,
+    featured,
+    heroImage
+  }
+`;
+
+
 

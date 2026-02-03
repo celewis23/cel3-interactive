@@ -1,12 +1,23 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, useId } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
 export type Variant = "respond" | "adapt" | "evolve";
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
+}
+
+/** Deterministic hash -> 0..1 (stable on server + client) */
+function hashToUnit(str: string) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  // 0..1
+  return (h >>> 0) / 4294967295;
 }
 
 /** Smooth random-ish noise that’s stable per index but moves over time */
@@ -28,7 +39,10 @@ export default function MicroViz({
 }) {
   // Some framer-motion typings return boolean | null
   const reduce = !!useReducedMotion();
-  const seed = useMemo(() => Math.random(), []);
+
+  // Stable seed across SSR + client hydration
+  const rid = useId();
+  const seed = useMemo(() => hashToUnit(rid), [rid]);
 
   const [pointer, setPointer] = useState<Pointer>({
     x: 0.5,
@@ -63,7 +77,7 @@ export default function MicroViz({
       ) : variant === "adapt" ? (
         <AdaptViz reduce={reduce} seed={seed} pointer={pointer} />
       ) : (
-        <EvolveViz reduce={reduce} seed={seed} pointer={pointer} />
+        <EvolveViz reduce={reduce} pointer={pointer} />
       )}
 
       {/* soft gloss on hover */}
@@ -98,7 +112,7 @@ function RespondViz({
   const tighten = pointer.inside ? clamp(edge, 0, 1) : 0;
 
   const dots = useMemo(() => {
-    // stable initial positions per seed
+    // stable initial positions
     return Array.from({ length: 10 }).map((_, i) => ({
       i,
       x: 10 + (i * 7) % 70,
@@ -133,23 +147,25 @@ function RespondViz({
           style={{ left: `${tx}%`, top: `${ty}%` }}
         />
 
-        {/* Dots drift toward target, more aggressively on hover */}
+        {/* Dots drift toward target */}
         {dots.map((d) => {
           const n = noise1D(d.i, t, seed);
           const pull = pointer.inside ? 0.12 + tighten * 0.18 : 0.06;
 
-          // pseudo-steer: interpolate toward target, add noise for “alive”
           const x = d.x + (tx - d.x) * pull + n * (pointer.inside ? 1.2 : 0.7);
           const y =
             d.y + (ty - d.y) * pull + noise1D(d.i + 99, t, seed) * 0.9;
+
+          // IMPORTANT: make width/height explicitly strings ("2px") so SSR/client match
+          const sizePx = `${d.r}px`;
 
           return (
             <motion.div
               key={d.i}
               className="absolute rounded-full bg-white/60"
               style={{
-                width: d.r,
-                height: d.r,
+                width: sizePx,
+                height: sizePx,
                 left: `${clamp(x, 4, 96)}%`,
                 top: `${clamp(y, 10, 90)}%`,
                 opacity: d.o,
@@ -162,12 +178,17 @@ function RespondViz({
                       scale: pointer.inside ? 1.08 : 1,
                     }
               }
-              transition={{ type: "spring", stiffness: 220, damping: 20, mass: 0.7 }}
+              transition={{
+                type: "spring",
+                stiffness: 220,
+                damping: 20,
+                mass: 0.7,
+              }}
             />
           );
         })}
 
-        {/* A subtle “vector line” that bends toward target */}
+        {/* Vector line */}
         <svg className="absolute inset-0" viewBox="0 0 100 40" preserveAspectRatio="none">
           <path
             d={`M5,20 C30,${20 + (pointer.y - 0.5) * 10}
@@ -192,7 +213,8 @@ function RespondViz({
       </div>
 
       <div className="mt-3 text-[10px] tracking-[0.22em] uppercase text-white/45">
-        Ack: <span className="text-white/70">{pointer.inside ? "tracking" : "locked"}</span>
+        Ack:{" "}
+        <span className="text-white/70">{pointer.inside ? "tracking" : "locked"}</span>
       </div>
     </div>
   );
@@ -212,12 +234,8 @@ function AdaptViz({
   const [t, setT] = useState(0);
   useRafClock(reduce, setT);
 
-  // Bars: 12 “LED” columns
   const bars = 12;
 
-  // Mouse mapping:
-  // - x controls spread/variation
-  // - y controls gain (lower y = higher gain)
   const gain = pointer.inside ? clamp(0.25 + (1 - pointer.y) * 0.95, 0.2, 1.2) : 0.35;
   const spread = pointer.inside ? clamp(0.15 + pointer.x * 0.65, 0.15, 0.9) : 0.18;
 
@@ -233,64 +251,44 @@ function AdaptViz({
       </div>
 
       <div className="mt-3 relative h-10 rounded-lg border border-white/10 bg-black/25 overflow-hidden">
-        {/* LED equalizer area */}
         <div className="absolute inset-0 px-3 py-2">
           <div className="grid h-full grid-cols-12 gap-[6px] items-end">
             {Array.from({ length: bars }).map((_, i) => {
-              // base noise per bar + time
               const n = noise1D(i, t, seed);
               const n2 = noise1D(i + 50, t * 0.85, seed);
 
-              // level 0..1
               const level = clamp(0.18 + (n * 0.5 + n2 * 0.5) * spread, 0.05, 1);
-
-              // gain increases on hover and with y
               const height = clamp(level * gain, 0.06, 1);
 
-              // Accent bar: one “signature” line in accent color
               const isAccent = i === 7;
 
               return (
                 <motion.div
                   key={i}
-                  className={[
-                    "relative w-full rounded-sm overflow-hidden",
-                    "border border-white/10 bg-white/5",
-                  ].join(" ")}
+                  className="relative w-full rounded-sm overflow-hidden border border-white/10 bg-white/5"
                   style={{ height: "100%" }}
                 >
-                  {/* lit fill */}
                   <motion.div
                     className={[
                       "absolute bottom-0 left-0 right-0",
-                      isAccent
-                        ? "bg-[rgba(var(--accent),0.75)]"
-                        : "bg-white/25",
+                      isAccent ? "bg-[rgba(var(--accent),0.75)]" : "bg-white/25",
                     ].join(" ")}
-                    animate={reduce ? {} : { height: `${height * 100}%`, opacity: pointer.inside ? 0.9 : 0.55 }}
+                    animate={
+                      reduce
+                        ? {}
+                        : {
+                            height: `${height * 100}%`,
+                            opacity: pointer.inside ? 0.9 : 0.55,
+                          }
+                    }
                     transition={{ type: "spring", stiffness: 220, damping: 22, mass: 0.7 }}
                   />
-
-                  {/* subtle shimmer */}
-                  {!reduce && pointer.inside ? (
-                    <motion.div
-                      className="absolute inset-0"
-                      style={{
-                        background:
-                          "linear-gradient(to top, transparent, rgba(255,255,255,0.10), transparent)",
-                        mixBlendMode: "screen",
-                      }}
-                      animate={{ opacity: [0.08, 0.18, 0.08] }}
-                      transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                  ) : null}
                 </motion.div>
               );
             })}
           </div>
         </div>
 
-        {/* A small reflow indicator line */}
         {!reduce ? (
           <motion.div
             className="absolute left-3 right-3 bottom-2 h-[2px] bg-[rgba(var(--accent),0.55)]"
@@ -323,10 +321,8 @@ function EvolveViz({
   pointer,
 }: {
   reduce: boolean;
-  seed: number;
   pointer: Pointer;
 }) {
-  // Pointer controls phase + amp
   const amp = pointer.inside ? 0.7 + (1 - pointer.y) * 0.9 : 0.75;
   const phase = pointer.inside ? pointer.x * 18 : 6;
 
@@ -342,13 +338,14 @@ function EvolveViz({
             animate={reduce ? {} : { opacity: pointer.inside ? [0.25, 0.65, 0.25] : 0.25 }}
             transition={{ duration: 2.6, repeat: pointer.inside ? Infinity : 0, ease: "easeInOut" }}
           />
-          <div className="text-[10px] tracking-[0.22em] uppercase text-white/45">Evolve</div>
+          <div className="text-[10px] tracking-[0.22em] uppercase text-white/45">
+            Evolve
+          </div>
         </div>
       </div>
 
       <div className="mt-3 relative h-10 rounded-lg border border-white/10 bg-black/25 overflow-hidden p-2">
         <svg viewBox="0 0 100 32" className="h-full w-full" preserveAspectRatio="none">
-          {/* base wave */}
           <path
             d={wavePath(amp, phase, 0)}
             fill="none"
@@ -356,7 +353,6 @@ function EvolveViz({
             strokeWidth="2"
             strokeLinecap="round"
           />
-          {/* accent wave */}
           <path
             d={wavePath(amp, phase, 1)}
             fill="none"
@@ -365,8 +361,6 @@ function EvolveViz({
             strokeLinecap="round"
             opacity={pointer.inside ? 0.9 : 0.7}
           />
-
-          {/* accent tracer dot */}
           <circle
             cx={clamp(15 + pointer.x * 70, 10, 90)}
             cy={clamp(16 + (pointer.y - 0.5) * 10, 8, 24)}
@@ -398,14 +392,10 @@ function EvolveViz({
 }
 
 function wavePath(amp: number, phase: number, layer: 0 | 1) {
-  // Build a smooth-ish wave using 4 cubic curves
   const a = 7 * amp + (layer ? 0.6 : 0);
   const p = phase * (layer ? 1.2 : 1);
-
-  // y center = 16
   const y0 = 16;
 
-  // control points shift with phase
   const c1 = y0 - a * Math.sin((p + 0) * 0.15);
   const c2 = y0 + a * Math.sin((p + 4) * 0.15);
   const c3 = y0 - a * Math.sin((p + 8) * 0.15);
