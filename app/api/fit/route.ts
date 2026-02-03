@@ -37,7 +37,7 @@ function getFromAddress() {
   // If you haven't verified your domain in Resend yet, you can temporarily use:
   // "onboarding@resend.dev" (works for testing).
   // Once verified, switch to something like "CEL3 Interactive <no-reply@cel3interactive.com>"
-  return process.env.FIT_FROM_EMAIL?.trim() || "onboarding@resend.dev";
+  return process.env.FIT_FROM_EMAIL?.trim() || "CEL3 Interactive <no-reply@cel3interactive.com>";
 }
 
 export async function POST(req: Request) {
