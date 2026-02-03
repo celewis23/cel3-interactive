@@ -23,7 +23,7 @@ export default function Page() {
         <WhoWeWorkWith />
         <FitCTA />
         <FitSectionClient />
-        <FitFlow />
+        
         <Footer />
       </main>
     </MotionProvider>
