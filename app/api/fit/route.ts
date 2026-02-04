@@ -11,7 +11,7 @@ type FitPayload = {
   timeline: string;
   services: string[];
   message: string;
-  honey?: string; // bot trap
+  honey?: string;
 };
 
 function isEmail(s: string) {
@@ -33,9 +33,6 @@ function safeText(input: string, max = 2000) {
 }
 
 function getFromAddress() {
-  // Verified sender recommended, e.g.:
-  // "CEL3 Interactive <fit@cel3interactive.com>"
-  // For testing you can use: "onboarding@resend.dev"
   return (
     process.env.FIT_FROM_EMAIL?.trim() ||
     "CEL3 Interactive <no-reply@cel3interactive.com>"
@@ -43,13 +40,11 @@ function getFromAddress() {
 }
 
 function getTeamInbox() {
-  // Where YOU receive the notification (your Gmail)
   return process.env.FIT_TO_EMAIL?.trim() || "";
 }
 
 function getReplyInbox() {
-  // Where leads should reply to (could be same as FIT_TO_EMAIL)
-  // Example: "hello@cel3interactive.com" or your Gmail
+  // Where lead replies should go
   return process.env.FIT_REPLY_TO_EMAIL?.trim() || getTeamInbox();
 }
 
@@ -60,62 +55,47 @@ function getStudioLink(docId: string) {
 }
 
 function getSiteUrl(req: Request) {
-  // Prefer explicit site URL if provided
   const explicit = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   if (explicit) return explicit.replace(/\/$/, "");
 
-  // Fallback to request origin
   const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
   const proto = req.headers.get("x-forwarded-proto") || "https";
   if (!host) return "https://www.cel3interactive.com";
   return `${proto}://${host}`.replace(/\/$/, "");
 }
 
+function threadKeyFromSanityId(id: string) {
+  // Short, stable, human-friendly thread key
+  // Example: last 6 chars uppercased
+  const key = id.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase();
+  return key || "FIT";
+}
+
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as FitPayload;
 
-    // Honeypot: if filled, silently accept but do nothing
+    // Honeypot
     if (body.honey && body.honey.trim().length > 0) {
       return NextResponse.json({ ok: true });
     }
 
-    // Basic validation
+    // Validation
     if (!body.name?.trim()) {
-      return NextResponse.json(
-        { ok: false, error: "Name is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ ok: false, error: "Name is required" }, { status: 400 });
     }
-
     if (!body.email?.trim() || !isEmail(body.email)) {
-      return NextResponse.json(
-        { ok: false, error: "Valid email is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ ok: false, error: "Valid email is required" }, { status: 400 });
     }
-
     if (!body.budget?.trim()) {
-      return NextResponse.json(
-        { ok: false, error: "Budget is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ ok: false, error: "Budget is required" }, { status: 400 });
     }
-
     if (!body.timeline?.trim()) {
-      return NextResponse.json(
-        { ok: false, error: "Timeline is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ ok: false, error: "Timeline is required" }, { status: 400 });
     }
-
     if (!Array.isArray(body.services) || body.services.length < 1) {
-      return NextResponse.json(
-        { ok: false, error: "Choose at least 1 service" },
-        { status: 400 }
-      );
+      return NextResponse.json({ ok: false, error: "Choose at least 1 service" }, { status: 400 });
     }
-
     if (!body.message?.trim() || body.message.trim().length < 10) {
       return NextResponse.json(
         { ok: false, error: "Message must be at least 10 characters" },
@@ -123,7 +103,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // Create Sanity document
+    // Create Sanity doc
+    const createdAt = new Date().toISOString();
     const doc = {
       _type: "fitRequest",
       name: body.name.trim(),
@@ -136,32 +117,48 @@ export async function POST(req: Request) {
       message: body.message.trim(),
       source: "website",
       status: "new",
-      createdAt: new Date().toISOString(),
+      createdAt,
     };
 
     const created = await sanityWriteClient.create(doc);
+    const threadKey = threadKeyFromSanityId(created._id);
     const studioLink = getStudioLink(created._id);
 
-    // Email (notifications + auto-ack)
+    // Patch threadKey into Sanity for future workflows
+    await sanityWriteClient
+      .patch(created._id)
+      .set({
+        threadKey,
+        email: {
+          threadKey,
+          createdAt,
+        },
+      })
+      .commit()
+      .catch(() => {});
+
+    // Email
     const RESEND_API_KEY = process.env.RESEND_API_KEY?.trim();
     const TO_TEAM = getTeamInbox();
     const REPLY_INBOX = getReplyInbox();
     const FROM = getFromAddress();
     const SITE_URL = getSiteUrl(req);
 
+    // Subject base (threadable, searchable)
+    const subjectBase = `CEL3 Fit [${threadKey}]`;
+
+    // We’ll record email send outcomes in Sanity
+    let teamEmailSent = false;
+    let leadAckSent = false;
+
     if (RESEND_API_KEY && TO_TEAM) {
       const resend = new Resend(RESEND_API_KEY);
 
-      // ---------------------------
-      // (1) Team notification email
-      // ---------------------------
-      const teamSubject = `New Fit Request: ${safeText(body.name, 80)} • ${safeText(
-        body.budget,
-        40
-      )}`;
+      // 1) Team notification (Reply-To: lead)
+      const teamSubject = `${subjectBase} • ${safeText(body.name, 60)} • ${safeText(body.budget, 20)}`;
 
       const teamText = `
-New Fit Request
+New Fit Request ${subjectBase}
 
 Name: ${body.name}
 Email: ${body.email}
@@ -177,12 +174,15 @@ ${body.message}
 Sanity ID: ${created._id}
 Open in Studio: ${studioLink}
 
-Tip: Hit Reply in Gmail. This email sets Reply-To to the lead.
+Tip: Reply in Gmail (Reply-To is set to the lead).
       `.trim();
 
       const teamHtml = `
         <div style="font-family: ui-sans-serif, system-ui; line-height: 1.55; color: #0b0b0b;">
-          <h2 style="margin:0 0 10px 0;">New Fit Request</h2>
+          <h2 style="margin:0 0 6px 0;">New Fit Request</h2>
+          <div style="font-size:12px; opacity:.7; margin:0 0 14px 0;">
+            Thread: <b>${escapeHtml(subjectBase)}</b>
+          </div>
 
           <div style="margin: 0 0 12px 0;">
             <a href="mailto:${escapeHtml(body.email.trim())}"
@@ -190,7 +190,7 @@ Tip: Hit Reply in Gmail. This email sets Reply-To to the lead.
               Reply to ${escapeHtml(body.name.trim())} →
             </a>
             <span style="margin-left:10px; font-size:12px; opacity:.75;">
-              (Reply-To is set, so Gmail Reply should work too.)
+              (Reply-To is set)
             </span>
           </div>
 
@@ -201,9 +201,7 @@ Tip: Hit Reply in Gmail. This email sets Reply-To to the lead.
             <tr><td style="padding:6px 0; opacity:.7;"><b>Website</b></td><td style="padding:6px 0;">${escapeHtml(body.website || "—")}</td></tr>
             <tr><td style="padding:6px 0; opacity:.7;"><b>Budget</b></td><td style="padding:6px 0;">${escapeHtml(body.budget)}</td></tr>
             <tr><td style="padding:6px 0; opacity:.7;"><b>Timeline</b></td><td style="padding:6px 0;">${escapeHtml(body.timeline)}</td></tr>
-            <tr><td style="padding:6px 0; opacity:.7;"><b>Services</b></td><td style="padding:6px 0;">${body.services
-              .map(escapeHtml)
-              .join(", ")}</td></tr>
+            <tr><td style="padding:6px 0; opacity:.7;"><b>Services</b></td><td style="padding:6px 0;">${body.services.map(escapeHtml).join(", ")}</td></tr>
           </table>
 
           <hr style="margin:16px 0; border:none; border-top:1px solid #e5e5e5;" />
@@ -224,10 +222,8 @@ Tip: Hit Reply in Gmail. This email sets Reply-To to the lead.
         </div>
       `;
 
-      // ---------------------------
-      // (2) Lead auto-ACK email
-      // ---------------------------
-      const leadSubject = `Received: your Fit request to CEL3 Interactive`;
+      // 2) Lead confirmation (Reply-To: your inbox)
+      const leadSubject = `${subjectBase} • Received ✅`;
 
       const leadText = `
 Hey ${body.name},
@@ -248,11 +244,9 @@ ${SITE_URL}
       const leadHtml = `
         <div style="font-family: ui-sans-serif, system-ui; line-height: 1.6; color: #0b0b0b;">
           <h2 style="margin:0 0 8px 0;">Received ✅</h2>
-          <p style="margin:0 0 10px 0;">
-            Hey ${escapeHtml(body.name.trim())},
-          </p>
+          <p style="margin:0 0 10px 0;">Hey ${escapeHtml(body.name.trim())},</p>
           <p style="margin:0 0 14px 0;">
-            Got it. Thanks for sending your Fit request. I’ll review your scope + budget and reply with next steps and a build plan.
+            Got it. I’ll review your scope + budget and reply with next steps and a build plan.
           </p>
 
           <div style="border:1px solid #e7e7e7; border-radius:14px; padding:14px; background:#fafafa;">
@@ -260,8 +254,8 @@ ${SITE_URL}
               What happens next
             </div>
             <ul style="margin:10px 0 0 18px; padding:0;">
-              <li style="margin:6px 0;">I review your scope + budget.</li>
-              <li style="margin:6px 0;">You get a reply with direction + timeline.</li>
+              <li style="margin:6px 0;">Scope + budget review.</li>
+              <li style="margin:6px 0;">Reply with direction + timeline.</li>
               <li style="margin:6px 0;">If it’s a match, we schedule a call.</li>
             </ul>
           </div>
@@ -277,42 +271,66 @@ ${SITE_URL}
       `;
 
       try {
-        // 1) Send team notification (Reply-To lead)
         await resend.emails.send({
           from: FROM,
           to: [TO_TEAM],
-          replyTo: body.email.trim(), // ✅ your "Reply" goes to the lead
+          replyTo: body.email.trim(), // ✅ your Reply goes to the lead
           subject: teamSubject,
           text: teamText,
           html: teamHtml,
           headers: {
             "X-Entity-Ref-ID": created._id,
+            "X-Fit-Thread": threadKey,
           },
         });
 
-        // 2) Send lead confirmation (Reply-To your inbox)
+        teamEmailSent = true;
+
         await resend.emails.send({
           from: FROM,
           to: [body.email.trim()],
-          replyTo: REPLY_INBOX, // ✅ lead replies come to you
+          replyTo: REPLY_INBOX, // ✅ lead replies go to you
           subject: leadSubject,
           text: leadText,
           html: leadHtml,
           headers: {
             "X-Entity-Ref-ID": created._id,
+            "X-Fit-Thread": threadKey,
           },
         });
+
+        leadAckSent = true;
       } catch (emailErr: any) {
-        // Don’t fail the request if email sending fails
         console.error("Fit email send error:", emailErr?.message || emailErr);
       }
     } else {
-      if (!RESEND_API_KEY)
-        console.warn("RESEND_API_KEY missing: Fit email not sent.");
-      if (!TO_TEAM) console.warn("FIT_TO_EMAIL missing: Fit email not sent.");
+      if (!RESEND_API_KEY) console.warn("RESEND_API_KEY missing: Fit emails not sent.");
+      if (!TO_TEAM) console.warn("FIT_TO_EMAIL missing: Fit emails not sent.");
     }
 
-    return NextResponse.json({ ok: true, id: created._id });
+    // Store email workflow state back into Sanity (high leverage)
+    const emailMeta: any = {
+      email: {
+        threadKey,
+        teamEmailSent,
+        leadAckSent,
+        updatedAt: new Date().toISOString(),
+      },
+    };
+
+    // Only set timestamps if they were sent
+    if (teamEmailSent) emailMeta.email.teamSentAt = new Date().toISOString();
+    if (leadAckSent) emailMeta.email.leadAckSentAt = new Date().toISOString();
+
+    await sanityWriteClient.patch(created._id).set(emailMeta).commit().catch(() => {});
+
+    return NextResponse.json({
+      ok: true,
+      id: created._id,
+      threadKey,
+      teamEmailSent,
+      leadAckSent,
+    });
   } catch (err: any) {
     console.error("Fit route error:", err?.message || err);
     return NextResponse.json({ ok: false, error: "Server error" }, { status: 500 });
