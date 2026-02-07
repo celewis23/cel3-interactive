@@ -79,13 +79,20 @@ export default async function WorkIndexPage() {
               Interactive builds, systems, and experiences. Full storytelling breakdowns.
             </p>
           </div>
-
-          <Link
-            href="/#fit"
-            className="hidden md:inline-flex rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 transition-colors"
-          >
-            Start a project →
-          </Link>
+          <div className="flex gap-2">
+            <Link
+                href="/"
+                className="hidden md:inline-flex rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-[rgb(var(--accent))] transition-colors"
+                >
+                Back Home
+            </Link>
+            <Link
+                href="/#fit"
+                className="hidden md:inline-flex rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-[rgb(var(--accent))] transition-colors"
+            >
+                Start a project →
+            </Link>
+          </div>
         </div>
 
         {featured.length ? (
