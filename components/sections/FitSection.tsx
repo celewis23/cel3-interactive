@@ -350,7 +350,7 @@ export default function FitSection() {
                           className={[
                             "rounded-full border px-4 py-2 text-sm transition-colors",
                             selected
-                              ? "border-white/30 bg-white/10 text-white"
+                              ? "border-white/30 bg-white/10 text-[rgb(var(--accent))]"
                               : "border-white/10 bg-white/5 text-white/75 hover:bg-white/10",
                           ].join(" ")}
                         >
@@ -381,7 +381,7 @@ export default function FitSection() {
                     className={[
                       "rounded-full px-6 py-3 text-sm transition-colors",
                       canSubmit
-                        ? "border border-white/25 bg-white/10 text-white hover:bg-white/15"
+                        ? "border border-white/25 bg-white/10 text-white hover:bg-[rgb(var(--accent))]/100"
                         : "border border-white/10 bg-white/5 text-white/40 cursor-not-allowed",
                     ].join(" ")}
                   >

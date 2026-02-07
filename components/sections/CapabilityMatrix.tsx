@@ -66,7 +66,7 @@ export function CapabilityMatrix() {
                 className={[
                   "text-left rounded-2xl border p-5 transition-colors outline-none",
                   active === i.key
-                    ? "border-white/30 bg-white/10"
+                    ? "border-[rgb(var(--accent))]/100 bg-[rgb(var(--accent))]/20"
                     : "border-white/10 bg-white/5 hover:bg-white/8",
                 ].join(" ")}
               >

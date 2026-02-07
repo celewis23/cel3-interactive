@@ -6,10 +6,10 @@ import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 
 const links = [
-  { href: "/#work", label: "Highlights" },
-  { href: "/work", label: "Work" },
-  { href: "/#capabilities", label: "Capabilities" },
   { href: "/#approach", label: "Approach" },
+  { href: "/#capabilities", label: "Capabilities" },
+  { href: "/#work", label: "Highlights" },
+  { href: "/work", label: "Work" },  
 ];
 
 function MenuButton({
@@ -113,7 +113,7 @@ export function NavBar() {
 
               <Link
                 href="/#fit"
-                className="text-sm text-white border border-white/20 hover:border-[rgb(var(--accent))] rounded-full px-4 py-2 transition-colors"
+                className="text-sm text-white border border-white/20 hover:bg-[rgb(var(--accent))]/100 hover:border-[rgb(var(--accent))] rounded-full px-4 py-2 transition-colors"
               >
                 Let’s See If We’re a Fit
               </Link>

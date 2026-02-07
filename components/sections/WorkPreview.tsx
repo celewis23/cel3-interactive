@@ -40,7 +40,7 @@ export default async function WorkPreview() {
 
         <Link
           href="/work"
-          className="hidden md:inline-flex rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 transition-colors"
+          className="hidden md:inline-flex rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-[rgb(var(--accent))]/100 transition-colors"
         >
           View all work →
         </Link>

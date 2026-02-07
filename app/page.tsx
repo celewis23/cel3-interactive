@@ -19,11 +19,10 @@ export default function Page() {
         <Hero />
         <InteractiveByDesign />
         <CapabilityMatrix />
-        <WorkPreview />
-        <WhoWeWorkWith />
         <FitCTA />
+        <WhoWeWorkWith />
+        <WorkPreview />
         <FitSectionClient />
-        
         <Footer />
       </main>
     </MotionProvider>
