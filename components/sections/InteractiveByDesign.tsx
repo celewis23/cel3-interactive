@@ -49,8 +49,8 @@ export default function InteractiveByDesign() {
         <InteractiveCard
           variant="respond"
           eyebrow="Respond"
-          title="Design that reacts to intent"
-          desc="Hover, scroll, and input become signals. The UI acknowledges the user and guides the next move."
+          title="Interfaces that acknowledge intent"
+          desc="Hover, scroll, and input become signals. The system confirms awareness before asking for action."
           footLeft="Intent"
           footRight="Locked"
           isActive={active === "respond"}
@@ -61,8 +61,8 @@ export default function InteractiveByDesign() {
         <InteractiveCard
           variant="adapt"
           eyebrow="Adapt"
-          title="Layouts that reflow intelligently"
-          desc="Components shift like a living grid. Information prioritizes itself as context changes."
+          title="Layouts that adapt in real time"
+          desc="Information reorganizes itself as priorities change — without breaking flow."
           footLeft="Grid"
           footRight="Reflow"
           isActive={active === "adapt"}
@@ -73,8 +73,8 @@ export default function InteractiveByDesign() {
         <InteractiveCard
           variant="evolve"
           eyebrow="Evolve"
-          title="Systems that communicate state"
-          desc="Micro-metrics, health indicators, and quiet motion make complex platforms feel simple."
+          title="Systems that surface state"
+          desc="Quiet signals and live metrics replace dashboards and guesswork."
           footLeft="Status"
           footRight="Stable"
           isActive={active === "evolve"}
