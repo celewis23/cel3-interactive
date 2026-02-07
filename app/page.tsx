@@ -8,7 +8,8 @@ import { WhoWeWorkWith } from "@/components/sections/WhoWeWorkWith";
 import { FitCTA } from "@/components/sections/FitCTA";
 import FitSectionClient from "@/components/sections/FitSectionClient";
 import { FitFlow } from "@/components/sections/FitFlow";
-import { Footer } from "@/components/sections/Footer";
+import  WorkingTogether from "@/components/sections/WorkingTogether";
+import  Footer  from "@/components/sections/Footer";
 
 
 export default function Page() {
@@ -22,6 +23,7 @@ export default function Page() {
         <FitCTA />
         <WhoWeWorkWith />
         <WorkPreview />
+        <WorkingTogether />
         <FitSectionClient />
         <Footer />
       </main>

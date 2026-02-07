@@ -44,8 +44,8 @@ export function WhoWeWorkWith() {
                 className={[
                   "flex-1 rounded-full border px-4 py-2 text-sm transition-colors",
                   mode === "transactional"
-                    ? "border-white/30 bg-white/10 text-white"
-                    : "border-white/10 text-white/70 hover:text-white",
+                    ? "border-[rgb(var(--accent))]/100 bg-[rgb(var(--accent))]/10 text-white"
+                    : "border-white/10 text-white/70 hover:text-white hover:bg-[rgb(var(--accent))]/100",
                 ].join(" ")}
               >
                 Transactional
@@ -56,8 +56,8 @@ export function WhoWeWorkWith() {
                 className={[
                   "flex-1 rounded-full border px-4 py-2 text-sm transition-colors",
                   mode === "strategic"
-                    ? "border-white/30 bg-white/10 text-white"
-                    : "border-white/10 text-white/70 hover:text-white",
+                    ? "border-[rgb(var(--accent))]/100 bg-[rgb(var(--accent))]/10 text-white"
+                    : "border-white/10 text-white/70 hover:text-white hover:bg-[rgb(var(--accent))]/100",
                 ].join(" ")}
               >
                 Strategic

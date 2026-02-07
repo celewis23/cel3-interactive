@@ -68,3 +68,31 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.footer-sweep {
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(var(--accent), 0.55),
+    transparent
+  );
+  animation: footerSweep 2.8s linear infinite;
+}
+
+@keyframes footerSweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(520%);
+  }
+}
+
+@keyframes pillarSweep {
+  0% { transform: translateX(0); opacity: 0; }
+  15% { opacity: .55; }
+  50% { opacity: .75; }
+  85% { opacity: .55; }
+  100% { transform: translateX(520px); opacity: 0; }
+}
+
