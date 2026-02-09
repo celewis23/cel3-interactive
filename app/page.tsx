@@ -30,4 +30,4 @@ export default function Page() {
     </MotionProvider>
   );
 }
-console.log("Sanity Project:", process.env.NEXT_PUBLIC_SANITY_PROJECT_ID);
+

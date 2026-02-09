@@ -27,6 +27,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Google Analytics */}
+        <script
+          src="https://www.googletagmanager.com/gtag/js?id=G-G1FLY7YQQB"
+        />
+        <script
+          id="ga-init"
+        >
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-G1FLY7YQQB', {
+              page_path: window.location.pathname,
+            });
+          `}
+        </script>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-black text-white antialiased`}
       >
