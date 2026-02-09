@@ -2,6 +2,14 @@ import Link from "next/link";
 import { sanityClient } from "@/lib/sanity.client";
 import { urlFor } from "@/lib/sanity.image";
 import { allWorkQuery, featuredWorkQuery } from "@/lib/sanity.queries";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Selected Work & Case Studies | CEL3 Interactive",
+  description:
+    "A selection of custom web applications, interactive platforms, and digital systems built by CEL3 Interactive.",
+};
+
 
 type Item = {
   _id: string;

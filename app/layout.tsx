@@ -16,9 +16,15 @@ const geistMono = Geist_Mono({
 
 
 export const metadata: Metadata = {
-  title: "CEL3 Interactive",
-  description: "Digital Systems Built For A Digital World.",
+  metadataBase: new URL("https://www.cel3interactive.com"),
+  title: {
+    default: "CEL3 Interactive",
+    template: "%s | CEL3 Interactive",
+  },
+  description:
+    "Custom web applications, CRMs, dashboards, and interactive digital experiences.",
 };
+
 
 export default function RootLayout({
   children,
