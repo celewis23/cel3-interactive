@@ -12,14 +12,16 @@ export default async function AssessmentSuccessPage({
 
   if (!session_id) {
     return (
-      <main className="mx-auto max-w-3xl px-6 py-16">
-        <h1 className="text-3xl font-semibold">Payment not found</h1>
-        <p className="mt-3 text-slate-700">
-          We couldn’t confirm your checkout session. Please return to the assessment page and try again.
-        </p>
-        <Link className="mt-6 inline-block underline" href="/assessment">
-          Back to Assessment
-        </Link>
+      <main className="min-h-screen mx-auto max-w-screen px-6 py-16 bg-black text-white">
+        <div className="max-w-3xl mx-auto">
+            <h1 className="text-3xl font-semibold">Payment not found</h1>
+            <p className="mt-3 text-white/50">
+            We couldn’t confirm your checkout session. Please return to the assessment page and try again.
+            </p>
+            <Link className="mt-6 inline-block underline" href="/assessment">
+            Back to Assessment
+            </Link>
+        </div>
       </main>
     );
   }
@@ -32,14 +34,16 @@ export default async function AssessmentSuccessPage({
 
   if (!paid) {
     return (
-      <main className="mx-auto max-w-3xl px-6 py-16">
-        <h1 className="text-3xl font-semibold">Payment not completed</h1>
-        <p className="mt-3 text-slate-700">
-          Your payment wasn’t completed. If this was a mistake, you can try again.
-        </p>
-        <Link className="mt-6 inline-block underline" href="/assessment">
-          Back to Assessment
-        </Link>
+      <main className="mx-auto max-w-screen px-6 py-16 bg-black text-white">
+        <div className="max-w-3xl mx-auto">
+            <h1 className="text-3xl font-semibold">Payment not completed</h1>
+            <p className="mt-3 text-slate-700">
+            Your payment wasn’t completed. If this was a mistake, you can try again.
+            </p>
+            <Link className="mt-6 inline-block underline" href="/assessment">
+            Back to Assessment
+            </Link>
+        </div>
       </main>
     );
   }
@@ -48,7 +52,7 @@ export default async function AssessmentSuccessPage({
     session.customer_details?.email || session.customer_email || "";
 
   return (
-    <main className="min-h-screen bg-white text-slate-900">
+    <main className="min-h-screen bg-black text-white">
       <section className="mx-auto max-w-5xl px-6 py-16">
         <div className="max-w-2xl">
           <h1 className="text-4xl font-semibold tracking-tight">
