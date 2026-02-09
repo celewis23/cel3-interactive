@@ -13,7 +13,7 @@ export async function POST() {
     }
 
     // Fixed-price entry offer
-    const amountInCents = 15000;
+    const amountInCents = 100;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",

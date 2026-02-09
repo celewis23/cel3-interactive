@@ -29,12 +29,12 @@ export default function AssessmentPaymentCard() {
     <div className="rounded-2xl border border-slate-200 p-6 lg:sticky lg:top-6 lg:h-fit">
       <h2 className="text-xl font-semibold">Pay to book your assessment</h2>
 
-      <p className="mt-2 text-slate-700">
+      <p className="mt-2 text-white/50">
         Payment is required before scheduling. This ensures focused sessions and protects time.
       </p>
 
       <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between text-[rgb(var(--accent))]">
           <span className="font-semibold">Digital Systems Assessment</span>
           <span className="text-lg font-semibold">$150</span>
         </div>
@@ -48,12 +48,12 @@ export default function AssessmentPaymentCard() {
       <button
         onClick={startCheckout}
         disabled={loading}
-        className="mt-6 w-full rounded-xl bg-slate-900 px-4 py-2.5 font-semibold text-white disabled:opacity-60"
+        className="mt-6 w-full rounded-xl bg-[rgb(var(--accent))] px-4 py-2.5 font-semibold text-white disabled:opacity-60"
       >
         {loading ? "Redirecting…" : "Pay $150 to Continue"}
       </button>
 
-      <p className="mt-4 text-xs text-slate-500">
+      <p className="mt-4 text-xs text-white/50">
         You can cancel anytime before completing payment.
       </p>
     </div>
