@@ -70,7 +70,6 @@ export default async function AssessmentSuccessPage({
 
             <div className="mt-6">
               <BookingScheduler sessionId={session_id} defaultEmail={customerEmail} />
-              <AssessmentBookingForm defaultEmail={customerEmail} />
             </div>
 
             <p className="mt-6 text-sm text-slate-600">
