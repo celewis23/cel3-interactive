@@ -68,7 +68,10 @@ export async function POST(req: Request) {
     // - Create slot booking doc with deterministic _id (locks the slot)
     // - Create session lock doc with deterministic _id (locks the session)
     // If either already exists, we detect and handle.
-    const nowUtcIso = DateTime.utc().toISO()!;
+        const nowUtcIso = DateTime.utc().toISO()!;
+
+    // Attempt atomic reservation
+    let commitErr: any = null;
 
     try {
       await sanityServer
@@ -93,8 +96,23 @@ export async function POST(req: Request) {
           createdAtUtc: nowUtcIso,
         })
         .commit();
-    } catch {
-      // If transaction fails for any reason, fall through to conflict check
+    } catch (err: any) {
+      commitErr = err;
+      console.error("SANITY_COMMIT_ERROR:", err?.message || err, err);
+    }
+
+    if (commitErr) {
+      // This will show you the real cause in the browser response
+      return NextResponse.json(
+        {
+          ok: false,
+          message:
+            commitErr?.message ||
+            commitErr?.responseBody?.message ||
+            "Sanity transaction failed",
+        },
+        { status: 500 }
+      );
     }
 
     // Fetch booking after transaction
@@ -169,7 +187,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true, bookingId }, { status: 200 });
   } catch (err: any){
-    console.error("BOOKING_ERROR:", err);
+    console.error("BOOKING_ERROR:", err || err, err);
     return NextResponse.json({ ok: false, message: err?.message || "Booking failed. Please try again." }, { status: 500 });
   }
 }
