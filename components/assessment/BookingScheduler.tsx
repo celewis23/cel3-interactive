@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { DateTime } from "luxon";
 
 const TZ = "America/New_York";
 
 type Slot = { startIso: string; endIso: string };
+const router = useRouter();
+const [redirectIn, setRedirectIn] = useState<number | null>(null);
 
 export default function BookingScheduler({
   sessionId,
@@ -85,15 +88,13 @@ export default function BookingScheduler({
   }
 
   if (submitState === "success") {
-    return (
-      <div className="rounded-2xl border border-gray-700 bg-gray-900 p-6">
-        <h3 className="text-xl font-semibold text-white">Booking confirmed ✅</h3>
-        <p className="mt-2 text-gray-300">
-          You’re all set. Check your email for confirmation.
-        </p>
-      </div>
-    );
-  }
+  return (
+    <RedirectSuccess
+      onRedirect={() => router.push("/")}
+    />
+  );
+}
+
 
   return (
     <div className="rounded-2xl border border-gray-700 bg-gray-900 p-6 text-white">
@@ -198,3 +199,44 @@ export default function BookingScheduler({
     </div>
   );
 }
+function RedirectSuccess({ onRedirect }: { onRedirect: () => void }) {
+  const [seconds, setSeconds] = useState(7);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSeconds((s) => s - 1);
+    }, 1000);
+
+    const timeout = setTimeout(() => {
+      onRedirect();
+    }, 7000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [onRedirect]);
+
+  return (
+    <div className="rounded-2xl border border-gray-700 bg-gray-900 p-6 text-white">
+      <h3 className="text-xl font-semibold">Booking confirmed ✅</h3>
+
+      <p className="mt-2 text-gray-300">
+        Thank you for booking! You’re all set. A confirmation email is on the way.
+      </p>
+
+      <p className="mt-4 text-sm text-gray-400">
+        Redirecting to the homepage in{" "}
+        <span className="font-semibold text-white">{seconds}</span> seconds…
+      </p>
+
+      <button
+        onClick={onRedirect}
+        className="mt-6 rounded-xl border border-gray-600 px-4 py-2 text-sm hover:border-white"
+      >
+        Go now
+      </button>
+    </div>
+  );
+}
+
