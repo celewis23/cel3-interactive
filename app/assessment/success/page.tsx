@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { stripe } from "@/lib/stripe";
 import AssessmentBookingForm from "@/components/assessment/AssessmentBookingForm";
-
+import BookingScheduler from "@/components/assessment/BookingScheduler";
 export default async function AssessmentSuccessPage({
   searchParams,
 }: {
@@ -69,6 +69,7 @@ export default async function AssessmentSuccessPage({
             </p>
 
             <div className="mt-6">
+              <BookingScheduler sessionId={session_id} defaultEmail={customerEmail} />
               <AssessmentBookingForm defaultEmail={customerEmail} />
             </div>
 

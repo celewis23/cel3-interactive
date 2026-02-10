@@ -106,7 +106,7 @@ export default function AssessmentPage() {
           </div>
 
           {/* Right: Booking form */}
-          <div className="rounded-2xl border border-slate-200 p-6 lg:sticky lg:top-6 lg:h-fit">
+          <div className="rounded-2xl p-6 lg:sticky lg:top-6 lg:h-fit">
             <h2 className="text-xl font-semibold">Book your assessment</h2>
             <p className="mt-2 text-white/50">
               This is a paid strategy session designed to provide real direction,
