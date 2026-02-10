@@ -20,9 +20,10 @@ type Booking = {
 export default async function AdminBookingsPage({
   searchParams,
 }: {
-  searchParams: { key?: string };
+  searchParams: Promise<{ key?: string }> | { key?: string };
 }) {
-  const key = searchParams?.key || "";
+  const sp = await Promise.resolve(searchParams);
+  const key = sp?.key || "";
   const adminKey = process.env.ADMIN_VIEW_KEY || "";
 
   if (!adminKey || key !== adminKey) {
@@ -30,9 +31,7 @@ export default async function AdminBookingsPage({
       <main className="min-h-screen bg-black px-6 py-12 text-white">
         <div className="mx-auto max-w-3xl rounded-2xl border border-gray-700 bg-gray-900 p-6">
           <h1 className="text-xl font-semibold">Unauthorized</h1>
-          <p className="mt-2 text-gray-300">
-            Missing or invalid key.
-          </p>
+          <p className="mt-2 text-gray-300">Missing or invalid key.</p>
         </div>
       </main>
     );
