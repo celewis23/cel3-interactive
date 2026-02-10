@@ -6,7 +6,8 @@ import { HeroSystem } from "./HeroSystem";
 import { useScrollState } from "../motion/useScrollState";
 import HeroParallax from "./HeroParallax";
 import { SystemSignalMini } from "./SystemSignalMini";
-import HomeSuccessBanner from "@/components/home/HomeSuccessBanner";
+import { Suspense } from "react";
+import HomeSuccessBanner from "@/components/homeSuccess/HomeSuccessBanner";
 
 
 export function Hero() {
@@ -18,7 +19,9 @@ export function Hero() {
       id="top"
       className="relative overflow-visible min-h-[92vh] md:min-h-[88vh] lg:min-h-[92vh] pt-24 md:pt-28 pb-16"
     >
-      <HomeSuccessBanner/>
+      <Suspense fallback={null}>
+        <HomeSuccessBanner/>
+      </Suspense>
       {/* Background system layer (kept out of 3D transforms) */}
       <div className="pointer-events-none absolute inset-0 z-0">
         <HeroSystem />
