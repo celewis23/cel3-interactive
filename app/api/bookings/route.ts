@@ -168,8 +168,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ ok: true, bookingId }, { status: 200 });
-  } catch {
-    return NextResponse.json({ ok: false, message: "Booking failed. Please try again." }, { status: 500 });
+  } catch (err: any){
+    return NextResponse.json({ ok: false, message: err?.message || "Booking failed. Please try again." }, { status: 500 });
   }
 }
 

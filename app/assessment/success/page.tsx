@@ -58,13 +58,13 @@ export default async function AssessmentSuccessPage({
           <h1 className="text-4xl font-semibold tracking-tight">
             Payment confirmed ✅
           </h1>
-          <p className="mt-3 text-lg text-slate-700">
+          <p className="mt-3 text-lg text-white/50">
             Next step: book your Digital Systems Assessment and share a quick overview of what you want to improve.
           </p>
 
           <div className="mt-8 rounded-2xl border border-slate-200 p-6">
             <h2 className="text-xl font-semibold">Book your assessment</h2>
-            <p className="mt-2 text-slate-700">
+            <p className="mt-2 text-white/50">
               This form notifies us and starts scheduling. Your existing fit questions can remain your qualifier.
             </p>
 
@@ -72,7 +72,7 @@ export default async function AssessmentSuccessPage({
               <BookingScheduler sessionId={session_id} defaultEmail={customerEmail} />
             </div>
 
-            <p className="mt-6 text-sm text-slate-600">
+            <p className="mt-6 text-sm text-white/50">
               Fit questions (if needed):{" "}
               <Link className="underline" href="/fit">
                 cel3interactive.com/fit
