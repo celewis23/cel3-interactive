@@ -169,6 +169,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true, bookingId }, { status: 200 });
   } catch (err: any){
+    console.error("BOOKING_ERROR:", err);
     return NextResponse.json({ ok: false, message: err?.message || "Booking failed. Please try again." }, { status: 500 });
   }
 }
