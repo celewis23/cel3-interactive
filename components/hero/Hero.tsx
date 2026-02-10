@@ -61,10 +61,10 @@ export function Hero() {
 
               <div className="mt-10 flex items-center gap-4">
                 <a
-                  href="#fit"
+                  href="#assessment"
                   className="rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm text-white hover:bg-[rgb(var(--accent))]/100 transition-colors hover:border-[rgb(var(--accent))]"
                 >
-                  Let’s See If We’re a Fit
+                  Start With an Assessment
                 </a>
 
                 <a
@@ -74,6 +74,10 @@ export function Hero() {
                   View Work
                 </a>
               </div>
+              <p className="mt-4 max-w-xl text-sm text-gray-300">
+                Pay $150, book your time, and get a clear systems roadmap tailored to your business.
+              </p>
+
             </div>
 
             {/* Right: system card */}
