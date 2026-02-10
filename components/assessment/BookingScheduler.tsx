@@ -90,7 +90,7 @@ export default function BookingScheduler({
   if (submitState === "success") {
   return (
     <RedirectSuccess
-      onRedirect={() => router.push("/")}
+      onRedirect={() => router.push("/?booked=true")}
     />
   );
 }
