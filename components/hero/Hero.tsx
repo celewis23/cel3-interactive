@@ -67,7 +67,7 @@ export function Hero() {
 
               <div className="mt-10 flex items-center gap-4">
                 <a
-                  href="#assessment"
+                  href="/assessment"
                   className="rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm text-white hover:bg-[rgb(var(--accent))]/100 transition-colors hover:border-[rgb(var(--accent))]"
                 >
                   Start With an Assessment

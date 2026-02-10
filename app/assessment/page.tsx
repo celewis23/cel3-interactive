@@ -14,7 +14,8 @@ export default function AssessmentPage() {
     <main className="min-h-screen bg-black text-white">
       <section className="mx-auto max-w-5xl px-6 py-16">
         <div className="space-y-4">
-          <p className="text-sm font-semibold tracking-wide text-white/50">
+          <a href="/" className="text-white/30">← Back to Home</a>
+          <p className="text-sm font-semibold tracking-wide text-[rgb(var(--accent))]">
             A MOMENT OF CLARITY
           </p>
 

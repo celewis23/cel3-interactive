@@ -27,10 +27,10 @@ export default function Footer() {
 
               <div className="mt-5 flex items-center gap-3 text-sm">
                 <Link
-                  href="/#fit"
+                  href="/assessment"
                   className="rounded-full border border-white/20 bg-white/5 px-4 py-2 text-white/85 hover:bg-[rgb(var(--accent))] transition-colors"
                 >
-                  Start a Conversation
+                  Start With an Assessment
                 </Link>
 
                 <Link
