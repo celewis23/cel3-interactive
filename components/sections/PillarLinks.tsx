@@ -22,6 +22,11 @@ const PILLARS: Pillar[] = [
     href: "/interactive-digital-experiences",
     desc: "Marketing and brand experiences that communicate state and intent.",
   },
+    {
+    label: "AI-Enhanced Systems",
+    href: "/ai-enhanced-systems",
+    desc: "Embed intelligence into the systems your business already runs on.",
+  },
 ];
 
 export default function PillarLinks({
