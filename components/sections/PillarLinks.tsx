@@ -14,7 +14,7 @@ const PILLARS: Pillar[] = [
   },
   {
     label: "Custom CRMs & Dashboards",
-    href: "/custom-crm-dashboards",
+    href: "/custom-data-dashboards",
     desc: "Replace spreadsheets with a single source of truth and automation.",
   },
   {
