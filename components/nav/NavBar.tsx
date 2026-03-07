@@ -60,6 +60,16 @@ export function NavBar() {
 
   return (
     <div className="fixed inset-x-0 top-0 z-50">
+      {/* Backdrop (tap to close) — rendered first so it sits below the panel */}
+      {open ? (
+        <button
+          type="button"
+          aria-label="Close menu backdrop"
+          onClick={() => setOpen(false)}
+          className="md:hidden fixed inset-0 top-[72px] bg-black/40"
+        />
+      ) : null}
+
       <div className={headerClass}>
         <Container>
           <div className="flex items-center justify-between py-4">
@@ -205,15 +215,6 @@ export function NavBar() {
         </div>
       </div>
 
-      {/* Backdrop (tap to close) */}
-      {open ? (
-        <button
-          type="button"
-          aria-label="Close menu backdrop"
-          onClick={() => setOpen(false)}
-          className="md:hidden fixed inset-0 top-[72px] bg-black/40"
-        />
-      ) : null}
     </div>
   );
 }

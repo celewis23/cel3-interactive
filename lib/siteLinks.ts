@@ -15,7 +15,7 @@ export const PILLAR_LINKS = [
   },
   {
     label: "Custom CRMs & Dashboards",
-    href: "/custom-crm-dashboards",
+    href: "/custom-data-dashboards",
   },
   {
     label: "Interactive Digital Experiences",
