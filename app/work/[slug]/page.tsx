@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { sanityClient } from "@/lib/sanity.client";
+import { sanityServer } from "@/lib/sanityServer";
 import { workBySlugQuery, workSlugsQuery } from "@/lib/sanity.queries";
 import type { WorkDetail } from "@/lib/types";
 import { urlFor } from "@/lib/sanity.image";
@@ -13,7 +13,7 @@ type PageProps = {
 };
 
 export async function generateStaticParams() {
-  const slugs = await sanityClient.fetch<{ slug: string }[]>(workSlugsQuery);
+  const slugs = await sanityServer.fetch<{ slug: string }[]>(workSlugsQuery);
   return slugs.map((s) => ({ slug: s.slug }));
 }
 
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;          // ✅ unwrap params
   if (!slug) return { title: "Case Study" };
 
-  const data = await sanityClient.fetch<WorkDetail | null>(workBySlugQuery, { slug });
+  const data = await sanityServer.fetch<WorkDetail | null>(workBySlugQuery, { slug });
   if (!data) return { title: "Case Study" };
 
   return {
@@ -34,7 +34,7 @@ export default async function WorkDetailPage({ params }: PageProps) {
   const { slug } = await params;          // ✅ unwrap params
   if (!slug) return notFound();
 
-  const data = await sanityClient.fetch<WorkDetail | null>(workBySlugQuery, { slug });
+  const data = await sanityServer.fetch<WorkDetail | null>(workBySlugQuery, { slug });
   if (!data) return notFound();
 
   const heroUrl = data.heroImage

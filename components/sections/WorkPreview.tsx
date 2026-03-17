@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { sanityClient } from "@/lib/sanity.client";
+import { sanityServer } from "@/lib/sanityServer";
 import { featuredWorkQuery } from "@/lib/sanity.queries";
 import { urlFor } from "@/lib/sanity.image";
 import WorkPreviewClient from "./WorkPreviewClient";
@@ -16,7 +16,7 @@ type Item = {
 };
 
 export default async function WorkPreview() {
-  const raw = await sanityClient.fetch<Item[]>(featuredWorkQuery);
+  const raw = await sanityServer.fetch<Item[]>(featuredWorkQuery);
 
   const items = raw.map((p) => ({
     ...p,

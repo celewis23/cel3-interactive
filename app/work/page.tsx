@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { sanityClient } from "@/lib/sanity.client";
+import { sanityServer } from "@/lib/sanityServer";
 import { urlFor } from "@/lib/sanity.image";
 import { allWorkQuery, featuredWorkQuery } from "@/lib/sanity.queries";
 import { Metadata } from "next";
@@ -71,8 +71,8 @@ function Card({ p }: { p: Item }) {
 }
 
 export default async function WorkIndexPage() {
-  const featured = await sanityClient.fetch<Item[]>(featuredWorkQuery);
-  const all = await sanityClient.fetch<Item[]>(allWorkQuery);
+  const featured = await sanityServer.fetch<Item[]>(featuredWorkQuery);
+  const all = await sanityServer.fetch<Item[]>(allWorkQuery);
 
   return (
     <main className="min-h-screen bg-black text-white">

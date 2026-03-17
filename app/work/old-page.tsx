@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { sanityClient } from "@/lib/sanity.client";
+import { sanityServer } from "@/lib/sanityServer";
 import { workIndexQuery } from "@/lib/sanity.queries";
 import type { WorkCard } from "@/lib/types";
 import { urlFor } from "@/lib/sanity.image";
@@ -8,7 +8,7 @@ import { NavBar } from "@/components/nav/NavBar";
 export const revalidate = 60; // refresh content every 60s
 
 export default async function WorkPage() {
-  const items = await sanityClient.fetch<WorkCard[]>(workIndexQuery);
+  const items = await sanityServer.fetch<WorkCard[]>(workIndexQuery);
 
   return (
     <main className="min-h-screen bg-black text-white">
