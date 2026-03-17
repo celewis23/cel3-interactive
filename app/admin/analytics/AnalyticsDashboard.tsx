@@ -2,26 +2,49 @@
 import { useEffect, useState } from "react";
 import { DateTime } from "luxon";
 
+type Lead = {
+  _id: string;
+  name?: unknown;
+  company?: unknown;
+  budget?: unknown;
+  services?: unknown;
+  createdAt?: unknown;
+};
+
+type Booking = {
+  _id: string;
+  customerName?: unknown;
+  customerEmail?: unknown;
+  startsAtUtc?: unknown;
+  status?: unknown;
+};
+
 type Analytics = {
-  totals: { projects: number; leads: number; bookings: number };
-  recentLeads: Array<{
-    _id: string;
-    name: string;
-    company?: string;
-    budget?: string;
-    services?: string[];
-    createdAt: string;
-  }>;
-  recentBookings: Array<{
-    _id: string;
-    customerName: string;
-    customerEmail: string;
-    startsAtUtc: string;
-    status: string;
-  }>;
+  totals: { projects: unknown; leads: unknown; bookings: unknown };
+  recentLeads: Lead[];
+  recentBookings: Booking[];
   monthlyLeads: Array<{ month: string; count: number }>;
   budgetBreakdown: Record<string, number>;
 };
+
+// Safe coercions — prevents React error #31 (objects as children)
+function str(v: unknown): string {
+  if (v === null || v === undefined) return "";
+  if (typeof v === "string") return v;
+  if (typeof v === "number" || typeof v === "boolean") return String(v);
+  return ""; // drop objects silently
+}
+
+function num(v: unknown): number {
+  if (typeof v === "number") return v;
+  const n = Number(v);
+  return isNaN(n) ? 0 : n;
+}
+
+function safeServices(v: unknown): string[] {
+  if (!Array.isArray(v)) return [];
+  return v.filter((s) => typeof s === "string") as string[];
+}
 
 function StatCard({ label, value, sub }: { label: string; value: number | string; sub?: string }) {
   return (
@@ -44,7 +67,7 @@ function MiniBar({ data }: { data: Array<{ month: string; count: number }> }) {
             className="w-full bg-sky-500/30 rounded-t-sm"
             style={{ height: `${(d.count / max) * 80}px` }}
           />
-          <span className="text-xs text-white/25 rotate-0 truncate w-full text-center">
+          <span className="text-xs text-white/25 truncate w-full text-center">
             {d.month.slice(5)}
           </span>
         </div>
@@ -97,9 +120,9 @@ export default function AnalyticsDashboard() {
     <div className="space-y-8">
       {/* Totals */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard label="Case Studies" value={data.totals.projects} sub="published" />
-        <StatCard label="Fit Requests" value={data.totals.leads} sub="total leads" />
-        <StatCard label="Assessments Booked" value={data.totals.bookings} sub="confirmed" />
+        <StatCard label="Case Studies" value={num(data.totals.projects)} sub="published" />
+        <StatCard label="Fit Requests" value={num(data.totals.leads)} sub="total leads" />
+        <StatCard label="Assessments Booked" value={num(data.totals.bookings)} sub="confirmed" />
       </div>
 
       {/* Monthly leads chart */}
@@ -111,7 +134,7 @@ export default function AnalyticsDashboard() {
       </div>
 
       {/* Budget breakdown */}
-      {Object.keys(data.budgetBreakdown).length > 0 && (
+      {Object.keys(data.budgetBreakdown ?? {}).length > 0 && (
         <div className="bg-white/3 border border-white/8 rounded-2xl p-5">
           <h2 className="text-sm font-semibold text-white/60 uppercase tracking-widest mb-4">Budget Ranges</h2>
           <div className="flex flex-wrap gap-2">
@@ -128,31 +151,35 @@ export default function AnalyticsDashboard() {
         {/* Recent Leads */}
         <div className="bg-white/3 border border-white/8 rounded-2xl p-5">
           <h2 className="text-sm font-semibold text-white/60 uppercase tracking-widest mb-4">Recent Fit Requests</h2>
-          {data.recentLeads.length === 0 ? (
+          {(data.recentLeads ?? []).length === 0 ? (
             <p className="text-sm text-white/25">No leads yet</p>
           ) : (
             <ul className="space-y-3">
-              {data.recentLeads.map((l) => (
-                <li key={l._id} className="flex flex-col gap-0.5 py-2 border-b border-white/5 last:border-0">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-white">{l.name}</span>
-                    <span className="text-xs text-white/30">
-                      {DateTime.fromISO(l.createdAt).toRelative()}
-                    </span>
-                  </div>
-                  {l.company && <span className="text-xs text-white/40">{l.company}</span>}
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {l.budget && (
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${budgetColors[l.budget] || "bg-white/10 text-white/50"}`}>
-                        {l.budget}
-                      </span>
-                    )}
-                    {(l.services || []).map((s) => (
-                      <span key={s} className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/40">{s}</span>
-                    ))}
-                  </div>
-                </li>
-              ))}
+              {(data.recentLeads ?? []).map((l) => {
+                const createdStr = str(l.createdAt);
+                const relTime = createdStr ? DateTime.fromISO(createdStr).toRelative() : null;
+                const services = safeServices(l.services);
+                const budget = str(l.budget);
+                return (
+                  <li key={l._id} className="flex flex-col gap-0.5 py-2 border-b border-white/5 last:border-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-white">{str(l.name)}</span>
+                      {relTime && <span className="text-xs text-white/30">{relTime}</span>}
+                    </div>
+                    {str(l.company) && <span className="text-xs text-white/40">{str(l.company)}</span>}
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {budget && (
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${budgetColors[budget] || "bg-white/10 text-white/50"}`}>
+                          {budget}
+                        </span>
+                      )}
+                      {services.map((s) => (
+                        <span key={s} className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/40">{s}</span>
+                      ))}
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
@@ -160,24 +187,29 @@ export default function AnalyticsDashboard() {
         {/* Recent Bookings */}
         <div className="bg-white/3 border border-white/8 rounded-2xl p-5">
           <h2 className="text-sm font-semibold text-white/60 uppercase tracking-widest mb-4">Recent Assessments</h2>
-          {data.recentBookings.length === 0 ? (
+          {(data.recentBookings ?? []).length === 0 ? (
             <p className="text-sm text-white/25">No bookings yet</p>
           ) : (
             <ul className="space-y-3">
-              {data.recentBookings.map((b) => (
-                <li key={b._id} className="flex flex-col gap-0.5 py-2 border-b border-white/5 last:border-0">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-white">{b.customerName}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      b.status === "CONFIRMED" ? "bg-green-500/15 text-green-400" : "bg-red-500/15 text-red-400"
-                    }`}>{b.status}</span>
-                  </div>
-                  <span className="text-xs text-white/40">{b.customerEmail}</span>
-                  <span className="text-xs text-white/30">
-                    {DateTime.fromISO(b.startsAtUtc, { zone: "utc" }).setZone("America/New_York").toFormat("ccc, LLL d 'at' h:mm a")} ET
-                  </span>
-                </li>
-              ))}
+              {(data.recentBookings ?? []).map((b) => {
+                const startsAt = str(b.startsAtUtc);
+                const formatted = startsAt
+                  ? DateTime.fromISO(startsAt, { zone: "utc" }).setZone("America/New_York").toFormat("ccc, LLL d 'at' h:mm a")
+                  : "";
+                const status = str(b.status);
+                return (
+                  <li key={b._id} className="flex flex-col gap-0.5 py-2 border-b border-white/5 last:border-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-white">{str(b.customerName)}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        status === "CONFIRMED" ? "bg-green-500/15 text-green-400" : "bg-red-500/15 text-red-400"
+                      }`}>{status}</span>
+                    </div>
+                    {str(b.customerEmail) && <span className="text-xs text-white/40">{str(b.customerEmail)}</span>}
+                    {formatted && <span className="text-xs text-white/30">{formatted} ET</span>}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

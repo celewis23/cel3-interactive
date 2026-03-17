@@ -1,5 +1,7 @@
 import { sanityServer } from "@/lib/sanityServer";
 import { DateTime } from "luxon";
+import { cookies } from "next/headers";
+import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,7 +28,14 @@ export default async function AdminBookingsPage({
   const key = sp?.key || "";
   const adminKey = process.env.ADMIN_VIEW_KEY || "";
 
-  if (!adminKey || key !== adminKey) {
+  // Accept either the legacy key param OR an active admin session cookie
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get(COOKIE_NAME)?.value;
+  const session = sessionToken ? verifySessionToken(sessionToken) : null;
+  const hasValidSession = session?.step === "full";
+  const hasValidKey = adminKey && key === adminKey;
+
+  if (!hasValidSession && !hasValidKey) {
     return (
       <main className="min-h-screen bg-black px-6 py-12 text-white">
         <div className="mx-auto max-w-3xl rounded-2xl border border-gray-700 bg-gray-900 p-6">
