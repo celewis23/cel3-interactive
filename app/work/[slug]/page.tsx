@@ -6,6 +6,7 @@ import type { WorkDetail } from "@/lib/types";
 import { urlFor } from "@/lib/sanity.image";
 import { getWorkGalleryFallback, getWorkHeroFallback } from "@/lib/workFallbacks";
 import { Portable } from "@/components/sanity/Portable";
+import CaseStudyGallery from "@/components/work/CaseStudyGallery";
 
 export const revalidate = 60;
 
@@ -88,19 +89,16 @@ export default async function WorkDetailPage({ params }: PageProps) {
                 </span>
               ) : null}
             </div>
+
+            <CaseStudyGallery
+              title={data.title}
+              previewImage={heroUrl}
+              galleryImages={galleryItems}
+            />
           </div>
 
           <div className="lg:col-span-5">
             <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
-              <div className="aspect-[16/10] bg-black/40">
-                {heroUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={heroUrl} alt={data.title} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="h-full w-full" />
-                )}
-              </div>
-
               <div className="p-5">
                 {data.results?.length ? (
                   <>
@@ -159,27 +157,6 @@ export default async function WorkDetailPage({ params }: PageProps) {
           {/* Gallery */}
           <div className="lg:col-span-4">
             <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <div className="text-xs tracking-[0.25em] uppercase text-white/55">
-                Gallery
-              </div>
-
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                {galleryItems.slice(0, 6).map((url, i) => {
-                  return (
-                    <div key={i} className="overflow-hidden rounded-xl border border-white/10 bg-black/40">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={url} alt={`${data.title} ${i + 1}`} className="h-full w-full object-cover" />
-                    </div>
-                  );
-                })}
-
-                {!galleryItems.length ? (
-                  <div className="col-span-2 text-sm text-white/60">
-                    Add gallery images in Sanity to show key screens.
-                  </div>
-                ) : null}
-              </div>
-
               <div className="mt-6 rounded-xl border border-white/10 bg-black/30 p-4">
                 <div className="text-sm text-white/80">Want something like this?</div>
                 <p className="mt-2 text-sm text-white/60">
