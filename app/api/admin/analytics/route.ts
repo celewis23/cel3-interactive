@@ -21,17 +21,16 @@ export async function GET(req: NextRequest) {
     sanityServer.fetch<number>(`count(*[_type == "fitRequest"])`),
     // Total bookings (confirmed)
     sanityServer.fetch<number>(`count(*[_type == "assessmentBooking" && status == "CONFIRMED"])`),
-    // Recent leads (last 10)
+    // Recent leads (last 10) — note: email field is an object in Sanity (tracking data), excluded here
     sanityServer.fetch<Array<{
       _id: string;
       name: string;
-      email: string;
       company?: string;
       budget?: string;
       services?: string[];
       createdAt: string;
     }>>(`*[_type == "fitRequest"] | order(createdAt desc)[0...10]{
-      _id, name, email, company, budget, services, createdAt
+      _id, name, company, budget, services, createdAt
     }`),
     // Recent bookings (last 10)
     sanityServer.fetch<Array<{

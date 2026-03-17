@@ -7,7 +7,6 @@ type Analytics = {
   recentLeads: Array<{
     _id: string;
     name: string;
-    email: string;
     company?: string;
     budget?: string;
     services?: string[];
@@ -141,7 +140,7 @@ export default function AnalyticsDashboard() {
                       {DateTime.fromISO(l.createdAt).toRelative()}
                     </span>
                   </div>
-                  <span className="text-xs text-white/40">{l.email}{l.company ? ` · ${l.company}` : ""}</span>
+                  {l.company && <span className="text-xs text-white/40">{l.company}</span>}
                   <div className="flex flex-wrap gap-1 mt-1">
                     {l.budget && (
                       <span className={`text-xs px-2 py-0.5 rounded-full ${budgetColors[l.budget] || "bg-white/10 text-white/50"}`}>
