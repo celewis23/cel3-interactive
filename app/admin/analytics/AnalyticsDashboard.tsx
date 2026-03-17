@@ -61,9 +61,16 @@ export default function AnalyticsDashboard() {
 
   useEffect(() => {
     fetch("/api/admin/analytics")
-      .then((r) => r.json())
-      .then((d) => { setData(d); setLoading(false); })
-      .catch(() => { setError("Failed to load analytics"); setLoading(false); });
+      .then((r) => {
+        if (!r.ok) throw new Error(`API error ${r.status}`);
+        return r.json();
+      })
+      .then((d) => {
+        if (!d?.totals) throw new Error("Unexpected response shape");
+        setData(d);
+        setLoading(false);
+      })
+      .catch((e) => { setError(e.message || "Failed to load analytics"); setLoading(false); });
   }, []);
 
   if (loading) {
@@ -101,7 +108,7 @@ export default function AnalyticsDashboard() {
         <h2 className="text-sm font-semibold text-white/60 uppercase tracking-widest mb-4">
           Leads — Last 6 Months
         </h2>
-        <MiniBar data={data.monthlyLeads} />
+        <MiniBar data={data.monthlyLeads ?? []} />
       </div>
 
       {/* Budget breakdown */}
