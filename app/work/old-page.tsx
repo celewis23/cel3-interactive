@@ -3,6 +3,7 @@ import { sanityServer } from "@/lib/sanityServer";
 import { workIndexQuery } from "@/lib/sanity.queries";
 import type { WorkCard } from "@/lib/types";
 import { urlFor } from "@/lib/sanity.image";
+import { getWorkHeroFallback } from "@/lib/workFallbacks";
 import { NavBar } from "@/components/nav/NavBar";
 
 export const revalidate = 60; // refresh content every 60s
@@ -36,7 +37,7 @@ export default async function WorkPage() {
           {items.map((p) => {
             const img = p.heroImage
               ? urlFor(p.heroImage).width(1200).height(800).fit("crop").url()
-              : null;
+              : getWorkHeroFallback(p.slug);
 
             return (
               <Link

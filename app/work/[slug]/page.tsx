@@ -4,6 +4,7 @@ import { sanityServer } from "@/lib/sanityServer";
 import { workBySlugQuery, workSlugsQuery } from "@/lib/sanity.queries";
 import type { WorkDetail } from "@/lib/types";
 import { urlFor } from "@/lib/sanity.image";
+import { getWorkGalleryFallback, getWorkHeroFallback } from "@/lib/workFallbacks";
 import { Portable } from "@/components/sanity/Portable";
 
 export const revalidate = 60;
@@ -39,7 +40,11 @@ export default async function WorkDetailPage({ params }: PageProps) {
 
   const heroUrl = data.heroImage
     ? urlFor(data.heroImage).width(1600).height(1000).fit("crop").url()
-    : null;
+    : getWorkHeroFallback(data.slug);
+
+  const galleryItems = data.gallery?.length
+    ? data.gallery.map((img) => urlFor(img).width(800).height(600).fit("crop").url())
+    : getWorkGalleryFallback(data.slug);
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -159,8 +164,7 @@ export default async function WorkDetailPage({ params }: PageProps) {
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3">
-                {(data.gallery ?? []).slice(0, 6).map((img, i) => {
-                  const url = urlFor(img).width(800).height(600).fit("crop").url();
+                {galleryItems.slice(0, 6).map((url, i) => {
                   return (
                     <div key={i} className="overflow-hidden rounded-xl border border-white/10 bg-black/40">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -169,7 +173,7 @@ export default async function WorkDetailPage({ params }: PageProps) {
                   );
                 })}
 
-                {!data.gallery?.length ? (
+                {!galleryItems.length ? (
                   <div className="col-span-2 text-sm text-white/60">
                     Add gallery images in Sanity to show key screens.
                   </div>

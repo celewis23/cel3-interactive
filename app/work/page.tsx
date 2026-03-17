@@ -2,6 +2,7 @@ import Link from "next/link";
 import { sanityServer } from "@/lib/sanityServer";
 import { urlFor } from "@/lib/sanity.image";
 import { allWorkQuery, featuredWorkQuery } from "@/lib/sanity.queries";
+import { getWorkHeroFallback } from "@/lib/workFallbacks";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -27,7 +28,7 @@ export const revalidate = 60;
 function Card({ p }: { p: Item }) {
   const img = p.heroImage
     ? urlFor(p.heroImage).width(1400).height(900).fit("crop").url()
-    : null;
+    : getWorkHeroFallback(p.slug);
 
   return (
     <Link

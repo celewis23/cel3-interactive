@@ -2,6 +2,7 @@ import Link from "next/link";
 import { sanityServer } from "@/lib/sanityServer";
 import { featuredWorkQuery } from "@/lib/sanity.queries";
 import { urlFor } from "@/lib/sanity.image";
+import { getWorkHeroFallback } from "@/lib/workFallbacks";
 import WorkPreviewClient from "./WorkPreviewClient";
 
 type Item = {
@@ -22,7 +23,7 @@ export default async function WorkPreview() {
     ...p,
     heroUrl: p.heroImage
       ? urlFor(p.heroImage).width(1400).height(900).fit("crop").url()
-      : null,
+      : getWorkHeroFallback(p.slug),
   }));
 
   return (
