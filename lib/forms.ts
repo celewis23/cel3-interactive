@@ -1,6 +1,6 @@
 export type FieldType =
   | "text" | "textarea" | "number" | "email" | "phone" | "date"
-  | "dropdown" | "checkbox" | "radio" | "file_upload" | "section_header";
+  | "dropdown" | "checkbox" | "radio" | "file_upload" | "section_header" | "slider";
 
 export const FIELD_TYPE_LABELS: Record<FieldType, string> = {
   text: "Short Text",
@@ -14,6 +14,7 @@ export const FIELD_TYPE_LABELS: Record<FieldType, string> = {
   radio: "Multiple Choice",
   file_upload: "File Upload",
   section_header: "Section Header",
+  slider: "Slider / Scale",
 };
 
 export type ConditionalOperator = "equals" | "not_equals" | "is_empty" | "is_not_empty";
@@ -42,6 +43,13 @@ export type FormField = {
   maxFileSizeMb: number;
   sortOrder: number;
   conditionalLogic?: ConditionalLogic;
+  // Slider-specific config
+  sliderMin?: number;
+  sliderMax?: number;
+  sliderStep?: number;
+  sliderUnit?: string;      // e.g. "stars", "/10", "pts"
+  sliderMinLabel?: string;  // left end label, e.g. "Not at all"
+  sliderMaxLabel?: string;  // right end label, e.g. "Absolutely"
 };
 
 export type Cel3Form = {
@@ -134,5 +142,11 @@ export function makeField(sortOrder = 0): FormField {
     acceptedFileTypes: "image/*,audio/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip",
     maxFileSizeMb: 10,
     sortOrder,
+    sliderMin: 1,
+    sliderMax: 10,
+    sliderStep: 1,
+    sliderUnit: "",
+    sliderMinLabel: "",
+    sliderMaxLabel: "",
   };
 }

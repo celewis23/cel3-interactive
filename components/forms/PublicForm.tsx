@@ -315,6 +315,42 @@ function FieldRenderer({
     );
   }
 
+  if (field.fieldType === "slider") {
+    const min = field.sliderMin ?? 1;
+    const max = field.sliderMax ?? 10;
+    const step = field.sliderStep ?? 1;
+    const unit = field.sliderUnit ? ` ${field.sliderUnit}` : "";
+    const current = answer !== undefined ? Number(answer) : Math.round(((min + max) / 2) / step) * step;
+    return (
+      <div>
+        <label className={CLS_LABEL}>{field.label}{required}</label>
+        <div className="space-y-2 py-1">
+          <div className="flex items-center gap-4">
+            <input
+              type="range"
+              min={min}
+              max={max}
+              step={step}
+              value={current}
+              onChange={e => onAnswer(field.id, e.target.value)}
+              className="flex-1 accent-sky-400 cursor-pointer"
+            />
+            <span className="text-base font-semibold text-sky-400 tabular-nums w-20 text-right shrink-0">
+              {current}{unit}
+            </span>
+          </div>
+          {(field.sliderMinLabel || field.sliderMaxLabel) && (
+            <div className="flex justify-between text-xs text-white/30 px-0.5">
+              <span>{field.sliderMinLabel || min}</span>
+              <span>{field.sliderMaxLabel || max}</span>
+            </div>
+          )}
+        </div>
+        {field.helpText && <p className={CLS_HELP}>{field.helpText}</p>}
+      </div>
+    );
+  }
+
   // Default: text-like inputs
   const inputType: Record<string, string> = {
     number: "number", email: "email", phone: "tel", date: "date",

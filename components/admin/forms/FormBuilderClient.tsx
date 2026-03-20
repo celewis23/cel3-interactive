@@ -15,7 +15,7 @@ const CLS_BTN_DANGER = "px-4 py-1.5 rounded-lg border border-red-500/30 hover:bo
 
 const ALL_FIELD_TYPES: FieldType[] = [
   "text","textarea","number","email","phone","date",
-  "dropdown","checkbox","radio","file_upload","section_header",
+  "dropdown","checkbox","radio","slider","file_upload","section_header",
 ];
 const HAS_OPTIONS: FieldType[] = ["dropdown","checkbox","radio"];
 const HAS_FILE_CFG: FieldType[] = ["file_upload"];
@@ -34,6 +34,36 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
     >
       <span className={`absolute top-1 left-1 h-4 w-4 rounded-full bg-white shadow transition-transform ${value ? "translate-x-5" : "translate-x-0"}`} />
     </button>
+  );
+}
+
+// ─── SliderPreview ─────────────────────────────────────────────────────────────
+function SliderPreview({ field }: { field: FormField }) {
+  const min = field.sliderMin ?? 1;
+  const max = field.sliderMax ?? 10;
+  const step = field.sliderStep ?? 1;
+  const mid = Math.round(((min + max) / 2) / step) * step;
+  const [val, setVal] = useState(mid);
+  const unit = field.sliderUnit ? ` ${field.sliderUnit}` : "";
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-3">
+        <input
+          type="range" min={min} max={max} step={step} value={val}
+          onChange={e => setVal(Number(e.target.value))}
+          className="flex-1 accent-sky-400"
+        />
+        <span className="text-sm font-semibold text-sky-400 tabular-nums w-16 text-right shrink-0">
+          {val}{unit}
+        </span>
+      </div>
+      {(field.sliderMinLabel || field.sliderMaxLabel) && (
+        <div className="flex justify-between text-xs text-white/30">
+          <span>{field.sliderMinLabel || min}</span>
+          <span>{field.sliderMaxLabel || max}</span>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -59,6 +89,7 @@ function FieldCard({
   const isHeader = field.fieldType === "section_header";
   const hasOpts = HAS_OPTIONS.includes(field.fieldType);
   const isFile = HAS_FILE_CFG.includes(field.fieldType);
+  const isSlider = field.fieldType === "slider";
   const optionsText = (field.options || []).join("\n");
 
   // Conditional logic helpers
@@ -143,7 +174,7 @@ function FieldCard({
 
           {!isHeader && (
             <>
-              {!isFile && (
+              {!isFile && !isSlider && (
                 <div>
                   <label className={CLS_LABEL}>Placeholder</label>
                   <input
@@ -201,6 +232,77 @@ function FieldCard({
                       onChange={e => onUpdate({ maxFileSizeMb: Number(e.target.value) })}
                       className={CLS_INPUT}
                     />
+                  </div>
+                </div>
+              )}
+
+              {/* ── Slider config ── */}
+              {isSlider && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className={CLS_LABEL}>Min</label>
+                      <input
+                        type="number"
+                        value={field.sliderMin ?? 1}
+                        onChange={e => onUpdate({ sliderMin: Number(e.target.value) })}
+                        className={CLS_INPUT}
+                      />
+                    </div>
+                    <div>
+                      <label className={CLS_LABEL}>Max</label>
+                      <input
+                        type="number"
+                        value={field.sliderMax ?? 10}
+                        onChange={e => onUpdate({ sliderMax: Number(e.target.value) })}
+                        className={CLS_INPUT}
+                      />
+                    </div>
+                    <div>
+                      <label className={CLS_LABEL}>Step</label>
+                      <input
+                        type="number"
+                        value={field.sliderStep ?? 1}
+                        min={0.1}
+                        step={0.1}
+                        onChange={e => onUpdate({ sliderStep: Number(e.target.value) })}
+                        className={CLS_INPUT}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className={CLS_LABEL}>Unit / Suffix (optional)</label>
+                    <input
+                      value={field.sliderUnit || ""}
+                      onChange={e => onUpdate({ sliderUnit: e.target.value })}
+                      placeholder='e.g.  "stars"  "/5"  "pts"'
+                      className={CLS_INPUT}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className={CLS_LABEL}>Left label (optional)</label>
+                      <input
+                        value={field.sliderMinLabel || ""}
+                        onChange={e => onUpdate({ sliderMinLabel: e.target.value })}
+                        placeholder='e.g. "Not at all"'
+                        className={CLS_INPUT}
+                      />
+                    </div>
+                    <div>
+                      <label className={CLS_LABEL}>Right label (optional)</label>
+                      <input
+                        value={field.sliderMaxLabel || ""}
+                        onChange={e => onUpdate({ sliderMaxLabel: e.target.value })}
+                        placeholder='e.g. "Absolutely"'
+                        className={CLS_INPUT}
+                      />
+                    </div>
+                  </div>
+                  {/* Live preview */}
+                  <div className="bg-white/3 rounded-xl px-4 py-3">
+                    <p className="text-xs text-white/30 mb-3 uppercase tracking-wide">Preview</p>
+                    <SliderPreview field={field} />
                   </div>
                 </div>
               )}
