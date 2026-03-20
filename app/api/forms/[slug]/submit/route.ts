@@ -3,7 +3,7 @@ import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { Resend } from "resend";
 import { buildNotificationEmail } from "@/lib/forms/email";
-import { FormField } from "@/lib/forms";
+import { FormField, isFieldVisible } from "@/lib/forms";
 
 export const runtime = "nodejs";
 
@@ -59,8 +59,24 @@ export async function POST(
   const files: Record<string, string[]> = {};
   const errors: string[] = [];
 
+  // First pass: collect all submitted text answers so conditional logic
+  // can be evaluated before we validate required fields.
+  const submittedAnswers: Record<string, string | string[]> = {};
+  for (const field of fields) {
+    if (field.fieldType === "section_header" || field.fieldType === "file_upload") continue;
+    if (field.fieldType === "checkbox") {
+      const vals = formData.getAll(field.id) as string[];
+      if (vals.length > 0) submittedAnswers[field.id] = vals;
+    } else {
+      const val = String(formData.get(field.id) ?? "").trim();
+      if (val) submittedAnswers[field.id] = val;
+    }
+  }
+
   for (const field of fields) {
     if (field.fieldType === "section_header") continue;
+    // Skip fields hidden by conditional logic — never validate or store them
+    if (!isFieldVisible(field, submittedAnswers)) continue;
 
     if (field.fieldType === "file_upload") {
       const uploaded = formData.getAll(field.id) as File[];

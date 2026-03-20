@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef } from "react";
-import { Cel3Form, FormField } from "@/lib/forms";
+import { Cel3Form, FormField, isFieldVisible } from "@/lib/forms";
 
 const CLS_INPUT = "w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors";
 const CLS_LABEL = "block text-sm font-medium text-white mb-1.5";
@@ -32,9 +32,14 @@ export default function PublicForm({ form }: { form: Cel3Form }) {
     e.preventDefault();
     setError("");
 
-    // Client-side required validation
-    const fields = (form.fields || []).filter(f => f.fieldType !== "section_header");
-    for (const field of fields) {
+    const allFields = form.fields || [];
+    // Only process fields that are currently visible given the current answers
+    const visibleFields = allFields.filter(
+      f => f.fieldType !== "section_header" && isFieldVisible(f, answers)
+    );
+
+    // Client-side required validation — only for visible fields
+    for (const field of visibleFields) {
       if (!field.isRequired) continue;
       if (field.fieldType === "file_upload") {
         const fl = files[field.id];
@@ -60,8 +65,8 @@ export default function PublicForm({ form }: { form: Cel3Form }) {
     setSubmitting(true);
     try {
       const fd = new FormData();
-      // Append text answers
-      for (const field of fields) {
+      // Only append answers for visible fields — hidden fields are intentionally excluded
+      for (const field of visibleFields) {
         if (field.fieldType === "file_upload") continue;
         const val = answers[field.id];
         if (Array.isArray(val)) {
@@ -70,8 +75,8 @@ export default function PublicForm({ form }: { form: Cel3Form }) {
           fd.append(field.id, String(val));
         }
       }
-      // Append files
-      for (const field of fields.filter(f => f.fieldType === "file_upload")) {
+      // Append files for visible file-upload fields only
+      for (const field of visibleFields.filter(f => f.fieldType === "file_upload")) {
         const fl = files[field.id];
         if (fl) {
           for (let i = 0; i < fl.length; i++) {
@@ -121,7 +126,7 @@ export default function PublicForm({ form }: { form: Cel3Form }) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {(form.fields || []).map(field => (
+          {(form.fields || []).filter(field => isFieldVisible(field, answers)).map(field => (
             <FieldRenderer
               key={field.id}
               field={field}

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Cel3Form, FormField, FormNotification, FieldType,
+  Cel3Form, FormField, FormNotification, FieldType, ConditionalLogic, ConditionalOperator,
   FIELD_TYPE_LABELS, slugify, makeField,
 } from "@/lib/forms";
 
@@ -37,11 +37,18 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
   );
 }
 
+const DEFAULT_CL: ConditionalLogic = { enabled: false, action: "show", fieldId: "", operator: "equals", value: "" };
+
+function operatorLabel(op: ConditionalOperator): string {
+  return { equals: "equals", not_equals: "doesn't equal", is_empty: "is empty", is_not_empty: "is not empty" }[op] ?? op;
+}
+
 // ─── FieldCard ────────────────────────────────────────────────────────────────
 function FieldCard({
-  field, expanded, onToggle, onUpdate, onRemove, onMoveUp, onMoveDown,
+  field, allFields, expanded, onToggle, onUpdate, onRemove, onMoveUp, onMoveDown,
 }: {
   field: FormField;
+  allFields: FormField[];
   expanded: boolean;
   onToggle: () => void;
   onUpdate: (u: Partial<FormField>) => void;
@@ -53,6 +60,18 @@ function FieldCard({
   const hasOpts = HAS_OPTIONS.includes(field.fieldType);
   const isFile = HAS_FILE_CFG.includes(field.fieldType);
   const optionsText = (field.options || []).join("\n");
+
+  // Conditional logic helpers
+  const cl: ConditionalLogic = field.conditionalLogic ?? DEFAULT_CL;
+  function updateCL(updates: Partial<ConditionalLogic>) {
+    onUpdate({ conditionalLogic: { ...cl, ...updates } });
+  }
+  // Candidates are all non-header fields except this one, in current order
+  const triggerCandidates = allFields.filter(f => f.id !== field.id && f.fieldType !== "section_header");
+  const triggerField = triggerCandidates.find(f => f.id === cl.fieldId);
+  const needsValue = cl.operator === "equals" || cl.operator === "not_equals";
+  // Inline select style
+  const SEL = "bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-xs focus:outline-none focus:border-sky-400/50 transition-colors";
 
   return (
     <div className="bg-white/3 border border-white/8 rounded-xl overflow-hidden">
@@ -67,6 +86,9 @@ function FieldCard({
           </span>
           {field.isRequired && !isHeader && (
             <span className="text-xs text-sky-400 shrink-0">Required</span>
+          )}
+          {cl.enabled && (
+            <span className="text-xs px-1.5 py-0.5 rounded bg-violet-500/15 text-violet-400 shrink-0">If/Then</span>
           )}
         </button>
         <div className="flex items-center gap-0.5 shrink-0">
@@ -189,6 +211,87 @@ function FieldCard({
                   onChange={v => onUpdate({ isRequired: v })}
                 />
                 <span className="text-sm text-white/60">Required</span>
+              </div>
+
+              {/* ── Conditional Logic ── */}
+              <div className="pt-4 border-t border-white/8 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-white/50 uppercase tracking-wide">Conditional Logic</span>
+                  <Toggle value={cl.enabled} onChange={v => updateCL({ enabled: v })} />
+                </div>
+
+                {cl.enabled && (
+                  <div className="bg-white/3 rounded-xl p-3 space-y-3">
+                    {/* Sentence-style builder */}
+                    <div className="flex flex-wrap gap-2 items-center">
+                      <select
+                        value={cl.action}
+                        onChange={e => updateCL({ action: e.target.value as "show" | "hide" })}
+                        className={SEL}
+                      >
+                        <option value="show">Show</option>
+                        <option value="hide">Hide</option>
+                      </select>
+                      <span className="text-xs text-white/30">this field when</span>
+                      <select
+                        value={cl.fieldId}
+                        onChange={e => updateCL({ fieldId: e.target.value, value: "" })}
+                        className={SEL}
+                      >
+                        <option value="">— choose a field —</option>
+                        {triggerCandidates.map(f => (
+                          <option key={f.id} value={f.id} className="bg-[#0a0a0a]">
+                            {f.label || "Untitled field"}
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        value={cl.operator}
+                        onChange={e => updateCL({ operator: e.target.value as ConditionalOperator, value: "" })}
+                        className={SEL}
+                      >
+                        <option value="equals">equals</option>
+                        <option value="not_equals">doesn&apos;t equal</option>
+                        <option value="is_empty">is empty</option>
+                        <option value="is_not_empty">is not empty</option>
+                      </select>
+                      {needsValue && (
+                        triggerField?.options?.length ? (
+                          <select
+                            value={cl.value}
+                            onChange={e => updateCL({ value: e.target.value })}
+                            className={SEL}
+                          >
+                            <option value="">— choose —</option>
+                            {triggerField.options.map(o => (
+                              <option key={o} value={o} className="bg-[#0a0a0a]">{o}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            value={cl.value}
+                            onChange={e => updateCL({ value: e.target.value })}
+                            placeholder="value…"
+                            className="bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-white text-xs placeholder-white/20 focus:outline-none focus:border-sky-400/50 transition-colors w-28"
+                          />
+                        )
+                      )}
+                    </div>
+
+                    {/* Plain-English preview */}
+                    {cl.fieldId && (
+                      <p className="text-xs text-white/25 italic leading-relaxed">
+                        This field will <strong className="text-white/40 not-italic">{cl.action}</strong> when &ldquo;
+                        {triggerField?.label || "selected field"}&rdquo;&nbsp;
+                        {operatorLabel(cl.operator)}
+                        {needsValue && cl.value ? <> &ldquo;<strong className="text-white/40 not-italic">{cl.value}</strong>&rdquo;</> : ""}
+                      </p>
+                    )}
+                    {!cl.fieldId && (
+                      <p className="text-xs text-white/20 italic">Choose a field to complete the condition.</p>
+                    )}
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -510,6 +613,7 @@ export default function FormBuilderClient({ initial }: { initial: Cel3Form }) {
             <FieldCard
               key={field.id}
               field={field}
+              allFields={fields}
               expanded={expandedId === field.id}
               onToggle={() => setExpandedId(expandedId === field.id ? null : field.id)}
               onUpdate={u => updateField(field.id, u)}

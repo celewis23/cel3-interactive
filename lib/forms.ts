@@ -16,6 +16,19 @@ export const FIELD_TYPE_LABELS: Record<FieldType, string> = {
   section_header: "Section Header",
 };
 
+export type ConditionalOperator = "equals" | "not_equals" | "is_empty" | "is_not_empty";
+
+export type ConditionalLogic = {
+  enabled: boolean;
+  /** "show" = render only when condition is met; "hide" = render only when condition is NOT met */
+  action: "show" | "hide";
+  /** ID of the field whose answer drives this condition */
+  fieldId: string;
+  operator: ConditionalOperator;
+  /** The value to compare against (unused for is_empty / is_not_empty) */
+  value: string;
+};
+
 export type FormField = {
   id: string;
   _key: string;
@@ -28,6 +41,7 @@ export type FormField = {
   acceptedFileTypes: string;
   maxFileSizeMb: number;
   sortOrder: number;
+  conditionalLogic?: ConditionalLogic;
 };
 
 export type Cel3Form = {
@@ -61,6 +75,46 @@ export type FormSubmission = {
   answersJson: string;
   filesJson: string;
 };
+
+/**
+ * Returns true if a field should be visible given the current set of answers.
+ * Answers are keyed by field ID; values are strings or string arrays (checkboxes).
+ * Used by both the public form renderer (client) and the submit API (server).
+ */
+export function isFieldVisible(
+  field: FormField,
+  answers: Record<string, string | string[] | unknown>,
+): boolean {
+  const cl = field.conditionalLogic;
+  if (!cl?.enabled || !cl.fieldId) return true;
+
+  const raw = answers[cl.fieldId];
+  const answer = raw as string | string[] | undefined;
+
+  let conditionMet: boolean;
+  switch (cl.operator) {
+    case "equals":
+      conditionMet = Array.isArray(answer)
+        ? answer.includes(cl.value)
+        : String(answer ?? "") === cl.value;
+      break;
+    case "not_equals":
+      conditionMet = Array.isArray(answer)
+        ? !answer.includes(cl.value)
+        : String(answer ?? "") !== cl.value;
+      break;
+    case "is_empty":
+      conditionMet = !answer || (Array.isArray(answer) ? answer.length === 0 : !String(answer).trim());
+      break;
+    case "is_not_empty":
+      conditionMet = !!(answer && (Array.isArray(answer) ? answer.length > 0 : String(answer).trim()));
+      break;
+    default:
+      conditionMet = false;
+  }
+
+  return cl.action === "show" ? conditionMet : !conditionMet;
+}
 
 export function slugify(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
