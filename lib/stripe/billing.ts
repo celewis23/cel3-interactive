@@ -274,7 +274,7 @@ export async function listSubscriptions(opts?: {
     ...(statusValue ? { status: statusValue as Stripe.SubscriptionListParams.Status } : {}),
     limit: opts?.limit ?? 20,
     ...(opts?.startingAfter ? { starting_after: opts.startingAfter } : {}),
-    expand: ["data.customer", "data.items.data.price.product"],
+    expand: ["data.customer"],
   });
 
   const subscriptions: BillingSubscription[] = result.data.map((sub) => {
@@ -296,7 +296,7 @@ export async function listSubscriptions(opts?: {
       items: sub.items.data.map((item) => ({
         id: item.id,
         priceId: item.price.id,
-        productName: (item.price.product as Stripe.Product)?.name ?? null,
+        productName: typeof item.price.product === "object" ? (item.price.product as Stripe.Product).name ?? null : null,
         amount: item.price.unit_amount ?? 0,
         currency: item.price.currency,
         interval: item.price.recurring?.interval ?? "month",
