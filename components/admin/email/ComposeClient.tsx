@@ -309,7 +309,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
           value={htmlBody}
           onChange={setHtmlBody}
           placeholder="Write your message…"
-          minHeight="220px"
+          minHeight="420px"
         />
       </div>
 

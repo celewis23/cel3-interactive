@@ -91,7 +91,8 @@ export default function RichTextEditor({
     },
     editorProps: {
       attributes: {
-        class: `outline-none min-h-[${minHeight}] p-4 text-sm text-gray-900 leading-relaxed`,
+        class: "outline-none p-4 text-sm text-gray-900 leading-relaxed",
+        style: `min-height: ${minHeight}`,
       },
     },
   });
