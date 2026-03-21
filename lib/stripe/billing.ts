@@ -120,7 +120,7 @@ function mapInvoice(inv: Stripe.Invoice): BillingInvoice {
     periodStart: inv.period_start,
     periodEnd: inv.period_end,
     subtotal: inv.subtotal,
-    tax: inv.tax ?? null,
+    tax: null,
     total: inv.total,
   };
 }
