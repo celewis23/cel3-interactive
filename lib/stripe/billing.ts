@@ -136,7 +136,6 @@ export async function listCustomers(opts?: {
     limit: opts?.limit ?? 20,
     ...(opts?.startingAfter ? { starting_after: opts.startingAfter } : {}),
     ...(opts?.email ? { email: opts.email } : {}),
-    expand: ["data.subscriptions", "data.invoices"],
   });
 
   const customers: BillingCustomer[] = result.data.map((c) => ({
@@ -150,18 +149,13 @@ export async function listCustomers(opts?: {
       typeof c.default_source === "string"
         ? c.default_source
         : (c.default_source as Stripe.PaymentMethod | null)?.id ?? null,
-    invoiceCount: (c.invoices as unknown as { total_count?: number })?.total_count ?? 0,
-    subscriptionCount:
-      (c.subscriptions as unknown as { total_count?: number })?.total_count ?? 0,
   }));
 
   return { customers, hasMore: result.has_more };
 }
 
 export async function getCustomer(customerId: string): Promise<BillingCustomer | null> {
-  const c = await stripe.customers.retrieve(customerId, {
-    expand: ["subscriptions", "invoices"],
-  });
+  const c = await stripe.customers.retrieve(customerId);
 
   if ((c as Stripe.DeletedCustomer).deleted) return null;
 
@@ -177,10 +171,6 @@ export async function getCustomer(customerId: string): Promise<BillingCustomer |
       typeof cust.default_source === "string"
         ? cust.default_source
         : (cust.default_source as Stripe.PaymentMethod | null)?.id ?? null,
-    invoiceCount:
-      (cust.invoices as unknown as { total_count?: number })?.total_count ?? 0,
-    subscriptionCount:
-      (cust.subscriptions as unknown as { total_count?: number })?.total_count ?? 0,
   };
 }
 
