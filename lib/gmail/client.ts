@@ -32,6 +32,7 @@ export const GMAIL_SCOPES = [
   "https://www.googleapis.com/auth/drive",
   "https://www.googleapis.com/auth/calendar",
   "https://www.googleapis.com/auth/chat.spaces",
+  "https://www.googleapis.com/auth/chat.delete",
   "https://www.googleapis.com/auth/chat.messages",
   "https://www.googleapis.com/auth/chat.memberships",
   "https://www.googleapis.com/auth/chat.messages.reactions",
