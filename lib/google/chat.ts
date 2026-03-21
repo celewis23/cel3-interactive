@@ -126,6 +126,43 @@ export async function createSpace(params: {
   };
 }
 
+export async function findOrCreateDM(email: string): Promise<ChatSpace> {
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
+
+  const chat = google.chat({ version: "v1", auth: auth.oauth2Client });
+
+  // Try to find existing DM first
+  try {
+    const res = await chat.spaces.findDirectMessage({ name: `users/${email}` });
+    const s = res.data;
+    return {
+      name: s.name ?? "",
+      displayName: s.displayName ?? email,
+      spaceType: "DIRECT_MESSAGE",
+      singleUserBotDm: s.singleUserBotDm ?? undefined,
+      spaceUri: s.spaceUri ?? undefined,
+    };
+  } catch {
+    // No existing DM — create one via spaces.setup
+  }
+
+  const res = await chat.spaces.setup({
+    requestBody: {
+      space: { spaceType: "DIRECT_MESSAGE" },
+      memberships: [{ member: { name: `users/${email}`, type: "HUMAN" } }],
+    },
+  });
+  const s = res.data;
+  return {
+    name: s.name ?? "",
+    displayName: s.displayName ?? email,
+    spaceType: "DIRECT_MESSAGE",
+    singleUserBotDm: s.singleUserBotDm ?? undefined,
+    spaceUri: s.spaceUri ?? undefined,
+  };
+}
+
 export async function deleteMessage(messageName: string): Promise<void> {
   const auth = await getAuthenticatedClient();
   if (!auth) throw new Error("Not authenticated with Google");

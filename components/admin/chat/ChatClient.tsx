@@ -162,6 +162,82 @@ function CreateSpaceModal({
   );
 }
 
+// ─── New DM Modal ─────────────────────────────────────────────────────────────
+
+function NewDMModal({
+  onClose,
+  onOpened,
+}: {
+  onClose: () => void;
+  onOpened: (space: ChatSpace) => void;
+}) {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/chat/dm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(err.error ?? "Failed to open DM");
+      }
+      const space = await res.json() as ChatSpace;
+      onOpened(space);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <div className="bg-[#111] border border-white/10 rounded-2xl p-6 w-full max-w-sm mx-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-semibold text-white">New Direct Message</h3>
+          <button onClick={onClose} className="text-white/40 hover:text-white">
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <label className="text-xs text-white/40 block mb-1">Email address</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="user@example.com"
+              autoFocus
+              required
+              className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50"
+            />
+          </div>
+          {error && <p className="text-xs text-red-400">{error}</p>}
+          <div className="flex gap-2 justify-end">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl text-sm text-white/50 bg-white/5 hover:bg-white/8 transition-colors">
+              Cancel
+            </button>
+            <button type="submit" disabled={loading || !email.trim()} className="px-4 py-2 rounded-xl text-sm text-white bg-sky-500 hover:bg-sky-400 disabled:opacity-50 transition-colors">
+              {loading ? "Opening…" : "Open DM"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ─── Members Panel ────────────────────────────────────────────────────────────
 
 function MembersPanel({
@@ -324,6 +400,7 @@ export default function ChatClient() {
 
   // New features state
   const [showCreateSpace, setShowCreateSpace] = useState(false);
+  const [showNewDM, setShowNewDM] = useState(false);
   const [showMembersFor, setShowMembersFor] = useState<ChatSpace | null>(null);
   const [spaceMenuOpen, setSpaceMenuOpen] = useState<string | null>(null);
   const [editingMessage, setEditingMessage] = useState<string | null>(null);
@@ -536,15 +613,26 @@ export default function ChatClient() {
       <aside className="w-64 flex-shrink-0 border-r border-white/8 flex flex-col bg-[#0a0a0a]">
         <div className="px-4 py-4 border-b border-white/8 flex items-center justify-between">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-white/40">Spaces</h2>
-          <button
-            onClick={() => setShowCreateSpace(true)}
-            className="text-white/30 hover:text-sky-400 transition-colors"
-            title="Create space"
-          >
-            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowNewDM(true)}
+              className="text-white/30 hover:text-sky-400 transition-colors"
+              title="New direct message"
+            >
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              </svg>
+            </button>
+            <button
+              onClick={() => setShowCreateSpace(true)}
+              className="text-white/30 hover:text-sky-400 transition-colors"
+              title="Create space"
+            >
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            </button>
+          </div>
         </div>
         <div className="flex-1 overflow-y-auto py-2">
           {!spacesLoading && error && spaces.length === 0 && (
@@ -862,6 +950,25 @@ export default function ChatClient() {
           onCreated={(space) => {
             setSpaces((prev) => [space, ...prev]);
             setShowCreateSpace(false);
+          }}
+        />
+      )}
+
+      {/* New DM modal */}
+      {showNewDM && (
+        <NewDMModal
+          onClose={() => setShowNewDM(false)}
+          onOpened={(space) => {
+            setShowNewDM(false);
+            // Add to spaces list if not already there
+            setSpaces((prev) => {
+              if (prev.find((s) => s.name === space.name)) return prev;
+              return [space, ...prev];
+            });
+            // Select and open immediately
+            setSelectedSpace(space);
+            setMessages([]);
+            setNextPageToken(undefined);
           }}
         />
       )}
