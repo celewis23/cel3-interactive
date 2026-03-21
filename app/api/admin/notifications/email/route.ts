@@ -66,25 +66,8 @@ export async function POST(req: NextRequest) {
   const messages = listRes.data.messages ?? [];
   if (messages.length === 0) return NextResponse.json({ notified: 0 });
 
-  // Bot auth
-  const botCredentials = JSON.parse(process.env.GOOGLE_CHAT_BOT_CREDENTIALS!);
-  const botAuth = new google.auth.GoogleAuth({
-    credentials: botCredentials,
-    scopes: ["https://www.googleapis.com/auth/chat.bot"],
-  });
-  const botChat = google.chat({ version: "v1", auth: botAuth });
+  const userChat = google.chat({ version: "v1", auth: auth.oauth2Client });
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://cel3interactive.com";
-
-  // Ensure bot is in the notification space — silently ignored if already a member
-  try {
-    const userChat = google.chat({ version: "v1", auth: auth.oauth2Client });
-    await userChat.spaces.members.create({
-      parent: notificationSpace,
-      requestBody: {
-        member: { name: `users/${botCredentials.client_id}`, type: "BOT" },
-      },
-    });
-  } catch { /* already a member or insufficient permission — proceed anyway */ }
 
   let notified = 0;
   const errors: string[] = [];
@@ -103,45 +86,13 @@ export async function POST(req: NextRequest) {
       const snippet = detail.data.snippet ?? "";
       const { name: fromName, email: fromEmail } = parseFrom(fromRaw);
 
-      await botChat.spaces.messages.create({
+      const fromLine = fromName !== fromEmail ? `${fromName} <${fromEmail}>` : fromEmail;
+      const snippetLine = snippet ? `\n${snippet.length > 140 ? snippet.slice(0, 140) + "…" : snippet}` : "";
+      const text = `📧 *New Email*\n*From:* ${fromLine}\n*Subject:* ${subject}${snippetLine}\n${siteUrl}/admin/email`;
+
+      await userChat.spaces.messages.create({
         parent: notificationSpace,
-        requestBody: {
-          cardsV2: [{
-            cardId: `email-${msg.id}`,
-            card: {
-              header: { title: "New Email", subtitle: fromEmail },
-              sections: [{
-                widgets: [
-                  {
-                    decoratedText: {
-                      topLabel: "From",
-                      text: fromName !== fromEmail ? `${fromName} &lt;${fromEmail}&gt;` : fromEmail,
-                    },
-                  },
-                  {
-                    decoratedText: {
-                      topLabel: "Subject",
-                      text: subject,
-                    },
-                  },
-                  ...(snippet ? [{
-                    textParagraph: {
-                      text: snippet.length > 140 ? snippet.slice(0, 140) + "…" : snippet,
-                    },
-                  }] : []),
-                  {
-                    buttonList: {
-                      buttons: [{
-                        text: "Open in Backoffice",
-                        onClick: { openLink: { url: `${siteUrl}/admin/email` } },
-                      }],
-                    },
-                  },
-                ],
-              }],
-            },
-          }],
-        },
+        requestBody: { text },
       });
       notified++;
     } catch (err) {
