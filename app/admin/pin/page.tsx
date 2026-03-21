@@ -53,7 +53,7 @@ export default function AdminPinPage() {
         setTimeout(() => inputRefs[0].current?.focus(), 50);
         return;
       }
-      router.push("/admin/case-studies");
+      router.push("/admin");
     } catch {
       setError("Something went wrong. Try again.");
       setPin(["", "", "", ""]);
