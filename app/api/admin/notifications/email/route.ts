@@ -8,10 +8,10 @@ import { sanityWriteClient } from "@/lib/sanity.write";
 
 const STATE_DOC_ID = "email-notification-state";
 
-function verifySecret(req: NextRequest): boolean {
+function verifySecret(req: NextRequest): "ok" | "not_configured" | "wrong_secret" {
   const secret = process.env.NOTIFICATION_SECRET;
-  if (!secret) return false;
-  return req.headers.get("authorization") === `Bearer ${secret}`;
+  if (!secret) return "not_configured";
+  return req.headers.get("authorization") === `Bearer ${secret}` ? "ok" : "wrong_secret";
 }
 
 function parseFrom(from: string): { name: string; email: string } {
@@ -21,8 +21,12 @@ function parseFrom(from: string): { name: string; email: string } {
 }
 
 export async function POST(req: NextRequest) {
-  if (!verifySecret(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authResult = verifySecret(req);
+  if (authResult === "not_configured") {
+    return NextResponse.json({ error: "NOTIFICATION_SECRET not configured on server" }, { status: 401 });
+  }
+  if (authResult === "wrong_secret") {
+    return NextResponse.json({ error: "Unauthorized — secret mismatch" }, { status: 401 });
   }
 
   const notificationSpace = process.env.NOTIFICATION_CHAT_SPACE;
