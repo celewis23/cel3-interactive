@@ -1,6 +1,8 @@
 export const runtime = "nodejs";
 
+import { Readable } from "stream";
 import { NextRequest, NextResponse } from "next/server";
+import { google } from "googleapis";
 import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
 import { getAuthenticatedClient } from "@/lib/gmail/client";
 
@@ -26,42 +28,51 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "spaceName and file are required" }, { status: 400 });
     }
 
-    const accessToken = auth.oauth2Client.credentials.access_token;
-    if (!accessToken) {
-      return NextResponse.json({ error: "No access token available" }, { status: 401 });
-    }
-
-    const boundary = `ChatUpload${Date.now()}`;
-    const metadata = JSON.stringify({ text });
-    const fileBuffer = Buffer.from(await file.arrayBuffer());
     const mimeType = file.type || "application/octet-stream";
+    const fileName = file.name || `attachment_${Date.now()}`;
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
 
-    // multipart/related body per Google API spec
-    const body = Buffer.concat([
-      Buffer.from(`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n`),
-      Buffer.from(`--${boundary}\r\nContent-Type: ${mimeType}\r\n\r\n`),
-      fileBuffer,
-      Buffer.from(`\r\n--${boundary}--\r\n`),
-    ]);
-
-    const url = `https://chat.googleapis.com/upload/v1/${spaceName}/messages?uploadType=multipart`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": `multipart/related; boundary="${boundary}"`,
-      },
-      body,
+    // 1. Upload to Drive
+    const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
+    const driveRes = await drive.files.create({
+      requestBody: { name: fileName, mimeType },
+      media: { mimeType, body: Readable.from(fileBuffer) },
+      fields: "id,webViewLink,name",
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("CHAT_UPLOAD_ERROR:", response.status, errText);
-      throw new Error(`Upload failed (${response.status}): ${errText}`);
-    }
+    const fileId = driveRes.data.id;
+    const webViewLink = driveRes.data.webViewLink;
+    if (!fileId || !webViewLink) throw new Error("Drive upload returned no file ID");
 
-    const message = await response.json();
-    return NextResponse.json(message);
+    // 2. Make accessible to anyone with the link (so recipients can open it)
+    await drive.permissions.create({
+      fileId,
+      requestBody: { role: "reader", type: "anyone" },
+    });
+
+    // 3. Send Chat message with the Drive link
+    const chat = google.chat({ version: "v1", auth: auth.oauth2Client });
+    const messageText = text.trim()
+      ? `${text.trim()}\n${webViewLink}`
+      : `${fileName}: ${webViewLink}`;
+
+    const msgRes = await chat.spaces.messages.create({
+      parent: spaceName,
+      requestBody: { text: messageText },
+    });
+
+    const m = msgRes.data;
+    return NextResponse.json({
+      name: m.name ?? "",
+      text: m.text ?? undefined,
+      formattedText: m.formattedText ?? undefined,
+      sender: {
+        name: m.sender?.name ?? "",
+        displayName: m.sender?.displayName ?? undefined,
+        type: m.sender?.type ?? undefined,
+      },
+      createTime: m.createTime ?? "",
+    });
   } catch (err) {
     console.error("CHAT_UPLOAD_ERROR:", err);
     const msg = err instanceof Error ? err.message : "Upload failed";
