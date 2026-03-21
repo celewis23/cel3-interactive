@@ -548,16 +548,22 @@ export default function ChatClient() {
         </div>
         <div className="flex-1 overflow-y-auto py-2">
           {!spacesLoading && error && spaces.length === 0 && (
-            <div className="mx-3 mb-2 px-3 py-2.5 bg-red-500/10 border border-red-500/20 rounded-xl text-xs space-y-1">
+            <div className="mx-3 mb-2 px-3 py-2.5 bg-red-500/10 border border-red-500/20 rounded-xl text-xs space-y-1.5">
               <div className="text-red-400">{error}</div>
-              {(error.toLowerCase().includes("scope") || error.toLowerCase().includes("insufficient") || error.toLowerCase().includes("auth") || error.includes("403")) && (
+              {error.toLowerCase().includes("chat app not found") || error.toLowerCase().includes("chat app") ? (
+                <div className="text-white/50 leading-relaxed">
+                  The Chat API requires a Chat App configured in GCP. Go to{" "}
+                  <span className="text-white/70">Google Cloud Console → APIs &amp; Services → Google Chat API → Configuration</span>
+                  , fill in App name, Avatar URL, and Description, then Save.
+                </div>
+              ) : (error.toLowerCase().includes("scope") || error.toLowerCase().includes("insufficient") || error.toLowerCase().includes("auth") || error.includes("403")) ? (
                 <div className="text-white/50">
                   Google account needs reconnecting to grant Chat permissions.{" "}
                   <a href="/admin/email" className="text-sky-400 hover:text-sky-300 underline">
                     Reconnect →
                   </a>
                 </div>
-              )}
+              ) : null}
             </div>
           )}
           {spacesLoading ? (
