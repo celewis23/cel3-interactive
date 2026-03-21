@@ -1035,6 +1035,12 @@ export default function ChatClient() {
                         Members
                       </button>
                       <button
+                        onClick={() => { navigator.clipboard.writeText(space.name); setSpaceMenuOpen(null); }}
+                        className="w-full text-left px-3 py-1.5 text-xs text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                      >
+                        Copy space ID
+                      </button>
+                      <button
                         onClick={() => { setDeletingSpace(space); setSpaceMenuOpen(null); }}
                         className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:text-red-300 hover:bg-white/5 transition-colors"
                       >
