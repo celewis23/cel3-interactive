@@ -2,7 +2,7 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
-import { listSpaces, createSpace } from "@/lib/google/chat";
+import { listSpaces, createSpace, deleteSpace } from "@/lib/google/chat";
 
 function requireAuth(req: NextRequest) {
   const token = req.cookies.get(COOKIE_NAME)?.value;
@@ -19,6 +19,22 @@ export async function GET(req: NextRequest) {
   } catch (err) {
     console.error("CHAT_SPACES_ERROR:", err);
     const msg = err instanceof Error ? err.message : "Failed to list spaces";
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  try {
+    const { searchParams } = new URL(req.url);
+    const spaceName = searchParams.get("name");
+    if (!spaceName) return NextResponse.json({ error: "name is required" }, { status: 400 });
+    await deleteSpace(spaceName);
+    return new NextResponse(null, { status: 204 });
+  } catch (err) {
+    console.error("CHAT_DELETE_SPACE_ERROR:", err);
+    const msg = err instanceof Error ? err.message : "Failed to delete space";
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

@@ -126,6 +126,14 @@ export async function createSpace(params: {
   };
 }
 
+export async function deleteSpace(spaceName: string): Promise<void> {
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
+
+  const chat = google.chat({ version: "v1", auth: auth.oauth2Client });
+  await chat.spaces.delete({ name: spaceName });
+}
+
 export async function findOrCreateDM(email: string): Promise<ChatSpace> {
   const auth = await getAuthenticatedClient();
   if (!auth) throw new Error("Not authenticated with Google");

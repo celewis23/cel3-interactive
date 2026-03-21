@@ -418,6 +418,7 @@ export default function ChatClient() {
   const [editingMessage, setEditingMessage] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const [deletingMessage, setDeletingMessage] = useState<string | null>(null);
+  const [deletingSpace, setDeletingSpace] = useState<ChatSpace | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const autoRefreshRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -571,6 +572,25 @@ export default function ChatClient() {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
+    }
+  }
+
+  async function handleDeleteSpace(space: ChatSpace) {
+    try {
+      const res = await fetch(`/api/admin/chat/spaces?name=${encodeURIComponent(space.name)}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(body.error ?? "Failed to delete space");
+      }
+      setSpaces((prev) => prev.filter((s) => s.name !== space.name));
+      if (selectedSpace?.name === space.name) setSelectedSpace(null);
+      setDmNames((prev) => { const n = { ...prev }; delete n[space.name]; return n; });
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setDeletingSpace(null);
     }
   }
 
@@ -752,6 +772,12 @@ export default function ChatClient() {
                         className="w-full text-left px-3 py-1.5 text-xs text-white/70 hover:text-white hover:bg-white/5 transition-colors"
                       >
                         Members
+                      </button>
+                      <button
+                        onClick={() => { setDeletingSpace(space); setSpaceMenuOpen(null); }}
+                        className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:text-red-300 hover:bg-white/5 transition-colors"
+                      >
+                        Delete
                       </button>
                     </div>
                   )}
@@ -1002,6 +1028,38 @@ export default function ChatClient() {
             setShowCreateSpace(false);
           }}
         />
+      )}
+
+      {/* Delete space confirm */}
+      {deletingSpace && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="bg-[#111] border border-white/10 rounded-2xl p-6 w-full max-w-sm mx-4">
+            <h3 className="text-sm font-semibold text-white mb-2">
+              Delete {deletingSpace.spaceType === "DIRECT_MESSAGE" ? "DM" : "Space"}
+            </h3>
+            <p className="text-sm text-white/50 mb-5">
+              Are you sure you want to delete{" "}
+              <span className="text-white">
+                {deletingSpace.displayName || dmNames[deletingSpace.name] || spaceTypeBadge(deletingSpace.spaceType)}
+              </span>
+              ? This cannot be undone.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setDeletingSpace(null)}
+                className="px-4 py-2 rounded-xl text-sm text-white/50 bg-white/5 hover:bg-white/8 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteSpace(deletingSpace)}
+                className="px-4 py-2 rounded-xl text-sm text-white bg-red-500 hover:bg-red-400 transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* New DM modal */}
