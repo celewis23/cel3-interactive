@@ -52,6 +52,12 @@ type ChatMember = {
   role: string;
 };
 
+type Attachment = {
+  id: string;
+  file: File;
+  preview: string | null; // object URL for images, null for other files
+};
+
 declare global {
   interface Window {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -433,6 +439,8 @@ export default function ChatClient() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [myProfile, setMyProfile] = useState<{ name: string; displayName: string } | null>(null);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [dragOver, setDragOver] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [dmEmails, setDmEmails] = useState<Record<string, string>>({});
 
@@ -564,33 +572,104 @@ export default function ChatClient() {
     }
   }, [messages, loadingMore]);
 
+  function addFiles(files: File[]) {
+    const added: Attachment[] = files.map((file) => ({
+      id: `${Date.now()}-${Math.random()}`,
+      file,
+      preview: file.type.startsWith("image/") ? URL.createObjectURL(file) : null,
+    }));
+    setAttachments((prev) => [...prev, ...added]);
+  }
+
+  function removeAttachment(id: string) {
+    setAttachments((prev) => {
+      const removed = prev.find((a) => a.id === id);
+      if (removed?.preview) URL.revokeObjectURL(removed.preview);
+      return prev.filter((a) => a.id !== id);
+    });
+  }
+
+  function handlePaste(e: React.ClipboardEvent<HTMLTextAreaElement>) {
+    const files = Array.from(e.clipboardData.files);
+    if (files.length > 0) addFiles(files);
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(true);
+  }
+
+  function handleDragLeave(e: React.DragEvent) {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDragOver(false);
+    }
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) addFiles(files);
+  }
+
   async function handleSend() {
-    if (!inputText.trim() || !selectedSpace) return;
+    if (!inputText.trim() && attachments.length === 0) return;
+    if (!selectedSpace) return;
     setSending(true);
     setError(null);
     const text = inputText;
     setInputText("");
-
-    // Optimistic
-    const optimistic: ChatMessage = {
-      name: `optimistic-${Date.now()}`,
-      text,
-      sender: { name: "me", displayName: "You" },
-      createTime: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, optimistic]);
+    const pendingAttachments = attachments;
+    setAttachments([]);
 
     try {
-      await fetch("/api/admin/chat/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ spaceName: selectedSpace.name, text }),
-      });
+      if (pendingAttachments.length > 0) {
+        // Upload each file; first one carries the text
+        for (let i = 0; i < pendingAttachments.length; i++) {
+          const att = pendingAttachments[i];
+          const fd = new FormData();
+          fd.append("spaceName", selectedSpace.name);
+          fd.append("file", att.file);
+          if (i === 0 && text.trim()) fd.append("text", text);
+          const res = await fetch("/api/admin/chat/upload", { method: "POST", body: fd });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({})) as { error?: string };
+            throw new Error(err.error ?? "Upload failed");
+          }
+          if (att.preview) URL.revokeObjectURL(att.preview);
+        }
+        // If text was provided without attachments carrying it (edge case: text only after cleanup)
+        if (pendingAttachments.length === 0 && text.trim()) {
+          await fetch("/api/admin/chat/messages", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ spaceName: selectedSpace.name, text }),
+          });
+        }
+      } else {
+        // Optimistic update for text-only
+        const optimistic: ChatMessage = {
+          name: `optimistic-${Date.now()}`,
+          text,
+          sender: { name: "me", displayName: "You" },
+          createTime: new Date().toISOString(),
+        };
+        setMessages((prev) => [...prev, optimistic]);
+        try {
+          await fetch("/api/admin/chat/messages", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ spaceName: selectedSpace.name, text }),
+          });
+        } catch (e) {
+          setMessages((prev) => prev.filter((m) => m.name !== optimistic.name));
+          setInputText(text);
+          throw e;
+        }
+      }
       await fetchMessages(selectedSpace);
     } catch (e) {
       setError((e as Error).message);
-      setMessages((prev) => prev.filter((m) => m.name !== optimistic.name));
-      setInputText(text);
     } finally {
       setSending(false);
     }
@@ -856,7 +935,23 @@ export default function ChatClient() {
       </aside>
 
       {/* Right panel: messages — hidden on mobile until a space is selected */}
-      <div className={`flex-1 flex min-w-0 ${!selectedSpace ? "hidden md:flex" : "flex"}`}>
+      <div
+        className={`flex-1 flex min-w-0 relative ${!selectedSpace ? "hidden md:flex" : "flex"}`}
+        onDragOver={selectedSpace ? handleDragOver : undefined}
+        onDragLeave={selectedSpace ? handleDragLeave : undefined}
+        onDrop={selectedSpace ? handleDrop : undefined}
+      >
+        {/* Drag-over overlay */}
+        {dragOver && (
+          <div className="absolute inset-0 z-40 flex items-center justify-center bg-sky-500/10 border-2 border-dashed border-sky-500/50 rounded-none pointer-events-none">
+            <div className="text-center">
+              <svg width="40" height="40" fill="none" stroke="currentColor" strokeWidth="1" viewBox="0 0 24 24" className="mx-auto mb-2 text-sky-400">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+              </svg>
+              <p className="text-sky-400 text-sm font-medium">Drop to attach</p>
+            </div>
+          </div>
+        )}
         <div className="flex-1 flex flex-col min-w-0">
           {!selectedSpace ? (
             <div className="flex-1 flex items-center justify-center">
@@ -1029,22 +1124,74 @@ export default function ChatClient() {
 
               {/* Input */}
               <div className="flex-shrink-0 px-5 py-4 border-t border-white/8">
+                {/* Attachment previews */}
+                {attachments.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {attachments.map((att) => (
+                      <div key={att.id} className="relative group/att flex-shrink-0">
+                        {att.preview ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={att.preview}
+                            alt={att.file.name}
+                            className="h-16 w-16 object-cover rounded-lg border border-white/10"
+                          />
+                        ) : (
+                          <div className="h-16 px-3 flex flex-col items-center justify-center rounded-lg border border-white/10 bg-white/5 max-w-[120px]">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" className="text-white/40 mb-1 flex-shrink-0">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                            </svg>
+                            <span className="text-xs text-white/40 truncate w-full text-center">{att.file.name}</span>
+                          </div>
+                        )}
+                        <button
+                          onClick={() => removeAttachment(att.id)}
+                          className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 flex items-center justify-center opacity-0 group-hover/att:opacity-100 transition-opacity"
+                        >
+                          <svg width="8" height="8" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 <div className="flex items-end gap-3">
-                  {/* File share button */}
+                  {/* Attach file button */}
+                  <label
+                    className="flex-shrink-0 p-2 rounded-xl text-white/30 hover:text-sky-400 hover:bg-white/8 transition-colors cursor-pointer"
+                    title="Attach file"
+                  >
+                    <input
+                      type="file"
+                      multiple
+                      className="sr-only"
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files ?? []);
+                        if (files.length > 0) addFiles(files);
+                        e.target.value = "";
+                      }}
+                    />
+                    <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+                    </svg>
+                  </label>
+                  {/* Drive file picker */}
                   <button
                     onClick={handleFilePicker}
                     className="flex-shrink-0 p-2 rounded-xl text-white/30 hover:text-sky-400 hover:bg-white/8 transition-colors"
                     title="Share Drive file"
                   >
                     <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2.25a2.25 2.25 0 012.25 2.25v13.5A2.25 2.25 0 015.25 21H3m0-18h18a.75.75 0 01.75.75v16.5a.75.75 0 01-.75.75H3m0-18v18M9 3.75h6M9 12h6m-6 4.5h6" />
                     </svg>
                   </button>
                   <textarea
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={`Message ${selectedSpace.displayName || dmEmails[selectedSpace.name] || spaceTypeBadge(selectedSpace.spaceType)}…`}
+                    onPaste={handlePaste}
+                    placeholder={`Message ${selectedSpace.displayName || dmEmails[selectedSpace.name] || spaceTypeBadge(selectedSpace.spaceType)}… or paste/drop a file`}
                     rows={1}
                     className="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50 resize-none"
                     style={{ minHeight: "40px", maxHeight: "120px" }}
@@ -1056,7 +1203,7 @@ export default function ChatClient() {
                   />
                   <button
                     onClick={handleSend}
-                    disabled={sending || !inputText.trim()}
+                    disabled={sending || (!inputText.trim() && attachments.length === 0)}
                     className="flex-shrink-0 px-4 py-2 rounded-xl text-sm text-white bg-sky-500 hover:bg-sky-400 disabled:opacity-50 transition-colors"
                   >
                     {sending ? (
@@ -1071,7 +1218,7 @@ export default function ChatClient() {
                     )}
                   </button>
                 </div>
-                <p className="text-xs text-white/20 mt-1.5">Enter to send, Shift+Enter for new line</p>
+                <p className="text-xs text-white/20 mt-1.5">Enter to send · Shift+Enter for new line · Paste or drop files to attach</p>
               </div>
             </>
           )}
