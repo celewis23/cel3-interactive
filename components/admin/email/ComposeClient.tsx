@@ -1,50 +1,181 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+const RichTextEditor = dynamic(() => import("./RichTextEditor"), { ssr: false });
+
+interface AttachedFile {
+  id: string;
+  name: string;
+  size: number;
+  mimeType: string;
+  file: File;
+}
 
 interface Props {
   initialTo?: string;
 }
 
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    gapi: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    google: any;
+  }
+}
+
+let gapiScriptPromise: Promise<void> | null = null;
+function loadGapiScript(): Promise<void> {
+  if (gapiScriptPromise) return gapiScriptPromise;
+  gapiScriptPromise = new Promise((resolve, reject) => {
+    if (typeof window.gapi !== "undefined") { resolve(); return; }
+    const s = document.createElement("script");
+    s.src = "https://apis.google.com/js/api.js";
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error("Failed to load Google API"));
+    document.body.appendChild(s);
+  });
+  return gapiScriptPromise;
+}
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export default function ComposeClient({ initialTo = "" }: Props) {
   const [to, setTo] = useState(initialTo);
   const [cc, setCc] = useState("");
+  const [bcc, setBcc] = useState("");
   const [showCc, setShowCc] = useState(false);
+  const [showBcc, setShowBcc] = useState(false);
   const [subject, setSubject] = useState("");
-  const [message, setMessage] = useState("");
+  const [htmlBody, setHtmlBody] = useState("");
+  const [attachments, setAttachments] = useState<AttachedFile[]>([]);
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
+  const [driveLoading, setDriveLoading] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function reset() {
     setTo(initialTo);
     setCc("");
+    setBcc("");
     setShowCc(false);
+    setShowBcc(false);
     setSubject("");
-    setMessage("");
+    setHtmlBody("");
+    setAttachments([]);
     setSending(false);
     setDone(false);
     setError("");
   }
 
+  function addFiles(files: File[]) {
+    const next: AttachedFile[] = files.map((f) => ({
+      id: `${f.name}-${f.size}-${Date.now()}-${Math.random()}`,
+      name: f.name,
+      size: f.size,
+      mimeType: f.type || "application/octet-stream",
+      file: f,
+    }));
+    setAttachments((prev) => [...prev, ...next]);
+  }
+
+  function removeAttachment(id: string) {
+    setAttachments((prev) => prev.filter((a) => a.id !== id));
+  }
+
+  async function openDrivePicker() {
+    setDriveLoading(true);
+    try {
+      // Fetch config (includes access token) from server
+      const configRes = await fetch("/api/admin/email/drive-config");
+      const config = await configRes.json();
+
+      if (!config.accessToken) {
+        setError("Gmail is not connected — reconnect to enable Drive access.");
+        return;
+      }
+      if (!config.apiKey) {
+        setError("GOOGLE_PICKER_API_KEY is not set. Add it to your environment variables.");
+        return;
+      }
+
+      await loadGapiScript();
+
+      await new Promise<void>((resolve) => window.gapi.load("picker", resolve));
+
+      const picker = new window.google.picker.PickerBuilder()
+        .addView(window.google.picker.ViewId.DOCS)
+        .addView(window.google.picker.ViewId.RECENTLY_PICKED)
+        .setOAuthToken(config.accessToken)
+        .setDeveloperKey(config.apiKey)
+        .setCallback((data: { action: string; docs?: { name: string; url: string; mimeType: string }[] }) => {
+          if (data.action === window.google.picker.Action.PICKED && data.docs?.[0]) {
+            const doc = data.docs[0];
+            // Attach a Drive file as a link in the email body — we fire a custom event
+            // so the editor can insert it as a formatted link
+            const event = new CustomEvent("drive-file-picked", {
+              detail: { name: doc.name, url: doc.url },
+            });
+            window.dispatchEvent(event);
+          }
+        })
+        .build();
+
+      picker.setVisible(true);
+    } catch (err) {
+      console.error("Drive picker error:", err);
+      setError("Could not open Drive picker. Check that Drive scope is authorized (reconnect Gmail if needed).");
+    } finally {
+      setDriveLoading(false);
+    }
+  }
+
+  // Listen for Drive file picks and append a link to the HTML body
+  // This effect is intentionally outside hooks since we need the current htmlBody
+  // We use a ref to avoid stale closure issues
+  const htmlBodyRef = useRef(htmlBody);
+  htmlBodyRef.current = htmlBody;
+  const setHtmlBodyRef = useRef(setHtmlBody);
+  setHtmlBodyRef.current = setHtmlBody;
+
+  // Register Drive file pick listener once
+  const driveListenerRegistered = useRef(false);
+  if (!driveListenerRegistered.current && typeof window !== "undefined") {
+    driveListenerRegistered.current = true;
+    window.addEventListener("drive-file-picked", (e: Event) => {
+      const { name, url } = (e as CustomEvent<{ name: string; url: string }>).detail;
+      const link = `<p><a href="${url}" target="_blank" rel="noopener noreferrer">📄 ${name}</a></p>`;
+      setHtmlBodyRef.current((prev) => prev + link);
+    });
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!to.trim() || !subject.trim() || !message.trim()) return;
+    if (!to.trim() || !subject.trim() || !htmlBody.trim()) return;
     setSending(true);
     setError("");
 
     try {
-      const res = await fetch("/api/admin/email/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          to: to.trim(),
-          subject: subject.trim(),
-          message,
-          cc: cc.trim() || undefined,
-        }),
-      });
+      const fd = new FormData();
+      fd.append("to", to.trim());
+      fd.append("subject", subject.trim());
+      fd.append("htmlBody", htmlBody);
+      if (cc.trim()) fd.append("cc", cc.trim());
+      if (bcc.trim()) fd.append("bcc", bcc.trim());
+      for (const att of attachments) {
+        fd.append("attachments", att.file, att.name);
+      }
+
+      const res = await fetch("/api/admin/email/send", { method: "POST", body: fd });
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -63,20 +194,8 @@ export default function ComposeClient({ initialTo = "" }: Props) {
     return (
       <div className="bg-white/3 border border-white/8 rounded-2xl p-8 text-center max-w-md mx-auto">
         <div className="w-12 h-12 rounded-full bg-emerald-500/15 flex items-center justify-center mx-auto mb-4">
-          <svg
-            width="24"
-            height="24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            viewBox="0 0 24 24"
-            className="text-emerald-400"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
+          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" className="text-emerald-400">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
         <h3 className="text-white font-semibold mb-1">Email sent!</h3>
@@ -101,24 +220,26 @@ export default function ComposeClient({ initialTo = "" }: Props) {
     );
   }
 
+  const isEmpty = !htmlBody.replace(/<[^>]*>/g, "").trim();
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white/3 border border-white/8 rounded-2xl p-6 space-y-5 max-w-2xl"
-    >
+    <form onSubmit={handleSubmit} className="bg-white/3 border border-white/8 rounded-2xl p-6 space-y-4 max-w-3xl">
       {/* To */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
           <label className="block text-sm font-medium text-white">To</label>
-          {!showCc && (
-            <button
-              type="button"
-              onClick={() => setShowCc(true)}
-              className="text-xs text-sky-400 hover:text-sky-300 transition-colors"
-            >
-              + Add CC
-            </button>
-          )}
+          <div className="flex gap-3">
+            {!showCc && (
+              <button type="button" onClick={() => setShowCc(true)} className="text-xs text-sky-400 hover:text-sky-300 transition-colors">
+                + CC
+              </button>
+            )}
+            {!showBcc && (
+              <button type="button" onClick={() => setShowBcc(true)} className="text-xs text-sky-400 hover:text-sky-300 transition-colors">
+                + BCC
+              </button>
+            )}
+          </div>
         </div>
         <input
           type="email"
@@ -126,7 +247,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
           onChange={(e) => setTo(e.target.value)}
           required
           placeholder="recipient@example.com"
-          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors"
+          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors"
         />
       </div>
 
@@ -135,14 +256,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <label className="block text-sm font-medium text-white">CC</label>
-            <button
-              type="button"
-              onClick={() => {
-                setShowCc(false);
-                setCc("");
-              }}
-              className="text-xs text-white/30 hover:text-white/60 transition-colors"
-            >
+            <button type="button" onClick={() => { setShowCc(false); setCc(""); }} className="text-xs text-white/30 hover:text-white/60 transition-colors">
               Remove
             </button>
           </div>
@@ -150,8 +264,27 @@ export default function ComposeClient({ initialTo = "" }: Props) {
             type="text"
             value={cc}
             onChange={(e) => setCc(e.target.value)}
-            placeholder="cc@example.com, another@example.com"
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors"
+            placeholder="cc@example.com"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors"
+          />
+        </div>
+      )}
+
+      {/* BCC */}
+      {showBcc && (
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-sm font-medium text-white">BCC</label>
+            <button type="button" onClick={() => { setShowBcc(false); setBcc(""); }} className="text-xs text-white/30 hover:text-white/60 transition-colors">
+              Remove
+            </button>
+          </div>
+          <input
+            type="text"
+            value={bcc}
+            onChange={(e) => setBcc(e.target.value)}
+            placeholder="bcc@example.com"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors"
           />
         </div>
       )}
@@ -165,94 +298,123 @@ export default function ComposeClient({ initialTo = "" }: Props) {
           onChange={(e) => setSubject(e.target.value)}
           required
           placeholder="Email subject"
-          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors"
+          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors"
         />
       </div>
 
-      {/* Message */}
+      {/* Rich text body */}
       <div>
         <label className="block text-sm font-medium text-white mb-1.5">Message</label>
-        <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          rows={10}
-          required
+        <RichTextEditor
+          value={htmlBody}
+          onChange={setHtmlBody}
           placeholder="Write your message…"
-          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors resize-y"
+          minHeight="220px"
         />
       </div>
+
+      {/* Attachments list */}
+      {attachments.length > 0 && (
+        <div className="space-y-1.5">
+          {attachments.map((att) => (
+            <div key={att.id} className="flex items-center gap-3 bg-white/4 border border-white/8 rounded-xl px-3 py-2">
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" className="text-white/40 shrink-0">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+              </svg>
+              <span className="flex-1 text-sm text-white/80 truncate">{att.name}</span>
+              <span className="text-xs text-white/35 shrink-0">{formatBytes(att.size)}</span>
+              <button
+                type="button"
+                onClick={() => removeAttachment(att.id)}
+                className="text-white/30 hover:text-red-400 transition-colors shrink-0"
+              >
+                <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Error */}
       {error && (
         <div className="flex items-center gap-2 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
-          <svg
-            width="16"
-            height="16"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-            />
+          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
           </svg>
           {error}
         </div>
       )}
 
-      {/* Actions */}
-      <div className="flex items-center gap-3 pt-1">
+      {/* Action row */}
+      <div className="flex items-center gap-2 pt-1 flex-wrap">
+        {/* Send */}
         <button
           type="submit"
-          disabled={sending || !to.trim() || !subject.trim() || !message.trim()}
+          disabled={sending || !to.trim() || !subject.trim() || isEmpty}
           className="bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium px-5 py-2 rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2"
         >
           {sending ? (
             <>
-              <svg
-                className="animate-spin w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                />
+              <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
               Sending…
             </>
           ) : (
             <>
-              <svg
-                width="15"
-                height="15"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"
-                />
+              <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
               </svg>
               Send
             </>
           )}
         </button>
+
+        {/* Attach file */}
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="flex items-center gap-1.5 text-white/60 hover:text-white bg-white/5 hover:bg-white/8 border border-white/8 hover:border-white/15 text-sm px-3 py-2 rounded-xl transition-colors"
+          title="Attach file"
+        >
+          <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+          </svg>
+          Attach
+        </button>
+
+        {/* Google Drive */}
+        <button
+          type="button"
+          onClick={openDrivePicker}
+          disabled={driveLoading}
+          className="flex items-center gap-1.5 text-white/60 hover:text-white bg-white/5 hover:bg-white/8 border border-white/8 hover:border-white/15 text-sm px-3 py-2 rounded-xl transition-colors disabled:opacity-50"
+          title="Insert from Google Drive"
+        >
+          {driveLoading ? (
+            <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+          ) : (
+            <svg width="15" height="15" viewBox="0 0 87.3 78" fill="currentColor">
+              <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5z" fill="#0066DA"/>
+              <path d="M43.65 25L29.9 1.2C28.55 2 27.4 3.1 26.6 4.5L1.2 49.5C.4 50.9 0 52.45 0 54h27.5z" fill="#00AC47"/>
+              <path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.8l5.85 11.2z" fill="#EA4335"/>
+              <path d="M43.65 25L57.4 1.2C56.05.4 54.5 0 52.9 0H34.4c-1.6 0-3.15.45-4.5 1.2z" fill="#00832D"/>
+              <path d="M59.8 54H27.5L13.75 77.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684FC"/>
+              <path d="M73.4 27.5l-12.65-21.8c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25l16.15 29h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#FFBA00"/>
+            </svg>
+          )}
+          Drive
+        </button>
+
+        <div className="flex-1" />
+
+        {/* Cancel */}
         <Link
           href="/admin/email"
           className="bg-white/5 hover:bg-white/8 border border-white/8 hover:border-white/15 text-white/70 hover:text-white text-sm px-4 py-2 rounded-xl transition-colors"
@@ -260,6 +422,20 @@ export default function ComposeClient({ initialTo = "" }: Props) {
           Cancel
         </Link>
       </div>
+
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        className="hidden"
+        onChange={(e) => {
+          if (e.target.files) {
+            addFiles(Array.from(e.target.files));
+            e.target.value = "";
+          }
+        }}
+      />
     </form>
   );
 }

@@ -220,43 +220,134 @@ export async function getUnreadCount(): Promise<number> {
   }
 }
 
+export interface MimeAttachment {
+  filename: string;
+  mimeType: string;
+  data: Buffer;
+}
+
+function htmlToPlainText(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<\/div>/gi, "\n")
+    .replace(/<\/li>/gi, "\n")
+    .replace(/<li[^>]*>/gi, "  • ")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function buildRawMessage(opts: {
   to: string;
   from: string;
   subject: string;
   body: string;
+  htmlBody?: string;
   cc?: string;
   inReplyTo?: string;
   references?: string;
+  attachments?: MimeAttachment[];
 }): string {
-  const lines = [
+  const uid = Date.now().toString(36);
+  const B_ALT = `alt_${uid}`;
+  const B_MIX = `mix_${uid}`;
+
+  const hasHtml = !!opts.htmlBody;
+  const hasAttachments = !!(opts.attachments?.length);
+
+  let topContentType: string;
+  if (hasAttachments) {
+    topContentType = `multipart/mixed; boundary="${B_MIX}"`;
+  } else if (hasHtml) {
+    topContentType = `multipart/alternative; boundary="${B_ALT}"`;
+  } else {
+    topContentType = "text/plain; charset=UTF-8";
+  }
+
+  const headerLines = [
     `To: ${opts.to}`,
     `From: ${opts.from}`,
-    opts.cc ? `Cc: ${opts.cc}` : null,
+    ...(opts.cc ? [`Cc: ${opts.cc}`] : []),
     `Subject: ${opts.subject}`,
-    opts.inReplyTo ? `In-Reply-To: ${opts.inReplyTo}` : null,
-    opts.references ? `References: ${opts.references}` : null,
+    ...(opts.inReplyTo ? [`In-Reply-To: ${opts.inReplyTo}`] : []),
+    ...(opts.references ? [`References: ${opts.references}`] : []),
     "MIME-Version: 1.0",
-    "Content-Type: text/plain; charset=UTF-8",
-    "",
-    opts.body,
-  ].filter(Boolean);
-  return Buffer.from(lines.join("\r\n")).toString("base64url");
+    `Content-Type: ${topContentType}`,
+  ].join("\r\n");
+
+  // Build the alt block (text + html)
+  const altBlock = hasHtml
+    ? [
+        `--${B_ALT}`,
+        "Content-Type: text/plain; charset=UTF-8",
+        "",
+        opts.body,
+        "",
+        `--${B_ALT}`,
+        "Content-Type: text/html; charset=UTF-8",
+        "",
+        opts.htmlBody,
+        "",
+        `--${B_ALT}--`,
+      ].join("\r\n")
+    : null;
+
+  let bodyContent: string;
+  if (hasAttachments) {
+    const innerPart = hasHtml
+      ? [`Content-Type: multipart/alternative; boundary="${B_ALT}"`, "", altBlock!].join("\r\n")
+      : ["Content-Type: text/plain; charset=UTF-8", "", opts.body].join("\r\n");
+
+    const parts: string[] = [`--${B_MIX}`, innerPart];
+
+    for (const att of opts.attachments!) {
+      const b64 = att.data.toString("base64");
+      const wrapped = b64.match(/.{1,76}/g)?.join("\r\n") ?? b64;
+      parts.push(
+        `--${B_MIX}`,
+        `Content-Type: ${att.mimeType}; name="${att.filename}"`,
+        `Content-Disposition: attachment; filename="${att.filename}"`,
+        "Content-Transfer-Encoding: base64",
+        "",
+        wrapped,
+      );
+    }
+    parts.push(`--${B_MIX}--`);
+    bodyContent = parts.join("\r\n");
+  } else if (hasHtml) {
+    bodyContent = altBlock!;
+  } else {
+    bodyContent = opts.body;
+  }
+
+  return Buffer.from(`${headerLines}\r\n\r\n${bodyContent}`).toString("base64url");
 }
 
 export async function sendEmail(opts: {
   to: string;
   subject: string;
-  body: string;
+  body?: string;
+  htmlBody?: string;
   cc?: string;
+  attachments?: MimeAttachment[];
 }): Promise<{ messageId: string; threadId: string }> {
   const { gmail, email: from } = await getGmail();
+  const plainText = opts.body ?? (opts.htmlBody ? htmlToPlainText(opts.htmlBody) : "");
   const raw = buildRawMessage({
     to: opts.to,
     from,
     subject: opts.subject,
-    body: opts.body,
+    body: plainText,
+    htmlBody: opts.htmlBody,
     cc: opts.cc,
+    attachments: opts.attachments,
   });
   const res = await gmail.users.messages.send({
     userId: "me",
