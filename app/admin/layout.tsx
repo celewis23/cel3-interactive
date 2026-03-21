@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const NAV = [
   {
@@ -136,6 +136,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchUnread() {
+      try {
+        const res = await fetch("/api/admin/email/status");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) setUnreadCount(data.unreadCount ?? 0);
+      } catch { /* ignore */ }
+    }
+    fetchUnread();
+    const id = setInterval(fetchUnread, 60_000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, []);
 
   // Don't render shell on login/pin pages
   if (pathname.startsWith("/admin/login") || pathname.startsWith("/admin/pin")) {
@@ -179,7 +195,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 }`}
               >
                 {item.icon}
-                {item.label}
+                <span className="flex-1">{item.label}</span>
+                {item.label === "Email" && unreadCount > 0 && (
+                  <span className="ml-auto min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-sky-500 text-white text-[10px] font-semibold leading-none">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}
