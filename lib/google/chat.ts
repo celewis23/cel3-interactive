@@ -126,12 +126,18 @@ export async function createSpace(params: {
   };
 }
 
-export async function deleteSpace(spaceName: string): Promise<void> {
+export async function deleteSpace(spaceName: string, spaceType: string): Promise<void> {
   const auth = await getAuthenticatedClient();
   if (!auth) throw new Error("Not authenticated with Google");
 
   const chat = google.chat({ version: "v1", auth: auth.oauth2Client });
-  await chat.spaces.delete({ name: spaceName });
+
+  if (spaceType === "DIRECT_MESSAGE") {
+    // DMs can't be deleted via spaces.delete — leave the conversation instead
+    await chat.spaces.members.delete({ name: `${spaceName}/members/me` });
+  } else {
+    await chat.spaces.delete({ name: spaceName });
+  }
 }
 
 export async function findOrCreateDM(email: string): Promise<ChatSpace> {

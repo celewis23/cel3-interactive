@@ -29,8 +29,9 @@ export async function DELETE(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const spaceName = searchParams.get("name");
+    const spaceType = searchParams.get("type") ?? "SPACE";
     if (!spaceName) return NextResponse.json({ error: "name is required" }, { status: 400 });
-    await deleteSpace(spaceName);
+    await deleteSpace(spaceName, spaceType);
     return new NextResponse(null, { status: 204 });
   } catch (err) {
     console.error("CHAT_DELETE_SPACE_ERROR:", err);
