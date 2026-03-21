@@ -160,32 +160,12 @@ export async function createSpace(params: {
   };
 }
 
-export async function deleteSpace(spaceName: string, spaceType: string): Promise<void> {
+export async function deleteSpace(spaceName: string): Promise<void> {
   const auth = await getAuthenticatedClient();
   if (!auth) throw new Error("Not authenticated with Google");
 
   const chat = google.chat({ version: "v1", auth: auth.oauth2Client });
-
-  if (spaceType === "DIRECT_MESSAGE") {
-    // DMs can't be deleted via spaces.delete — leave the conversation by
-    // deleting our own membership. Look up the actual membership resource first.
-    let myResourceName: string | null = null;
-    try {
-      const oauth2 = google.oauth2({ version: "v2", auth: auth.oauth2Client });
-      const me = await oauth2.userinfo.get();
-      if (me.data.id) myResourceName = `users/${me.data.id}`;
-    } catch { /* ignore */ }
-
-    const membersRes = await chat.spaces.members.list({ parent: spaceName, pageSize: 20 });
-    const myMembership = (membersRes.data.memberships ?? []).find(
-      (m) => m.member?.name === myResourceName
-    );
-
-    const membershipName = myMembership?.name ?? `${spaceName}/members/me`;
-    await chat.spaces.members.delete({ name: membershipName });
-  } else {
-    await chat.spaces.delete({ name: spaceName });
-  }
+  await chat.spaces.delete({ name: spaceName });
 }
 
 export async function findOrCreateDM(email: string): Promise<ChatSpace> {

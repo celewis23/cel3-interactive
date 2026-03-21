@@ -423,6 +423,7 @@ export default function ChatClient() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const autoRefreshRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const spaceMenuRef = useRef<HTMLDivElement>(null);
+  const deletedSpaceNamesRef = useRef<Set<string>>(new Set());
 
   // Close space menu on outside click
   useEffect(() => {
@@ -454,7 +455,8 @@ export default function ChatClient() {
           throw new Error(body.error ?? "Failed to load spaces");
         }
         const data = await res.json();
-        setSpaces(Array.isArray(data) ? data : []);
+        const all = Array.isArray(data) ? data : [];
+        setSpaces(all.filter((s: ChatSpace) => !deletedSpaceNamesRef.current.has(s.name)));
       } catch (e) {
         setError((e as Error).message);
       } finally {
@@ -556,6 +558,17 @@ export default function ChatClient() {
 
   async function handleDeleteSpace(space: ChatSpace) {
     setDeleteError(null);
+
+    // DMs cannot be deleted via the Google Chat API — "Delete conversation"
+    // in Google Chat is purely client-side (hides from list). Do the same.
+    if (space.spaceType === "DIRECT_MESSAGE") {
+      deletedSpaceNamesRef.current.add(space.name);
+      setSpaces((prev) => prev.filter((s) => s.name !== space.name));
+      if (selectedSpace?.name === space.name) setSelectedSpace(null);
+      setDeletingSpace(null);
+      return;
+    }
+
     try {
       const res = await fetch(
         `/api/admin/chat/spaces?name=${encodeURIComponent(space.name)}&type=${encodeURIComponent(space.spaceType)}`,
@@ -565,6 +578,7 @@ export default function ChatClient() {
         const body = await res.json().catch(() => ({})) as { error?: string };
         throw new Error(body.error ?? "Failed to delete space");
       }
+      deletedSpaceNamesRef.current.add(space.name);
       setSpaces((prev) => prev.filter((s) => s.name !== space.name));
       if (selectedSpace?.name === space.name) setSelectedSpace(null);
     } catch (e) {
@@ -1036,11 +1050,11 @@ export default function ChatClient() {
             <p className="text-sm text-white/50 mb-5">
               {deletingSpace.spaceType === "DIRECT_MESSAGE" ? (
                 <>
-                  Remove{" "}
+                  Hide{" "}
                   <span className="text-white">
                     {deletingSpace.displayName || "this conversation"}
                   </span>{" "}
-                  from your chat list? The other person will not be notified.
+                  from this list? It will reappear if you reload — Google Chat doesn&apos;t support deleting DMs via API.
                 </>
               ) : (
                 <>
