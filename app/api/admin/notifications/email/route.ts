@@ -71,6 +71,17 @@ export async function POST(req: NextRequest) {
   const botChat = google.chat({ version: "v1", auth: botAuth });
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://cel3interactive.com";
 
+  // Ensure bot is in the notification space — silently ignored if already a member
+  try {
+    const userChat = google.chat({ version: "v1", auth: auth.oauth2Client });
+    await userChat.spaces.members.create({
+      parent: notificationSpace,
+      requestBody: {
+        member: { name: `users/${botCredentials.client_id}`, type: "BOT" },
+      },
+    });
+  } catch { /* already a member or insufficient permission — proceed anyway */ }
+
   let notified = 0;
   for (const msg of messages) {
     try {
