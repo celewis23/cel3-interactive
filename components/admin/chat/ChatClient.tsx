@@ -36,6 +36,16 @@ declare global {
   }
 }
 
+function resolveSender(
+  sender: { name: string; displayName?: string },
+  myProfile: { name: string; displayName: string } | null
+): string {
+  if (sender.displayName?.trim()) return sender.displayName.trim();
+  if (myProfile && sender.name === myProfile.name) return myProfile.displayName;
+  // sender.name is "users/12345" — don't show raw ID
+  return "Unknown";
+}
+
 function formatMessageTime(createTime: string): string {
   if (!createTime) return "";
   const dt = DateTime.fromISO(createTime);
@@ -397,6 +407,7 @@ export default function ChatClient() {
   const [inputText, setInputText] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [myProfile, setMyProfile] = useState<{ name: string; displayName: string } | null>(null);
 
   // New features state
   const [showCreateSpace, setShowCreateSpace] = useState(false);
@@ -421,6 +432,14 @@ export default function ChatClient() {
     if (spaceMenuOpen) document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [spaceMenuOpen]);
+
+  // Load own profile for sender name resolution
+  useEffect(() => {
+    fetch("/api/admin/chat/me")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data?.name) setMyProfile(data); })
+      .catch(() => {});
+  }, []);
 
   // Load spaces
   useEffect(() => {
@@ -821,12 +840,12 @@ export default function ChatClient() {
                   messages.map((msg) => (
                     <div key={msg.name} className="flex gap-3 py-1.5 group hover:bg-white/3 rounded-xl px-2 -mx-2 transition-colors">
                       <div className="w-7 h-7 rounded-full bg-sky-500/20 flex items-center justify-center flex-shrink-0 text-sky-400 text-xs font-semibold">
-                        {(msg.sender.displayName ?? msg.sender.name).charAt(0).toUpperCase()}
+                        {resolveSender(msg.sender, myProfile).charAt(0).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-baseline gap-2 flex-wrap">
                           <span className="text-sm font-semibold text-white">
-                            {msg.sender.displayName ?? msg.sender.name}
+                            {resolveSender(msg.sender, myProfile)}
                           </span>
                           <span className="text-xs text-white/40">{formatMessageTime(msg.createTime)}</span>
                           {/* Message actions */}
