@@ -107,26 +107,24 @@ export async function POST(req: NextRequest) {
           });
           return NextResponse.json(normalizeMessage(msgRes.data));
         } catch (botErr: unknown) {
-          // Bot not in space — add it via user OAuth then retry
           const code = (botErr as { code?: number })?.code;
-          if (code === 403 || code === 404) {
-            const userChat = google.chat({ version: "v1", auth: auth.oauth2Client });
-            await userChat.spaces.members.create({
-              parent: spaceName,
-              requestBody: {
-                member: { name: `users/${clientId}`, type: "BOT" },
-              },
-            });
-            const msgRes = await botChat.spaces.messages.create({
-              parent: spaceName,
-              requestBody: cardMessage,
-            });
-            return NextResponse.json(normalizeMessage(msgRes.data));
+          const message = (botErr as { message?: string })?.message ?? "";
+          const notInSpace = code === 403 || code === 404 ||
+            message.toLowerCase().includes("not found") ||
+            message.toLowerCase().includes("permission");
+          if (notInSpace) {
+            // Bot not in space — can't auto-add (requires admin scope)
+            // Fall through to text fallback with hint
+            console.warn("CHAT_BOT_NOT_IN_SPACE: add the bot to this space in Google Chat UI");
+            return NextResponse.json(
+              { error: "BOT_NOT_IN_SPACE", imageUrl },
+              { status: 412 }
+            );
           }
           throw botErr;
         }
       } catch (err) {
-        // Bot unavailable — fall back to text message with image URL
+        // Bot credentials issue or other error — fall back to text message
         console.warn("CHAT_BOT_FALLBACK:", err);
         const userChat = google.chat({ version: "v1", auth: auth.oauth2Client });
         const fallbackText = text.trim() ? `${text.trim()}\n${imageUrl}` : imageUrl;

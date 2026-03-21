@@ -734,6 +734,19 @@ export default function ChatClient() {
           fd.append("file", att.file);
           if (i === 0 && text.trim()) fd.append("text", text);
           const res = await fetch("/api/admin/chat/upload", { method: "POST", body: fd });
+          if (res.status === 412) {
+            // Bot not in space — send as a text link so the message still goes through
+            const { imageUrl } = await res.json() as { imageUrl: string };
+            const msgText = (i === 0 && text.trim()) ? `${text.trim()}\n${imageUrl}` : imageUrl;
+            await fetch("/api/admin/chat/messages", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ spaceName: selectedSpace.name, text: msgText }),
+            });
+            setError("To send images inline in Google Chat, add the bot to this space: open the space → Add people & bots → search for your Chat App name.");
+            if (att.preview) URL.revokeObjectURL(att.preview);
+            continue;
+          }
           if (!res.ok) {
             const err = await res.json().catch(() => ({})) as { error?: string };
             throw new Error(err.error ?? "Upload failed");
