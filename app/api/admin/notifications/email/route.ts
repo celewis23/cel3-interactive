@@ -87,6 +87,8 @@ export async function POST(req: NextRequest) {
   } catch { /* already a member or insufficient permission — proceed anyway */ }
 
   let notified = 0;
+  const errors: string[] = [];
+
   for (const msg of messages) {
     try {
       const detail = await gmail.users.messages.get({
@@ -143,9 +145,16 @@ export async function POST(req: NextRequest) {
       });
       notified++;
     } catch (err) {
-      console.error("NOTIFY_EMAIL_ERROR:", msg.id, err);
+      const msg2 = err instanceof Error ? err.message : String(err);
+      console.error("NOTIFY_EMAIL_ERROR:", msg.id, msg2);
+      errors.push(msg2);
     }
   }
 
-  return NextResponse.json({ notified, total: messages.length });
+  return NextResponse.json({
+    notified,
+    total: messages.length,
+    space: notificationSpace,
+    ...(errors.length ? { errors } : {}),
+  });
 }
