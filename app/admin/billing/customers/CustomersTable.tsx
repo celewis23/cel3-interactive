@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import { useRouter } from "next/navigation";
 import { DateTime } from "luxon";
 import type { BillingCustomer } from "@/lib/stripe/billing";
@@ -18,6 +18,40 @@ function fmtCents(cents: number | null | undefined, currency = "usd") {
 }
 
 const DASH = <span className="text-white/20">—</span>;
+
+// Async cell — fetches lifetime value per customer without blocking page load
+const LifetimeValueCell = memo(function LifetimeValueCell({
+  customerId,
+  currency,
+}: {
+  customerId: string;
+  currency: string;
+}) {
+  const [value, setValue] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/admin/billing/customers/${customerId}/lifetime-value`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!cancelled) setValue(data.lifetimeValue ?? 0);
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [customerId]);
+
+  if (loading)
+    return <div className="w-16 h-3.5 bg-white/8 rounded animate-pulse" />;
+  if (value === null) return DASH;
+  if (value === 0) return <span className="text-sm text-white/25">$0</span>;
+  return (
+    <span className="text-sm text-white font-medium">
+      {fmt(value, currency)}
+    </span>
+  );
+});
 
 type Col = {
   id: string;
@@ -103,18 +137,18 @@ const COLUMNS: Col[] = [
   },
   {
     id: "balance",
-    label: "Balance",
-    defaultOn: true,
+    label: "Account Credit",
+    defaultOn: false,
     render: (c) =>
       c.balance === 0 ? (
         <span className="text-white/25">—</span>
       ) : c.balance < 0 ? (
         <span className="text-emerald-400 text-sm whitespace-nowrap">
-          {fmt(Math.abs(c.balance), c.currency)} cr
+          {fmt(Math.abs(c.balance), c.currency)} credit
         </span>
       ) : (
         <span className="text-amber-400 text-sm whitespace-nowrap">
-          {fmt(c.balance, c.currency)}
+          {fmt(c.balance, c.currency)} debit
         </span>
       ),
   },
@@ -325,6 +359,12 @@ const COLUMNS: Col[] = [
           Test
         </span>
       ),
+  },
+  {
+    id: "lifetimeValue",
+    label: "Lifetime Value",
+    defaultOn: true,
+    render: (c) => <LifetimeValueCell customerId={c.id} currency={c.currency} />,
   },
   {
     id: "created",
