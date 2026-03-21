@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { DateTime } from "luxon";
 import type { BillingCustomer } from "@/lib/stripe/billing";
 
@@ -360,6 +361,7 @@ interface Props {
 }
 
 export default function CustomersTable({ customers, hasMore }: Props) {
+  const router = useRouter();
   const [visible, setVisible] = useState<Set<string>>(DEFAULT_ON);
   const [pickerOpen, setPickerOpen] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
@@ -462,7 +464,11 @@ export default function CustomersTable({ customers, hasMore }: Props) {
           </thead>
           <tbody className="divide-y divide-white/5">
             {customers.map((c) => (
-              <tr key={c.id} className="hover:bg-white/2 transition-colors">
+              <tr
+                key={c.id}
+                onClick={() => router.push(`/admin/billing/customers/${c.id}`)}
+                className="hover:bg-white/2 transition-colors cursor-pointer"
+              >
                 {activeCols.map((col) => (
                   <td key={col.id} className="px-5 py-3.5 align-top">
                     {col.render(c)}

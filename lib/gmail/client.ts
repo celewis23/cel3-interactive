@@ -32,8 +32,11 @@ export const GMAIL_SCOPES = [
   "https://www.googleapis.com/auth/drive",
   "https://www.googleapis.com/auth/photoslibrary.readonly",
   "https://www.googleapis.com/auth/calendar",
-  "https://www.googleapis.com/auth/chat.spaces.readonly",
+  "https://www.googleapis.com/auth/chat.spaces",
   "https://www.googleapis.com/auth/chat.messages",
+  "https://www.googleapis.com/auth/chat.memberships",
+  "https://www.googleapis.com/auth/chat.messages.reactions",
+  "https://www.googleapis.com/auth/contacts",
 ];
 
 export async function getStoredTokens(): Promise<StoredTokens | null> {

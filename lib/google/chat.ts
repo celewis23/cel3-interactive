@@ -98,3 +98,100 @@ export async function sendMessage(
     thread: m.thread?.name ? { name: m.thread.name } : undefined,
   };
 }
+
+export async function createSpace(params: {
+  displayName: string;
+  spaceType: "SPACE" | "GROUP_CHAT";
+  description?: string;
+}): Promise<ChatSpace> {
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
+
+  const chat = google.chat({ version: "v1", auth: auth.oauth2Client });
+  const requestBody: Record<string, unknown> = {
+    displayName: params.displayName,
+    spaceType: params.spaceType,
+  };
+  if (params.description) {
+    requestBody.spaceDetails = { description: params.description };
+  }
+  const res = await chat.spaces.create({ requestBody });
+  const s = res.data;
+  return {
+    name: s.name ?? "",
+    displayName: s.displayName ?? undefined,
+    spaceType: s.spaceType ?? params.spaceType,
+    singleUserBotDm: s.singleUserBotDm ?? undefined,
+    spaceUri: s.spaceUri ?? undefined,
+  };
+}
+
+export async function deleteMessage(messageName: string): Promise<void> {
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
+
+  const chat = google.chat({ version: "v1", auth: auth.oauth2Client });
+  await chat.spaces.messages.delete({ name: messageName });
+}
+
+export async function updateMessage(messageName: string, text: string): Promise<ChatMessage> {
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
+
+  const chat = google.chat({ version: "v1", auth: auth.oauth2Client });
+  const res = await chat.spaces.messages.patch({
+    name: messageName,
+    updateMask: "text",
+    requestBody: { text },
+  });
+  const m = res.data;
+  return {
+    name: m.name ?? "",
+    text: m.text ?? undefined,
+    formattedText: m.formattedText ?? undefined,
+    sender: {
+      name: m.sender?.name ?? "",
+      displayName: m.sender?.displayName ?? undefined,
+      type: m.sender?.type ?? undefined,
+    },
+    createTime: m.createTime ?? "",
+    thread: m.thread?.name ? { name: m.thread.name } : undefined,
+  };
+}
+
+export async function listMembers(spaceName: string): Promise<{ name: string; displayName?: string; email?: string; role: string }[]> {
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
+
+  const chat = google.chat({ version: "v1", auth: auth.oauth2Client });
+  const res = await chat.spaces.members.list({ parent: spaceName, pageSize: 100 });
+  const members = res.data.memberships ?? [];
+  return members.map((member) => ({
+    name: member.name ?? "",
+    displayName: member.member?.displayName ?? undefined,
+    email: member.member?.name ?? undefined,
+    role: member.role ?? "ROLE_MEMBER",
+  }));
+}
+
+export async function addMember(spaceName: string, email: string): Promise<void> {
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
+
+  const chat = google.chat({ version: "v1", auth: auth.oauth2Client });
+  await chat.spaces.members.create({
+    parent: spaceName,
+    requestBody: {
+      member: { name: `users/${email}`, type: "HUMAN" },
+      role: "ROLE_MEMBER",
+    },
+  });
+}
+
+export async function removeMember(spaceName: string, memberName: string): Promise<void> {
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
+
+  const chat = google.chat({ version: "v1", auth: auth.oauth2Client });
+  await chat.spaces.members.delete({ name: memberName });
+}
