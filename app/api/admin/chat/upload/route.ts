@@ -1,6 +1,5 @@
 export const runtime = "nodejs";
 
-import { Readable } from "stream";
 import { NextRequest, NextResponse } from "next/server";
 import { google } from "googleapis";
 import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
@@ -69,9 +68,10 @@ export async function POST(req: NextRequest) {
 
     if (isImage) {
       // Upload to Sanity CDN for a permanent public URL
+      // Pass Buffer directly — Readable causes "duplex option required" in Node 18+ fetch
       const asset = await sanityWriteClient.assets.upload(
         "image",
-        Readable.from(fileBuffer),
+        fileBuffer,
         { filename: fileName, contentType: mimeType }
       );
       const imageUrl = asset.url;
@@ -139,6 +139,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Non-image: upload to Drive with link sharing
+    const { Readable } = await import("stream");
     const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
     const driveRes = await drive.files.create({
       requestBody: { name: fileName, mimeType },
