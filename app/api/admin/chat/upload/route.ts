@@ -31,16 +31,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No access token available" }, { status: 401 });
     }
 
-    const boundary = `ChatUploadBoundary${Date.now()}`;
+    const boundary = `ChatUpload${Date.now()}`;
     const metadata = JSON.stringify({ text });
     const fileBuffer = Buffer.from(await file.arrayBuffer());
     const mimeType = file.type || "application/octet-stream";
 
+    // multipart/related body per Google API spec
     const body = Buffer.concat([
       Buffer.from(`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n`),
-      Buffer.from(`--${boundary}\r\nContent-Type: ${mimeType}\r\nContent-Transfer-Encoding: binary\r\n\r\n`),
+      Buffer.from(`--${boundary}\r\nContent-Type: ${mimeType}\r\n\r\n`),
       fileBuffer,
-      Buffer.from(`\r\n--${boundary}--`),
+      Buffer.from(`\r\n--${boundary}--\r\n`),
     ]);
 
     const url = `https://chat.googleapis.com/upload/v1/${spaceName}/messages?uploadType=multipart`;
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest) {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        "Content-Type": `multipart/related; boundary=${boundary}`,
+        "Content-Type": `multipart/related; boundary="${boundary}"`,
       },
       body,
     });

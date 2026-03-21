@@ -590,7 +590,24 @@ export default function ChatClient() {
   }
 
   function handlePaste(e: React.ClipboardEvent<HTMLTextAreaElement>) {
-    const files = Array.from(e.clipboardData.files);
+    // .files is often empty for screenshots — use .items to get pasted file data
+    const items = Array.from(e.clipboardData.items);
+    const fileItems = items.filter((item) => item.kind === "file");
+    if (fileItems.length === 0) return;
+
+    const files: File[] = [];
+    for (const item of fileItems) {
+      const f = item.getAsFile();
+      if (!f) continue;
+      // Give unnamed clipboard images a generated name
+      if (!f.name || f.name === "image.png") {
+        const ext = f.type.split("/")[1] || "png";
+        const named = new File([f], `image_${Date.now()}.${ext}`, { type: f.type });
+        files.push(named);
+      } else {
+        files.push(f);
+      }
+    }
     if (files.length > 0) addFiles(files);
   }
 
