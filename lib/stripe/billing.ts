@@ -7,16 +7,59 @@ import Stripe from "stripe";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type BillingCustomer = {
+  // Core
   id: string;
   name: string | null;
   email: string | null;
   phone: string | null;
+  description: string | null;
+  created: number; // unix
+  livemode: boolean;
+
+  // Balance
   balance: number; // in cents
   currency: string;
-  created: number; // unix
+  cashBalance: Record<string, number> | null; // available cash per currency
+  invoiceCreditBalance: Record<string, number> | null;
+
+  // Status
+  delinquent: boolean | null;
+  taxExempt: string | null; // 'none' | 'exempt' | 'reverse'
+  nextInvoiceSequence: number | null;
+  preferredLocales: string[];
+  metadata: Record<string, string>;
+
+  // Address
+  country: string | null; // address.country (kept for compat)
+  addressLine1: string | null;
+  addressCity: string | null;
+  addressState: string | null;
+  addressPostalCode: string | null;
+
+  // Shipping
+  shippingName: string | null;
+  shippingPhone: string | null;
+  shippingAddressLine1: string | null;
+  shippingAddressCity: string | null;
+  shippingAddressState: string | null;
+  shippingAddressPostalCode: string | null;
+
+  // Payment method (expanded)
+  defaultPaymentMethodBrand: string | null;
+  defaultPaymentMethodLast4: string | null;
+  defaultPaymentMethodType: string | null;
   defaultSource: string | null;
-  country: string | null;
-  description: string | null;
+
+  // Subscription (expanded, first active)
+  subscriptionStatus: string | null;
+  subscriptionCurrentPeriodEnd: number | null;
+  subscriptionPlanNickname: string | null;
+  subscriptionPlanAmount: number | null;
+  subscriptionPlanInterval: string | null;
+
+  // Discount / coupon
+  discountCouponName: string | null;
+  discountCouponPercentOff: number | null;
 };
 
 export type BillingInvoice = {
@@ -128,6 +171,87 @@ function mapInvoice(inv: Stripe.Invoice): BillingInvoice {
 
 // ─── Customers ────────────────────────────────────────────────────────────────
 
+const CUSTOMER_EXPAND = [
+  "subscriptions",
+  "invoice_settings.default_payment_method",
+  "cash_balance",
+] as const;
+
+function mapCustomer(c: Stripe.Customer): BillingCustomer {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const raw = c as any;
+
+  // Default payment method (expanded object or string id)
+  const dpm = c.invoice_settings?.default_payment_method;
+  const dpmObj = typeof dpm === "object" && dpm !== null ? (dpm as Stripe.PaymentMethod) : null;
+
+  // First subscription (expanded list)
+  const firstSub = c.subscriptions?.data?.[0];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const subRaw = firstSub as any;
+
+  // Cash balance (expanded CashBalance object)
+  const cashBalAvailable = raw.cash_balance?.available as Record<string, number> | null | undefined;
+
+  // Invoice credit balance (newer Stripe field)
+  const icb = raw.invoice_credit_balance as Record<string, number> | null | undefined;
+
+  // Discount coupon (cast because Stripe SDK types Discount.coupon as DeletedCoupon | Coupon)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const coupon = (c.discount as any)?.coupon as Stripe.Coupon | null | undefined;
+
+  return {
+    id: c.id,
+    name: c.name ?? null,
+    email: c.email ?? null,
+    phone: c.phone ?? null,
+    description: c.description ?? null,
+    created: c.created,
+    livemode: c.livemode,
+
+    balance: c.balance,
+    currency: c.currency ?? "usd",
+    cashBalance: cashBalAvailable ?? null,
+    invoiceCreditBalance: icb ?? null,
+
+    delinquent: c.delinquent ?? null,
+    taxExempt: c.tax_exempt ?? null,
+    nextInvoiceSequence: c.next_invoice_sequence ?? null,
+    preferredLocales: c.preferred_locales ?? [],
+    metadata: (c.metadata as Record<string, string>) ?? {},
+
+    country: c.address?.country ?? null,
+    addressLine1: c.address?.line1 ?? null,
+    addressCity: c.address?.city ?? null,
+    addressState: c.address?.state ?? null,
+    addressPostalCode: c.address?.postal_code ?? null,
+
+    shippingName: c.shipping?.name ?? null,
+    shippingPhone: c.shipping?.phone ?? null,
+    shippingAddressLine1: c.shipping?.address?.line1 ?? null,
+    shippingAddressCity: c.shipping?.address?.city ?? null,
+    shippingAddressState: c.shipping?.address?.state ?? null,
+    shippingAddressPostalCode: c.shipping?.address?.postal_code ?? null,
+
+    defaultPaymentMethodBrand: dpmObj?.card?.brand ?? null,
+    defaultPaymentMethodLast4: dpmObj?.card?.last4 ?? null,
+    defaultPaymentMethodType: dpmObj?.type ?? null,
+    defaultSource:
+      typeof c.default_source === "string"
+        ? c.default_source
+        : (c.default_source as Stripe.PaymentMethod | null)?.id ?? null,
+
+    subscriptionStatus: firstSub?.status ?? null,
+    subscriptionCurrentPeriodEnd: subRaw?.current_period_end ?? null,
+    subscriptionPlanNickname: subRaw?.plan?.nickname ?? null,
+    subscriptionPlanAmount: subRaw?.plan?.amount ?? null,
+    subscriptionPlanInterval: subRaw?.plan?.interval ?? null,
+
+    discountCouponName: coupon?.name ?? null,
+    discountCouponPercentOff: coupon?.percent_off ?? null,
+  };
+}
+
 export async function listCustomers(opts?: {
   limit?: number;
   startingAfter?: string;
@@ -137,48 +261,21 @@ export async function listCustomers(opts?: {
     limit: opts?.limit ?? 20,
     ...(opts?.startingAfter ? { starting_after: opts.startingAfter } : {}),
     ...(opts?.email ? { email: opts.email } : {}),
+    expand: CUSTOMER_EXPAND.map((f) => `data.${f}`),
   });
 
-  const customers: BillingCustomer[] = result.data.map((c) => ({
-    id: c.id,
-    name: c.name ?? null,
-    email: c.email ?? null,
-    phone: c.phone ?? null,
-    balance: c.balance,
-    currency: c.currency ?? "usd",
-    created: c.created,
-    defaultSource:
-      typeof c.default_source === "string"
-        ? c.default_source
-        : (c.default_source as Stripe.PaymentMethod | null)?.id ?? null,
-    country: c.address?.country ?? null,
-    description: c.description ?? null,
-  }));
-
-  return { customers, hasMore: result.has_more };
+  return {
+    customers: result.data.map(mapCustomer),
+    hasMore: result.has_more,
+  };
 }
 
 export async function getCustomer(customerId: string): Promise<BillingCustomer | null> {
-  const c = await stripe.customers.retrieve(customerId);
-
+  const c = await stripe.customers.retrieve(customerId, {
+    expand: CUSTOMER_EXPAND as unknown as string[],
+  });
   if ((c as Stripe.DeletedCustomer).deleted) return null;
-
-  const cust = c as Stripe.Customer;
-  return {
-    id: cust.id,
-    name: cust.name ?? null,
-    email: cust.email ?? null,
-    balance: cust.balance,
-    currency: cust.currency ?? "usd",
-    created: cust.created,
-    defaultSource:
-      typeof cust.default_source === "string"
-        ? cust.default_source
-        : (cust.default_source as Stripe.PaymentMethod | null)?.id ?? null,
-    phone: cust.phone ?? null,
-    country: cust.address?.country ?? null,
-    description: cust.description ?? null,
-  };
+  return mapCustomer(c as Stripe.Customer);
 }
 
 export async function createCustomer(params: {
@@ -193,18 +290,7 @@ export async function createCustomer(params: {
     ...(params.phone ? { phone: params.phone } : {}),
     ...(params.description ? { description: params.description } : {}),
   });
-  return {
-    id: c.id,
-    name: c.name ?? null,
-    email: c.email ?? null,
-    phone: c.phone ?? null,
-    balance: c.balance,
-    currency: c.currency ?? "usd",
-    created: c.created,
-    defaultSource: null,
-    country: c.address?.country ?? null,
-    description: c.description ?? null,
-  };
+  return mapCustomer(c);
 }
 
 // ─── Invoices ─────────────────────────────────────────────────────────────────
