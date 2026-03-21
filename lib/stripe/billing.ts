@@ -289,10 +289,10 @@ export async function listSubscriptions(opts?: {
       customerName: customer?.name ?? null,
       customerEmail: customer?.email ?? null,
       status: sub.status,
-      currentPeriodStart: sub.current_period_start,
-      currentPeriodEnd: sub.current_period_end,
+      currentPeriodStart: (sub as unknown as Record<string, number>).current_period_start ?? 0,
+      currentPeriodEnd: (sub as unknown as Record<string, number>).current_period_end ?? 0,
       cancelAtPeriodEnd: sub.cancel_at_period_end,
-      canceledAt: sub.canceled_at ?? null,
+      canceledAt: (sub as unknown as Record<string, number | null>).canceled_at ?? null,
       items: sub.items.data.map((item) => ({
         id: item.id,
         priceId: item.price.id,
