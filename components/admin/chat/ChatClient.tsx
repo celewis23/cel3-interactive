@@ -77,6 +77,91 @@ function resolveSender(
   return "Unknown";
 }
 
+// Matches image URLs: Sanity CDN (any path) or any URL ending in an image extension
+const IMAGE_URL_RE = /https?:\/\/cdn\.sanity\.io\/images\/[^\s"'<>]+|https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|gif|webp|avif)(?:[?#][^\s"'<>]*)?/gi;
+// Matches any remaining URL (for clickable links)
+const ANY_URL_RE = /https?:\/\/[^\s"'<>]+/g;
+
+type TextSegment =
+  | { kind: "text"; value: string }
+  | { kind: "image"; url: string }
+  | { kind: "link"; url: string };
+
+function parseMessageText(text: string): TextSegment[] {
+  const segments: TextSegment[] = [];
+  // First pass: extract image URLs
+  const imageMatches = [...text.matchAll(new RegExp(IMAGE_URL_RE.source, "gi"))];
+  if (imageMatches.length === 0) {
+    // Second pass: extract plain links
+    const linkMatches = [...text.matchAll(new RegExp(ANY_URL_RE.source, "g"))];
+    if (linkMatches.length === 0) return [{ kind: "text", value: text }];
+    let pos = 0;
+    for (const m of linkMatches) {
+      if ((m.index ?? 0) > pos) segments.push({ kind: "text", value: text.slice(pos, m.index) });
+      segments.push({ kind: "link", url: m[0] });
+      pos = (m.index ?? 0) + m[0].length;
+    }
+    if (pos < text.length) segments.push({ kind: "text", value: text.slice(pos) });
+    return segments;
+  }
+  let pos = 0;
+  for (const m of imageMatches) {
+    if ((m.index ?? 0) > pos) segments.push({ kind: "text", value: text.slice(pos, m.index) });
+    segments.push({ kind: "image", url: m[0] });
+    pos = (m.index ?? 0) + m[0].length;
+  }
+  if (pos < text.length) segments.push({ kind: "text", value: text.slice(pos) });
+  return segments;
+}
+
+function MessageText({ text }: { text: string }) {
+  const segments = parseMessageText(text);
+  if (segments.length === 1 && segments[0].kind === "text") {
+    return (
+      <p className="text-sm text-white/70 mt-0.5 leading-relaxed whitespace-pre-wrap break-words">
+        {text}
+      </p>
+    );
+  }
+  return (
+    <div className="mt-0.5 space-y-1">
+      {segments.map((seg, i) => {
+        if (seg.kind === "text") {
+          return seg.value.trim() ? (
+            <p key={i} className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap break-words">
+              {seg.value}
+            </p>
+          ) : null;
+        }
+        if (seg.kind === "image") {
+          return (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={i}
+              src={seg.url}
+              alt="attachment"
+              className="max-w-xs max-h-64 rounded-xl border border-white/10 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={() => window.open(seg.url, "_blank")}
+            />
+          );
+        }
+        // link
+        return (
+          <a
+            key={i}
+            href={seg.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-sky-400 hover:text-sky-300 underline break-all"
+          >
+            {seg.url}
+          </a>
+        );
+      })}
+    </div>
+  );
+}
+
 function formatMessageTime(createTime: string): string {
   if (!createTime) return "";
   const dt = DateTime.fromISO(createTime);
@@ -1128,9 +1213,7 @@ export default function ChatClient() {
                             </div>
                           </div>
                         ) : (
-                          <p className="text-sm text-white/70 mt-0.5 leading-relaxed whitespace-pre-wrap break-words">
-                            {msg.text ?? msg.formattedText ?? ""}
-                          </p>
+                          <MessageText text={msg.text ?? msg.formattedText ?? ""} />
                         )}
                       </div>
                     </div>

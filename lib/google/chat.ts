@@ -86,18 +86,34 @@ export async function listMessages(
     pageToken,
   });
 
-  const messages = (res.data.messages ?? []).map((m) => ({
-    name: m.name ?? "",
-    text: m.text ?? undefined,
-    formattedText: m.formattedText ?? undefined,
-    sender: {
-      name: m.sender?.name ?? "",
-      displayName: m.sender?.displayName ?? undefined,
-      type: m.sender?.type ?? undefined,
-    },
-    createTime: m.createTime ?? "",
-    thread: m.thread?.name ? { name: m.thread.name } : undefined,
-  }));
+  const messages = (res.data.messages ?? []).map((m) => {
+    // Extract image URLs from cardsV2 so they render in our UI
+    let cardImageUrls: string[] = [];
+    if (!m.text && m.cardsV2?.length) {
+      for (const card of m.cardsV2) {
+        for (const section of card.card?.sections ?? []) {
+          for (const widget of section.widgets ?? []) {
+            const url = (widget.image as { imageUrl?: string } | undefined)?.imageUrl;
+            if (url) cardImageUrls.push(url);
+          }
+        }
+      }
+    }
+    const syntheticText = cardImageUrls.length ? cardImageUrls.join("\n") : undefined;
+
+    return {
+      name: m.name ?? "",
+      text: m.text ?? syntheticText ?? undefined,
+      formattedText: m.formattedText ?? undefined,
+      sender: {
+        name: m.sender?.name ?? "",
+        displayName: m.sender?.displayName ?? undefined,
+        type: m.sender?.type ?? undefined,
+      },
+      createTime: m.createTime ?? "",
+      thread: m.thread?.name ? { name: m.thread.name } : undefined,
+    };
+  });
 
   return {
     messages,
