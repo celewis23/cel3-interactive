@@ -256,8 +256,9 @@ export default function DriveClient() {
 
       {/* File list */}
       <div className="bg-white/3 border border-white/8 rounded-2xl overflow-hidden">
+        <div className="overflow-x-auto">
         {/* Table header */}
-        <div className="grid grid-cols-[auto_1fr_100px_160px_80px] gap-0 px-4 py-2 border-b border-white/8">
+        <div className="grid grid-cols-[auto_1fr_100px_160px_80px] gap-0 px-4 py-2 border-b border-white/8 min-w-[520px]">
           <div className="w-7" />
           <div className="text-xs text-white/30 uppercase tracking-wider">Name</div>
           <div className="text-xs text-white/30 uppercase tracking-wider text-right">Size</div>
@@ -276,7 +277,7 @@ export default function DriveClient() {
             This folder is empty
           </div>
         ) : (
-          <div>
+          <div className="min-w-[520px]">
             {files.map((file) => (
               <div
                 key={file.id}
@@ -338,6 +339,7 @@ export default function DriveClient() {
             ))}
           </div>
         )}
+        </div>{/* /overflow-x-auto */}
       </div>
 
       {/* Load more */}

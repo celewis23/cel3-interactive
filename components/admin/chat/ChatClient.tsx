@@ -316,7 +316,7 @@ function MembersPanel({
   }
 
   return (
-    <div className="w-72 flex-shrink-0 border-l border-white/8 flex flex-col bg-[#0a0a0a]">
+    <div className="w-full md:w-72 flex-shrink-0 border-l border-white/8 flex flex-col bg-[#0a0a0a]">
       <div className="px-4 py-4 border-b border-white/8 flex items-center justify-between">
         <h3 className="text-xs font-semibold uppercase tracking-widest text-white/40">Members</h3>
         <button onClick={onClose} className="text-white/30 hover:text-white">
@@ -609,8 +609,8 @@ export default function ChatClient() {
 
   return (
     <div className="-m-6 lg:-m-8 flex h-[calc(100vh-0px)]" style={{ height: "calc(100vh - 56px)" }}>
-      {/* Left panel: spaces list */}
-      <aside className="w-64 flex-shrink-0 border-r border-white/8 flex flex-col bg-[#0a0a0a]">
+      {/* Left panel: spaces list — full width on mobile when no space selected, hidden when space selected */}
+      <aside className={`flex-shrink-0 border-r border-white/8 flex flex-col bg-[#0a0a0a] w-full md:w-64 ${selectedSpace ? "hidden md:flex" : "flex"}`}>
         <div className="px-4 py-4 border-b border-white/8 flex items-center justify-between">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-white/40">Spaces</h2>
           <div className="flex items-center gap-2">
@@ -721,8 +721,8 @@ export default function ChatClient() {
         </div>
       </aside>
 
-      {/* Right panel: messages */}
-      <div className="flex-1 flex min-w-0">
+      {/* Right panel: messages — hidden on mobile until a space is selected */}
+      <div className={`flex-1 flex min-w-0 ${!selectedSpace ? "hidden md:flex" : "flex"}`}>
         <div className="flex-1 flex flex-col min-w-0">
           {!selectedSpace ? (
             <div className="flex-1 flex items-center justify-center">
@@ -740,6 +740,15 @@ export default function ChatClient() {
               {/* Header */}
               <div className="flex items-center justify-between px-5 py-4 border-b border-white/8 flex-shrink-0">
                 <div className="flex items-center gap-2.5">
+                  {/* Back button — mobile only */}
+                  <button
+                    className="md:hidden -ml-1 mr-0.5 p-1 text-white/50 hover:text-white transition-colors"
+                    onClick={() => setSelectedSpace(null)}
+                  >
+                    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                    </svg>
+                  </button>
                   <span className="text-white/40">
                     <SpaceIcon spaceType={selectedSpace.spaceType} />
                   </span>

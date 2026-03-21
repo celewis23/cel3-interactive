@@ -661,9 +661,9 @@ export default function ContactsClient() {
         </div>
       </div>
 
-      {/* Detail panel */}
+      {/* Detail panel — full-screen overlay on mobile, side panel on lg+ */}
       {selected && (
-        <div className="w-80 flex-shrink-0 bg-white/3 border border-white/8 rounded-2xl overflow-hidden flex flex-col">
+        <div className="fixed inset-0 z-40 lg:static lg:inset-auto lg:z-auto lg:w-80 lg:flex-shrink-0 bg-[#0d0d0d] lg:bg-white/3 lg:border lg:border-white/8 lg:rounded-2xl overflow-hidden flex flex-col">
           <DetailPanel
             contact={selected}
             onClose={() => setSelected(null)}

@@ -153,7 +153,7 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
           placeholder="Filter by sender or subject…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-56 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors"
+          className="w-full sm:w-56 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors"
         />
       </div>
 

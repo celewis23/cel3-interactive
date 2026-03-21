@@ -220,19 +220,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile header */}
-        <div className="lg:hidden flex items-center gap-3 px-4 py-3 border-b border-white/8">
+        <div className="lg:hidden flex items-center gap-3 px-4 py-3 border-b border-white/8 flex-shrink-0">
           <button
             onClick={() => setMobileOpen(true)}
-            className="text-white/60 hover:text-white"
+            className="text-white/60 hover:text-white flex-shrink-0"
           >
             <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
             </svg>
           </button>
-          <span className="text-sm font-medium text-white">CEL3 Backoffice</span>
+          <span className="text-sm font-medium text-white truncate">
+            {NAV.find((n) => n.href === "/admin" ? pathname === "/admin" : pathname.startsWith(n.href))?.label ?? "Backoffice"}
+          </span>
         </div>
 
-        <main className="flex-1 p-6 lg:p-8 max-w-6xl w-full mx-auto">
+        <main className="flex-1 p-4 lg:p-8 max-w-6xl w-full mx-auto">
           {children}
         </main>
       </div>
