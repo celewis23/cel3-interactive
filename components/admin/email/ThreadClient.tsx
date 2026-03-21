@@ -91,7 +91,7 @@ function MessageCard({ message, index }: { message: GmailMessageParsed; index: n
         <div className="px-5 pb-5 border-t border-white/5">
           {message.bodyHtml ? (
             <div
-              className="mt-4 text-sm text-white/80 [&_a]:text-sky-400 [&_a]:underline [&_p]:mb-3 [&_h1]:text-lg [&_h2]:text-base max-w-none overflow-x-auto"
+              className="mt-4 bg-white rounded-xl p-4 overflow-x-auto text-gray-900 text-sm"
               // eslint-disable-next-line react/no-danger
               dangerouslySetInnerHTML={{ __html: message.bodyHtml }}
             />

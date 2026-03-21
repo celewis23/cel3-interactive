@@ -10,12 +10,13 @@ export type BillingCustomer = {
   id: string;
   name: string | null;
   email: string | null;
+  phone: string | null;
   balance: number; // in cents
   currency: string;
   created: number; // unix
   defaultSource: string | null;
-  invoiceCount?: number;
-  subscriptionCount?: number;
+  country: string | null;
+  description: string | null;
 };
 
 export type BillingInvoice = {
@@ -142,6 +143,7 @@ export async function listCustomers(opts?: {
     id: c.id,
     name: c.name ?? null,
     email: c.email ?? null,
+    phone: c.phone ?? null,
     balance: c.balance,
     currency: c.currency ?? "usd",
     created: c.created,
@@ -149,6 +151,8 @@ export async function listCustomers(opts?: {
       typeof c.default_source === "string"
         ? c.default_source
         : (c.default_source as Stripe.PaymentMethod | null)?.id ?? null,
+    country: c.address?.country ?? null,
+    description: c.description ?? null,
   }));
 
   return { customers, hasMore: result.has_more };
@@ -171,6 +175,35 @@ export async function getCustomer(customerId: string): Promise<BillingCustomer |
       typeof cust.default_source === "string"
         ? cust.default_source
         : (cust.default_source as Stripe.PaymentMethod | null)?.id ?? null,
+    phone: cust.phone ?? null,
+    country: cust.address?.country ?? null,
+    description: cust.description ?? null,
+  };
+}
+
+export async function createCustomer(params: {
+  name: string;
+  email?: string;
+  phone?: string;
+  description?: string;
+}): Promise<BillingCustomer> {
+  const c = await stripe.customers.create({
+    name: params.name,
+    ...(params.email ? { email: params.email } : {}),
+    ...(params.phone ? { phone: params.phone } : {}),
+    ...(params.description ? { description: params.description } : {}),
+  });
+  return {
+    id: c.id,
+    name: c.name ?? null,
+    email: c.email ?? null,
+    phone: c.phone ?? null,
+    balance: c.balance,
+    currency: c.currency ?? "usd",
+    created: c.created,
+    defaultSource: null,
+    country: c.address?.country ?? null,
+    description: c.description ?? null,
   };
 }
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
-import { listCustomers } from "@/lib/stripe/billing";
+import { listCustomers, createCustomer } from "@/lib/stripe/billing";
 
 export const runtime = "nodejs";
 
@@ -27,5 +27,28 @@ export async function GET(req: NextRequest) {
   } catch (err: unknown) {
     console.error("BILLING_ERROR:", err);
     return NextResponse.json({ error: "Failed to fetch customers" }, { status: 500 });
+  }
+}
+
+export async function POST(req: NextRequest) {
+  if (!requireAuth(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  try {
+    const body = await req.json();
+    const { name, email, phone, description } = body;
+    if (!name?.trim()) {
+      return NextResponse.json({ error: "name is required" }, { status: 400 });
+    }
+    const customer = await createCustomer({
+      name: name.trim(),
+      email: email?.trim() || undefined,
+      phone: phone?.trim() || undefined,
+      description: description?.trim() || undefined,
+    });
+    return NextResponse.json(customer, { status: 201 });
+  } catch (err: unknown) {
+    console.error("BILLING_ERROR:", err);
+    return NextResponse.json({ error: "Failed to create customer" }, { status: 500 });
   }
 }

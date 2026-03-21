@@ -113,19 +113,19 @@ export default async function InvoicesPage({
       ) : (
         <div className="bg-white/3 border border-white/8 rounded-2xl overflow-hidden">
           {/* Table header */}
-          <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-5 py-3 border-b border-white/8 text-xs text-white/40 uppercase tracking-wide">
+          <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 px-5 py-3 border-b border-white/8 text-xs text-white/40 uppercase tracking-wide">
             <span>Invoice / Customer</span>
             <span>Amount</span>
             <span>Status</span>
             <span>Created</span>
-            <span>Actions</span>
           </div>
 
           <div className="divide-y divide-white/5">
             {invoices.map((inv: BillingInvoice) => (
-              <div
+              <Link
                 key={inv.id}
-                className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-5 py-4 items-center hover:bg-white/2 transition-colors"
+                href={`/admin/billing/invoices/${inv.id}`}
+                className="grid grid-cols-[1fr_auto_auto_auto] gap-4 px-5 py-4 items-center hover:bg-white/5 transition-colors"
               >
                 {/* Invoice / customer */}
                 <div className="min-w-0">
@@ -157,17 +157,7 @@ export default async function InvoicesPage({
                 <div className="text-xs text-white/40 whitespace-nowrap">
                   {DateTime.fromSeconds(inv.created).toFormat("LLL d, yyyy")}
                 </div>
-
-                {/* Actions */}
-                <div>
-                  <Link
-                    href={`/admin/billing/invoices/${inv.id}`}
-                    className="text-xs text-sky-400 hover:text-sky-300 transition-colors"
-                  >
-                    View
-                  </Link>
-                </div>
-              </div>
+              </Link>
             ))}
           </div>
 
