@@ -1,6 +1,31 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+
+// ─── localStorage helpers ─────────────────────────────────────────────────────
+
+const LS_HIDDEN_DMS = "cel3_hidden_dms";
+const LS_DM_EMAILS = "cel3_dm_emails";
+
+function getHiddenDMs(): { name: string; hiddenAt: string }[] {
+  try {
+    return JSON.parse(localStorage.getItem(LS_HIDDEN_DMS) ?? "[]");
+  } catch { return []; }
+}
+
+function setHiddenDMs(list: { name: string; hiddenAt: string }[]) {
+  localStorage.setItem(LS_HIDDEN_DMS, JSON.stringify(list));
+}
+
+function getDMEmails(): Record<string, string> {
+  try {
+    return JSON.parse(localStorage.getItem(LS_DM_EMAILS) ?? "{}");
+  } catch { return {}; }
+}
+
+function setDMEmails(map: Record<string, string>) {
+  localStorage.setItem(LS_DM_EMAILS, JSON.stringify(map));
+}
 import { DateTime } from "luxon";
 
 type ChatSpace = {
@@ -179,7 +204,7 @@ function NewDMModal({
   onOpened,
 }: {
   onClose: () => void;
-  onOpened: (space: ChatSpace) => void;
+  onOpened: (space: ChatSpace, email: string) => void;
 }) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -201,7 +226,7 @@ function NewDMModal({
         throw new Error(err.error ?? "Failed to open DM");
       }
       const space = await res.json() as ChatSpace;
-      onOpened(space);
+      onOpened(space, email.trim());
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -409,6 +434,7 @@ export default function ChatClient() {
   const [error, setError] = useState<string | null>(null);
   const [myProfile, setMyProfile] = useState<{ name: string; displayName: string } | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [dmEmails, setDmEmails] = useState<Record<string, string>>({});
 
   // New features state
   const [showCreateSpace, setShowCreateSpace] = useState(false);
@@ -423,7 +449,6 @@ export default function ChatClient() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const autoRefreshRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const spaceMenuRef = useRef<HTMLDivElement>(null);
-  const deletedSpaceNamesRef = useRef<Set<string>>(new Set());
 
   // Close space menu on outside click
   useEffect(() => {
@@ -448,6 +473,8 @@ export default function ChatClient() {
   useEffect(() => {
     async function fetchSpaces() {
       setSpacesLoading(true);
+      // Load persisted email mappings
+      setDmEmails(getDMEmails());
       try {
         const res = await fetch("/api/admin/chat/spaces");
         if (!res.ok) {
@@ -455,8 +482,33 @@ export default function ChatClient() {
           throw new Error(body.error ?? "Failed to load spaces");
         }
         const data = await res.json();
-        const all = Array.isArray(data) ? data : [];
-        setSpaces(all.filter((s: ChatSpace) => !deletedSpaceNamesRef.current.has(s.name)));
+        const all: ChatSpace[] = Array.isArray(data) ? data : [];
+
+        // Check hidden DMs: unhide any with new messages since they were hidden
+        let hidden = getHiddenDMs();
+        if (hidden.length > 0) {
+          const unhideNames = new Set<string>();
+          await Promise.all(
+            hidden.map(async ({ name, hiddenAt }) => {
+              try {
+                const msgRes = await fetch(`/api/admin/chat/messages?spaceName=${encodeURIComponent(name)}`);
+                if (!msgRes.ok) return;
+                const msgData = await msgRes.json();
+                const messages: ChatMessage[] = msgData.messages ?? [];
+                if (messages.length > 0 && messages[0].createTime > hiddenAt) {
+                  unhideNames.add(name);
+                }
+              } catch { /* ignore */ }
+            })
+          );
+          if (unhideNames.size > 0) {
+            hidden = hidden.filter((h) => !unhideNames.has(h.name));
+            setHiddenDMs(hidden);
+          }
+        }
+
+        const hiddenSet = new Set(hidden.map((h) => h.name));
+        setSpaces(all.filter((s) => !hiddenSet.has(s.name)));
       } catch (e) {
         setError((e as Error).message);
       } finally {
@@ -562,7 +614,9 @@ export default function ChatClient() {
     // DMs cannot be deleted via the Google Chat API — "Delete conversation"
     // in Google Chat is purely client-side (hides from list). Do the same.
     if (space.spaceType === "DIRECT_MESSAGE") {
-      deletedSpaceNamesRef.current.add(space.name);
+      const hidden = getHiddenDMs().filter((h) => h.name !== space.name);
+      hidden.push({ name: space.name, hiddenAt: new Date().toISOString() });
+      setHiddenDMs(hidden);
       setSpaces((prev) => prev.filter((s) => s.name !== space.name));
       if (selectedSpace?.name === space.name) setSelectedSpace(null);
       setDeletingSpace(null);
@@ -578,7 +632,6 @@ export default function ChatClient() {
         const body = await res.json().catch(() => ({})) as { error?: string };
         throw new Error(body.error ?? "Failed to delete space");
       }
-      deletedSpaceNamesRef.current.add(space.name);
       setSpaces((prev) => prev.filter((s) => s.name !== space.name));
       if (selectedSpace?.name === space.name) setSelectedSpace(null);
     } catch (e) {
@@ -674,7 +727,11 @@ export default function ChatClient() {
                 setSpacesLoading(true);
                 fetch("/api/admin/chat/spaces")
                   .then((r) => r.ok ? r.json() : Promise.reject())
-                  .then((data) => setSpaces(Array.isArray(data) ? data : []))
+                  .then((data) => {
+                    const all: ChatSpace[] = Array.isArray(data) ? data : [];
+                    const hiddenSet = new Set(getHiddenDMs().map((h) => h.name));
+                    setSpaces(all.filter((s) => !hiddenSet.has(s.name)));
+                  })
                   .catch(() => {})
                   .finally(() => setSpacesLoading(false));
               }}
@@ -736,7 +793,7 @@ export default function ChatClient() {
           ) : (
             spaces.map((space) => {
               const isActive = selectedSpace?.name === space.name;
-              const label = space.displayName || spaceTypeBadge(space.spaceType);
+              const label = space.displayName || dmEmails[space.name] || spaceTypeBadge(space.spaceType);
               return (
                 <div key={space.name} className="relative group/space">
                   <button
@@ -830,7 +887,7 @@ export default function ChatClient() {
                     <SpaceIcon spaceType={selectedSpace.spaceType} />
                   </span>
                   <h2 className="text-sm font-medium text-white">
-                    {selectedSpace.displayName || spaceTypeBadge(selectedSpace.spaceType)}
+                    {selectedSpace.displayName || dmEmails[selectedSpace.name] || spaceTypeBadge(selectedSpace.spaceType)}
                   </h2>
                   <span className="text-xs px-1.5 py-0.5 rounded bg-white/5 text-white/30">
                     {spaceTypeBadge(selectedSpace.spaceType)}
@@ -987,7 +1044,7 @@ export default function ChatClient() {
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={`Message ${selectedSpace.displayName || spaceTypeBadge(selectedSpace.spaceType)}…`}
+                    placeholder={`Message ${selectedSpace.displayName || dmEmails[selectedSpace.name] || spaceTypeBadge(selectedSpace.spaceType)}…`}
                     rows={1}
                     className="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50 resize-none"
                     style={{ minHeight: "40px", maxHeight: "120px" }}
@@ -1052,9 +1109,9 @@ export default function ChatClient() {
                 <>
                   Hide{" "}
                   <span className="text-white">
-                    {deletingSpace.displayName || "this conversation"}
+                    {deletingSpace.displayName || dmEmails[deletingSpace.name] || "this conversation"}
                   </span>{" "}
-                  from this list? It will reappear if you reload — Google Chat doesn&apos;t support deleting DMs via API.
+                  from this list? It will reappear if they message you or you start a new conversation with them.
                 </>
               ) : (
                 <>
@@ -1091,8 +1148,18 @@ export default function ChatClient() {
       {showNewDM && (
         <NewDMModal
           onClose={() => setShowNewDM(false)}
-          onOpened={(space) => {
+          onOpened={(space, email) => {
             setShowNewDM(false);
+            // Persist email mapping for display name fallback
+            const emails = getDMEmails();
+            if (email && !emails[space.name]) {
+              emails[space.name] = email;
+              setDMEmails(emails);
+              setDmEmails({ ...emails });
+            }
+            // If this DM was hidden, unhide it
+            const hidden = getHiddenDMs().filter((h) => h.name !== space.name);
+            setHiddenDMs(hidden);
             // Add to spaces list if not already there
             setSpaces((prev) => {
               if (prev.find((s) => s.name === space.name)) return prev;
