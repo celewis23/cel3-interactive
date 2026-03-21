@@ -25,16 +25,50 @@ export async function listSpaces(): Promise<ChatSpace[]> {
   const chat = google.chat({ version: "v1", auth: auth.oauth2Client });
   const res = await chat.spaces.list({ pageSize: 100 });
 
-  const spaces = res.data.spaces ?? [];
-  return spaces
-    .filter((s) => !s.singleUserBotDm)
-    .map((s) => ({
-      name: s.name ?? "",
-      displayName: s.displayName ?? undefined,
-      spaceType: s.spaceType ?? "SPACE",
-      singleUserBotDm: s.singleUserBotDm ?? undefined,
-      spaceUri: s.spaceUri ?? undefined,
-    }));
+  // Get own user resource name so we can identify the DM partner
+  let myResourceName: string | null = null;
+  try {
+    const oauth2 = google.oauth2({ version: "v2", auth: auth.oauth2Client });
+    const me = await oauth2.userinfo.get();
+    if (me.data.id) myResourceName = `users/${me.data.id}`;
+  } catch { /* non-fatal */ }
+
+  const spaces = (res.data.spaces ?? []).filter((s) => !s.singleUserBotDm);
+
+  const mapped: ChatSpace[] = spaces.map((s) => ({
+    name: s.name ?? "",
+    displayName: s.displayName ?? undefined,
+    spaceType: s.spaceType ?? "SPACE",
+    singleUserBotDm: s.singleUserBotDm ?? undefined,
+    spaceUri: s.spaceUri ?? undefined,
+  }));
+
+  // Resolve DM partner display names server-side (reliable — no client ID guessing)
+  if (myResourceName) {
+    await Promise.all(
+      mapped
+        .filter((s) => s.spaceType === "DIRECT_MESSAGE" && !s.displayName)
+        .map(async (space) => {
+          try {
+            const membersRes = await chat.spaces.members.list({
+              parent: space.name,
+              pageSize: 10,
+            });
+            const partner = (membersRes.data.memberships ?? []).find(
+              (m) => m.member?.name !== myResourceName && m.member?.type === "HUMAN"
+            );
+            if (partner?.member?.displayName) {
+              space.displayName = partner.member.displayName;
+            } else if (partner?.member?.name) {
+              // Fallback: show the user resource name stripped of prefix
+              space.displayName = partner.member.name.replace("users/", "");
+            }
+          } catch { /* ignore per-space errors */ }
+        })
+    );
+  }
+
+  return mapped;
 }
 
 export async function listMessages(
@@ -133,8 +167,22 @@ export async function deleteSpace(spaceName: string, spaceType: string): Promise
   const chat = google.chat({ version: "v1", auth: auth.oauth2Client });
 
   if (spaceType === "DIRECT_MESSAGE") {
-    // DMs can't be deleted via spaces.delete — leave the conversation instead
-    await chat.spaces.members.delete({ name: `${spaceName}/members/me` });
+    // DMs can't be deleted via spaces.delete — leave the conversation by
+    // deleting our own membership. Look up the actual membership resource first.
+    let myResourceName: string | null = null;
+    try {
+      const oauth2 = google.oauth2({ version: "v2", auth: auth.oauth2Client });
+      const me = await oauth2.userinfo.get();
+      if (me.data.id) myResourceName = `users/${me.data.id}`;
+    } catch { /* ignore */ }
+
+    const membersRes = await chat.spaces.members.list({ parent: spaceName, pageSize: 20 });
+    const myMembership = (membersRes.data.memberships ?? []).find(
+      (m) => m.member?.name === myResourceName
+    );
+
+    const membershipName = myMembership?.name ?? `${spaceName}/members/me`;
+    await chat.spaces.members.delete({ name: membershipName });
   } else {
     await chat.spaces.delete({ name: spaceName });
   }

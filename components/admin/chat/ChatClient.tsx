@@ -408,7 +408,7 @@ export default function ChatClient() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [myProfile, setMyProfile] = useState<{ name: string; displayName: string } | null>(null);
-  const [dmNames, setDmNames] = useState<Record<string, string>>({});
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // New features state
   const [showCreateSpace, setShowCreateSpace] = useState(false);
@@ -442,27 +442,6 @@ export default function ChatClient() {
       .then((data) => { if (data?.name) setMyProfile(data); })
       .catch(() => {});
   }, []);
-
-  // Resolve partner names for DM spaces that have no displayName
-  useEffect(() => {
-    if (!myProfile || spaces.length === 0) return;
-    const unresolved = spaces.filter(
-      (s) => s.spaceType === "DIRECT_MESSAGE" && !s.displayName && !dmNames[s.name]
-    );
-    unresolved.forEach(async (space) => {
-      try {
-        const res = await fetch(`/api/admin/chat/members?spaceName=${encodeURIComponent(space.name)}`);
-        if (!res.ok) return;
-        const members = await res.json() as ChatMember[];
-        // member.email holds the user resource name (users/123) — filter out self
-        const partner = members.find((m) => m.email !== myProfile.name);
-        if (partner?.displayName) {
-          setDmNames((prev) => ({ ...prev, [space.name]: partner.displayName! }));
-        }
-      } catch { /* ignore */ }
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [spaces, myProfile]);
 
   // Load spaces
   useEffect(() => {
@@ -576,6 +555,7 @@ export default function ChatClient() {
   }
 
   async function handleDeleteSpace(space: ChatSpace) {
+    setDeleteError(null);
     try {
       const res = await fetch(
         `/api/admin/chat/spaces?name=${encodeURIComponent(space.name)}&type=${encodeURIComponent(space.spaceType)}`,
@@ -587,9 +567,8 @@ export default function ChatClient() {
       }
       setSpaces((prev) => prev.filter((s) => s.name !== space.name));
       if (selectedSpace?.name === space.name) setSelectedSpace(null);
-      setDmNames((prev) => { const n = { ...prev }; delete n[space.name]; return n; });
     } catch (e) {
-      setError((e as Error).message);
+      setDeleteError((e as Error).message);
     } finally {
       setDeletingSpace(null);
     }
@@ -743,7 +722,7 @@ export default function ChatClient() {
           ) : (
             spaces.map((space) => {
               const isActive = selectedSpace?.name === space.name;
-              const label = space.displayName || dmNames[space.name] || spaceTypeBadge(space.spaceType);
+              const label = space.displayName || spaceTypeBadge(space.spaceType);
               return (
                 <div key={space.name} className="relative group/space">
                   <button
@@ -837,7 +816,7 @@ export default function ChatClient() {
                     <SpaceIcon spaceType={selectedSpace.spaceType} />
                   </span>
                   <h2 className="text-sm font-medium text-white">
-                    {selectedSpace.displayName || dmNames[selectedSpace.name] || spaceTypeBadge(selectedSpace.spaceType)}
+                    {selectedSpace.displayName || spaceTypeBadge(selectedSpace.spaceType)}
                   </h2>
                   <span className="text-xs px-1.5 py-0.5 rounded bg-white/5 text-white/30">
                     {spaceTypeBadge(selectedSpace.spaceType)}
@@ -994,7 +973,7 @@ export default function ChatClient() {
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={`Message ${selectedSpace.displayName || dmNames[selectedSpace.name] || spaceTypeBadge(selectedSpace.spaceType)}…`}
+                    placeholder={`Message ${selectedSpace.displayName || spaceTypeBadge(selectedSpace.spaceType)}…`}
                     rows={1}
                     className="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50 resize-none"
                     style={{ minHeight: "40px", maxHeight: "120px" }}
@@ -1059,7 +1038,7 @@ export default function ChatClient() {
                 <>
                   Remove{" "}
                   <span className="text-white">
-                    {deletingSpace.displayName || dmNames[deletingSpace.name] || "this conversation"}
+                    {deletingSpace.displayName || "this conversation"}
                   </span>{" "}
                   from your chat list? The other person will not be notified.
                 </>
@@ -1073,9 +1052,12 @@ export default function ChatClient() {
                 </>
               )}
             </p>
+            {deleteError && (
+              <p className="text-xs text-red-400 mb-3">{deleteError}</p>
+            )}
             <div className="flex gap-2 justify-end">
               <button
-                onClick={() => setDeletingSpace(null)}
+                onClick={() => { setDeletingSpace(null); setDeleteError(null); }}
                 className="px-4 py-2 rounded-xl text-sm text-white/50 bg-white/5 hover:bg-white/8 transition-colors"
               >
                 Cancel
