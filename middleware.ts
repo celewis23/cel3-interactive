@@ -9,6 +9,7 @@ const PUBLIC_API_PATHS = [
   "/api/admin/auth/login",
   "/api/admin/auth/pin",
   "/api/admin/auth/logout",
+  "/api/admin/notifications/",
 ];
 
 export function middleware(req: NextRequest) {
