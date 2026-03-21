@@ -351,7 +351,10 @@ export default function ChatClient() {
       setSpacesLoading(true);
       try {
         const res = await fetch("/api/admin/chat/spaces");
-        if (!res.ok) throw new Error("Failed to load spaces");
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({})) as { error?: string };
+          throw new Error(body.error ?? "Failed to load spaces");
+        }
         const data = await res.json();
         setSpaces(Array.isArray(data) ? data : []);
       } catch (e) {
@@ -544,13 +547,26 @@ export default function ChatClient() {
           </button>
         </div>
         <div className="flex-1 overflow-y-auto py-2">
+          {!spacesLoading && error && spaces.length === 0 && (
+            <div className="mx-3 mb-2 px-3 py-2.5 bg-red-500/10 border border-red-500/20 rounded-xl text-xs space-y-1">
+              <div className="text-red-400">{error}</div>
+              {(error.toLowerCase().includes("scope") || error.toLowerCase().includes("insufficient") || error.toLowerCase().includes("auth") || error.includes("403")) && (
+                <div className="text-white/50">
+                  Google account needs reconnecting to grant Chat permissions.{" "}
+                  <a href="/admin/email" className="text-sky-400 hover:text-sky-300 underline">
+                    Reconnect →
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
           {spacesLoading ? (
             <div className="px-4 space-y-2 pt-2">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="h-9 rounded-lg bg-white/5 animate-pulse" />
               ))}
             </div>
-          ) : spaces.length === 0 ? (
+          ) : spaces.length === 0 && !error ? (
             <div className="px-4 py-6 text-xs text-white/30 text-center">No spaces found</div>
           ) : (
             spaces.map((space) => {

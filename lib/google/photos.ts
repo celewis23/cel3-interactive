@@ -1,18 +1,14 @@
+import { google } from "googleapis";
 import { getAuthenticatedClient } from "@/lib/gmail/client";
-
-const BASE_URL = "https://photoslibrary.googleapis.com/v1";
 
 export type PhotoAlbum = {
   id: string;
   title: string;
-  productUrl: string;
   mediaItemsCount?: number;
-  coverPhotoBaseUrl?: string;
 };
 
 export type MediaItem = {
   id: string;
-  productUrl: string;
   baseUrl: string;
   mimeType: string;
   filename: string;
@@ -23,31 +19,25 @@ export type MediaItem = {
   };
 };
 
-async function getAccessToken(): Promise<string> {
-  const auth = await getAuthenticatedClient();
-  if (!auth) throw new Error("Not authenticated with Google");
-  const token = auth.oauth2Client.credentials.access_token;
-  if (!token) throw new Error("No access token available");
-  return token;
-}
+const IMAGE_Q = "mimeType contains 'image/' and trashed = false";
 
 export async function listAlbums(
   pageToken?: string
 ): Promise<{ albums: PhotoAlbum[]; nextPageToken?: string }> {
-  const token = await getAccessToken();
-  const url = new URL(`${BASE_URL}/albums`);
-  url.searchParams.set("pageSize", "50");
-  if (pageToken) url.searchParams.set("pageToken", pageToken);
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
 
-  const res = await fetch(url.toString(), {
-    headers: { Authorization: `Bearer ${token}` },
+  const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
+  const res = await drive.files.list({
+    q: "mimeType = 'application/vnd.google-apps.folder' and trashed = false",
+    fields: "nextPageToken, files(id, name)",
+    pageSize: 50,
+    ...(pageToken ? { pageToken } : {}),
   });
-  if (!res.ok) throw new Error(`Photos API error: ${res.status}`);
 
-  const data = await res.json();
   return {
-    albums: (data.albums ?? []) as PhotoAlbum[],
-    nextPageToken: data.nextPageToken,
+    albums: (res.data.files ?? []).map((f) => ({ id: f.id!, title: f.name! })),
+    nextPageToken: res.data.nextPageToken ?? undefined,
   };
 }
 
@@ -56,42 +46,35 @@ export async function listMediaItems(opts?: {
   pageToken?: string;
   pageSize?: number;
 }): Promise<{ mediaItems: MediaItem[]; nextPageToken?: string }> {
-  const token = await getAccessToken();
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
+
+  const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
   const pageSize = opts?.pageSize ?? 50;
 
-  if (opts?.albumId) {
-    const res = await fetch(`${BASE_URL}/mediaItems:search`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        albumId: opts.albumId,
-        pageSize,
-        pageToken: opts.pageToken,
-      }),
-    });
-    if (!res.ok) throw new Error(`Photos API error: ${res.status}`);
-    const data = await res.json();
-    return {
-      mediaItems: (data.mediaItems ?? []) as MediaItem[],
-      nextPageToken: data.nextPageToken,
-    };
-  }
+  let q = IMAGE_Q;
+  if (opts?.albumId) q += ` and '${opts.albumId}' in parents`;
 
-  const url = new URL(`${BASE_URL}/mediaItems`);
-  url.searchParams.set("pageSize", String(pageSize));
-  if (opts?.pageToken) url.searchParams.set("pageToken", opts.pageToken);
-
-  const res = await fetch(url.toString(), {
-    headers: { Authorization: `Bearer ${token}` },
+  const res = await drive.files.list({
+    q,
+    fields: "nextPageToken, files(id, name, mimeType, createdTime, imageMediaMetadata)",
+    pageSize,
+    orderBy: "createdTime desc",
+    ...(opts?.pageToken ? { pageToken: opts.pageToken } : {}),
   });
-  if (!res.ok) throw new Error(`Photos API error: ${res.status}`);
 
-  const data = await res.json();
   return {
-    mediaItems: (data.mediaItems ?? []) as MediaItem[],
-    nextPageToken: data.nextPageToken,
+    mediaItems: (res.data.files ?? []).map((f) => ({
+      id: f.id!,
+      baseUrl: `/api/admin/photos/file/${f.id}`,
+      mimeType: f.mimeType ?? "image/jpeg",
+      filename: f.name ?? "",
+      mediaMetadata: {
+        creationTime: f.createdTime ?? new Date().toISOString(),
+        width: f.imageMediaMetadata?.width ? String(f.imageMediaMetadata.width) : undefined,
+        height: f.imageMediaMetadata?.height ? String(f.imageMediaMetadata.height) : undefined,
+      },
+    })),
+    nextPageToken: res.data.nextPageToken ?? undefined,
   };
 }

@@ -452,7 +452,10 @@ export default function ContactsClient() {
       const params = new URLSearchParams();
       if (token) params.set("pageToken", token);
       const res = await fetch(`/api/admin/contacts?${params.toString()}`);
-      if (!res.ok) throw new Error("Failed to load contacts");
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(body.error ?? "Failed to load contacts");
+      }
       const data = await res.json();
       setContacts(token ? (prev) => [...prev, ...(data.contacts ?? [])] : (data.contacts ?? []));
       setNextPageToken(data.nextPageToken ?? undefined);
@@ -583,8 +586,16 @@ export default function ContactsClient() {
         </div>
 
         {error && (
-          <div className="mb-4 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs">
-            {error}
+          <div className="mb-4 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs space-y-1">
+            <div>{error}</div>
+            {(error.toLowerCase().includes("scope") || error.toLowerCase().includes("insufficient") || error.toLowerCase().includes("auth") || error.includes("403")) && (
+              <div className="text-white/50">
+                Your Google account needs to be reconnected to grant the Contacts permission.{" "}
+                <a href="/admin/email" className="text-sky-400 hover:text-sky-300 underline">
+                  Reconnect Google →
+                </a>
+              </div>
+            )}
           </div>
         )}
 

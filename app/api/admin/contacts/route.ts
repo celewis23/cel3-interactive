@@ -27,7 +27,8 @@ export async function GET(req: NextRequest) {
     }
   } catch (err) {
     console.error("CONTACTS_LIST_ERROR:", err);
-    return NextResponse.json({ error: "Failed to list contacts" }, { status: 500 });
+    const msg = err instanceof Error ? err.message : "Failed to list contacts";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 

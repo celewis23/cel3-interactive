@@ -18,7 +18,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(spaces);
   } catch (err) {
     console.error("CHAT_SPACES_ERROR:", err);
-    return NextResponse.json({ error: "Failed to list spaces" }, { status: 500 });
+    const msg = err instanceof Error ? err.message : "Failed to list spaces";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
@@ -35,6 +36,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(space, { status: 201 });
   } catch (err) {
     console.error("CHAT_CREATE_SPACE_ERROR:", err);
-    return NextResponse.json({ error: "Failed to create space" }, { status: 500 });
+    const msg = err instanceof Error ? err.message : "Failed to create space";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

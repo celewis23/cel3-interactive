@@ -6,14 +6,11 @@ import { DateTime } from "luxon";
 type PhotoAlbum = {
   id: string;
   title: string;
-  productUrl: string;
   mediaItemsCount?: number;
-  coverPhotoBaseUrl?: string;
 };
 
 type MediaItem = {
   id: string;
-  productUrl: string;
   baseUrl: string;
   mimeType: string;
   filename: string;
@@ -121,25 +118,16 @@ export default function PhotosClient() {
               <button
                 key={album.id}
                 onClick={() => selectAlbum(album.id)}
-                className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm border transition-colors flex-shrink-0 ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm border transition-colors flex-shrink-0 ${
                   selectedAlbumId === album.id
                     ? "bg-sky-500/15 border-sky-500/30 text-sky-400"
                     : "bg-white/3 border-white/8 text-white/60 hover:text-white hover:bg-white/8"
                 }`}
               >
-                {album.coverPhotoBaseUrl && (
-                  <img
-                    src={`${album.coverPhotoBaseUrl}=w48-h48-c`}
-                    alt=""
-                    className="w-8 h-8 rounded-lg object-cover"
-                  />
-                )}
-                <div className="text-left">
-                  <div className="font-medium leading-tight">{album.title}</div>
-                  {album.mediaItemsCount && (
-                    <div className="text-xs opacity-60 mt-0.5">{album.mediaItemsCount} items</div>
-                  )}
-                </div>
+                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" className="flex-shrink-0 opacity-60">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+                </svg>
+                {album.title}
               </button>
             ))}
           </div>
@@ -166,7 +154,7 @@ export default function PhotosClient() {
           {mediaItems.map((item, idx) => (
             <div key={item.id} className="mb-2 break-inside-avoid group relative cursor-pointer" onClick={() => setLightboxIndex(idx)}>
               <img
-                src={`${item.baseUrl}=w400-h400`}
+                src={item.baseUrl}
                 alt={item.filename}
                 className="w-full rounded-xl object-cover transition-opacity group-hover:opacity-90"
                 loading="lazy"
@@ -235,7 +223,7 @@ export default function PhotosClient() {
           )}
 
           <img
-            src={`${lightboxItem.baseUrl}=w1200`}
+            src={lightboxItem.baseUrl}
             alt={lightboxItem.filename}
             className="max-w-[90vw] max-h-[90vh] object-contain rounded-xl"
             onClick={(e) => e.stopPropagation()}
