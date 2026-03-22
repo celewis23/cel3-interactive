@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sanityServer } from "@/lib/sanityServer";
@@ -59,6 +60,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 
   const updated = await sanityWriteClient.patch(id).set(patch).commit();
+  revalidatePath("/");
+  revalidatePath("/work");
+  revalidatePath("/work/[slug]", "page");
   return NextResponse.json(updated);
 }
 
@@ -68,5 +72,8 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   const { id } = await params;
 
   await sanityWriteClient.delete(id);
+  revalidatePath("/");
+  revalidatePath("/work");
+  revalidatePath("/work/[slug]", "page");
   return NextResponse.json({ ok: true });
 }

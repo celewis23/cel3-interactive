@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sanityServer } from "@/lib/sanityServer";
@@ -60,5 +61,8 @@ export async function POST(req: NextRequest) {
   };
 
   const created = await sanityWriteClient.create(doc);
+  revalidatePath("/");
+  revalidatePath("/work");
+  revalidatePath("/work/[slug]", "page");
   return NextResponse.json(created, { status: 201 });
 }
