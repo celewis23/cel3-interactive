@@ -49,7 +49,15 @@ export default async function EditOnboardingTemplatePage({
           Use Template
         </Link>
       </div>
-      <TemplateBuilder initial={template} />
+      <TemplateBuilder initial={{
+        ...template,
+        description: template.description ?? undefined,
+        steps: template.steps.map((s) => ({
+          ...s,
+          description: s.description ?? "",
+          dueDateOffsetDays: s.dueDateOffsetDays?.toString() ?? "",
+        })),
+      }} />
     </div>
   );
 }
