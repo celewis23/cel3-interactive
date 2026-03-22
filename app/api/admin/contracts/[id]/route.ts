@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -72,6 +73,16 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     if (newStatus === "declined" && !current.declinedAt) patch.declinedAt = new Date().toISOString();
 
     const updated = await sanityWriteClient.patch(id).set(patch).commit();
+
+    logAudit(req, {
+      action: AuditAction.CONTRACT_UPDATED,
+      resourceType: "contract",
+      resourceId: id,
+      description: `Contract updated`,
+      before: current as Record<string, unknown>,
+      after: patch,
+    });
+
     return NextResponse.json(updated);
   } catch (err) {
     console.error("CONTRACTS_PATCH_ERR:", err);
@@ -85,6 +96,14 @@ export async function DELETE(req: NextRequest, { params }: Params) {
   try {
     const { id } = await params;
     await sanityWriteClient.delete(id);
+
+    logAudit(req, {
+      action: AuditAction.CONTRACT_DELETED,
+      resourceType: "contract",
+      resourceId: id,
+      description: `Contract deleted`,
+    });
+
     return NextResponse.json({ deleted: true });
   } catch (err) {
     console.error("CONTRACTS_DELETE_ERR:", err);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -110,6 +111,15 @@ export async function POST(req: NextRequest) {
     };
 
     const created = await sanityWriteClient.create(doc);
+
+    logAudit(req, {
+      action: AuditAction.ESTIMATE_CREATED,
+      resourceType: "estimate",
+      resourceId: created._id,
+      resourceLabel: number,
+      description: `Estimate ${number} created for ${body.clientName.trim()}`,
+    });
+
     return NextResponse.json(created, { status: 201 });
   } catch (err) {
     console.error("ESTIMATES_CREATE_ERR:", err);

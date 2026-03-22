@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { invalidateRoleCache } from "@/lib/admin/permissions";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -48,6 +49,14 @@ export async function PATCH(
 
   const updated = await sanityWriteClient.patch(id).set(allowed).commit();
   invalidateRoleCache(role.slug);
+
+  logAudit(req, {
+    action: AuditAction.ROLE_UPDATED,
+    resourceType: "staffRole",
+    resourceId: id,
+    description: "Role updated",
+  });
+
   return NextResponse.json(updated);
 }
 
@@ -82,5 +91,13 @@ export async function DELETE(
 
   await sanityWriteClient.delete(id);
   invalidateRoleCache(role.slug);
+
+  logAudit(req, {
+    action: AuditAction.ROLE_DELETED,
+    resourceType: "staffRole",
+    resourceId: id,
+    description: "Role deleted",
+  });
+
   return NextResponse.json({ ok: true });
 }

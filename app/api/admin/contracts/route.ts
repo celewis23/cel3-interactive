@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -101,6 +102,14 @@ export async function POST(req: NextRequest) {
       signatureIp: null,
       signerName: null,
       signedPdfDriveFileId: null,
+    });
+
+    logAudit(req, {
+      action: AuditAction.CONTRACT_CREATED,
+      resourceType: "contract",
+      resourceId: contract._id,
+      resourceLabel: number,
+      description: `Contract ${number} created for ${body.clientName.trim()}`,
     });
 
     return NextResponse.json(contract, { status: 201 });

@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sanityServer } from "@/lib/sanityServer";
 import { createEvent } from "@/lib/google/calendar";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -51,6 +52,14 @@ export async function POST(req: NextRequest) {
     clientRef: body.clientRef ?? null,
     columns: DEFAULT_COLUMNS,
     calendarEventId: null,
+  });
+
+  logAudit(req, {
+    action: AuditAction.PROJECT_CREATED,
+    resourceType: "project",
+    resourceId: created._id,
+    resourceLabel: body.name.trim(),
+    description: `Project "${body.name.trim()}" created`,
   });
 
   // Best-effort: create a calendar event if a due date was provided

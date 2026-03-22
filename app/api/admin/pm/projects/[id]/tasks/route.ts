@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sanityServer } from "@/lib/sanityServer";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -55,6 +56,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     );
     await sanityWriteClient.patch(id).set({ columns: updatedColumns }).commit();
   }
+
+  logAudit(req, {
+    action: AuditAction.TASK_CREATED,
+    resourceType: "task",
+    resourceId: task._id,
+    resourceLabel: body.title,
+    description: "Task created",
+  });
 
   return NextResponse.json(task, { status: 201 });
 }

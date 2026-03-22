@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { randomBytes } from "crypto";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -91,6 +92,14 @@ export async function POST(req: NextRequest) {
     console.error("STAFF_INVITE_EMAIL_ERR:", e);
     // Non-critical — member is created, invite URL can be shared manually
   }
+
+  logAudit(req, {
+    action: AuditAction.STAFF_INVITED,
+    resourceType: "staffMember",
+    resourceId: member._id,
+    resourceLabel: name.trim(),
+    description: `Staff member ${name.trim()} invited`,
+  });
 
   return NextResponse.json(member, { status: 201 });
 }

@@ -3,6 +3,7 @@ export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { listFiles, uploadFile } from "@/lib/google/drive";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export async function GET(req: NextRequest) {
   const authErr = await requirePermission(req, "drive", "view");
@@ -40,6 +41,12 @@ export async function POST(req: NextRequest) {
       mimeType: file.type || "application/octet-stream",
       data,
       parentId: folderId ?? undefined,
+    });
+
+    logAudit(req, {
+      action: AuditAction.FILE_UPLOADED,
+      resourceType: "file",
+      description: "File uploaded",
     });
 
     return NextResponse.json(result, { status: 201 });

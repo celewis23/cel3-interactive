@@ -7,6 +7,7 @@ import {
 } from "@/lib/admin/auth";
 import { sanityServer } from "@/lib/sanityServer";
 import { verifyPassword } from "@/lib/admin/staffPassword";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -27,6 +28,16 @@ export async function POST(req: NextRequest) {
     const res = NextResponse.json({ ok: true, staffLogin: false });
     res.cookies.set(COOKIE_NAME, token, COOKIE_OPTS);
     return res;
+  }
+
+  // Track failed owner login attempt (username matches env username but wrong password)
+  if (username === process.env.ADMIN_USERNAME) {
+    logAudit(req, {
+      action: AuditAction.AUTH_LOGIN_FAILED,
+      resourceType: "auth",
+      description: `Failed owner login attempt for ${username}`,
+    }, { userId: null, userName: "Unknown", userEmail: username, isOwner: false });
+    return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
   }
 
   // ── 2. Try staff login (email as username) ───────────────────────────────
@@ -54,10 +65,20 @@ export async function POST(req: NextRequest) {
     !staff.passwordHash ||
     !staff.passwordSalt
   ) {
+    logAudit(req, {
+      action: AuditAction.AUTH_LOGIN_FAILED,
+      resourceType: "auth",
+      description: `Failed login attempt for ${email}`,
+    }, { userId: null, userName: "Unknown", userEmail: email, isOwner: false });
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
   }
 
   if (!verifyPassword(password, staff.passwordHash, staff.passwordSalt)) {
+    logAudit(req, {
+      action: AuditAction.AUTH_LOGIN_FAILED,
+      resourceType: "auth",
+      description: `Failed login attempt for ${email} (wrong password)`,
+    }, { userId: staff._id, userName: "Unknown", userEmail: email, isOwner: false });
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
   }
 
@@ -70,5 +91,13 @@ export async function POST(req: NextRequest) {
   const token = createStaffSessionToken(staff._id, staff.roleSlug);
   const res = NextResponse.json({ ok: true, staffLogin: true });
   res.cookies.set(COOKIE_NAME, token, COOKIE_OPTS);
+
+  logAudit(req, {
+    action: AuditAction.AUTH_LOGIN,
+    resourceType: "auth",
+    resourceId: staff._id,
+    description: `Staff member logged in`,
+  }, { userId: staff._id, userName: "Staff", userEmail: email, isOwner: false });
+
   return res;
 }

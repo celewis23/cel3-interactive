@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sanityServer } from "@/lib/sanityServer";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -29,6 +30,13 @@ export async function PATCH(req: NextRequest) {
   } else {
     result = await sanityWriteClient.createOrReplace({ _id: DOC_ID, _type: "siteSettings", ...body });
   }
+
+  logAudit(req, {
+    action: AuditAction.SETTINGS_UPDATED,
+    resourceType: "siteSettings",
+    resourceId: "siteSettings",
+    description: "Site settings updated",
+  });
 
   return NextResponse.json(result);
 }

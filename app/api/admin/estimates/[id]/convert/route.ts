@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { createInvoice, createCustomer, listCustomers } from "@/lib/stripe/billing";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -68,6 +69,13 @@ export async function POST(req: NextRequest, { params }: Params) {
       .patch(id)
       .set({ stripeInvoiceId: invoice.id })
       .commit();
+
+    logAudit(req, {
+      action: AuditAction.ESTIMATE_CONVERTED,
+      resourceType: "estimate",
+      resourceId: id,
+      description: "Estimate converted to invoice",
+    });
 
     return NextResponse.json({
       invoiceId: invoice.id,

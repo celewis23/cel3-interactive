@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { createCustomer } from "@/lib/stripe/billing";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -47,6 +48,13 @@ export async function POST(
       fromStage: null,
       toStage: null,
       author: "Admin",
+    });
+
+    logAudit(req, {
+      action: AuditAction.LEAD_CONVERTED,
+      resourceType: "contact",
+      resourceId: id,
+      description: "Lead converted",
     });
 
     return NextResponse.json({ stripeCustomerId: customer.id, customer });

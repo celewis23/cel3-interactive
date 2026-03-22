@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { createInvoice } from "@/lib/stripe/billing";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -74,6 +75,12 @@ export async function POST(req: NextRequest) {
           .commit()
       )
     );
+
+    logAudit(req, {
+      action: AuditAction.TIME_BILLED,
+      resourceType: "timeEntry",
+      description: "Time entries billed",
+    });
 
     return NextResponse.json({ invoice, billedCount: entries.length });
   } catch (err) {

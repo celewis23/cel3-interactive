@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validatePin, verifySessionToken, createSessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -28,5 +29,12 @@ export async function POST(req: NextRequest) {
     path: "/",
     maxAge: 60 * 60 * 24,
   });
+
+  logAudit(req, {
+    action: AuditAction.AUTH_LOGIN,
+    resourceType: "auth",
+    description: "Owner logged in",
+  }, { userId: null, userName: "Owner", userEmail: process.env.ADMIN_USERNAME ?? "owner", isOwner: true });
+
   return res;
 }

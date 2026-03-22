@@ -3,6 +3,7 @@ import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { hashPassword } from "@/lib/admin/staffPassword";
 import { createStaffSessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -57,13 +58,14 @@ export async function POST(req: NextRequest) {
 
   const member = await sanityServer.fetch<{
     _id: string;
+    name: string;
     email: string;
     roleSlug: string;
     status: string;
     inviteExpiry: string | null;
   } | null>(
     `*[_type == "staffMember" && inviteToken == $token][0]{
-      _id, email, roleSlug, status, inviteExpiry
+      _id, name, email, roleSlug, status, inviteExpiry
     }`,
     { token }
   );
@@ -86,6 +88,12 @@ export async function POST(req: NextRequest) {
     inviteAcceptedAt: now,
     lastActiveAt: now,
   }).commit();
+
+  logAudit(req, {
+    action: AuditAction.STAFF_ACTIVATED,
+    resourceType: "staffMember",
+    description: "Staff member activated via invite",
+  }, { userId: member._id, userName: member.name, userEmail: member.email, isOwner: false });
 
   // Auto-login after accept
   const sessionToken = createStaffSessionToken(member._id, member.roleSlug);

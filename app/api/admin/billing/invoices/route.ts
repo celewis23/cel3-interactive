@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { listInvoices, createInvoice } from "@/lib/stripe/billing";
 import Stripe from "stripe";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -50,6 +51,14 @@ export async function POST(req: NextRequest) {
       description,
       lineItems,
       send: send ?? false,
+    });
+
+    logAudit(req, {
+      action: AuditAction.BILLING_INVOICE_CREATED,
+      resourceType: "invoice",
+      resourceId: invoice.id,
+      resourceLabel: invoice.number ?? invoice.id,
+      description: `Invoice created for customer ${customerId}`,
     });
 
     return NextResponse.json(invoice, { status: 201 });

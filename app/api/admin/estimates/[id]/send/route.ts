@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sendEmail } from "@/lib/gmail/api";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -164,6 +165,13 @@ export async function POST(req: NextRequest, { params }: Params) {
     }
 
     if (sent) {
+      logAudit(req, {
+        action: AuditAction.ESTIMATE_SENT,
+        resourceType: "estimate",
+        resourceId: id,
+        resourceLabel: estimate.number,
+        description: `Estimate ${estimate.number} sent to ${estimate.clientEmail}`,
+      });
       return NextResponse.json({ sent: true, approvalLink });
     } else {
       return NextResponse.json({ sent: false, approvalLink, error: emailError });

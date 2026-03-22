@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sendEmail } from "@/lib/gmail/api";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -111,6 +112,13 @@ export async function POST(req: NextRequest, { params }: Params) {
     }
 
     if (sent) {
+      logAudit(req, {
+        action: AuditAction.CONTRACT_SENT,
+        resourceType: "contract",
+        resourceId: id,
+        resourceLabel: contract.number,
+        description: `Contract ${contract.number} sent to ${contract.clientEmail}`,
+      });
       return NextResponse.json({ sent: true, signingLink });
     } else {
       return NextResponse.json({ sent: false, signingLink, error: emailError });

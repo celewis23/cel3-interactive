@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -64,6 +65,14 @@ export async function POST(req: NextRequest) {
       fromStage: null,
       toStage: contact.stage,
       author: "Admin",
+    });
+
+    logAudit(req, {
+      action: AuditAction.LEAD_CREATED,
+      resourceType: "contact",
+      resourceId: contact._id,
+      resourceLabel: body.name,
+      description: "Lead created",
     });
 
     return NextResponse.json(contact, { status: 201 });

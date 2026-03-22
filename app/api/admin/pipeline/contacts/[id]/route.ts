@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -96,6 +97,14 @@ export async function PATCH(
     }
 
     const updated = await sanityWriteClient.patch(id).set(patch).commit();
+
+    logAudit(req, {
+      action: AuditAction.LEAD_UPDATED,
+      resourceType: "contact",
+      resourceId: id,
+      description: "Lead updated",
+    });
+
     return NextResponse.json(updated);
   } catch (err) {
     console.error("PIPELINE_CONTACT_PATCH_ERR:", err);
@@ -124,6 +133,14 @@ export async function DELETE(
 
     // Delete the contact
     await sanityWriteClient.delete(id);
+
+    logAudit(req, {
+      action: AuditAction.LEAD_DELETED,
+      resourceType: "contact",
+      resourceId: id,
+      description: "Lead deleted",
+    });
+
     return NextResponse.json({ deleted: true });
   } catch (err) {
     console.error("PIPELINE_CONTACT_DELETE_ERR:", err);

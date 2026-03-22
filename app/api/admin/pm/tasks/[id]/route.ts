@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sanityServer } from "@/lib/sanityServer";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -18,6 +19,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 
   const updated = await sanityWriteClient.patch(id).set(patch).commit();
+
+  logAudit(req, {
+    action: AuditAction.TASK_UPDATED,
+    resourceType: "task",
+    resourceId: id,
+    description: "Task updated",
+  });
+
   return NextResponse.json(updated);
 }
 
@@ -55,5 +64,13 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   }
 
   await sanityWriteClient.delete(id);
+
+  logAudit(req, {
+    action: AuditAction.TASK_DELETED,
+    resourceType: "task",
+    resourceId: id,
+    description: "Task deleted",
+  });
+
   return NextResponse.json({ ok: true });
 }

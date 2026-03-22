@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { listCustomers, createCustomer } from "@/lib/stripe/billing";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -37,6 +38,15 @@ export async function POST(req: NextRequest) {
       phone: phone?.trim() || undefined,
       description: description?.trim() || undefined,
     });
+
+    logAudit(req, {
+      action: AuditAction.BILLING_CUSTOMER_CREATED,
+      resourceType: "customer",
+      resourceId: customer.id,
+      resourceLabel: customer.name ?? name.trim(),
+      description: `Customer "${name.trim()}" created in Stripe`,
+    });
+
     return NextResponse.json(customer, { status: 201 });
   } catch (err: unknown) {
     console.error("BILLING_ERROR:", err);

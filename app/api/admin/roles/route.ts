@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -43,6 +44,14 @@ export async function POST(req: NextRequest) {
     slug: slug.trim().toLowerCase().replace(/\s+/g, "-"),
     isSystem: false,
     permissions: permissions ?? {},
+  });
+
+  logAudit(req, {
+    action: AuditAction.ROLE_CREATED,
+    resourceType: "staffRole",
+    resourceId: role._id,
+    resourceLabel: body.name,
+    description: `Role "${body.name}" created`,
   });
 
   return NextResponse.json(role, { status: 201 });

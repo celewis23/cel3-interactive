@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sanityServer } from "@/lib/sanityServer";
 import { createEvent, updateEvent, deleteEvent } from "@/lib/google/calendar";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -50,6 +51,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 
   const updated = await sanityWriteClient.patch(id).set(patch).commit();
+
+  logAudit(req, {
+    action: AuditAction.PROJECT_UPDATED,
+    resourceType: "project",
+    resourceId: id,
+    description: "Project updated",
+  });
 
   // Calendar sync — best-effort
   const newName: string = (body.name ?? current?.name ?? "").trim();
@@ -113,6 +121,13 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   }
 
   await sanityWriteClient.delete(id);
+
+  logAudit(req, {
+    action: AuditAction.PROJECT_DELETED,
+    resourceType: "project",
+    resourceId: id,
+    description: "Project deleted",
+  });
 
   // Best-effort: remove the calendar event
   if (project?.calendarEventId) {

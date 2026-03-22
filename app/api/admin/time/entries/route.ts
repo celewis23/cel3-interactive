@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
+import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
@@ -93,6 +94,13 @@ export async function POST(req: NextRequest) {
       hourlyRate: body.hourlyRate ?? 0,
       invoiceId: null,
       billedAt: null,
+    });
+
+    logAudit(req, {
+      action: AuditAction.TIME_CREATED,
+      resourceType: "timeEntry",
+      resourceId: entry._id,
+      description: "Time entry created",
     });
 
     return NextResponse.json(entry, { status: 201 });
