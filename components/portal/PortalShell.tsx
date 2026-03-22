@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 const NAV = [
   { label: "Overview", href: "/portal" },
+  { label: "Getting Started", href: "/portal/onboarding" },
   { label: "Invoices", href: "/portal/invoices" },
   { label: "Projects", href: "/portal/projects" },
   { label: "Files", href: "/portal/files" },

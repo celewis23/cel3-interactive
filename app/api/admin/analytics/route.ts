@@ -277,6 +277,35 @@ async function fetchContractStats() {
   };
 }
 
+// ── Onboarding Stats ─────────────────────────────────────────────────────────
+
+async function fetchOnboardingStats() {
+  const instances = await sanityServer.fetch<Array<{
+    status: string;
+    steps: Array<{ status: string; dueDate: string | null }> | null;
+  }>>(`*[_type == "onboardingInstance"]{ status, steps }`);
+
+  const today = new Date().toISOString().slice(0, 10);
+  const active = instances.filter((i) => i.status === "active");
+
+  const totalOverdueSteps = active.reduce((n, i) => {
+    const steps = i.steps ?? [];
+    return n + steps.filter((s) => s.dueDate && s.dueDate < today && s.status === "pending").length;
+  }, 0);
+
+  const stalled = active.filter((i) => {
+    const steps = i.steps ?? [];
+    return steps.some((s) => s.dueDate && s.dueDate < today && s.status === "pending");
+  }).length;
+
+  return {
+    activeCount: active.length,
+    completedCount: instances.filter((i) => i.status === "completed").length,
+    overdueStepsCount: totalOverdueSteps,
+    stalledCount: stalled,
+  };
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
@@ -316,13 +345,14 @@ export async function GET(req: NextRequest) {
   }
 
   // ── New data (each best-effort) ────────────────────────────────────────────
-  const [revenue, projectHealth, upcomingEvents, pipelineStats, estimateStats, contractStats] = await Promise.all([
+  const [revenue, projectHealth, upcomingEvents, pipelineStats, estimateStats, contractStats, onboardingStats] = await Promise.all([
     fetchRevenue().catch((err) => { console.error("ANALYTICS_REVENUE_ERR:", err); return null; }),
     fetchProjectHealth().catch((err) => { console.error("ANALYTICS_PM_ERR:", err); return null; }),
     fetchUpcomingEvents().catch((err) => { console.error("ANALYTICS_CAL_ERR:", err); return null; }),
     fetchPipelineStats().catch((err) => { console.error("ANALYTICS_PIPELINE_ERR:", err); return null; }),
     fetchEstimateStats().catch((err) => { console.error("ANALYTICS_ESTIMATES_ERR:", err); return null; }),
     fetchContractStats().catch((err) => { console.error("ANALYTICS_CONTRACTS_ERR:", err); return null; }),
+    fetchOnboardingStats().catch((err) => { console.error("ANALYTICS_ONBOARDING_ERR:", err); return null; }),
   ]);
 
   return NextResponse.json({
@@ -341,5 +371,6 @@ export async function GET(req: NextRequest) {
     pipelineStats,
     estimateStats,
     contractStats,
+    onboardingStats,
   });
 }
