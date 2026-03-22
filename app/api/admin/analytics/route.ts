@@ -306,6 +306,36 @@ async function fetchOnboardingStats() {
   };
 }
 
+// ── Time Tracking Stats ───────────────────────────────────────────────────────
+
+async function fetchTimeStats() {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+
+  const [entries, activeTimer] = await Promise.all([
+    sanityServer.fetch<Array<{
+      durationSeconds: number;
+      billable: boolean;
+      hourlyRate: number;
+      invoiceId: string | null;
+    }>>(`*[_type == "timeEntry" && endTime != null && date >= $monthStart]{ durationSeconds, billable, hourlyRate, invoiceId }`, { monthStart }),
+    sanityServer.fetch<{ _id: string } | null>(`*[_type == "timeEntry" && endTime == null][0]{ _id }`),
+  ]);
+
+  const totalSecondsThisMonth = entries.reduce((s, e) => s + (e.durationSeconds ?? 0), 0);
+  const billableSecondsThisMonth = entries.filter((e) => e.billable).reduce((s, e) => s + (e.durationSeconds ?? 0), 0);
+  const unbilledAmount = entries
+    .filter((e) => e.billable && !e.invoiceId)
+    .reduce((s, e) => s + (e.durationSeconds / 3600) * e.hourlyRate, 0);
+
+  return {
+    totalSecondsThisMonth,
+    billableSecondsThisMonth,
+    unbilledAmount,
+    activeTimerRunning: !!activeTimer,
+  };
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
@@ -345,7 +375,7 @@ export async function GET(req: NextRequest) {
   }
 
   // ── New data (each best-effort) ────────────────────────────────────────────
-  const [revenue, projectHealth, upcomingEvents, pipelineStats, estimateStats, contractStats, onboardingStats] = await Promise.all([
+  const [revenue, projectHealth, upcomingEvents, pipelineStats, estimateStats, contractStats, onboardingStats, timeStats] = await Promise.all([
     fetchRevenue().catch((err) => { console.error("ANALYTICS_REVENUE_ERR:", err); return null; }),
     fetchProjectHealth().catch((err) => { console.error("ANALYTICS_PM_ERR:", err); return null; }),
     fetchUpcomingEvents().catch((err) => { console.error("ANALYTICS_CAL_ERR:", err); return null; }),
@@ -353,6 +383,7 @@ export async function GET(req: NextRequest) {
     fetchEstimateStats().catch((err) => { console.error("ANALYTICS_ESTIMATES_ERR:", err); return null; }),
     fetchContractStats().catch((err) => { console.error("ANALYTICS_CONTRACTS_ERR:", err); return null; }),
     fetchOnboardingStats().catch((err) => { console.error("ANALYTICS_ONBOARDING_ERR:", err); return null; }),
+    fetchTimeStats().catch((err) => { console.error("ANALYTICS_TIME_ERR:", err); return null; }),
   ]);
 
   return NextResponse.json({
@@ -372,5 +403,6 @@ export async function GET(req: NextRequest) {
     estimateStats,
     contractStats,
     onboardingStats,
+    timeStats,
   });
 }

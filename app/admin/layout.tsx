@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import LiveTimer from "@/components/admin/time/LiveTimer";
 
 const NAV = [
   {
@@ -149,6 +150,16 @@ const NAV = [
     ),
   },
   {
+    label: "Time",
+    href: "/admin/time",
+    icon: (
+      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" />
+      </svg>
+    ),
+  },
+  {
     label: "Contracts",
     href: "/admin/contracts",
     icon: (
@@ -259,6 +270,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             );
           })}
         </nav>
+
+        {/* Live Timer */}
+        <div className="border-t border-white/8">
+          <LiveTimer />
+        </div>
 
         {/* Footer */}
         <div className="px-3 py-4 border-t border-white/8">
