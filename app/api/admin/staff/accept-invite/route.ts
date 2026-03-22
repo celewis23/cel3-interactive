@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     `*[_type == "staffMember" && inviteToken == $token][0]{
       _id, name, email, roleSlug, status, inviteExpiry
     }`,
-    { token }
+    { token: token as string }
   );
 
   if (!member) return NextResponse.json({ error: "Invalid or expired invite" }, { status: 404 });
