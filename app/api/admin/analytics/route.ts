@@ -180,6 +180,47 @@ async function fetchUpcomingEvents() {
   }));
 }
 
+// ── Pipeline Stats ────────────────────────────────────────────────────────────
+
+async function fetchPipelineStats() {
+  const now = new Date();
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+  const [allContacts, wonContacts] = await Promise.all([
+    sanityServer.fetch<{ stage: string; closedAt: string | null; stageEnteredAt: string; _createdAt: string }[]>(
+      `*[_type == "pipelineContact"]{ stage, closedAt, stageEnteredAt, _createdAt }`
+    ),
+    sanityServer.fetch<{ closedAt: string; _createdAt: string }[]>(
+      `*[_type == "pipelineContact" && stage == "won" && closedAt != null]{ closedAt, _createdAt }`
+    ),
+  ]);
+
+  const totalLeadsThisMonth = allContacts.filter((c) => c._createdAt >= thisMonthStart).length;
+  const wonThisMonth = wonContacts.filter((c) => c.closedAt >= thisMonthStart).length;
+  const lostContacts = allContacts.filter((c) => c.stage === "lost").length;
+  const closedTotal = wonContacts.length + lostContacts;
+  const conversionRate = closedTotal > 0 ? Math.round((wonContacts.length / closedTotal) * 100) : null;
+
+  // Average days to close
+  const daysToClose = wonContacts.map((c) => {
+    const created = new Date(c._createdAt).getTime();
+    const closed = new Date(c.closedAt).getTime();
+    return (closed - created) / 86400000;
+  });
+  const avgDaysToClose =
+    daysToClose.length > 0
+      ? Math.round(daysToClose.reduce((s, n) => s + n, 0) / daysToClose.length)
+      : null;
+
+  return {
+    totalLeadsThisMonth,
+    wonThisMonth,
+    conversionRate,
+    avgDaysToClose,
+    totalActive: allContacts.filter((c) => c.stage !== "won" && c.stage !== "lost").length,
+  };
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
@@ -219,10 +260,11 @@ export async function GET(req: NextRequest) {
   }
 
   // ── New data (each best-effort) ────────────────────────────────────────────
-  const [revenue, projectHealth, upcomingEvents] = await Promise.all([
+  const [revenue, projectHealth, upcomingEvents, pipelineStats] = await Promise.all([
     fetchRevenue().catch((err) => { console.error("ANALYTICS_REVENUE_ERR:", err); return null; }),
     fetchProjectHealth().catch((err) => { console.error("ANALYTICS_PM_ERR:", err); return null; }),
     fetchUpcomingEvents().catch((err) => { console.error("ANALYTICS_CAL_ERR:", err); return null; }),
+    fetchPipelineStats().catch((err) => { console.error("ANALYTICS_PIPELINE_ERR:", err); return null; }),
   ]);
 
   return NextResponse.json({
@@ -238,5 +280,6 @@ export async function GET(req: NextRequest) {
     revenue,
     projectHealth,
     upcomingEvents,
+    pipelineStats,
   });
 }
