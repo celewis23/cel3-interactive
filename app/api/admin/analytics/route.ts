@@ -248,6 +248,35 @@ async function fetchEstimateStats() {
   };
 }
 
+// ── Contract Stats ────────────────────────────────────────────────────────────
+
+async function fetchContractStats() {
+  const contracts = await sanityServer.fetch<Array<{
+    status: string;
+    signedAt: string | null;
+    sentAt: string | null;
+    _createdAt: string;
+  }>>(`*[_type == "contract"]{ status, signedAt, sentAt, _createdAt }`);
+
+  const now = new Date();
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const staleSentThreshold = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  const pending = contracts.filter((c) => ["sent", "viewed"].includes(c.status));
+  const staleSent = pending.filter((c) => c.sentAt && c.sentAt < staleSentThreshold);
+  const signedThisMonth = contracts.filter(
+    (c) => c.status === "signed" && c.signedAt && c.signedAt >= thisMonthStart
+  );
+
+  return {
+    pendingSignatureCount: pending.length,
+    staleSentCount: staleSent.length,
+    signedThisMonth: signedThisMonth.length,
+    totalContracts: contracts.length,
+    draftCount: contracts.filter((c) => c.status === "draft").length,
+  };
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
@@ -287,12 +316,13 @@ export async function GET(req: NextRequest) {
   }
 
   // ── New data (each best-effort) ────────────────────────────────────────────
-  const [revenue, projectHealth, upcomingEvents, pipelineStats, estimateStats] = await Promise.all([
+  const [revenue, projectHealth, upcomingEvents, pipelineStats, estimateStats, contractStats] = await Promise.all([
     fetchRevenue().catch((err) => { console.error("ANALYTICS_REVENUE_ERR:", err); return null; }),
     fetchProjectHealth().catch((err) => { console.error("ANALYTICS_PM_ERR:", err); return null; }),
     fetchUpcomingEvents().catch((err) => { console.error("ANALYTICS_CAL_ERR:", err); return null; }),
     fetchPipelineStats().catch((err) => { console.error("ANALYTICS_PIPELINE_ERR:", err); return null; }),
     fetchEstimateStats().catch((err) => { console.error("ANALYTICS_ESTIMATES_ERR:", err); return null; }),
+    fetchContractStats().catch((err) => { console.error("ANALYTICS_CONTRACTS_ERR:", err); return null; }),
   ]);
 
   return NextResponse.json({
@@ -310,5 +340,6 @@ export async function GET(req: NextRequest) {
     upcomingEvents,
     pipelineStats,
     estimateStats,
+    contractStats,
   });
 }
