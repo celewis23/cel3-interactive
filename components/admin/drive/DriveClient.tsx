@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { DateTime } from "luxon";
+import DocEditorModal, { detectType } from "@/components/admin/drive/DocEditorModal";
 
 type DriveFile = {
   id: string;
@@ -83,6 +84,9 @@ export default function DriveClient() {
   const [newFolderMode, setNewFolderMode] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [creatingFolder, setCreatingFolder] = useState(false);
+  const [creatingDoc, setCreatingDoc] = useState(false);
+  const [creatingSheet, setCreatingSheet] = useState(false);
+  const [editor, setEditor] = useState<{ fileId: string; fileName: string; mimeType: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function fetchFiles(folderIdParam: string | null, pageToken?: string, append = false) {
@@ -168,12 +172,79 @@ export default function DriveClient() {
     }
   }
 
+  async function handleCreateDoc(type: "doc" | "sheet") {
+    const setter = type === "doc" ? setCreatingDoc : setCreatingSheet;
+    setter(true);
+    try {
+      const res = await fetch("/api/admin/drive/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, folderId: folderId ?? undefined }),
+      });
+      if (!res.ok) throw new Error("Failed to create");
+      const file = await res.json() as DriveFile;
+      setFiles((prev) => [file, ...prev]);
+      setEditor({ fileId: file.id, fileName: file.name, mimeType: file.mimeType });
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setter(false);
+    }
+  }
+
+  function openFile(file: DriveFile) {
+    const isGoogleDoc = file.mimeType.includes("document") || file.mimeType.includes("spreadsheet");
+    if (isGoogleDoc) {
+      setEditor({ fileId: file.id, fileName: file.name, mimeType: file.mimeType });
+    } else if (file.webViewLink) {
+      window.open(file.webViewLink, "_blank");
+    }
+  }
+
   return (
     <div>
+      {/* Modal */}
+      {editor && (
+        <DocEditorModal
+          fileId={editor.fileId}
+          fileName={editor.fileName}
+          fileType={detectType(editor.mimeType)}
+          onClose={() => setEditor(null)}
+          onRename={(newName) =>
+            setFiles((prev) =>
+              prev.map((f) => (f.id === editor.fileId ? { ...f, name: newName } : f))
+            )
+          }
+        />
+      )}
+
       {/* Header */}
-      <div className="flex items-center justify-between gap-4 mb-6">
+      <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
         <h1 className="text-2xl font-semibold text-white">My Drive</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* New Doc */}
+          <button
+            onClick={() => handleCreateDoc("doc")}
+            disabled={creatingDoc}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-blue-300 hover:text-white bg-blue-500/10 hover:bg-blue-500/20 transition-colors border border-blue-500/20 disabled:opacity-50"
+          >
+            <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+            {creatingDoc ? "Creating…" : "New Doc"}
+          </button>
+          {/* New Sheet */}
+          <button
+            onClick={() => handleCreateDoc("sheet")}
+            disabled={creatingSheet}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-green-300 hover:text-white bg-green-500/10 hover:bg-green-500/20 transition-colors border border-green-500/20 disabled:opacity-50"
+          >
+            <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h1.5C5.496 19.5 6 18.996 6 18.375m-3.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-1.5A1.125 1.125 0 0118 18.375M20.625 4.5H3.375m17.25 0c.621 0 1.125.504 1.125 1.125M20.625 4.5h-1.5C18.504 4.5 18 5.004 18 5.625m3.75 0v1.5c0 .621-.504 1.125-1.125 1.125M3.375 4.5c-.621 0-1.125.504-1.125 1.125M3.375 4.5h1.5C5.496 4.5 6 5.004 6 5.625m-3.75 0v1.5c0 .621.504 1.125 1.125 1.125m0 0h1.5m-1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m1.5-3.75C5.496 8.25 6 7.746 6 7.125v-1.5M4.875 8.25C5.496 8.25 6 8.754 6 9.375v1.5m0-5.25v5.25m0-5.25C6 5.004 6.504 4.5 7.125 4.5h9.75c.621 0 1.125.504 1.125 1.125m1.125 2.625h1.5m-1.5 0A1.125 1.125 0 0118 7.125v-1.5m1.125 2.625c-.621 0-1.125.504-1.125 1.125v1.5m2.625-2.625c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125M18 5.625v5.25M7.125 12h9.75m-9.75 0A1.125 1.125 0 016 10.875M7.125 12C6.504 12 6 12.504 6 13.125m0-2.25C6 11.496 5.496 12 4.875 12M18 10.875c0 .621-.504 1.125-1.125 1.125M18 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-12 5.25v-5.25m0 5.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125m-12 0v-1.5c0-.621.504-1.125 1.125-1.125M18 18.375v-5.25m0 5.25v-1.5c0-.621-.504-1.125-1.125-1.125M18 13.125v1.5c0 .621.504 1.125 1.125 1.125M18 13.125c0-.621.504-1.125 1.125-1.125M6 13.125v1.5c0 .621-.504 1.125-1.125 1.125M4.875 14.25c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m0-3.75h1.5m-1.5 3.75h1.5" />
+            </svg>
+            {creatingSheet ? "Creating…" : "New Sheet"}
+          </button>
+          {/* New Folder */}
           <button
             onClick={() => setNewFolderMode(true)}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-white/60 hover:text-white bg-white/5 hover:bg-white/10 transition-colors border border-white/8"
@@ -294,8 +365,14 @@ export default function DriveClient() {
                     </button>
                   ) : (
                     <button
-                      onClick={() => file.webViewLink && window.open(file.webViewLink, "_blank")}
-                      className="text-sm text-white/80 hover:text-white transition-colors truncate text-left"
+                      onClick={() => openFile(file)}
+                      className={`text-sm transition-colors truncate text-left ${
+                        file.mimeType.includes("document")
+                          ? "text-blue-300 hover:text-blue-100"
+                          : file.mimeType.includes("spreadsheet")
+                          ? "text-green-300 hover:text-green-100"
+                          : "text-white/80 hover:text-white"
+                      }`}
                     >
                       {file.name}
                     </button>

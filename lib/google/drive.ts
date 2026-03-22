@@ -1,6 +1,9 @@
 import { google } from "googleapis";
 import { getAuthenticatedClient } from "@/lib/gmail/client";
 
+export const DOC_MIME = "application/vnd.google-apps.document";
+export const SHEET_MIME = "application/vnd.google-apps.spreadsheet";
+
 export type DriveFile = {
   id: string;
   name: string;
@@ -111,6 +114,82 @@ export async function deleteFile(fileId: string): Promise<void> {
 
   const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
   await drive.files.delete({ fileId });
+}
+
+export async function createGoogleDoc(
+  name: string,
+  parentId?: string
+): Promise<DriveFile> {
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
+
+  const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
+  const res = await drive.files.create({
+    requestBody: {
+      name,
+      mimeType: DOC_MIME,
+      parents: parentId ? [parentId] : undefined,
+    },
+    fields:
+      "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
+  });
+  return mapFile(res.data);
+}
+
+export async function createGoogleSheet(
+  name: string,
+  parentId?: string
+): Promise<DriveFile> {
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
+
+  const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
+  const res = await drive.files.create({
+    requestBody: {
+      name,
+      mimeType: SHEET_MIME,
+      parents: parentId ? [parentId] : undefined,
+    },
+    fields:
+      "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
+  });
+  return mapFile(res.data);
+}
+
+export async function renameFile(
+  fileId: string,
+  name: string
+): Promise<DriveFile> {
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
+
+  const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
+  const res = await drive.files.update({
+    fileId,
+    requestBody: { name },
+    fields:
+      "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
+  });
+  return mapFile(res.data);
+}
+
+export async function exportDriveFile(
+  fileId: string,
+  exportMimeType: string
+): Promise<{ data: Buffer; name: string }> {
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
+
+  const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
+  const meta = await drive.files.get({ fileId, fields: "name" });
+  const res = await drive.files.export(
+    { fileId, mimeType: exportMimeType },
+    { responseType: "arraybuffer" }
+  );
+  return {
+    data: Buffer.from(res.data as ArrayBuffer),
+    name: meta.data.name ?? "document",
+  };
 }
 
 export async function uploadFile(params: {
