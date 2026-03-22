@@ -243,7 +243,7 @@ const NAV = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
@@ -297,12 +297,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-black text-white flex">
-      {/* Sidebar */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 w-56 bg-[#0a0a0a] border-r border-white/8 flex flex-col transform transition-transform duration-200 lg:translate-x-0 ${
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:static lg:flex`}
-      >
+      {/* Sidebar — desktop only */}
+      <aside className="hidden lg:flex flex-col w-56 bg-[#0a0a0a] border-r border-white/8 flex-shrink-0">
         {/* Logo */}
         <div className="px-5 py-5 border-b border-white/8">
           <div className="text-xs tracking-widest uppercase text-sky-400 mb-0.5">Backoffice</div>
@@ -310,7 +306,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-4 space-y-0.5">
+        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
           {[...NAV, TEAM_NAV].map((item) => {
             const isActive = item.href === "/admin"
               ? pathname === "/admin"
@@ -319,7 +315,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                   isActive
                     ? "bg-sky-500/10 text-sky-400"
@@ -379,35 +374,192 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </aside>
 
-      {/* Mobile overlay */}
-      {mobileOpen && (
+      {/* More sheet backdrop — mobile only */}
+      {moreOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
-          onClick={() => setMobileOpen(false)}
+          className="fixed inset-0 z-50 bg-black/70 lg:hidden"
+          onClick={() => setMoreOpen(false)}
         />
       )}
 
+      {/* More sheet — slides up from bottom on mobile */}
+      <div
+        className={`fixed bottom-0 inset-x-0 z-50 bg-[#0f0f0f] rounded-t-2xl border-t border-white/10 lg:hidden flex flex-col transition-transform duration-300 ease-out max-h-[85dvh] ${
+          moreOpen ? "translate-y-0" : "translate-y-full"
+        }`}
+      >
+        {/* Drag handle */}
+        <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
+          <div className="w-9 h-1 rounded-full bg-white/20" />
+        </div>
+
+        {/* All nav items */}
+        <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-0.5">
+          {[...NAV, TEAM_NAV].map((item) => {
+            const isActive = item.href === "/admin"
+              ? pathname === "/admin"
+              : pathname.startsWith(item.href.split("?")[0]);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMoreOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                  isActive ? "bg-sky-500/10 text-sky-400" : "text-white/70"
+                }`}
+              >
+                {item.icon}
+                <span className="flex-1">{item.label}</span>
+                {item.label === "Email" && unreadCount > 0 && (
+                  <span className="min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-sky-500 text-white text-[10px] font-semibold leading-none">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+                {item.label === "Team" && unreadAnnouncements > 0 && (
+                  <span className="min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-amber-500 text-white text-[10px] font-semibold leading-none">
+                    {unreadAnnouncements > 99 ? "99+" : unreadAnnouncements}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* User + actions footer */}
+        <div className="flex-shrink-0 border-t border-white/8 px-4 py-3 pb-8">
+          {currentUser && (
+            <div className="px-4 py-2 mb-1">
+              <div className="text-sm font-medium text-white">{currentUser.name}</div>
+              <div className="text-xs text-white/40 mt-0.5">{currentUser.roleName}</div>
+            </div>
+          )}
+          <button
+            onClick={() => { setMoreOpen(false); handleLogout(); }}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/60 w-full"
+          >
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+            </svg>
+            Sign out
+          </button>
+          <Link
+            href="/"
+            target="_blank"
+            onClick={() => setMoreOpen(false)}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/60"
+          >
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
+            View site
+          </Link>
+        </div>
+      </div>
+
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Mobile header */}
-        <div className="lg:hidden flex items-center gap-3 px-4 py-3 border-b border-white/8 flex-shrink-0">
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="text-white/60 hover:text-white flex-shrink-0"
-          >
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
-          </button>
-          <span className="text-sm font-medium text-white truncate">
-            {NAV.find((n) => n.href === "/admin" ? pathname === "/admin" : pathname.startsWith(n.href))?.label ?? "Backoffice"}
+        {/* Mobile header — page title only */}
+        <div className="lg:hidden flex items-center px-5 py-3.5 border-b border-white/8 flex-shrink-0 bg-[#0a0a0a]">
+          <span className="text-xs tracking-widest uppercase font-semibold text-sky-400">
+            {[...NAV, TEAM_NAV].find((n) =>
+              n.href === "/admin" ? pathname === "/admin" : pathname.startsWith(n.href.split("?")[0])
+            )?.label ?? "Backoffice"}
           </span>
         </div>
 
-        <main className="flex-1 p-4 lg:p-8 max-w-6xl w-full mx-auto">
+        <main className="flex-1 p-4 pb-28 lg:p-8 max-w-6xl w-full mx-auto">
           {children}
         </main>
       </div>
+
+      {/* Bottom tab bar — mobile only */}
+      <nav
+        className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#0a0a0a]/95 backdrop-blur-md border-t border-white/8 flex items-stretch"
+        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      >
+        {[
+          {
+            label: "Home",
+            href: "/admin",
+            badge: 0,
+            badgeColor: "sky",
+            icon: (
+              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+              </svg>
+            ),
+          },
+          {
+            label: "Projects",
+            href: "/admin/projects",
+            badge: 0,
+            badgeColor: "sky",
+            icon: (
+              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+              </svg>
+            ),
+          },
+          {
+            label: "Email",
+            href: "/admin/email",
+            badge: unreadCount,
+            badgeColor: "sky",
+            icon: (
+              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+              </svg>
+            ),
+          },
+          {
+            label: "Team",
+            href: "/admin/announcements",
+            badge: unreadAnnouncements,
+            badgeColor: "amber",
+            icon: (
+              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+              </svg>
+            ),
+          },
+        ].map((tab) => {
+          const isActive = tab.href === "/admin"
+            ? pathname === "/admin"
+            : pathname.startsWith(tab.href);
+          return (
+            <Link
+              key={tab.href}
+              href={tab.href}
+              className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 relative min-h-[56px] transition-colors ${
+                isActive ? "text-sky-400" : "text-white/40"
+              }`}
+            >
+              <div className="relative">
+                {tab.icon}
+                {tab.badge > 0 && (
+                  <span className={`absolute -top-1 -right-2 min-w-[14px] h-[14px] px-0.5 flex items-center justify-center rounded-full ${
+                    tab.badgeColor === "amber" ? "bg-amber-500" : "bg-sky-500"
+                  } text-white text-[9px] font-bold leading-none`}>
+                    {tab.badge > 99 ? "99+" : tab.badge}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] font-medium">{tab.label}</span>
+            </Link>
+          );
+        })}
+
+        {/* More tab */}
+        <button
+          onClick={() => setMoreOpen(true)}
+          className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-white/40 min-h-[56px]"
+        >
+          <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+          <span className="text-[10px] font-medium">More</span>
+        </button>
+      </nav>
     </div>
   );
 }
