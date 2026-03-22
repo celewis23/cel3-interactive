@@ -410,7 +410,7 @@ export default function KanbanBoard({
       </div>
 
       {/* Board */}
-      <div className="flex-1 overflow-x-auto px-4 lg:px-8">
+      <div className="kanban-scroll flex-1 overflow-x-auto px-4 lg:px-8">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}

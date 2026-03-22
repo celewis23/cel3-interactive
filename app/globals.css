@@ -96,3 +96,39 @@ body {
   100% { transform: translateX(520px); opacity: 0; }
 }
 
+/* Kanban board scrollbar */
+.kanban-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(14 165 233) #000000; /* thumb | track (Firefox) */
+}
+.kanban-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+.kanban-scroll::-webkit-scrollbar-track {
+  background: #000000;
+  border-radius: 4px;
+}
+.kanban-scroll::-webkit-scrollbar-thumb {
+  background: rgb(14 165 233);
+  border-radius: 4px;
+  border: 2px solid #000000;
+}
+.kanban-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgb(56 189 248);
+}
+.kanban-scroll::-webkit-scrollbar-button {
+  background: #000000;
+  width: 8px;
+  height: 8px;
+}
+.kanban-scroll::-webkit-scrollbar-button:horizontal:decrement {
+  background: #000000
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath d='M5 1L2 4l3 3' stroke='%230ea5e9' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E")
+    center / 8px no-repeat;
+}
+.kanban-scroll::-webkit-scrollbar-button:horizontal:increment {
+  background: #000000
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath d='M3 1l3 3-3 3' stroke='%230ea5e9' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E")
+    center / 8px no-repeat;
+}
+
