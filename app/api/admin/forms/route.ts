@@ -1,19 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sanityServer } from "@/lib/sanityServer";
 
 export const runtime = "nodejs";
 
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  const session = verifySessionToken(token);
-  return session?.step === "full";
-}
-
 export async function GET(req: NextRequest) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "forms", "view");
+  if (authErr) return authErr;
 
   const [forms, subs] = await Promise.all([
     sanityServer.fetch<Array<{ _id: string; title: string; slug: string; isPublic: boolean; isActive: boolean; _createdAt: string }>>(
@@ -31,7 +25,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "forms", "edit");
+  if (authErr) return authErr;
 
   const body = await req.json();
   const title = String(body.title || "").trim();

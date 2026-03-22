@@ -2,19 +2,12 @@
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  const session = verifySessionToken(token);
-  return session?.step === "full";
-}
-
 export async function GET(req: NextRequest) {
-  if (!requireAuth(req))
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "email", "view");
+  if (authErr) return authErr;
   try {
     const { searchParams } = new URL(req.url);
     const q = (searchParams.get("q") ?? "").trim();

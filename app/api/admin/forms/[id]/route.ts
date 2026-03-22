@@ -1,22 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sanityServer } from "@/lib/sanityServer";
 
 export const runtime = "nodejs";
 
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  const session = verifySessionToken(token);
-  return session?.step === "full";
-}
-
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "forms", "view");
+  if (authErr) return authErr;
   const { id } = await params;
   const form = await sanityServer.fetch(`*[_type == "cel3Form" && _id == $id][0]`, { id });
   if (!form) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -27,7 +21,8 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "forms", "edit");
+  if (authErr) return authErr;
   const { id } = await params;
   const body = await req.json();
 
@@ -55,7 +50,8 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "forms", "edit");
+  if (authErr) return authErr;
   const { id } = await params;
 
   await sanityWriteClient.delete(id);

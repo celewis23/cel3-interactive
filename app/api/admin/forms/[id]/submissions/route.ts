@@ -1,16 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { FormField } from "@/lib/forms";
 
 export const runtime = "nodejs";
-
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  const session = verifySessionToken(token);
-  return session?.step === "full";
-}
 
 function safeJson(s: string): Record<string, unknown> {
   try { return JSON.parse(s); } catch { return {}; }
@@ -20,7 +13,8 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "forms", "view");
+  if (authErr) return authErr;
   const { id } = await params;
 
   const [form, submissions] = await Promise.all([

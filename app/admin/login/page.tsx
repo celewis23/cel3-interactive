@@ -24,7 +24,13 @@ export default function AdminLoginPage() {
         setError(data.error || "Invalid credentials");
         return;
       }
-      router.push("/admin/pin");
+      const data = await res.json();
+      // Staff members get a full session immediately (no PIN step)
+      if (data.staffLogin) {
+        router.push("/admin");
+      } else {
+        router.push("/admin/pin");
+      }
     } catch {
       setError("Something went wrong. Try again.");
     } finally {

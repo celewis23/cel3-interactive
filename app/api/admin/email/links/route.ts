@@ -3,20 +3,13 @@
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  const session = verifySessionToken(token);
-  return session?.step === "full";
-}
-
 export async function GET(req: NextRequest) {
-  if (!requireAuth(req))
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "email", "view");
+  if (authErr) return authErr;
   try {
     const { searchParams } = new URL(req.url);
     const threadId = searchParams.get("threadId");
@@ -49,8 +42,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!requireAuth(req))
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "email", "edit");
+  if (authErr) return authErr;
   try {
     const body = await req.json();
     const {

@@ -1,17 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { listInvoices } from "@/lib/stripe/billing";
 import { listEvents } from "@/lib/google/calendar";
 
 export const runtime = "nodejs";
-
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  const session = verifySessionToken(token);
-  return session?.step === "full";
-}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -339,7 +332,8 @@ async function fetchTimeStats() {
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "analytics", "view");
+  if (authErr) return authErr;
 
   // ── Existing data (unchanged) ──────────────────────────────────────────────
   const [projects, leads, bookings, recentLeads, recentBookings, monthlyLeads] = await Promise.all([

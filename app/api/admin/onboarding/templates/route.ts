@@ -1,18 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 
 export const runtime = "nodejs";
 
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  return verifySessionToken(token)?.step === "full";
-}
-
 export async function GET(req: NextRequest) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "onboarding", "view");
+  if (authErr) return authErr;
   try {
     const templates = await sanityServer.fetch(
       `*[_type == "onboardingTemplate"] | order(_createdAt desc) {
@@ -27,7 +22,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "onboarding", "edit");
+  if (authErr) return authErr;
   try {
     const body = await req.json();
     if (!body.name?.trim()) {

@@ -6,6 +6,10 @@ const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 export type SessionPayload = {
   step: "partial" | "full";
+  /** Present for staff members; absent for the owner (env-based credentials) */
+  staffId?: string;
+  /** Role slug for staff members; absent for owner (full access) */
+  roleSlug?: string;
   iat: number;
   exp: number;
 };
@@ -17,6 +21,20 @@ function sign(data: string): string {
 export function createSessionToken(step: "partial" | "full"): string {
   const payload: SessionPayload = {
     step,
+    iat: Date.now(),
+    exp: Date.now() + SESSION_TTL_MS,
+  };
+  const data = Buffer.from(JSON.stringify(payload)).toString("base64");
+  const sig = sign(data);
+  return `${data}.${sig}`;
+}
+
+/** Creates a full session token for a staff member (skips the PIN step). */
+export function createStaffSessionToken(staffId: string, roleSlug: string): string {
+  const payload: SessionPayload = {
+    step: "full",
+    staffId,
+    roleSlug,
     iat: Date.now(),
     exp: Date.now() + SESSION_TTL_MS,
   };

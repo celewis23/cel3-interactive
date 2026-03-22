@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sanityServer } from "@/lib/sanityServer";
 import { createEvent, updateEvent, deleteEvent } from "@/lib/google/calendar";
 
 export const runtime = "nodejs";
-
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  return verifySessionToken(token)?.step === "full";
-}
 
 function nextDay(dateStr: string): string {
   const d = new Date(dateStr + "T00:00:00Z");
@@ -19,7 +13,8 @@ function nextDay(dateStr: string): string {
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "projects", "view");
+  if (authErr) return authErr;
   const { id } = await params;
 
   const project = await sanityServer.fetch(
@@ -32,7 +27,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "projects", "edit");
+  if (authErr) return authErr;
   const { id } = await params;
   const body = await req.json();
 
@@ -92,7 +88,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "projects", "delete");
+  if (authErr) return authErr;
   const { id } = await params;
 
   // Fetch project to get calendarEventId before deleting

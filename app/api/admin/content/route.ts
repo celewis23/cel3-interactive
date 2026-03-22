@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sanityServer } from "@/lib/sanityServer";
 
@@ -7,22 +7,17 @@ export const runtime = "nodejs";
 
 const DOC_ID = "siteSettings";
 
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  const session = verifySessionToken(token);
-  return session?.step === "full";
-}
-
 export async function GET(req: NextRequest) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "settings", "view");
+  if (authErr) return authErr;
 
   const doc = await sanityServer.fetch(`*[_id == "siteSettings"][0]`);
   return NextResponse.json(doc || {});
 }
 
 export async function PATCH(req: NextRequest) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "settings", "manage");
+  if (authErr) return authErr;
 
   const body = await req.json();
 

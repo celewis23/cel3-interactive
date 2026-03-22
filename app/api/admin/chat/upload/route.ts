@@ -2,15 +2,9 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { google } from "googleapis";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { getAuthenticatedClient } from "@/lib/gmail/client";
 import { sanityWriteClient } from "@/lib/sanity.write";
-
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  return verifySessionToken(token)?.step === "full";
-}
 
 function getBotAuth() {
   const raw = process.env.GOOGLE_CHAT_BOT_CREDENTIALS;
@@ -46,7 +40,8 @@ function normalizeMessage(m: {
 }
 
 export async function POST(req: NextRequest) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "chat", "edit");
+  if (authErr) return authErr;
 
   const auth = await getAuthenticatedClient();
   if (!auth) return NextResponse.json({ error: "Not authenticated with Google" }, { status: 401 });

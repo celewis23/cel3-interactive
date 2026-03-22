@@ -1,15 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 
 export const runtime = "nodejs";
-
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  return verifySessionToken(token)?.step === "full";
-}
 
 const ALLOWED_FIELDS = [
   "clientName",
@@ -54,7 +48,8 @@ function computeAmounts(
 type Params = { params: Promise<{ id: string }> };
 
 export async function GET(req: NextRequest, { params }: Params) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "estimates", "view");
+  if (authErr) return authErr;
   try {
     const { id } = await params;
     const estimate = await sanityServer.fetch(`*[_type == "estimate" && _id == $id][0]`, { id });
@@ -67,7 +62,8 @@ export async function GET(req: NextRequest, { params }: Params) {
 }
 
 export async function PATCH(req: NextRequest, { params }: Params) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "estimates", "edit");
+  if (authErr) return authErr;
   try {
     const { id } = await params;
     const body = await req.json();
@@ -136,7 +132,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 }
 
 export async function DELETE(req: NextRequest, { params }: Params) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "estimates", "delete");
+  if (authErr) return authErr;
   try {
     const { id } = await params;
     await sanityWriteClient.delete(id);

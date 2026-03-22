@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { generateMagicToken } from "@/lib/portal/auth";
 import { sendEmail } from "@/lib/gmail/api";
 
 export const runtime = "nodejs";
-
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  return verifySessionToken(token)?.step === "full";
-}
 
 const ALLOWED = [
   "name", "company", "stripeCustomerId", "pipelineContactId", "driveRootFolderId", "status",
@@ -21,7 +15,8 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "clients", "view");
+  if (authErr) return authErr;
   const { id } = await params;
   try {
     const user = await sanityServer.fetch(`*[_type == "clientPortalUser" && _id == $id][0]`, { id });
@@ -37,7 +32,8 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "clients", "edit");
+  if (authErr) return authErr;
   const { id } = await params;
   try {
     const body = await req.json();
@@ -57,7 +53,8 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "clients", "delete");
+  if (authErr) return authErr;
   const { id } = await params;
   try {
     const tokens = await sanityServer.fetch<{ _id: string }[]>(
@@ -78,7 +75,8 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "clients", "edit");
+  if (authErr) return authErr;
   const { id } = await params;
   try {
     const user = await sanityServer.fetch<{ email: string; name: string | null } | null>(

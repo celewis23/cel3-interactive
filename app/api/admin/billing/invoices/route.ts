@@ -1,21 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { listInvoices, createInvoice } from "@/lib/stripe/billing";
 import Stripe from "stripe";
 
 export const runtime = "nodejs";
 
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  const session = verifySessionToken(token);
-  return session?.step === "full";
-}
-
 export async function GET(req: NextRequest) {
-  if (!requireAuth(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authErr = await requirePermission(req, "billing", "view");
+  if (authErr) return authErr;
 
   try {
     const { searchParams } = new URL(req.url);
@@ -38,9 +30,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!requireAuth(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authErr = await requirePermission(req, "billing", "edit");
+  if (authErr) return authErr;
 
   try {
     const body = await req.json();

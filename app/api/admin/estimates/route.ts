@@ -1,15 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 
 export const runtime = "nodejs";
-
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  return verifySessionToken(token)?.step === "full";
-}
 
 function computeAmounts(
   lineItems: Array<{ quantity: number; rate: number }>,
@@ -34,7 +28,8 @@ function computeAmounts(
 }
 
 export async function GET(req: NextRequest) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "estimates", "view");
+  if (authErr) return authErr;
   try {
     const estimates = await sanityServer.fetch(
       `*[_type == "estimate"] | order(_createdAt desc)`
@@ -47,7 +42,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "estimates", "edit");
+  if (authErr) return authErr;
   try {
     const body = await req.json();
 

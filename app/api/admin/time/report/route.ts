@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 
 export const runtime = "nodejs";
-
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  return verifySessionToken(token)?.step === "full";
-}
 
 function startOf(unit: "week" | "month" | "year"): string {
   const d = new Date();
@@ -25,7 +19,8 @@ function startOf(unit: "week" | "month" | "year"): string {
 }
 
 export async function GET(req: NextRequest) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "timeTracking", "view");
+  if (authErr) return authErr;
   try {
     const entries = await sanityServer.fetch<Array<{
       date: string;

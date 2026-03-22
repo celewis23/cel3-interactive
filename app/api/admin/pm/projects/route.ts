@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sanityServer } from "@/lib/sanityServer";
 import { createEvent } from "@/lib/google/calendar";
 
 export const runtime = "nodejs";
-
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  return verifySessionToken(token)?.step === "full";
-}
 
 const DEFAULT_COLUMNS = [
   { id: "backlog", name: "Backlog", taskIds: [] as string[] },
@@ -27,7 +21,8 @@ function nextDay(dateStr: string): string {
 }
 
 export async function GET(req: NextRequest) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "projects", "view");
+  if (authErr) return authErr;
 
   const projects = await sanityServer.fetch(`
     *[_type == "pmProject"] | order(_createdAt desc) {
@@ -39,7 +34,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "projects", "edit");
+  if (authErr) return authErr;
 
   const body = await req.json();
   if (!body.name?.trim()) return NextResponse.json({ error: "Name is required" }, { status: 400 });

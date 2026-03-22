@@ -1,15 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 
 export const runtime = "nodejs";
-
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  return verifySessionToken(token)?.step === "full";
-}
 
 function substituteVariables(body: string, vars: Record<string, string>): string {
   let result = body;
@@ -20,7 +14,8 @@ function substituteVariables(body: string, vars: Record<string, string>): string
 }
 
 export async function GET(req: NextRequest) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "contracts", "view");
+  if (authErr) return authErr;
   try {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
@@ -41,7 +36,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "contracts", "edit");
+  if (authErr) return authErr;
   try {
     const body = await req.json();
     if (!body.clientName?.trim()) {

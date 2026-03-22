@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { Resend } from "resend";
 import { buildNotificationEmail } from "@/lib/forms/email";
@@ -7,18 +7,12 @@ import { FormField } from "@/lib/forms";
 
 export const runtime = "nodejs";
 
-function requireAuth(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-  if (!token) return false;
-  const session = verifySessionToken(token);
-  return session?.step === "full";
-}
-
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; nId: string }> }
 ) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authErr = await requirePermission(req, "forms", "edit");
+  if (authErr) return authErr;
   const { id, nId } = await params;
 
   const [form, notification] = await Promise.all([
