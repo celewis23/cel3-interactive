@@ -372,11 +372,12 @@ export default function AnalyticsDashboard() {
               </>
             );
             const cls = `flex flex-col items-center justify-center gap-1 p-3 rounded-2xl border border-white/8 bg-white/3 ${item.bg} transition-colors cursor-pointer aspect-square`;
-            if ("action" in item) {
+            if ("action" in item && item.action) {
+              const action = item.action;
               return (
                 <button
                   key={item.label}
-                  onClick={() => createFile(item.action)}
+                  onClick={() => createFile(action)}
                   disabled={!!creatingFile}
                   className={cls}
                 >
