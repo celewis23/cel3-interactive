@@ -89,7 +89,8 @@ export default function ChecklistDetail({ instance: initial }: Props) {
   const { done, total, pct } = (() => {
     const steps = instance.steps ?? [];
     const done = steps.filter((s) => ["complete", "skipped"].includes(s.status)).length;
-    return { done, total: steps.length, pct: total > 0 ? Math.round((done / total) * 100) : 0 };
+    const total = steps.length;
+    return { done, total, pct: total > 0 ? Math.round((done / total) * 100) : 0 };
   })();
 
   const overdueCount = (instance.steps ?? []).filter(
