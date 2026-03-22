@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
 import { sanityServer } from "@/lib/sanityServer";
+import { listInvoices } from "@/lib/stripe/billing";
+import { listEvents } from "@/lib/google/calendar";
 
 export const runtime = "nodejs";
 
@@ -11,62 +13,230 @@ function requireAuth(req: NextRequest) {
   return session?.step === "full";
 }
 
-export async function GET(req: NextRequest) {
-  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-  const [projects, leads, bookings, recentLeads, recentBookings, monthlyLeads] = await Promise.all([
-    // Total case studies
-    sanityServer.fetch<number>(`count(*[_type == "project"])`),
-    // Total leads
-    sanityServer.fetch<number>(`count(*[_type == "fitRequest"])`),
-    // Total bookings (confirmed)
-    sanityServer.fetch<number>(`count(*[_type == "assessmentBooking" && status == "CONFIRMED"])`),
-    // Recent leads (last 10) — note: email field is an object in Sanity (tracking data), excluded here
+function monthKey(unixSec: number): string {
+  const d = new Date(unixSec * 1000);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function startOfMonthUnix(offsetMonths = 0): number {
+  const d = new Date();
+  d.setDate(1);
+  d.setHours(0, 0, 0, 0);
+  d.setMonth(d.getMonth() + offsetMonths);
+  return Math.floor(d.getTime() / 1000);
+}
+
+// ── Revenue (Stripe) ──────────────────────────────────────────────────────────
+
+async function fetchRevenue() {
+  // Fetch up to 100 paid invoices and up to 100 open invoices in parallel
+  const [paidRes, openRes] = await Promise.all([
+    listInvoices({ status: "paid", limit: 100 }),
+    listInvoices({ status: "open", limit: 100 }),
+  ]);
+
+  const paid = paidRes.invoices;
+  const open = openRes.invoices;
+  const currency = paid[0]?.currency ?? open[0]?.currency ?? "usd";
+
+  const thisMonthStart = startOfMonthUnix(0);
+  const lastMonthStart = startOfMonthUnix(-1);
+  const twelveMonthsAgo = startOfMonthUnix(-12);
+  const nowUnix = Math.floor(Date.now() / 1000);
+
+  // Revenue this month / last month
+  const revenueThisMonth = paid
+    .filter((i) => i.created >= thisMonthStart)
+    .reduce((s, i) => s + i.amountPaid, 0);
+
+  const revenueLastMonth = paid
+    .filter((i) => i.created >= lastMonthStart && i.created < thisMonthStart)
+    .reduce((s, i) => s + i.amountPaid, 0);
+
+  const changePercent =
+    revenueLastMonth > 0
+      ? Math.round(((revenueThisMonth - revenueLastMonth) / revenueLastMonth) * 100)
+      : null;
+
+  // Monthly trend — last 12 months
+  const monthlyCents: Record<string, number> = {};
+  for (const inv of paid) {
+    if (inv.created < twelveMonthsAgo) continue;
+    const key = monthKey(inv.created);
+    monthlyCents[key] = (monthlyCents[key] ?? 0) + inv.amountPaid;
+  }
+  // Fill any missing months with 0
+  for (let m = -11; m <= 0; m++) {
+    const key = monthKey(startOfMonthUnix(m) + 86400); // +1 day to stay in month
+    if (!(key in monthlyCents)) monthlyCents[key] = 0;
+  }
+  const monthly12 = Object.entries(monthlyCents)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, amount]) => ({ month, amount }));
+
+  // Revenue by client (top 8)
+  const byClientCents: Record<string, { name: string; amount: number }> = {};
+  for (const inv of paid) {
+    const key = inv.customerId || inv.customerEmail || "Unknown";
+    const name = inv.customerName || inv.customerEmail || "Unknown";
+    if (!byClientCents[key]) byClientCents[key] = { name, amount: 0 };
+    byClientCents[key].amount += inv.amountPaid;
+  }
+  const byClient = Object.values(byClientCents)
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 8);
+
+  // Outstanding + overdue
+  const outstanding = open.reduce((s, i) => s + i.amountDue, 0);
+  const overdueOpen = open.filter((i) => i.dueDate && i.dueDate < nowUnix);
+  const overdue = overdueOpen.reduce((s, i) => s + i.amountDue, 0);
+
+  return {
+    thisMonth: revenueThisMonth,
+    lastMonth: revenueLastMonth,
+    currency,
+    changePercent,
+    outstanding,
+    outstandingCount: open.length,
+    overdue,
+    overdueCount: overdueOpen.length,
+    monthly12,
+    byClient,
+  };
+}
+
+// ── Project Health (Sanity PM) ────────────────────────────────────────────────
+
+async function fetchProjectHealth() {
+  const [projects, tasks] = await Promise.all([
     sanityServer.fetch<Array<{
       _id: string;
       name: string;
-      company?: string;
-      budget?: string;
-      services?: string[];
-      createdAt: string;
+      status: string;
+      dueDate: string | null;
+      columns: Array<{ id: string; name: string; taskIds: string[] }>;
+    }>>(`*[_type == "pmProject" && status == "active"]{ _id, name, status, dueDate, columns }`),
+    sanityServer.fetch<Array<{
+      _id: string;
+      projectId: string;
+      columnId: string;
+      dueDate: string | null;
+    }>>(`*[_type == "pmTask"]{ _id, projectId, columnId, dueDate }`),
+  ]);
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  const projectSummaries = projects.map((p) => {
+    const total = (p.columns ?? []).reduce((n, c) => n + (c.taskIds?.length ?? 0), 0);
+    const doneCol = (p.columns ?? []).find((c) => c.id === "done");
+    const done = doneCol?.taskIds?.length ?? 0;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    return { _id: p._id, name: p.name, dueDate: p.dueDate, total, done, pct };
+  });
+
+  // Tasks not in "done" column
+  const doneCols = new Set(
+    projects.flatMap((p) =>
+      (p.columns ?? []).filter((c) => c.id === "done").map((c) => `${p._id}:${c.id}`)
+    )
+  );
+  const activeTasks = tasks.filter(
+    (t) => !doneCols.has(`${t.projectId}:${t.columnId}`)
+  );
+  const tasksDueToday = activeTasks.filter((t) => t.dueDate === todayStr).length;
+  const overdueTasks = activeTasks.filter(
+    (t) => t.dueDate && t.dueDate < todayStr
+  ).length;
+
+  // Tasks by column across all projects
+  const colCounts: Record<string, number> = {};
+  for (const t of tasks) {
+    colCounts[t.columnId] = (colCounts[t.columnId] ?? 0) + 1;
+  }
+
+  return {
+    activeProjects: projects.length,
+    projects: projectSummaries,
+    tasksDueToday,
+    overdueTasks,
+    tasksByColumn: colCounts,
+  };
+}
+
+// ── Upcoming Calendar Events ──────────────────────────────────────────────────
+
+async function fetchUpcomingEvents() {
+  const now = new Date().toISOString();
+  const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { events } = await listEvents({ timeMin: now, timeMax: nextWeek, maxResults: 6 });
+  return events.map((e) => ({
+    id: e.id,
+    summary: e.summary,
+    start: e.start.dateTime ?? e.start.date ?? "",
+    allDay: e.allDay,
+    htmlLink: e.htmlLink,
+  }));
+}
+
+// ── Handler ───────────────────────────────────────────────────────────────────
+
+export async function GET(req: NextRequest) {
+  if (!requireAuth(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // ── Existing data (unchanged) ──────────────────────────────────────────────
+  const [projects, leads, bookings, recentLeads, recentBookings, monthlyLeads] = await Promise.all([
+    sanityServer.fetch<number>(`count(*[_type == "project"])`),
+    sanityServer.fetch<number>(`count(*[_type == "fitRequest"])`),
+    sanityServer.fetch<number>(`count(*[_type == "assessmentBooking" && status == "CONFIRMED"])`),
+    sanityServer.fetch<Array<{
+      _id: string; name: string; company?: string; budget?: string;
+      services?: string[]; createdAt: string;
     }>>(`*[_type == "fitRequest"] | order(createdAt desc)[0...10]{
       _id, name, company, budget, services, createdAt
     }`),
-    // Recent bookings (last 10)
     sanityServer.fetch<Array<{
-      _id: string;
-      customerName: string;
-      customerEmail: string;
-      startsAtUtc: string;
-      status: string;
+      _id: string; customerName: string; customerEmail: string;
+      startsAtUtc: string; status: string;
     }>>(`*[_type == "assessmentBooking"] | order(_createdAt desc)[0...10]{
       _id, customerName, customerEmail, startsAtUtc, status
     }`),
-    // Leads per month (last 6 months)
-    sanityServer.fetch<Array<{ month: string; count: number }>>(`
+    sanityServer.fetch<Array<{ month: string }>>(`
       *[_type == "fitRequest" && createdAt > $since] | order(createdAt asc) {
         "month": createdAt[0...7]
       }
     `, { since: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString() }),
   ]);
 
-  // Aggregate monthly leads
   const monthCounts: Record<string, number> = {};
-  for (const l of monthlyLeads as Array<{ month: string }>) {
+  for (const l of monthlyLeads) {
     monthCounts[l.month] = (monthCounts[l.month] || 0) + 1;
   }
-
-  // Budget breakdown from leads
   const budgetBreakdown: Record<string, number> = {};
   for (const l of recentLeads) {
     if (l.budget) budgetBreakdown[l.budget] = (budgetBreakdown[l.budget] || 0) + 1;
   }
 
+  // ── New data (each best-effort) ────────────────────────────────────────────
+  const [revenue, projectHealth, upcomingEvents] = await Promise.all([
+    fetchRevenue().catch((err) => { console.error("ANALYTICS_REVENUE_ERR:", err); return null; }),
+    fetchProjectHealth().catch((err) => { console.error("ANALYTICS_PM_ERR:", err); return null; }),
+    fetchUpcomingEvents().catch((err) => { console.error("ANALYTICS_CAL_ERR:", err); return null; }),
+  ]);
+
   return NextResponse.json({
+    // Existing
     totals: { projects, leads, bookings },
     recentLeads,
     recentBookings,
-    monthlyLeads: Object.entries(monthCounts).sort((a, b) => a[0].localeCompare(b[0])).map(([month, count]) => ({ month, count })),
+    monthlyLeads: Object.entries(monthCounts)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, count]) => ({ month, count })),
     budgetBreakdown,
+    // New
+    revenue,
+    projectHealth,
+    upcomingEvents,
   });
 }
