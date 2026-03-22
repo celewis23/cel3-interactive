@@ -35,7 +35,7 @@ export async function GET(req: NextRequest, { params }: Params) {
     const { data, name } = await exportDriveFile(id, mimeType);
     const safeName = name.replace(/[^\w\s.-]/g, "").trim() || "document";
 
-    return new NextResponse(data, {
+    return new NextResponse(data.buffer as ArrayBuffer, {
       headers: {
         "Content-Type": mimeType,
         "Content-Disposition": `attachment; filename="${safeName}${ext}"`,
