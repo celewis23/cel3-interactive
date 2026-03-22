@@ -7,8 +7,8 @@ import TimeEntryForm from "./TimeEntryForm";
 interface TimeEntry {
   _id: string;
   date: string;
-  startTime: string | null;
-  endTime: string | null;
+  startTime: string | undefined;
+  endTime: string | undefined;
   durationSeconds: number;
   description: string | null;
   projectId: string | null;
