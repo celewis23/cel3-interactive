@@ -26,6 +26,7 @@ export const MODULES = {
   staffManagement:  ["view", "edit", "manage"],
   auditLog:         ["view"],
   settings:         ["view", "manage"],
+  announcements:    ["view", "post", "manage"],
 } as const;
 
 export type Module = keyof typeof MODULES;
@@ -99,10 +100,11 @@ export const DEFAULT_ROLES: Array<{
       contracts:    { view: true, edit: true, delete: false },
       onboarding:   { view: true, edit: true, manage: true },
       invoices:     { view: true, edit: false },
-      analytics:    { view: true },
-      forms:        { view: true, edit: false },
-      calendar:     { view: true, edit: true },
-      email:        { view: true, edit: false },
+      analytics:     { view: true },
+      forms:         { view: true, edit: false },
+      calendar:      { view: true, edit: true },
+      email:         { view: true, edit: false },
+      announcements: { view: true, post: false, manage: false },
     }),
   },
   {
@@ -110,10 +112,11 @@ export const DEFAULT_ROLES: Array<{
     slug: "staff",
     isSystem: false,
     permissions: merge(allFalse(), {
-      dashboard:    { view: true },
-      projects:     { view: true, edit: true, delete: false, manage: false },
-      timeTracking: { view: true, edit: true, delete: false },
-      calendar:     { view: true, edit: false },
+      dashboard:     { view: true },
+      projects:      { view: true, edit: true, delete: false, manage: false },
+      timeTracking:  { view: true, edit: true, delete: false },
+      calendar:      { view: true, edit: false },
+      announcements: { view: true, post: false, manage: false },
     }),
   },
   {

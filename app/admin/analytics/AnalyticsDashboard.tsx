@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { DateTime } from "luxon";
 import Link from "next/link";
+import AnnouncementBanner from "@/components/admin/announcements/AnnouncementBanner";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -224,6 +225,8 @@ export default function AnalyticsDashboard() {
 
   return (
     <div className="space-y-8">
+
+      <AnnouncementBanner />
 
       {/* ── Business Overview ──────────────────────────────────────────────── */}
       {rev && (
