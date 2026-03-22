@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
 import {
   DndContext,
@@ -8,6 +8,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  useDroppable,
   DragStartEvent,
   DragOverEvent,
   DragEndEvent,
@@ -124,6 +125,15 @@ function SortableTaskCard({
   );
 }
 
+function DroppableTaskList({ columnId, children }: { columnId: string; children: React.ReactNode }) {
+  const { setNodeRef } = useDroppable({ id: columnId });
+  return (
+    <div ref={setNodeRef} className="flex flex-col gap-2 min-h-[60px]">
+      {children}
+    </div>
+  );
+}
+
 function Column({
   column,
   tasks,
@@ -164,11 +174,11 @@ function Column({
       </div>
 
       <SortableContext items={tasks.map((t) => t._id)} strategy={verticalListSortingStrategy}>
-        <div className="flex flex-col gap-2 min-h-[60px]">
+        <DroppableTaskList columnId={column.id}>
           {tasks.map((task) => (
             <SortableTaskCard key={task._id} task={task} onClick={() => onTaskClick(task)} />
           ))}
-        </div>
+        </DroppableTaskList>
       </SortableContext>
 
       {addingIn === column.id ? (
@@ -220,6 +230,8 @@ export default function KanbanBoard({
   initialTasks: PmTask[];
 }) {
   const [columns, setColumns] = useState<PmColumn[]>(project.columns ?? []);
+  const columnsRef = useRef(columns);
+  useEffect(() => { columnsRef.current = columns; }, [columns]);
   const [tasks, setTasks] = useState<PmTask[]>(initialTasks);
   const [activeTask, setActiveTask] = useState<PmTask | null>(null);
   const [selectedTask, setSelectedTask] = useState<PmTask | null>(null);
@@ -291,7 +303,6 @@ export default function KanbanBoard({
     setActiveTask(null);
 
     if (!over) {
-      // Reset to server state
       setColumns(project.columns);
       setTasks(initialTasks);
       return;
@@ -300,19 +311,22 @@ export default function KanbanBoard({
     const activeId = active.id as string;
     const overId = over.id as string;
 
-    // Re-sort within same column if needed
-    const sourceCol = findColumnOfTask(activeId);
+    // Use ref to get the latest columns (avoids stale closure from rapid dragOver updates)
+    const latestCols = columnsRef.current;
+    const sourceCol = latestCols.find((c) => (c.taskIds ?? []).includes(activeId));
+
     if (sourceCol && sourceCol.taskIds.includes(overId) && activeId !== overId) {
+      // Re-sort within the same column
       const oldIndex = sourceCol.taskIds.indexOf(activeId);
       const newIndex = sourceCol.taskIds.indexOf(overId);
       const newTaskIds = arrayMove(sourceCol.taskIds, oldIndex, newIndex);
-      const newCols = columns.map((c) =>
+      const newCols = latestCols.map((c) =>
         c.id === sourceCol.id ? { ...c, taskIds: newTaskIds } : c
       );
       setColumns(newCols);
       await persistColumns(newCols);
     } else {
-      await persistColumns(columns);
+      await persistColumns(latestCols);
     }
   }
 
