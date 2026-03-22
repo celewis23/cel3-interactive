@@ -30,7 +30,8 @@ const CLIENT_ACTION_MAP: Record<string, { label: string; href: string }> = {
 function getProgress(steps: Step[]) {
   if (!steps?.length) return { done: 0, total: 0, pct: 0 };
   const done = steps.filter((s) => ["complete", "skipped"].includes(s.status)).length;
-  return { done, total: steps.length, pct: Math.round((done / total) * 100) };
+  const total = steps.length;
+  return { done, total, pct: Math.round((done / total) * 100) };
 }
 
 export default function PortalOnboardingPage() {

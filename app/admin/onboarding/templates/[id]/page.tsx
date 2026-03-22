@@ -50,12 +50,17 @@ export default async function EditOnboardingTemplatePage({
         </Link>
       </div>
       <TemplateBuilder initial={{
-        ...template,
+        _id: template._id,
+        name: template.name,
         description: template.description ?? undefined,
+        category: template.category,
         steps: template.steps.map((s) => ({
-          ...s,
+          _key: s._key,
+          order: s.order,
+          title: s.title,
           description: s.description ?? "",
           dueDateOffsetDays: s.dueDateOffsetDays?.toString() ?? "",
+          actionType: s.actionType,
         })),
       }} />
     </div>
