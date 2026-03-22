@@ -12,13 +12,10 @@ interface BannerAnnouncement {
   createdAt: string;
 }
 
-interface Props {
-  announcements: BannerAnnouncement[];
-}
-
 const SESSION_KEY = "dismissed_announcement";
 
-export default function AnnouncementBanner({ announcements }: Props) {
+export default function AnnouncementBanner() {
+  const [announcements, setAnnouncements] = useState<BannerAnnouncement[]>([]);
   const [dismissedId, setDismissedId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -30,6 +27,12 @@ export default function AnnouncementBanner({ announcements }: Props) {
     } catch {
       // sessionStorage unavailable
     }
+    fetch("/api/admin/announcements?archived=false&limit=10")
+      .then((r) => r.ok ? r.json() : [])
+      .then((data) => {
+        if (Array.isArray(data)) setAnnouncements(data);
+      })
+      .catch(() => {});
   }, []);
 
   if (!mounted || announcements.length === 0) return null;
