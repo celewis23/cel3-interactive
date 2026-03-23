@@ -127,9 +127,12 @@ export default function DocEditorModal({ fileId, fileName, fileType, onClose, on
   const formats = DOWNLOAD_FORMATS[fileType];
 
   return (
-    <div className="fixed inset-0 z-[60] flex flex-col bg-[#0a0a0a]">
+    <div
+      className="fixed inset-0 z-[60] flex flex-col bg-[#0a0a0a]"
+      style={{ height: "100dvh" }}
+    >
       {/* ── Toolbar ─────────────────────────────────────────── */}
-      <div className="flex items-center gap-3 px-4 py-2.5 border-b border-white/8 bg-[#0f0f0f] flex-shrink-0">
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-white/8 bg-[#0f0f0f] flex-shrink-0 min-h-0">
         {/* File type badge */}
         <span className={`text-xs font-bold uppercase tracking-widest flex-shrink-0 ${typeColor}`}>
           {typeLabel}
@@ -161,8 +164,8 @@ export default function DocEditorModal({ fileId, fileName, fileType, onClose, on
           )}
         </div>
 
-        {/* Auto-save note */}
-        <span className="text-xs text-white/25 flex-shrink-0 hidden sm:block">Auto-saved to Drive</span>
+        {/* Auto-save note — desktop only */}
+        <span className="text-xs text-white/25 flex-shrink-0 hidden lg:block">Auto-saved to Drive</span>
 
         {/* Download dropdown */}
         <div className="relative flex-shrink-0" ref={downloadRef}>
@@ -181,7 +184,7 @@ export default function DocEditorModal({ fileId, fileName, fileType, onClose, on
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
               </svg>
             )}
-            Download
+            <span className="hidden md:inline">Download</span>
             <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
             </svg>
@@ -212,7 +215,7 @@ export default function DocEditorModal({ fileId, fileName, fileType, onClose, on
           <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
           </svg>
-          <span className="hidden sm:inline">Open in Google</span>
+          <span className="hidden md:inline">Open in Google</span>
         </a>
 
         {/* Close */}
@@ -227,7 +230,7 @@ export default function DocEditorModal({ fileId, fileName, fileType, onClose, on
       </div>
 
       {/* ── Editor iframe ───────────────────────────────────── */}
-      <div className="flex-1 relative bg-white">
+      <div className="flex-1 min-h-0 relative bg-white overflow-hidden">
         {iframeError ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[#0a0a0a] text-center px-8">
             <svg width="48" height="48" fill="none" stroke="currentColor" strokeWidth="1" viewBox="0 0 24 24" className="text-white/20">
@@ -253,7 +256,7 @@ export default function DocEditorModal({ fileId, fileName, fileType, onClose, on
           <iframe
             key={fileId}
             src={embedUrl}
-            className="w-full h-full border-0"
+            className="absolute inset-0 w-full h-full border-0"
             title={name}
             allow="clipboard-read; clipboard-write"
             onError={() => setIframeError(true)}
