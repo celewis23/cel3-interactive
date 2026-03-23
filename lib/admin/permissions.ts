@@ -27,6 +27,7 @@ export const MODULES = {
   auditLog:         ["view"],
   settings:         ["view", "manage"],
   announcements:    ["view", "post", "manage"],
+  expenses:         ["view", "edit", "delete"],
 } as const;
 
 export type Module = keyof typeof MODULES;
@@ -105,6 +106,7 @@ export const DEFAULT_ROLES: Array<{
       calendar:      { view: true, edit: true },
       email:         { view: true, edit: false },
       announcements: { view: true, post: false, manage: false },
+      expenses:      { view: true, edit: true, delete: true },
     }),
   },
   {
@@ -117,6 +119,7 @@ export const DEFAULT_ROLES: Array<{
       timeTracking:  { view: true, edit: true, delete: false },
       calendar:      { view: true, edit: false },
       announcements: { view: true, post: false, manage: false },
+      expenses:      { view: true, edit: true, delete: false },
     }),
   },
   {

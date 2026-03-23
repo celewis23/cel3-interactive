@@ -235,6 +235,14 @@ export const AuditAction = {
 
   // Portal users
   PORTAL_USER_CREATED:     "portal_user.created",
+
+  // Expenses
+  EXPENSE_CREATED:          "expense.created",
+  EXPENSE_UPDATED:          "expense.updated",
+  EXPENSE_DELETED:          "expense.deleted",
+  EXPENSE_CATEGORY_CREATED: "expense.category_created",
+  EXPENSE_CATEGORY_UPDATED: "expense.category_updated",
+  EXPENSE_CATEGORY_DELETED: "expense.category_deleted",
 } as const;
 
 export type AuditActionValue = typeof AuditAction[keyof typeof AuditAction];
