@@ -10,11 +10,13 @@ export async function GET(req: NextRequest) {
   if (authErr) return authErr;
 
   const { searchParams } = new URL(req.url);
-  const folderId = searchParams.get("folderId") ?? undefined;
-  const pageToken = searchParams.get("pageToken") ?? undefined;
+  const folderId    = searchParams.get("folderId")    ?? undefined;
+  const pageToken   = searchParams.get("pageToken")   ?? undefined;
+  const search      = searchParams.get("q")            ?? undefined;
+  const foldersOnly = searchParams.get("foldersOnly") === "true";
 
   try {
-    const result = await listFiles({ folderId, pageToken });
+    const result = await listFiles({ folderId, pageToken, search, foldersOnly });
     return NextResponse.json(result);
   } catch (err) {
     console.error("DRIVE_LIST_ERROR:", err);

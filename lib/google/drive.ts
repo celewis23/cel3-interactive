@@ -51,16 +51,27 @@ export async function listFiles(opts?: {
   folderId?: string;
   pageToken?: string;
   pageSize?: number;
+  search?: string;
+  foldersOnly?: boolean;
 }): Promise<{ files: DriveFile[]; nextPageToken?: string }> {
   const auth = await getAuthenticatedClient();
   if (!auth) throw new Error("Not authenticated with Google");
 
   const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
-  const folderId = opts?.folderId ?? "root";
+
+  let q: string;
+  if (opts?.search) {
+    q = `fullText contains '${opts.search.replace(/'/g, "\\'")}' and trashed = false`;
+    if (opts?.foldersOnly) q += ` and mimeType = '${FOLDER_MIME}'`;
+  } else {
+    const folderId = opts?.folderId ?? "root";
+    q = `'${folderId}' in parents and trashed = false`;
+    if (opts?.foldersOnly) q += ` and mimeType = '${FOLDER_MIME}'`;
+  }
 
   const res = await drive.files.list({
-    q: `'${folderId}' in parents and trashed = false`,
-    orderBy: "folder,name",
+    q,
+    orderBy: opts?.search ? "modifiedTime desc" : "folder,name",
     pageSize: opts?.pageSize ?? 50,
     pageToken: opts?.pageToken,
     fields:
@@ -189,6 +200,65 @@ export async function exportDriveFile(
   return {
     data: Buffer.from(res.data as ArrayBuffer),
     name: meta.data.name ?? "document",
+  };
+}
+
+export async function moveFile(
+  fileId: string,
+  newParentId: string,
+  oldParentId: string
+): Promise<DriveFile> {
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
+
+  const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
+  const res = await drive.files.update({
+    fileId,
+    addParents: newParentId,
+    removeParents: oldParentId,
+    fields:
+      "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
+  });
+  return mapFile(res.data);
+}
+
+export async function copyFile(
+  fileId: string,
+  name?: string,
+  parentId?: string
+): Promise<DriveFile> {
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
+
+  const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
+  const res = await drive.files.copy({
+    fileId,
+    requestBody: {
+      name: name ?? undefined,
+      parents: parentId ? [parentId] : undefined,
+    },
+    fields:
+      "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
+  });
+  return mapFile(res.data);
+}
+
+export async function downloadFileContent(
+  fileId: string
+): Promise<{ data: Buffer; name: string; mimeType: string }> {
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
+
+  const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
+  const meta = await drive.files.get({ fileId, fields: "name, mimeType" });
+  const res = await drive.files.get(
+    { fileId, alt: "media" },
+    { responseType: "arraybuffer" }
+  );
+  return {
+    data: Buffer.from(res.data as ArrayBuffer),
+    name: meta.data.name ?? "file",
+    mimeType: meta.data.mimeType ?? "application/octet-stream",
   };
 }
 
