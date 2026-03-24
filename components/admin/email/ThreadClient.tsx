@@ -4,12 +4,15 @@
 // This is acceptable for an internal admin tool where the operator controls the Gmail account.
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import dynamic from "next/dynamic";
 import { DateTime } from "luxon";
 import type {
   GmailThreadDetail,
   GmailMessageParsed,
   GmailThreadLink,
 } from "@/lib/gmail/types";
+
+const RichTextEditor = dynamic(() => import("./RichTextEditor"), { ssr: false });
 
 interface SearchResult {
   id: string;
@@ -299,11 +302,20 @@ function LinkPanel({
 
 export default function ThreadClient({ thread, link }: Props) {
   const [replyOpen, setReplyOpen] = useState(false);
-  const [replyText, setReplyText] = useState("");
+  const [replyHtml, setReplyHtml] = useState("");
   const [replySending, setReplySending] = useState(false);
   const [replyError, setReplyError] = useState("");
   const [replySuccess, setReplySuccess] = useState(false);
   const [currentLink, setCurrentLink] = useState<GmailThreadLink | null>(link);
+  const [signature, setSignature] = useState("");
+
+  // Load signature once
+  useEffect(() => {
+    fetch("/api/admin/email/signature")
+      .then((r) => r.ok ? r.json() : { html: "" })
+      .then(({ html }: { html: string }) => setSignature(html))
+      .catch(() => {});
+  }, []);
 
   const messages = thread.messages;
   const lastMessage = messages[messages.length - 1];
@@ -333,7 +345,8 @@ export default function ThreadClient({ thread, link }: Props) {
 
   async function sendReply(e: React.FormEvent) {
     e.preventDefault();
-    if (!replyText.trim()) return;
+    const plainText = replyHtml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    if (!plainText) return;
     setReplySending(true);
     setReplyError("");
 
@@ -350,7 +363,8 @@ export default function ThreadClient({ thread, link }: Props) {
           threadId: thread.id,
           to: toAddress,
           subject: lastMessage?.headers.subject ?? "",
-          message: replyText,
+          message: plainText,
+          htmlBody: replyHtml,
           inReplyTo: lastMessage?.headers.messageId ?? "",
           references:
             ((lastMessage?.headers.references ?? "") +
@@ -364,7 +378,7 @@ export default function ThreadClient({ thread, link }: Props) {
         throw new Error(data.error ?? `HTTP ${res.status}`);
       }
 
-      setReplyText("");
+      setReplyHtml("");
       setReplyOpen(false);
       setReplySuccess(true);
     } catch (err: unknown) {
@@ -442,13 +456,11 @@ export default function ThreadClient({ thread, link }: Props) {
               <label className="block text-sm font-medium text-white mb-1.5">
                 Message
               </label>
-              <textarea
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                rows={6}
-                required
+              <RichTextEditor
+                value={replyOpen ? (replyHtml || (signature ? `<p><br></p><p><br></p>${signature}` : "")) : ""}
+                onChange={setReplyHtml}
                 placeholder="Write your reply…"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors resize-y"
+                minHeight="200px"
               />
             </div>
 
@@ -459,7 +471,7 @@ export default function ThreadClient({ thread, link }: Props) {
             <div className="flex items-center gap-3">
               <button
                 type="submit"
-                disabled={replySending || !replyText.trim()}
+                disabled={replySending || !replyHtml.replace(/<[^>]+>/g, "").trim()}
                 className="bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors disabled:opacity-50"
               >
                 {replySending ? "Sending…" : "Send Reply"}
@@ -468,6 +480,7 @@ export default function ThreadClient({ thread, link }: Props) {
                 type="button"
                 onClick={() => {
                   setReplyOpen(false);
+                  setReplyHtml("");
                   setReplyError("");
                 }}
                 className="bg-white/5 hover:bg-white/8 border border-white/8 hover:border-white/15 text-white/70 hover:text-white text-sm px-4 py-2 rounded-xl transition-colors"

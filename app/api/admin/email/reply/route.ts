@@ -15,6 +15,7 @@ export async function POST(req: NextRequest) {
       to,
       subject,
       message: emailBody,
+      htmlBody,
       inReplyTo,
       references,
       cc,
@@ -26,7 +27,8 @@ export async function POST(req: NextRequest) {
       );
     if (!to?.trim())
       return NextResponse.json({ error: "to is required" }, { status: 400 });
-    if (!emailBody?.trim())
+    const plainText = emailBody?.trim() ?? (htmlBody ? htmlBody.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "");
+    if (!plainText)
       return NextResponse.json(
         { error: "message is required" },
         { status: 400 }
@@ -35,7 +37,8 @@ export async function POST(req: NextRequest) {
       threadId,
       to: to.trim(),
       subject: subject ?? "(no subject)",
-      body: emailBody.trim(),
+      body: plainText,
+      htmlBody: htmlBody?.trim(),
       inReplyTo: inReplyTo ?? "",
       references: references ?? "",
       cc: cc?.trim(),

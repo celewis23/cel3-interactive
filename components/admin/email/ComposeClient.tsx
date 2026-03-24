@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
@@ -63,6 +63,18 @@ export default function ComposeClient({ initialTo = "" }: Props) {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Load signature on mount and pre-populate the body
+  useEffect(() => {
+    fetch("/api/admin/email/signature")
+      .then((r) => r.ok ? r.json() : { html: "" })
+      .then(({ html }: { html: string }) => {
+        if (html) {
+          setHtmlBody(`<p><br></p><p><br></p>${html}`);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   function reset() {
     setTo(initialTo);
     setCc("");
@@ -70,11 +82,17 @@ export default function ComposeClient({ initialTo = "" }: Props) {
     setShowCc(false);
     setShowBcc(false);
     setSubject("");
-    setHtmlBody("");
     setAttachments([]);
     setSending(false);
     setDone(false);
     setError("");
+    // Re-fetch signature after reset
+    fetch("/api/admin/email/signature")
+      .then((r) => r.ok ? r.json() : { html: "" })
+      .then(({ html }: { html: string }) => {
+        setHtmlBody(html ? `<p><br></p><p><br></p>${html}` : "");
+      })
+      .catch(() => setHtmlBody(""));
   }
 
   function addFiles(files: File[]) {

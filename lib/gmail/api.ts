@@ -361,6 +361,7 @@ export async function replyToThread(opts: {
   to: string;
   subject: string;
   body: string;
+  htmlBody?: string;
   inReplyTo: string;
   references: string;
   cc?: string;
@@ -374,6 +375,7 @@ export async function replyToThread(opts: {
     from,
     subject,
     body: opts.body,
+    htmlBody: opts.htmlBody,
     cc: opts.cc,
     inReplyTo: opts.inReplyTo,
     references: opts.references,

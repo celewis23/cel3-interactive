@@ -7,7 +7,8 @@ import Link from "@tiptap/extension-link";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import TextAlign from "@tiptap/extension-text-align";
-import { useState, useCallback, useEffect } from "react";
+import Image from "@tiptap/extension-image";
+import { useState, useCallback, useEffect, useRef } from "react";
 
 const TEXT_COLORS = [
   { label: "Default", value: "" },
@@ -20,6 +21,15 @@ const TEXT_COLORS = [
   { label: "Green", value: "#16A34A" },
   { label: "Blue", value: "#2563EB" },
   { label: "Purple", value: "#9333EA" },
+];
+
+// Common emoji categories for quick insertion
+const EMOJI_LIST = [
+  "😀","😁","😂","🤣","😊","😍","🥰","😎","🤔","😅",
+  "👍","👎","👋","🙏","💪","✅","❌","⭐","🔥","💡",
+  "📧","📎","📁","📅","📊","💼","🎉","🎊","🚀","💯",
+  "❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎","💔",
+  "😢","😭","😤","😠","😱","😴","🤗","😏","🙄","😬",
 ];
 
 function ToolbarBtn({
@@ -72,6 +82,8 @@ export default function RichTextEditor({
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const imageUploadRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
     extensions: [
@@ -84,6 +96,10 @@ export default function RichTextEditor({
       TextStyle,
       Color,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
+      Image.configure({
+        inline: true,
+        HTMLAttributes: { style: "max-width: 100%; height: auto;" },
+      }),
     ],
     content: value,
     onUpdate: ({ editor }) => {
@@ -94,13 +110,45 @@ export default function RichTextEditor({
         class: "outline-none p-4 text-sm text-gray-900 leading-relaxed",
         style: `min-height: ${minHeight}`,
       },
+      handlePaste(view, event) {
+        // Handle pasted images
+        const items = Array.from(event.clipboardData?.items ?? []);
+        const imageItem = items.find((item) => item.type.startsWith("image/"));
+        if (imageItem) {
+          event.preventDefault();
+          const file = imageItem.getAsFile();
+          if (!file) return false;
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const src = e.target?.result as string;
+            if (src) {
+              view.dispatch(
+                view.state.tr.replaceSelectionWith(
+                  view.state.schema.nodes.image.create({ src })
+                )
+              );
+            }
+          };
+          reader.readAsDataURL(file);
+          return true;
+        }
+        return false;
+      },
     },
   });
 
-  // Sync external value changes (e.g. reset)
+  // Sync external value changes (e.g. reset or signature injection)
   useEffect(() => {
-    if (editor && value === "" && editor.getHTML() !== "<p></p>") {
+    if (!editor) return;
+    if (value === "" && editor.getHTML() !== "<p></p>") {
       editor.commands.clearContent();
+    } else if (value && value !== editor.getHTML()) {
+      // Only set content if it looks like an initial/signature injection
+      // and the editor is empty or has only empty paragraphs
+      const currentIsEmpty = editor.getHTML().replace(/<p><\/p>/g, "").trim() === "";
+      if (currentIsEmpty && value) {
+        editor.commands.setContent(value);
+      }
     }
   }, [editor, value]);
 
@@ -115,6 +163,25 @@ export default function RichTextEditor({
     setShowLinkInput(false);
     setLinkUrl("");
   }, [editor, linkUrl]);
+
+  function insertEmoji(emoji: string) {
+    if (!editor) return;
+    editor.chain().focus().insertContent(emoji).run();
+    setShowEmojiPicker(false);
+  }
+
+  function handleImageUpload(files: FileList | null) {
+    if (!editor || !files) return;
+    Array.from(files).forEach((file) => {
+      if (!file.type.startsWith("image/")) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const src = e.target?.result as string;
+        if (src) editor.chain().focus().setImage({ src }).run();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
   if (!editor) return null;
 
@@ -193,7 +260,7 @@ export default function RichTextEditor({
 
         {/* Color picker */}
         <div className="relative">
-          <ToolbarBtn onClick={() => setShowColorPicker((v) => !v)} active={showColorPicker} title="Text color">
+          <ToolbarBtn onClick={() => { setShowColorPicker((v) => !v); setShowEmojiPicker(false); }} active={showColorPicker} title="Text color">
             <span className="flex flex-col items-center gap-0.5">
               <span className="text-xs font-bold">A</span>
               <span
@@ -245,6 +312,54 @@ export default function RichTextEditor({
             <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
           </svg>
         </ToolbarBtn>
+
+        <Divider />
+
+        {/* Emoji picker */}
+        <div className="relative">
+          <ToolbarBtn onClick={() => { setShowEmojiPicker((v) => !v); setShowColorPicker(false); }} active={showEmojiPicker} title="Insert emoji">
+            <span className="text-base leading-none">😊</span>
+          </ToolbarBtn>
+          {showEmojiPicker && (
+            <div className="absolute top-full left-0 mt-1 z-20 bg-[#1a1a1a] border border-white/10 rounded-xl p-2 shadow-xl flex flex-wrap gap-1 w-[220px]">
+              {EMOJI_LIST.map((emoji) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    insertEmoji(emoji);
+                  }}
+                  className="w-7 h-7 flex items-center justify-center text-base hover:bg-white/10 rounded transition-colors"
+                  title={emoji}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Inline image upload */}
+        <ToolbarBtn
+          onClick={() => imageUploadRef.current?.click()}
+          title="Insert image"
+        >
+          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+          </svg>
+        </ToolbarBtn>
+        <input
+          ref={imageUploadRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={(e) => {
+            handleImageUpload(e.target.files);
+            e.target.value = "";
+          }}
+        />
 
         <Divider />
 

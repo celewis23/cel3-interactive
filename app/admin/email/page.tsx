@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { getStoredTokens } from "@/lib/gmail/client";
 import InboxClient from "@/components/admin/email/InboxClient";
+import SignatureEditor from "@/components/admin/email/SignatureEditor";
 import DisconnectButton from "./_components/DisconnectButton";
 
 export default async function EmailPage({
@@ -197,6 +198,10 @@ export default async function EmailPage({
       )}
 
       <InboxClient />
+
+      <div className="mt-8">
+        <SignatureEditor />
+      </div>
     </div>
   );
 }
