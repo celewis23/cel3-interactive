@@ -386,3 +386,23 @@ export async function replyToThread(opts: {
   });
   return { messageId: res.data.id ?? "", threadId: res.data.threadId ?? "" };
 }
+
+export async function getGmailSignature(): Promise<string | null> {
+  const { gmail, email } = await getGmail();
+  try {
+    const res = await gmail.users.settings.sendAs.get({
+      userId: "me",
+      sendAsEmail: email,
+    });
+    return res.data.signature ?? null;
+  } catch {
+    // If the primary sendAs lookup fails, try listing all sendAs addresses
+    try {
+      const list = await gmail.users.settings.sendAs.list({ userId: "me" });
+      const primary = list.data.sendAs?.find((s) => s.isPrimary);
+      return primary?.signature ?? null;
+    } catch {
+      return null;
+    }
+  }
+}

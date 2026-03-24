@@ -188,9 +188,9 @@ export default function RichTextEditor({
   const isLink = editor.isActive("link");
 
   return (
-    <div className="border border-white/10 rounded-xl overflow-hidden focus-within:border-sky-400/50 transition-colors">
+    <div className="border border-white/10 rounded-xl focus-within:border-sky-400/50 transition-colors">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 bg-white/3 border-b border-white/8">
+      <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 bg-white/3 border-b border-white/8 rounded-t-xl">
         {/* Text style */}
         <ToolbarBtn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title="Bold">
           <strong>B</strong>
@@ -270,7 +270,7 @@ export default function RichTextEditor({
             </span>
           </ToolbarBtn>
           {showColorPicker && (
-            <div className="absolute top-full left-0 mt-1 z-20 bg-[#1a1a1a] border border-white/10 rounded-xl p-2 shadow-xl flex flex-wrap gap-1 w-[140px]">
+            <div className="absolute top-full left-0 mt-1 z-50 bg-[#1a1a1a] border border-white/10 rounded-xl p-2 shadow-xl flex flex-wrap gap-1 w-[140px]">
               {TEXT_COLORS.map((c) => (
                 <button
                   key={c.value}
@@ -321,7 +321,7 @@ export default function RichTextEditor({
             <span className="text-base leading-none">😊</span>
           </ToolbarBtn>
           {showEmojiPicker && (
-            <div className="absolute top-full left-0 mt-1 z-20 bg-[#1a1a1a] border border-white/10 rounded-xl p-2 shadow-xl flex flex-wrap gap-1 w-[220px]">
+            <div className="absolute top-full left-0 mt-1 z-50 bg-[#1a1a1a] border border-white/10 rounded-xl p-2 shadow-xl flex flex-wrap gap-1 w-[220px] max-h-48 overflow-y-auto">
               {EMOJI_LIST.map((emoji) => (
                 <button
                   key={emoji}
@@ -410,7 +410,7 @@ export default function RichTextEditor({
       )}
 
       {/* Editor canvas — white bg like an email */}
-      <div className="bg-white relative">
+      <div className="bg-white relative rounded-b-xl overflow-hidden">
         {editor.isEmpty && (
           <p className="absolute top-4 left-4 text-sm text-gray-400 pointer-events-none select-none">
             {placeholder}
