@@ -251,6 +251,7 @@ function buildRawMessage(opts: {
   body: string;
   htmlBody?: string;
   cc?: string;
+  bcc?: string;
   inReplyTo?: string;
   references?: string;
   attachments?: MimeAttachment[];
@@ -275,6 +276,7 @@ function buildRawMessage(opts: {
     `To: ${opts.to}`,
     `From: ${opts.from}`,
     ...(opts.cc ? [`Cc: ${opts.cc}`] : []),
+    ...(opts.bcc ? [`Bcc: ${opts.bcc}`] : []),
     `Subject: ${opts.subject}`,
     ...(opts.inReplyTo ? [`In-Reply-To: ${opts.inReplyTo}`] : []),
     ...(opts.references ? [`References: ${opts.references}`] : []),
@@ -336,6 +338,7 @@ export async function sendEmail(opts: {
   body?: string;
   htmlBody?: string;
   cc?: string;
+  bcc?: string;
   attachments?: MimeAttachment[];
 }): Promise<{ messageId: string; threadId: string }> {
   const { gmail, email: from } = await getGmail();
@@ -347,6 +350,7 @@ export async function sendEmail(opts: {
     body: plainText,
     htmlBody: opts.htmlBody,
     cc: opts.cc,
+    bcc: opts.bcc,
     attachments: opts.attachments,
   });
   const res = await gmail.users.messages.send({

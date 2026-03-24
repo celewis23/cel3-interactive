@@ -15,6 +15,7 @@ export async function POST(req: NextRequest) {
     const subject = (formData.get("subject") as string | null)?.trim();
     const htmlBody = (formData.get("htmlBody") as string | null)?.trim();
     const cc = (formData.get("cc") as string | null)?.trim() || undefined;
+    const bcc = (formData.get("bcc") as string | null)?.trim() || undefined;
 
     if (!to) return NextResponse.json({ error: "to is required" }, { status: 400 });
     if (!subject) return NextResponse.json({ error: "subject is required" }, { status: 400 });
@@ -38,6 +39,7 @@ export async function POST(req: NextRequest) {
       subject,
       htmlBody,
       cc,
+      bcc,
       attachments: attachments.length > 0 ? attachments : undefined,
     });
 

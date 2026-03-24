@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import EmailTagInput from "./EmailTagInput";
 
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), { ssr: false });
 
@@ -48,9 +49,11 @@ function formatBytes(bytes: number) {
 }
 
 export default function ComposeClient({ initialTo = "" }: Props) {
-  const [to, setTo] = useState(initialTo);
-  const [cc, setCc] = useState("");
-  const [bcc, setBcc] = useState("");
+  const [toEmails, setToEmails] = useState<string[]>(
+    initialTo ? [initialTo] : []
+  );
+  const [ccEmails, setCcEmails] = useState<string[]>([]);
+  const [bccEmails, setBccEmails] = useState<string[]>([]);
   const [showCc, setShowCc] = useState(false);
   const [showBcc, setShowBcc] = useState(false);
   const [subject, setSubject] = useState("");
@@ -68,17 +71,15 @@ export default function ComposeClient({ initialTo = "" }: Props) {
     fetch("/api/admin/email/signature")
       .then((r) => r.ok ? r.json() : { html: "" })
       .then(({ html }: { html: string }) => {
-        if (html) {
-          setHtmlBody(`<p><br></p><p><br></p>${html}`);
-        }
+        if (html) setHtmlBody(`<p><br></p><p><br></p>${html}`);
       })
       .catch(() => {});
   }, []);
 
   function reset() {
-    setTo(initialTo);
-    setCc("");
-    setBcc("");
+    setToEmails(initialTo ? [initialTo] : []);
+    setCcEmails([]);
+    setBccEmails([]);
     setShowCc(false);
     setShowBcc(false);
     setSubject("");
@@ -86,7 +87,6 @@ export default function ComposeClient({ initialTo = "" }: Props) {
     setSending(false);
     setDone(false);
     setError("");
-    // Re-fetch signature after reset
     fetch("/api/admin/email/signature")
       .then((r) => r.ok ? r.json() : { html: "" })
       .then(({ html }: { html: string }) => {
@@ -113,7 +113,6 @@ export default function ComposeClient({ initialTo = "" }: Props) {
   async function openDrivePicker() {
     setDriveLoading(true);
     try {
-      // Fetch config (includes access token) from server
       const configRes = await fetch("/api/admin/email/drive-config");
       const config = await configRes.json();
 
@@ -127,7 +126,6 @@ export default function ComposeClient({ initialTo = "" }: Props) {
       }
 
       await loadGapiScript();
-
       await new Promise<void>((resolve) => window.gapi.load("picker", resolve));
 
       const picker = new window.google.picker.PickerBuilder()
@@ -138,8 +136,6 @@ export default function ComposeClient({ initialTo = "" }: Props) {
         .setCallback((data: { action: string; docs?: { name: string; url: string; mimeType: string }[] }) => {
           if (data.action === window.google.picker.Action.PICKED && data.docs?.[0]) {
             const doc = data.docs[0];
-            // Attach a Drive file as a link in the email body — we fire a custom event
-            // so the editor can insert it as a formatted link
             const event = new CustomEvent("drive-file-picked", {
               detail: { name: doc.name, url: doc.url },
             });
@@ -157,15 +153,11 @@ export default function ComposeClient({ initialTo = "" }: Props) {
     }
   }
 
-  // Listen for Drive file picks and append a link to the HTML body
-  // This effect is intentionally outside hooks since we need the current htmlBody
-  // We use a ref to avoid stale closure issues
   const htmlBodyRef = useRef(htmlBody);
   htmlBodyRef.current = htmlBody;
   const setHtmlBodyRef = useRef(setHtmlBody);
   setHtmlBodyRef.current = setHtmlBody;
 
-  // Register Drive file pick listener once
   const driveListenerRegistered = useRef(false);
   if (!driveListenerRegistered.current && typeof window !== "undefined") {
     driveListenerRegistered.current = true;
@@ -178,17 +170,17 @@ export default function ComposeClient({ initialTo = "" }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!to.trim() || !subject.trim() || !htmlBody.trim()) return;
+    if (toEmails.length === 0 || !subject.trim() || !htmlBody.trim()) return;
     setSending(true);
     setError("");
 
     try {
       const fd = new FormData();
-      fd.append("to", to.trim());
+      fd.append("to", toEmails.join(", "));
       fd.append("subject", subject.trim());
       fd.append("htmlBody", htmlBody);
-      if (cc.trim()) fd.append("cc", cc.trim());
-      if (bcc.trim()) fd.append("bcc", bcc.trim());
+      if (ccEmails.length > 0) fd.append("cc", ccEmails.join(", "));
+      if (bccEmails.length > 0) fd.append("bcc", bccEmails.join(", "));
       for (const att of attachments) {
         fd.append("attachments", att.file, att.name);
       }
@@ -197,7 +189,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? `HTTP ${res.status}`);
+        throw new Error((data as { error?: string }).error ?? `HTTP ${res.status}`);
       }
 
       setDone(true);
@@ -218,7 +210,11 @@ export default function ComposeClient({ initialTo = "" }: Props) {
         </div>
         <h3 className="text-white font-semibold mb-1">Email sent!</h3>
         <p className="text-white/50 text-sm mb-6">
-          Your email to <span className="text-white/80">{to}</span> was sent successfully.
+          Your email to{" "}
+          <span className="text-white/80">
+            {toEmails.length === 1 ? toEmails[0] : `${toEmails.length} recipients`}
+          </span>{" "}
+          was sent successfully.
         </p>
         <div className="flex items-center justify-center gap-3">
           <button
@@ -259,13 +255,11 @@ export default function ComposeClient({ initialTo = "" }: Props) {
             )}
           </div>
         </div>
-        <input
-          type="email"
-          value={to}
-          onChange={(e) => setTo(e.target.value)}
+        <EmailTagInput
+          emails={toEmails}
+          onChange={setToEmails}
+          placeholder="recipient@example.com — press Enter or comma to add"
           required
-          placeholder="recipient@example.com"
-          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors"
         />
       </div>
 
@@ -274,16 +268,18 @@ export default function ComposeClient({ initialTo = "" }: Props) {
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <label className="block text-sm font-medium text-white">CC</label>
-            <button type="button" onClick={() => { setShowCc(false); setCc(""); }} className="text-xs text-white/30 hover:text-white/60 transition-colors">
+            <button
+              type="button"
+              onClick={() => { setShowCc(false); setCcEmails([]); }}
+              className="text-xs text-white/30 hover:text-white/60 transition-colors"
+            >
               Remove
             </button>
           </div>
-          <input
-            type="text"
-            value={cc}
-            onChange={(e) => setCc(e.target.value)}
+          <EmailTagInput
+            emails={ccEmails}
+            onChange={setCcEmails}
             placeholder="cc@example.com"
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors"
           />
         </div>
       )}
@@ -293,16 +289,18 @@ export default function ComposeClient({ initialTo = "" }: Props) {
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <label className="block text-sm font-medium text-white">BCC</label>
-            <button type="button" onClick={() => { setShowBcc(false); setBcc(""); }} className="text-xs text-white/30 hover:text-white/60 transition-colors">
+            <button
+              type="button"
+              onClick={() => { setShowBcc(false); setBccEmails([]); }}
+              className="text-xs text-white/30 hover:text-white/60 transition-colors"
+            >
               Remove
             </button>
           </div>
-          <input
-            type="text"
-            value={bcc}
-            onChange={(e) => setBcc(e.target.value)}
+          <EmailTagInput
+            emails={bccEmails}
+            onChange={setBccEmails}
             placeholder="bcc@example.com"
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors"
           />
         </div>
       )}
@@ -370,7 +368,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
         {/* Send */}
         <button
           type="submit"
-          disabled={sending || !to.trim() || !subject.trim() || isEmpty}
+          disabled={sending || toEmails.length === 0 || !subject.trim() || isEmpty}
           className="bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium px-5 py-2 rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2"
         >
           {sending ? (
