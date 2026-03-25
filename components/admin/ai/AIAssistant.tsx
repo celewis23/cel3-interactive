@@ -47,6 +47,8 @@ const SUGGESTIONS = [
   "Show open contracts",
 ];
 
+const STORAGE_KEY = "cel3-admin-ai-chat";
+
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function AIAssistant() {
@@ -62,6 +64,25 @@ export default function AIAssistant() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(STORAGE_KEY);
+      if (!stored) return;
+      const parsed = JSON.parse(stored) as Message[];
+      if (Array.isArray(parsed)) setMessages(parsed);
+    } catch {
+      // Ignore malformed local state and start fresh.
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    } catch {
+      // Ignore local storage failures.
+    }
+  }, [messages]);
 
   // Focus input when opened
   useEffect(() => {
@@ -112,6 +133,11 @@ export default function AIAssistant() {
   const clearChat = () => {
     setMessages([]);
     setError(null);
+    try {
+      window.localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // Ignore local storage failures.
+    }
   };
 
   return (
