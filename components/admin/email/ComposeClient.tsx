@@ -237,7 +237,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
   const isEmpty = !htmlBody.replace(/<[^>]*>/g, "").trim();
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-3xl space-y-4 rounded-2xl border border-white/10 bg-[#090b10] p-6">
+    <form onSubmit={handleSubmit} className="flex min-h-[calc(100vh-14rem)] max-w-3xl flex-col space-y-4 rounded-2xl border border-white/10 bg-[#090b10] p-6">
       {/* To */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
@@ -319,13 +319,14 @@ export default function ComposeClient({ initialTo = "" }: Props) {
       </div>
 
       {/* Rich text body */}
-      <div>
+      <div className="flex min-h-0 flex-1 flex-col">
         <label className="block text-sm font-medium text-white mb-1.5">Message</label>
         <RichTextEditor
           value={htmlBody}
           onChange={setHtmlBody}
           placeholder="Write your message…"
           minHeight="420px"
+          editorHeight="100%"
         />
       </div>
 

@@ -66,6 +66,7 @@ interface Props {
   onChange: (html: string) => void;
   placeholder?: string;
   minHeight?: string;
+  editorHeight?: string;
 }
 
 export default function RichTextEditor({
@@ -73,6 +74,7 @@ export default function RichTextEditor({
   onChange,
   placeholder = "Write your message…",
   minHeight = "240px",
+  editorHeight = "420px",
 }: Props) {
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
@@ -102,8 +104,8 @@ export default function RichTextEditor({
     },
     editorProps: {
       attributes: {
-        class: "outline-none p-4 text-sm text-gray-900 leading-relaxed",
-        style: `min-height: ${minHeight}`,
+        class: "outline-none h-full p-4 text-sm text-gray-900 leading-relaxed",
+        style: `min-height: ${minHeight}; height: 100%;`,
       },
       handlePaste(view, event) {
         // Handle pasted images
@@ -405,13 +407,15 @@ export default function RichTextEditor({
       )}
 
       {/* Editor canvas — white bg like an email */}
-      <div className="relative overflow-hidden rounded-b-xl bg-white">
+      <div className="relative overflow-hidden rounded-b-xl bg-white" style={{ height: editorHeight }}>
         {editor.isEmpty && (
           <p className="absolute top-4 left-4 text-sm text-gray-400 pointer-events-none select-none">
             {placeholder}
           </p>
         )}
-        <EditorContent editor={editor} />
+        <div className="h-full overflow-y-auto">
+          <EditorContent editor={editor} />
+        </div>
       </div>
     </div>
   );
