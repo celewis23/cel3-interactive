@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
+import { listCustomers, listInvoices, listSubscriptions, getBalance } from "@/lib/stripe/billing";
 import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -201,6 +202,46 @@ const TOOLS: Anthropic.Tool[] = [
       },
     },
   },
+  {
+    name: "get_stripe_balance",
+    description: "Get the current Stripe account balance — available and pending amounts.",
+    input_schema: { type: "object" as const, properties: {} },
+  },
+  {
+    name: "search_stripe_customers",
+    description: "Search Stripe customers by name or email. Returns billing details, subscription status, and balance.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        email: { type: "string", description: "Filter by exact email address" },
+        limit: { type: "number", description: "Max results (default 20)" },
+      },
+    },
+  },
+  {
+    name: "search_stripe_invoices",
+    description: "List Stripe invoices, optionally filtered by status (draft, open, paid, void, uncollectible) or customer ID.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        status:     { type: "string", enum: ["draft", "open", "paid", "void", "uncollectible"] },
+        customerId: { type: "string", description: "Stripe customer ID" },
+        limit:      { type: "number" },
+      },
+    },
+  },
+  {
+    name: "search_stripe_subscriptions",
+    description: "List Stripe subscriptions, optionally filtered by status (active, past_due, canceled, etc.) or customer ID.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        status:     { type: "string", description: "Subscription status filter" },
+        customerId: { type: "string", description: "Stripe customer ID" },
+        limit:      { type: "number" },
+      },
+    },
+  },
 ];
 
 // ── Tool execution ────────────────────────────────────────────────────────────
@@ -354,6 +395,35 @@ async function executeTool(name: string, input: Record<string, unknown>): Promis
         `*[${filters.join(" && ")}] | order(timestamp desc) [0...${limit}] { _id, action, userName, description, resourceType, resourceLabel, timestamp }`
       );
     }
+    case "get_stripe_balance":
+      return await getBalance();
+
+    case "search_stripe_customers": {
+      const result = await listCustomers({
+        limit: (input.limit as number) ?? 20,
+        email: (input.email as string) || undefined,
+      });
+      return result;
+    }
+
+    case "search_stripe_invoices": {
+      const result = await listInvoices({
+        status: (input.status as import("stripe").Stripe.Invoice.Status) || undefined,
+        customerId: (input.customerId as string) || undefined,
+        limit: (input.limit as number) ?? 20,
+      });
+      return result;
+    }
+
+    case "search_stripe_subscriptions": {
+      const result = await listSubscriptions({
+        status: (input.status as string) || undefined,
+        customerId: (input.customerId as string) || undefined,
+        limit: (input.limit as number) ?? 20,
+      });
+      return result;
+    }
+
     default:
       return { error: `Unknown tool: ${name}` };
   }
@@ -386,7 +456,8 @@ export async function POST(req: NextRequest) {
       max_tokens: 4096,
       system: `You are a helpful AI assistant embedded in the CEL3 Interactive backoffice.
 You have access to all data in the system via tools: projects, tasks, contacts, invoices, expenses,
-contracts, estimates, staff, assets, time entries, announcements, forms, and the audit log.
+contracts, estimates, staff, assets, time entries, announcements, forms, the audit log, and live
+Stripe billing data (customers, invoices, subscriptions, and account balance).
 You can also create tasks and contacts.
 
 When answering questions about data, always use the appropriate tool to fetch real, up-to-date information.
@@ -437,7 +508,8 @@ Today's date is ${new Date().toLocaleDateString("en-US", { weekday: "long", year
         max_tokens: 4096,
         system: `You are a helpful AI assistant embedded in the CEL3 Interactive backoffice.
 You have access to all data in the system via tools: projects, tasks, contacts, invoices, expenses,
-contracts, estimates, staff, assets, time entries, announcements, forms, and the audit log.
+contracts, estimates, staff, assets, time entries, announcements, forms, the audit log, and live
+Stripe billing data (customers, invoices, subscriptions, and account balance).
 You can also create tasks and contacts.
 
 When answering questions about data, always use the appropriate tool to fetch real, up-to-date information.
