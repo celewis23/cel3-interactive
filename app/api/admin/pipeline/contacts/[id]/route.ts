@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { logAudit, AuditAction } from "@/lib/audit/log";
+import { automationEngine } from "@/lib/automations/engine";
 
 export const runtime = "nodejs";
 
@@ -104,6 +105,14 @@ export async function PATCH(
       resourceId: id,
       description: "Lead updated",
     });
+
+    // Fire automations for stage changes
+    if (stageChanging) {
+      const newStage = body.stage as string;
+      automationEngine.fire("default", "lead_stage_changed", { stage: newStage }, "contact", id);
+      if (newStage === "won")  automationEngine.fire("default", "lead_won",  {}, "contact", id);
+      if (newStage === "lost") automationEngine.fire("default", "lead_lost", {}, "contact", id);
+    }
 
     return NextResponse.json(updated);
   } catch (err) {

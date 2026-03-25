@@ -30,6 +30,7 @@ export const MODULES = {
   expenses:         ["view", "edit", "delete"],
   assets:           ["view", "edit", "delete"],
   aiAssistant:      ["view"],
+  automations:      ["view", "edit", "delete", "manage"],
 } as const;
 
 export type Module = keyof typeof MODULES;
@@ -111,6 +112,7 @@ export const DEFAULT_ROLES: Array<{
       expenses:      { view: true, edit: true, delete: true },
       assets:        { view: true, edit: true, delete: true },
       aiAssistant:   { view: true },
+      automations:   { view: true, edit: true, delete: false, manage: true },
     }),
   },
   {
@@ -126,6 +128,7 @@ export const DEFAULT_ROLES: Array<{
       expenses:      { view: true, edit: true, delete: false },
       assets:        { view: true, edit: true, delete: false },
       aiAssistant:   { view: true },
+      automations:   { view: true, edit: false, delete: false, manage: false },
     }),
   },
   {

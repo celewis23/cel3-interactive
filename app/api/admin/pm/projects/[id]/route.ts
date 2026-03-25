@@ -4,6 +4,7 @@ import { sanityWriteClient } from "@/lib/sanity.write";
 import { sanityServer } from "@/lib/sanityServer";
 import { createEvent, updateEvent, deleteEvent } from "@/lib/google/calendar";
 import { logAudit, AuditAction } from "@/lib/audit/log";
+import { automationEngine } from "@/lib/automations/engine";
 
 export const runtime = "nodejs";
 
@@ -58,6 +59,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     resourceId: id,
     description: "Project updated",
   });
+
+  // Fire automations for status transitions
+  if ("status" in body) {
+    automationEngine.fire("default", "project_status_changed", { status: body.status }, "project", id);
+  }
 
   // Calendar sync — best-effort
   const newName: string = (body.name ?? current?.name ?? "").trim();

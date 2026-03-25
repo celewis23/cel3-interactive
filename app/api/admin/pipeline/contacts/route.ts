@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { logAudit, AuditAction } from "@/lib/audit/log";
+import { automationEngine } from "@/lib/automations/engine";
 
 export const runtime = "nodejs";
 
@@ -74,6 +75,8 @@ export async function POST(req: NextRequest) {
       resourceLabel: body.name,
       description: "Lead created",
     });
+
+    automationEngine.fire("default", "lead_created", {}, "contact", contact._id);
 
     return NextResponse.json(contact, { status: 201 });
   } catch (err) {

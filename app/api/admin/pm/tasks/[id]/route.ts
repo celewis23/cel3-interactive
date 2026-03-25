@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sanityServer } from "@/lib/sanityServer";
 import { logAudit, AuditAction } from "@/lib/audit/log";
+import { automationEngine } from "@/lib/automations/engine";
 
 export const runtime = "nodejs";
 
@@ -18,6 +19,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (key in body) patch[key] = body[key];
   }
 
+  // Fetch current state to detect completion/assignment changes
+  const currentTask = await sanityServer.fetch<{ columnId: string; assignee?: string } | null>(
+    `*[_type == "pmTask" && _id == $id][0]{ columnId, assignee }`,
+    { id }
+  );
+
   const updated = await sanityWriteClient.patch(id).set(patch).commit();
 
   logAudit(req, {
@@ -26,6 +33,17 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     resourceId: id,
     description: "Task updated",
   });
+
+  // Fire automations
+  if ("columnId" in body && body.columnId !== currentTask?.columnId) {
+    const col = (body.columnId as string).toLowerCase();
+    if (col === "done" || col === "completed") {
+      automationEngine.fire("default", "task_completed", {}, "task", id);
+    }
+  }
+  if ("assignee" in body && body.assignee !== currentTask?.assignee) {
+    automationEngine.fire("default", "task_assigned", { assignee: body.assignee }, "task", id);
+  }
 
   return NextResponse.json(updated);
 }

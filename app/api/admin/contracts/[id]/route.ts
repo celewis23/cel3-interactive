@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { logAudit, AuditAction } from "@/lib/audit/log";
+import { automationEngine } from "@/lib/automations/engine";
 
 export const runtime = "nodejs";
 
@@ -82,6 +83,12 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       before: current as Record<string, unknown>,
       after: patch,
     });
+
+    // Fire automations for status transitions
+    const clientId = (updated as { clientId?: string }).clientId ?? undefined;
+    if (newStatus === "signed")   automationEngine.fire("default", "contract_signed",   {}, "contract", id, clientId);
+    if (newStatus === "declined") automationEngine.fire("default", "contract_declined", {}, "contract", id, clientId);
+    if (newStatus === "expired")  automationEngine.fire("default", "contract_expired",  {}, "contract", id, clientId);
 
     return NextResponse.json(updated);
   } catch (err) {
