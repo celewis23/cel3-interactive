@@ -104,7 +104,7 @@ export default function RichTextEditor({
     },
     editorProps: {
       attributes: {
-        class: "outline-none h-full p-4 text-sm text-gray-900 leading-relaxed",
+        class: "outline-none h-full overflow-y-auto p-4 text-sm text-gray-900 leading-relaxed",
         style: `min-height: ${minHeight}; height: 100%;`,
       },
       handlePaste(view, event) {
@@ -407,13 +407,13 @@ export default function RichTextEditor({
       )}
 
       {/* Editor canvas — white bg like an email */}
-      <div className="relative overflow-hidden rounded-b-xl bg-white" style={{ height: editorHeight }}>
+      <div className="relative overflow-hidden rounded-b-xl bg-white" style={{ height: editorHeight, minHeight }}>
         {editor.isEmpty && (
           <p className="absolute top-4 left-4 text-sm text-gray-400 pointer-events-none select-none">
             {placeholder}
           </p>
         )}
-        <div className="h-full overflow-y-auto">
+        <div className="h-full">
           <EditorContent editor={editor} />
         </div>
       </div>
