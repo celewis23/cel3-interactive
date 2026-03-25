@@ -16,7 +16,7 @@ export default async function ComposePage({ searchParams }: Props) {
       {/* Back link */}
       <Link
         href="/admin/email"
-        className="inline-flex items-center gap-1.5 text-sm text-white/40 hover:text-white transition-colors mb-6"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm text-white/40 transition-colors hover:text-sky-200"
       >
         <svg
           width="14"
@@ -38,7 +38,7 @@ export default async function ComposePage({ searchParams }: Props) {
       {/* Heading */}
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-white">New Email</h1>
-        <p className="text-sm text-white/40 mt-0.5">Compose and send a new email.</p>
+        <p className="mt-0.5 text-sm text-white/40">Compose and send a new email.</p>
       </div>
 
       <ComposeClient initialTo={initialTo} />

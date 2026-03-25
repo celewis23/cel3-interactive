@@ -80,7 +80,7 @@ function AttachmentChip({
       target="_blank"
       rel="noopener noreferrer"
       download={att.filename}
-      className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/8 border border-white/10 hover:border-white/20 rounded-xl px-3 py-2 transition-colors group"
+      className="group inline-flex items-center gap-2 rounded-xl border border-white/10 bg-black px-3 py-2 transition-colors hover:border-white/20 hover:bg-white/5"
     >
       {/* Icon */}
       <span className="shrink-0 text-white/40 group-hover:text-white/60 transition-colors">
@@ -128,7 +128,7 @@ function MessageCard({ message, index }: { message: GmailMessageParsed; index: n
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="bg-white/3 border border-white/8 rounded-2xl overflow-hidden">
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#090b10]">
       {/* Message header */}
       <button
         onClick={() => setCollapsed((c) => !c)}
@@ -141,9 +141,9 @@ function MessageCard({ message, index }: { message: GmailMessageParsed; index: n
             </span>
             <span className="text-xs text-white/40">{extractEmail(message.headers.from)}</span>
             {!message.isRead && (
-              <span className="bg-sky-500/20 text-sky-400 text-xs px-1.5 py-0.5 rounded-full">
-                Unread
-              </span>
+                <span className="rounded-full bg-sky-500/15 px-1.5 py-0.5 text-xs text-sky-200">
+                  Unread
+                </span>
             )}
           </div>
           {message.headers.to && (
@@ -297,7 +297,7 @@ function LinkPanel({
   }
 
   return (
-    <div className="bg-white/3 border border-white/8 rounded-2xl p-5">
+    <div className="rounded-2xl border border-white/10 bg-[#090b10] p-5">
       <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-4">
         Linked Record
       </h3>
@@ -315,7 +315,7 @@ function LinkPanel({
             <button
               onClick={removeLink}
               disabled={unlinkLoading}
-              className="text-xs text-white/30 hover:text-red-400 transition-colors disabled:opacity-50 flex-shrink-0"
+              className="flex-shrink-0 text-xs text-white/35 transition-colors hover:text-sky-200 disabled:opacity-50"
             >
               {unlinkLoading ? "Removing…" : "Remove"}
             </button>
@@ -502,7 +502,7 @@ export default function ThreadClient({ thread, link }: Props) {
 
         {/* Reply success notice */}
         {replySuccess && (
-          <div className="flex items-center gap-2 px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-400 text-sm">
+          <div className="flex items-center gap-2 rounded-2xl border border-sky-500/20 bg-sky-500/10 px-4 py-3 text-sm text-sky-200">
             <svg
               width="16"
               height="16"
@@ -525,7 +525,7 @@ export default function ThreadClient({ thread, link }: Props) {
         {!replyOpen ? (
           <button
             onClick={() => setReplyOpen(true)}
-            className="flex items-center gap-2 bg-white/5 hover:bg-white/8 border border-white/8 hover:border-white/15 text-white/70 hover:text-white text-sm px-4 py-2 rounded-xl transition-colors"
+            className="flex items-center gap-2 rounded-xl border border-white/10 bg-black px-4 py-2 text-sm text-white/70 transition-colors hover:border-white/20 hover:text-white"
           >
             <svg
               width="15"
@@ -546,7 +546,7 @@ export default function ThreadClient({ thread, link }: Props) {
         ) : (
           <form
             onSubmit={sendReply}
-            className="bg-white/3 border border-white/8 rounded-2xl p-5 space-y-4"
+            className="space-y-4 rounded-2xl border border-white/10 bg-[#090b10] p-5"
           >
             <div className="text-xs text-white/40">
               Replying to{" "}
@@ -568,7 +568,7 @@ export default function ThreadClient({ thread, link }: Props) {
             </div>
 
             {replyError && (
-              <p className="text-sm text-red-400">{replyError}</p>
+              <p className="text-sm text-white/70">{replyError}</p>
             )}
 
             <div className="flex items-center gap-3">
@@ -586,7 +586,7 @@ export default function ThreadClient({ thread, link }: Props) {
                   setReplyHtml("");
                   setReplyError("");
                 }}
-                className="bg-white/5 hover:bg-white/8 border border-white/8 hover:border-white/15 text-white/70 hover:text-white text-sm px-4 py-2 rounded-xl transition-colors"
+                className="rounded-xl border border-white/10 bg-black px-4 py-2 text-sm text-white/70 transition-colors hover:border-white/20 hover:text-white"
               >
                 Cancel
               </button>
@@ -598,7 +598,7 @@ export default function ThreadClient({ thread, link }: Props) {
       {/* Sidebar */}
       <div className="lg:w-72 flex-shrink-0 space-y-4">
         {/* Thread meta */}
-        <div className="bg-white/3 border border-white/8 rounded-2xl p-5">
+        <div className="rounded-2xl border border-white/10 bg-[#090b10] p-5">
           <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-4">
             Thread Info
           </h3>

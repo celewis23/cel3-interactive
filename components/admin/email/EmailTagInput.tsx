@@ -70,15 +70,15 @@ export default function EmailTagInput({
 
   return (
     <div
-      className={`flex flex-wrap gap-1.5 items-center bg-white/5 border rounded-xl px-3 py-2 cursor-text transition-colors focus-within:border-sky-400/50 ${
-        invalid ? "border-red-500/50" : "border-white/10"
+      className={`flex flex-wrap gap-1.5 items-center rounded-xl border bg-black px-3 py-2 cursor-text transition-colors focus-within:border-sky-400/50 ${
+        invalid ? "border-sky-400/50" : "border-white/10"
       }`}
       onClick={() => inputRef.current?.focus()}
     >
       {emails.map((email) => (
         <span
           key={email}
-          className="inline-flex items-center gap-1 bg-sky-500/15 border border-sky-500/25 text-sky-300 text-xs px-2 py-0.5 rounded-lg max-w-[220px]"
+          className="inline-flex max-w-[220px] items-center gap-1 rounded-lg border border-sky-400/20 bg-sky-400/10 px-2 py-0.5 text-xs text-sky-100"
         >
           <span className="truncate">{email}</span>
           <button
@@ -87,7 +87,7 @@ export default function EmailTagInput({
               e.preventDefault();
               onChange(emails.filter((e2) => e2 !== email));
             }}
-            className="text-sky-400/60 hover:text-sky-200 transition-colors shrink-0 ml-0.5"
+            className="ml-0.5 shrink-0 text-sky-200/70 transition-colors hover:text-white"
             aria-label={`Remove ${email}`}
           >
             <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -111,7 +111,7 @@ export default function EmailTagInput({
       />
 
       {invalid && (
-        <span className="w-full text-xs text-red-400 mt-0.5">Invalid email address</span>
+        <span className="mt-0.5 w-full text-xs text-sky-200">Invalid email address</span>
       )}
     </div>
   );

@@ -162,8 +162,8 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
   const activeLabel = tabs.find((tab) => tab.key === label)?.label ?? "Inbox";
 
   return (
-    <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.96),rgba(8,12,24,0.98))] shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
-      <div className="border-b border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.16),transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.015))]">
+    <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#06080d] shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
+      <div className="border-b border-white/8 bg-[#0b0d12]">
         <div className="flex flex-col gap-4 px-5 py-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
             <div className="text-[11px] uppercase tracking-[0.28em] text-white/35">Mail Workspace</div>
@@ -179,7 +179,7 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
           </div>
 
           <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto lg:items-center">
-            <div className="inline-flex rounded-2xl border border-white/10 bg-[#0b1220]/80 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+            <div className="inline-flex rounded-2xl border border-white/10 bg-black p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
               {tabs.map((tab) => (
                 <button
                   key={tab.key}
@@ -212,7 +212,7 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
                 placeholder="Search sender or subject"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-2xl border border-white/10 bg-[#0b1220]/88 py-2.5 pl-10 pr-4 text-sm text-white placeholder-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-colors focus:border-sky-400/40 focus:outline-none focus:ring-2 focus:ring-sky-400/15"
+                className="w-full rounded-2xl border border-white/10 bg-black py-2.5 pl-10 pr-4 text-sm text-white placeholder-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-colors focus:border-sky-400/40 focus:outline-none focus:ring-2 focus:ring-sky-400/15"
               />
             </div>
           </div>
@@ -220,8 +220,8 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
       </div>
 
       {newCount !== null && newCount > 0 && (
-        <div className="flex items-center justify-between border-b border-emerald-400/15 bg-emerald-400/10 px-5 py-3">
-          <span className="text-sm font-medium text-emerald-200">
+        <div className="flex items-center justify-between border-b border-sky-400/20 bg-sky-400/10 px-5 py-3">
+          <span className="text-sm font-medium text-sky-100">
             {newCount} new email{newCount > 1 ? "s" : ""} synced
           </span>
           <button
@@ -231,14 +231,14 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
               setPageTokenStack([]);
               setCurrentToken(undefined);
             }}
-            className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-medium text-emerald-100 transition-colors hover:bg-emerald-300/18"
+            className="rounded-full border border-sky-300/20 bg-sky-300/10 px-3 py-1 text-xs font-medium text-sky-100 transition-colors hover:bg-sky-300/18"
           >
             Show latest
           </button>
         </div>
       )}
 
-      <div className="border-b border-white/6 bg-[#0a1120]/85 px-5 py-3">
+      <div className="border-b border-white/6 bg-[#090b10] px-5 py-3">
         <div className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,2.2fr)_88px] gap-4 text-[11px] font-medium uppercase tracking-[0.18em] text-white/28">
           <span>Sender</span>
           <span>Conversation</span>
@@ -247,7 +247,7 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
       </div>
 
       {loading ? (
-        <div className="space-y-3 bg-[#08101d] px-5 py-6">
+        <div className="space-y-3 bg-[#06080d] px-5 py-6">
           {Array.from({ length: 6 }).map((_, index) => (
             <div
               key={index}
@@ -269,14 +269,14 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
           ))}
         </div>
       ) : error ? (
-        <div className="bg-[#08101d] px-5 py-16 text-center">
-          <div className="mx-auto max-w-md rounded-3xl border border-red-400/15 bg-red-400/8 px-6 py-8">
-            <div className="text-sm font-medium text-red-300">Inbox unavailable</div>
-            <div className="mt-2 text-sm text-red-200/75">{error}</div>
+        <div className="bg-[#06080d] px-5 py-16 text-center">
+          <div className="mx-auto max-w-md rounded-3xl border border-white/10 bg-[#0b0d12] px-6 py-8">
+            <div className="text-sm font-medium text-white">Inbox unavailable</div>
+            <div className="mt-2 text-sm text-white/55">{error}</div>
           </div>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-[#08101d] px-5 py-16 text-center">
+        <div className="bg-[#06080d] px-5 py-16 text-center">
           <div className="mx-auto max-w-md rounded-3xl border border-white/8 bg-white/[0.03] px-6 py-10">
             <div className="text-base font-medium text-white/80">
               {search ? "No matching conversations" : "No conversations here yet"}
@@ -287,7 +287,7 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
           </div>
         </div>
       ) : (
-        <ul className="space-y-2 bg-[#08101d] px-3 py-3">
+        <ul className="space-y-2 bg-[#06080d] px-3 py-3">
           {filtered.map((thread) => (
             <li key={thread.id}>
               <Link
@@ -346,7 +346,7 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
       )}
 
       {!loading && !error && (
-        <div className="flex items-center justify-between border-t border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))] px-5 py-4">
+        <div className="flex items-center justify-between border-t border-white/8 bg-[#0b0d12] px-5 py-4">
           <div className="text-xs text-white/30">
             {filtered.length} visible thread{filtered.length === 1 ? "" : "s"}
           </div>

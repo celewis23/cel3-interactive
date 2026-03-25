@@ -202,9 +202,9 @@ export default function ComposeClient({ initialTo = "" }: Props) {
 
   if (done) {
     return (
-      <div className="bg-white/3 border border-white/8 rounded-2xl p-8 text-center max-w-md mx-auto">
-        <div className="w-12 h-12 rounded-full bg-emerald-500/15 flex items-center justify-center mx-auto mb-4">
-          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" className="text-emerald-400">
+      <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-[#090b10] p-8 text-center">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-sky-500/12">
+          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" className="text-sky-300">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
@@ -237,19 +237,19 @@ export default function ComposeClient({ initialTo = "" }: Props) {
   const isEmpty = !htmlBody.replace(/<[^>]*>/g, "").trim();
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white/3 border border-white/8 rounded-2xl p-6 space-y-4 max-w-3xl">
+    <form onSubmit={handleSubmit} className="max-w-3xl space-y-4 rounded-2xl border border-white/10 bg-[#090b10] p-6">
       {/* To */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
           <label className="block text-sm font-medium text-white">To</label>
           <div className="flex gap-3">
             {!showCc && (
-              <button type="button" onClick={() => setShowCc(true)} className="text-xs text-sky-400 hover:text-sky-300 transition-colors">
+              <button type="button" onClick={() => setShowCc(true)} className="text-xs text-sky-200 transition-colors hover:text-white">
                 + CC
               </button>
             )}
             {!showBcc && (
-              <button type="button" onClick={() => setShowBcc(true)} className="text-xs text-sky-400 hover:text-sky-300 transition-colors">
+              <button type="button" onClick={() => setShowBcc(true)} className="text-xs text-sky-200 transition-colors hover:text-white">
                 + BCC
               </button>
             )}
@@ -314,7 +314,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
           onChange={(e) => setSubject(e.target.value)}
           required
           placeholder="Email subject"
-          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors"
+          className="w-full rounded-xl border border-white/10 bg-black px-4 py-2.5 text-sm text-white placeholder-white/25 transition-colors focus:border-sky-400/50 focus:outline-none"
         />
       </div>
 
@@ -333,7 +333,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
       {attachments.length > 0 && (
         <div className="space-y-1.5">
           {attachments.map((att) => (
-            <div key={att.id} className="flex items-center gap-3 bg-white/4 border border-white/8 rounded-xl px-3 py-2">
+            <div key={att.id} className="flex items-center gap-3 rounded-xl border border-white/10 bg-black px-3 py-2">
               <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" className="text-white/40 shrink-0">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
               </svg>
@@ -355,7 +355,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
 
       {/* Error */}
       {error && (
-        <div className="flex items-center gap-2 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
+        <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/75">
           <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
           </svg>
@@ -369,7 +369,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
         <button
           type="submit"
           disabled={sending || toEmails.length === 0 || !subject.trim() || isEmpty}
-          className="bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium px-5 py-2 rounded-xl transition-colors disabled:opacity-50 flex items-center gap-2"
+          className="flex items-center gap-2 rounded-xl bg-sky-500 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-sky-400 disabled:opacity-50"
         >
           {sending ? (
             <>
@@ -393,7 +393,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-1.5 text-white/60 hover:text-white bg-white/5 hover:bg-white/8 border border-white/8 hover:border-white/15 text-sm px-3 py-2 rounded-xl transition-colors"
+          className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
           title="Attach file"
         >
           <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -407,7 +407,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
           type="button"
           onClick={openDrivePicker}
           disabled={driveLoading}
-          className="flex items-center gap-1.5 text-white/60 hover:text-white bg-white/5 hover:bg-white/8 border border-white/8 hover:border-white/15 text-sm px-3 py-2 rounded-xl transition-colors disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white disabled:opacity-50"
           title="Insert from Google Drive"
         >
           {driveLoading ? (
@@ -433,7 +433,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
         {/* Cancel */}
         <Link
           href="/admin/email"
-          className="bg-white/5 hover:bg-white/8 border border-white/8 hover:border-white/15 text-white/70 hover:text-white text-sm px-4 py-2 rounded-xl transition-colors"
+          className="rounded-xl border border-white/10 bg-black px-4 py-2 text-sm text-white/70 transition-colors hover:border-white/20 hover:text-white"
         >
           Cancel
         </Link>

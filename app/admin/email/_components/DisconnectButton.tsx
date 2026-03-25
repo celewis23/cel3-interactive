@@ -21,7 +21,7 @@ export default function DisconnectButton() {
     <button
       onClick={disconnect}
       disabled={loading}
-      className="text-xs text-white/30 hover:text-red-400 transition-colors disabled:opacity-50"
+      className="text-xs text-white/35 transition-colors hover:text-sky-200 disabled:opacity-50"
     >
       {loading ? "Disconnecting…" : "Disconnect"}
     </button>

@@ -65,7 +65,7 @@ export default function SignatureEditor() {
   }
 
   return (
-    <div className="bg-white/3 border border-white/8 rounded-2xl p-6 space-y-4">
+    <div className="space-y-4 rounded-2xl border border-white/10 bg-[#090b10] p-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h2 className="text-base font-semibold text-white">Email Signature</h2>
@@ -75,7 +75,7 @@ export default function SignatureEditor() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {saved && (
-            <span className="text-xs text-emerald-400 flex items-center gap-1">
+            <span className="flex items-center gap-1 text-xs text-sky-200">
               <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -86,7 +86,7 @@ export default function SignatureEditor() {
             onClick={importFromGmail}
             disabled={importing || !loaded}
             title="Pull your current Gmail signature and load it into the editor"
-            className="flex items-center gap-1.5 text-white/60 hover:text-white bg-white/5 hover:bg-white/8 border border-white/8 hover:border-white/15 text-sm px-3 py-2 rounded-xl transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white disabled:opacity-50"
           >
             {importing ? (
               <svg className="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
@@ -103,7 +103,7 @@ export default function SignatureEditor() {
           <button
             onClick={save}
             disabled={saving || !loaded}
-            className="bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors disabled:opacity-50"
+            className="rounded-xl bg-sky-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-sky-400 disabled:opacity-50"
           >
             {saving ? "Saving…" : "Save"}
           </button>
@@ -111,7 +111,7 @@ export default function SignatureEditor() {
       </div>
 
       {error && (
-        <p className="text-sm text-red-400">{error}</p>
+        <p className="text-sm text-white/70">{error}</p>
       )}
 
       {loaded && (

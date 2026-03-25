@@ -28,7 +28,7 @@ export default async function EmailPage({
 
         {/* Error notice */}
         {sp.error && (
-          <div className="flex items-center gap-2 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm mb-6">
+          <div className="flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white/75 text-sm mb-6">
             <svg
               width="16"
               height="16"
@@ -53,7 +53,7 @@ export default async function EmailPage({
 
         {/* Connect card */}
         <div className="bg-white/3 border border-white/8 rounded-2xl p-8">
-          <div className="w-14 h-14 rounded-2xl bg-sky-500/10 flex items-center justify-center mb-6">
+          <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-6">
             <svg
               width="28"
               height="28"
@@ -146,7 +146,7 @@ export default async function EmailPage({
           <h1 className="text-2xl font-semibold text-white">Email</h1>
           {email && (
             <p className="text-sm text-white/40 mt-0.5 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+              <span className="w-1.5 h-1.5 rounded-full bg-sky-400 inline-block" />
               {email}
             </p>
           )}
@@ -178,7 +178,7 @@ export default async function EmailPage({
 
       {/* Connected success notice */}
       {sp.connected === "1" && (
-        <div className="flex items-center gap-2 px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-sm mb-6">
+        <div className="flex items-center gap-2 px-4 py-3 bg-sky-500/10 border border-sky-500/20 rounded-xl text-sky-200 text-sm mb-6">
           <svg
             width="16"
             height="16"

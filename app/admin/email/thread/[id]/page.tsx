@@ -45,7 +45,7 @@ export default async function ThreadPage({ params }: Props) {
       <div>
         <Link
           href="/admin/email"
-          className="inline-flex items-center gap-1.5 text-sm text-white/40 hover:text-white transition-colors mb-6"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-white/40 transition-colors hover:text-sky-200"
         >
           <svg
             width="14"
@@ -59,8 +59,8 @@ export default async function ThreadPage({ params }: Props) {
           </svg>
           Inbox
         </Link>
-        <div className="bg-red-500/10 border border-red-500/20 rounded-2xl px-6 py-8 text-center">
-          <p className="text-red-400 font-medium mb-1">Failed to load thread</p>
+        <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-8 text-center">
+          <p className="mb-1 font-medium text-white">Failed to load thread</p>
           <p className="text-white/40 text-sm">{message}</p>
         </div>
       </div>
@@ -75,7 +75,7 @@ export default async function ThreadPage({ params }: Props) {
       {/* Back link */}
       <Link
         href="/admin/email"
-        className="inline-flex items-center gap-1.5 text-sm text-white/40 hover:text-white transition-colors mb-6"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm text-white/40 transition-colors hover:text-sky-200"
       >
         <svg
           width="14"

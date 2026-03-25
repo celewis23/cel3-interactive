@@ -15,12 +15,7 @@ const TEXT_COLORS = [
   { label: "Black", value: "#000000" },
   { label: "Dark Gray", value: "#374151" },
   { label: "Gray", value: "#6B7280" },
-  { label: "Red", value: "#DC2626" },
-  { label: "Orange", value: "#EA580C" },
-  { label: "Yellow", value: "#CA8A04" },
-  { label: "Green", value: "#16A34A" },
-  { label: "Blue", value: "#2563EB" },
-  { label: "Purple", value: "#9333EA" },
+  { label: "Accent", value: "#38BDF8" },
 ];
 
 // Common emoji categories for quick insertion
@@ -53,8 +48,8 @@ function ToolbarBtn({
       title={title}
       className={`p-1.5 rounded text-sm transition-colors ${
         active
-          ? "bg-sky-500/20 text-sky-400"
-          : "text-white/60 hover:text-white hover:bg-white/8"
+          ? "bg-sky-400/15 text-sky-200"
+          : "text-white/60 hover:bg-white/8 hover:text-white"
       }`}
     >
       {children}
@@ -188,9 +183,9 @@ export default function RichTextEditor({
   const isLink = editor.isActive("link");
 
   return (
-    <div className="border border-white/10 rounded-xl focus-within:border-sky-400/50 transition-colors">
+    <div className="rounded-xl border border-white/10 bg-[#090b10] transition-colors focus-within:border-sky-400/50">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 bg-white/3 border-b border-white/8 rounded-t-xl">
+      <div className="flex flex-wrap items-center gap-0.5 rounded-t-xl border-b border-white/8 bg-black px-2 py-1.5">
         {/* Text style */}
         <ToolbarBtn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title="Bold">
           <strong>B</strong>
@@ -270,7 +265,7 @@ export default function RichTextEditor({
             </span>
           </ToolbarBtn>
           {showColorPicker && (
-            <div className="absolute top-full left-0 mt-1 z-50 bg-[#1a1a1a] border border-white/10 rounded-xl p-2 shadow-xl flex flex-wrap gap-1 w-[140px]">
+            <div className="absolute top-full left-0 z-50 mt-1 flex w-[140px] flex-wrap gap-1 rounded-xl border border-white/10 bg-black p-2 shadow-xl">
               {TEXT_COLORS.map((c) => (
                 <button
                   key={c.value}
@@ -285,8 +280,8 @@ export default function RichTextEditor({
                     }
                     setShowColorPicker(false);
                   }}
-                  className="w-6 h-6 rounded border border-white/10 hover:scale-110 transition-transform"
-                  style={{ backgroundColor: c.value || "#374151" }}
+                  className="h-6 w-6 rounded border border-white/10 transition-transform hover:scale-110"
+                  style={{ backgroundColor: c.value || "#6B7280" }}
                 />
               ))}
             </div>
@@ -321,7 +316,7 @@ export default function RichTextEditor({
             <span className="text-base leading-none">😊</span>
           </ToolbarBtn>
           {showEmojiPicker && (
-            <div className="absolute top-full left-0 mt-1 z-50 bg-[#1a1a1a] border border-white/10 rounded-xl p-2 shadow-xl flex flex-wrap gap-1 w-[220px] max-h-48 overflow-y-auto">
+            <div className="absolute top-full left-0 z-50 mt-1 flex max-h-48 w-[220px] flex-wrap gap-1 overflow-y-auto rounded-xl border border-white/10 bg-black p-2 shadow-xl">
               {EMOJI_LIST.map((emoji) => (
                 <button
                   key={emoji}
@@ -330,7 +325,7 @@ export default function RichTextEditor({
                     e.preventDefault();
                     insertEmoji(emoji);
                   }}
-                  className="w-7 h-7 flex items-center justify-center text-base hover:bg-white/10 rounded transition-colors"
+                  className="flex h-7 w-7 items-center justify-center rounded text-base transition-colors hover:bg-white/10"
                   title={emoji}
                 >
                   {emoji}
@@ -376,7 +371,7 @@ export default function RichTextEditor({
 
       {/* Link URL input bar */}
       {showLinkInput && (
-        <div className="flex items-center gap-2 px-3 py-2 bg-white/3 border-b border-white/8">
+        <div className="flex items-center gap-2 border-b border-white/8 bg-black px-3 py-2">
           <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="text-white/40 shrink-0">
             <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
           </svg>
@@ -395,7 +390,7 @@ export default function RichTextEditor({
           <button
             type="button"
             onMouseDown={(e) => { e.preventDefault(); applyLink(); }}
-            className="text-xs bg-sky-500 hover:bg-sky-400 text-white px-2.5 py-1 rounded-lg transition-colors"
+            className="rounded-lg bg-sky-500 px-2.5 py-1 text-xs text-white transition-colors hover:bg-sky-400"
           >
             Apply
           </button>
@@ -410,7 +405,7 @@ export default function RichTextEditor({
       )}
 
       {/* Editor canvas — white bg like an email */}
-      <div className="bg-white relative rounded-b-xl overflow-hidden">
+      <div className="relative overflow-hidden rounded-b-xl bg-white">
         {editor.isEmpty && (
           <p className="absolute top-4 left-4 text-sm text-gray-400 pointer-events-none select-none">
             {placeholder}
