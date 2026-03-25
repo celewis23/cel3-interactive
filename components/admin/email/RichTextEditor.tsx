@@ -414,7 +414,10 @@ export default function RichTextEditor({
           </p>
         )}
         <div className="h-full">
-          <EditorContent editor={editor} />
+          <EditorContent
+            editor={editor}
+            className="h-full overflow-y-auto [&_.ProseMirror]:h-full [&_.ProseMirror]:overflow-y-auto"
+          />
         </div>
       </div>
     </div>
