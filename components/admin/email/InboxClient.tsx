@@ -34,7 +34,12 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const threadsRef = useRef<GmailThreadSummary[]>([]);
   const [newCount, setNewCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    threadsRef.current = threads;
+  }, [threads]);
 
   const fetchThreads = useCallback(
     async (lbl: Label, token?: string, silent = false) => {
@@ -50,11 +55,21 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
         }
         const data: { threads: GmailThreadSummary[]; nextPageToken?: string } = await res.json();
         if (silent) {
-          // Only update the new-mail indicator, don't disrupt the current view
-          const currentIds = threads.map((t) => t.id).join(",");
-          const freshIds = (data.threads ?? []).map((t) => t.id).join(",");
-          if (currentIds !== freshIds && data.threads.length > threads.length) {
-            setNewCount(data.threads.length - threads.length);
+          const currentThreads = threadsRef.current;
+          const currentSnapshot = currentThreads
+            .map((t) => `${t.id}:${t.isRead ? 1 : 0}:${t.date}:${t.messageCount}`)
+            .join(",");
+          const freshSnapshot = (data.threads ?? [])
+            .map((t) => `${t.id}:${t.isRead ? 1 : 0}:${t.date}:${t.messageCount}`)
+            .join(",");
+          if (currentSnapshot !== freshSnapshot) {
+            if (data.threads.length > currentThreads.length) {
+              setNewCount(data.threads.length - currentThreads.length);
+            } else {
+              setNewCount(null);
+            }
+            setThreads(data.threads ?? []);
+            setNextPageToken(data.nextPageToken);
           }
           return;
         }
@@ -83,8 +98,11 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
   useEffect(() => {
     if (pollingRef.current) clearInterval(pollingRef.current);
     pollingRef.current = setInterval(() => {
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") {
+        return;
+      }
       fetchThreads(label, currentToken, true);
-    }, 60_000);
+    }, 15_000);
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current);
     };
