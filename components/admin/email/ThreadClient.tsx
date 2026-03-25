@@ -10,6 +10,7 @@ import type {
   GmailThreadDetail,
   GmailMessageParsed,
   GmailThreadLink,
+  GmailAttachment,
 } from "@/lib/gmail/types";
 
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), { ssr: false });
@@ -27,6 +28,87 @@ interface Props {
 
 function formatMessageDate(ms: number): string {
   return DateTime.fromMillis(ms).toFormat("LLL d, yyyy 'at' h:mm a");
+}
+
+function formatBytes(n: number): string {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function attachmentUrl(
+  messageId: string,
+  att: GmailAttachment,
+  inline = false
+): string {
+  const p = new URLSearchParams({
+    filename: att.filename,
+    mime: att.mimeType,
+    ...(inline ? { inline: "1" } : {}),
+  });
+  return `/api/admin/email/attachment/${messageId}/${att.attachmentId}?${p}`;
+}
+
+/** Replace cid: image references in HTML with proxied attachment URLs */
+function resolveCidReferences(
+  html: string,
+  messageId: string,
+  attachments: GmailAttachment[]
+): string {
+  return html.replace(/src="cid:([^"]+)"/gi, (_match, cid) => {
+    const att = attachments.find(
+      (a) => a.contentId === cid || a.contentId === cid.trim()
+    );
+    if (!att) return `src=""`;
+    return `src="${attachmentUrl(messageId, att, true)}"`;
+  });
+}
+
+function AttachmentChip({
+  messageId,
+  att,
+}: {
+  messageId: string;
+  att: GmailAttachment;
+}) {
+  const isImage = att.mimeType.startsWith("image/");
+  const isPdf = att.mimeType === "application/pdf";
+
+  return (
+    <a
+      href={attachmentUrl(messageId, att)}
+      target="_blank"
+      rel="noopener noreferrer"
+      download={att.filename}
+      className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/8 border border-white/10 hover:border-white/20 rounded-xl px-3 py-2 transition-colors group"
+    >
+      {/* Icon */}
+      <span className="shrink-0 text-white/40 group-hover:text-white/60 transition-colors">
+        {isImage ? (
+          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+          </svg>
+        ) : isPdf ? (
+          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+          </svg>
+        ) : (
+          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+          </svg>
+        )}
+      </span>
+      <span className="text-sm text-white/70 group-hover:text-white transition-colors truncate max-w-[180px]">
+        {att.filename}
+      </span>
+      {att.size > 0 && (
+        <span className="text-xs text-white/30 shrink-0">{formatBytes(att.size)}</span>
+      )}
+      <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="text-white/25 group-hover:text-white/50 transition-colors shrink-0">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+      </svg>
+    </a>
+  );
 }
 
 function extractEmail(from: string): string {
@@ -96,12 +178,33 @@ function MessageCard({ message, index }: { message: GmailMessageParsed; index: n
             <div
               className="mt-4 bg-white rounded-xl p-4 overflow-x-auto text-gray-900 text-sm"
               // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: message.bodyHtml }}
+              dangerouslySetInnerHTML={{
+                __html: resolveCidReferences(
+                  message.bodyHtml,
+                  message.id,
+                  message.attachments
+                ),
+              }}
             />
           ) : (
             <pre className="mt-4 whitespace-pre-wrap text-sm text-white/80 font-sans leading-relaxed">
               {message.bodyText}
             </pre>
+          )}
+
+          {/* Downloadable attachments (non-inline only) */}
+          {message.attachments.filter((a) => !a.inline).length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {message.attachments
+                .filter((a) => !a.inline)
+                .map((att) => (
+                  <AttachmentChip
+                    key={att.attachmentId}
+                    messageId={message.id}
+                    att={att}
+                  />
+                ))}
+            </div>
           )}
         </div>
       )}

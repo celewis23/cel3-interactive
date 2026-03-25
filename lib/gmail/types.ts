@@ -9,6 +9,16 @@ export type GmailMessageHeader = {
   references: string;
 };
 
+export type GmailAttachment = {
+  attachmentId: string;
+  filename: string;
+  mimeType: string;
+  size: number;
+  /** Content-ID (without angle brackets) for inline images referenced as cid:xxx */
+  contentId?: string;
+  inline: boolean;
+};
+
 export type GmailMessageParsed = {
   id: string;
   threadId: string;
@@ -19,6 +29,7 @@ export type GmailMessageParsed = {
   bodyText: string;
   bodyHtml: string | null;
   isRead: boolean;
+  attachments: GmailAttachment[];
 };
 
 export type GmailThreadSummary = {

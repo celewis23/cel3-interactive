@@ -32,42 +32,73 @@ function decodeBase64Url(data: string): string {
   }
 }
 
-function extractBody(payload: gmail_v1.Schema$MessagePart): {
-  text: string;
-  html: string | null;
-} {
-  if (!payload) return { text: "", html: null };
+import type { GmailAttachment } from "./types";
+
+function extractParts(
+  payload: gmail_v1.Schema$MessagePart,
+  result: { text: string; html: string | null; attachments: GmailAttachment[] }
+): void {
+  if (!payload) return;
+
+  const disposition = payload.headers
+    ?.find((h) => h.name?.toLowerCase() === "content-disposition")
+    ?.value?.toLowerCase() ?? "";
+  const contentId = (
+    payload.headers
+      ?.find((h) => h.name?.toLowerCase() === "content-id")
+      ?.value ?? ""
+  ).replace(/^<|>$/g, "");
+  const isInline = disposition.startsWith("inline");
+  const isAttachment = disposition.startsWith("attachment");
+  const hasAttachmentId = !!payload.body?.attachmentId;
+  const filename = payload.filename ?? "";
+
+  // Collect attachments and inline parts that have an attachmentId
+  if (hasAttachmentId && (isAttachment || isInline || filename)) {
+    result.attachments.push({
+      attachmentId: payload.body!.attachmentId!,
+      filename: filename || `attachment`,
+      mimeType: payload.mimeType ?? "application/octet-stream",
+      size: payload.body?.size ?? 0,
+      contentId: contentId || undefined,
+      inline: isInline && !!contentId,
+    });
+    return;
+  }
 
   if (payload.mimeType === "text/plain" && payload.body?.data) {
-    return { text: decodeBase64Url(payload.body.data), html: null };
+    if (!result.text) result.text = decodeBase64Url(payload.body.data);
+    return;
   }
   if (payload.mimeType === "text/html" && payload.body?.data) {
-    return { text: "", html: decodeBase64Url(payload.body.data) };
+    if (!result.html) result.html = decodeBase64Url(payload.body.data);
+    return;
   }
 
   if (payload.parts) {
-    let text = "";
-    let html: string | null = null;
     for (const part of payload.parts) {
-      if (part.mimeType === "text/plain" && part.body?.data) {
-        text = decodeBase64Url(part.body.data);
-      } else if (part.mimeType === "text/html" && part.body?.data) {
-        html = decodeBase64Url(part.body.data);
-      } else if (part.parts) {
-        const nested = extractBody(part);
-        if (nested.text) text = nested.text;
-        if (nested.html) html = nested.html;
-      }
+      extractParts(part, result);
     }
-    return { text, html };
   }
+}
 
-  return { text: "", html: null };
+function extractBody(payload: gmail_v1.Schema$MessagePart): {
+  text: string;
+  html: string | null;
+  attachments: GmailAttachment[];
+} {
+  const result: { text: string; html: string | null; attachments: GmailAttachment[] } = {
+    text: "",
+    html: null,
+    attachments: [],
+  };
+  extractParts(payload, result);
+  return result;
 }
 
 function parseMessage(msg: gmail_v1.Schema$Message): GmailMessageParsed {
   const headers = msg.payload?.headers ?? [];
-  const { text, html } = extractBody(msg.payload ?? {});
+  const { text, html, attachments } = extractBody(msg.payload ?? {});
   const labelIds = msg.labelIds ?? [];
 
   return {
@@ -89,6 +120,7 @@ function parseMessage(msg: gmail_v1.Schema$Message): GmailMessageParsed {
     bodyText: text,
     bodyHtml: html,
     isRead: !labelIds.includes("UNREAD"),
+    attachments,
   };
 }
 
@@ -244,6 +276,13 @@ function htmlToPlainText(html: string): string {
     .trim();
 }
 
+/** RFC 2047 encode a header value when it contains non-ASCII characters */
+function encodeHeader(value: string): string {
+  // eslint-disable-next-line no-control-regex
+  if (!/[^\x00-\x7F]/.test(value)) return value;
+  return `=?UTF-8?B?${Buffer.from(value, "utf-8").toString("base64")}?=`;
+}
+
 function buildRawMessage(opts: {
   to: string;
   from: string;
@@ -277,7 +316,7 @@ function buildRawMessage(opts: {
     `From: ${opts.from}`,
     ...(opts.cc ? [`Cc: ${opts.cc}`] : []),
     ...(opts.bcc ? [`Bcc: ${opts.bcc}`] : []),
-    `Subject: ${opts.subject}`,
+    `Subject: ${encodeHeader(opts.subject)}`,
     ...(opts.inReplyTo ? [`In-Reply-To: ${opts.inReplyTo}`] : []),
     ...(opts.references ? [`References: ${opts.references}`] : []),
     "MIME-Version: 1.0",
@@ -409,4 +448,19 @@ export async function getGmailSignature(): Promise<string | null> {
       return null;
     }
   }
+}
+
+export async function getAttachment(
+  messageId: string,
+  attachmentId: string
+): Promise<{ data: Buffer; size: number }> {
+  const { gmail } = await getGmail();
+  const res = await gmail.users.messages.attachments.get({
+    userId: "me",
+    messageId,
+    id: attachmentId,
+  });
+  const raw = res.data.data ?? "";
+  const buf = Buffer.from(raw.replace(/-/g, "+").replace(/_/g, "/"), "base64");
+  return { data: buf, size: res.data.size ?? buf.length };
 }
