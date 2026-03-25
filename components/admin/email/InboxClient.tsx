@@ -24,6 +24,22 @@ function formatDate(ms: number): string {
   return dt.toFormat("LLL d, yyyy");
 }
 
+function formatTime(ms: number): string {
+  const dt = DateTime.fromMillis(ms);
+  const now = DateTime.now();
+  if (dt.hasSame(now, "day")) return dt.toFormat("h:mm a");
+  if (dt.hasSame(now, "week")) return dt.toFormat("ccc");
+  return formatDate(ms);
+}
+
+function initials(from: string): string {
+  const name = extractName(from).trim();
+  if (!name) return "?";
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
+}
+
 export default function InboxClient({ initialLabel = "INBOX" }: Props) {
   const [label, setLabel] = useState<Label>(initialLabel as Label);
   const [threads, setThreads] = useState<GmailThreadSummary[]>([]);
@@ -53,6 +69,7 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
           const data = await res.json().catch(() => ({}));
           throw new Error(data.error ?? `HTTP ${res.status}`);
         }
+
         const data: { threads: GmailThreadSummary[]; nextPageToken?: string } = await res.json();
         if (silent) {
           const currentThreads = threadsRef.current;
@@ -62,6 +79,7 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
           const freshSnapshot = (data.threads ?? [])
             .map((t) => `${t.id}:${t.isRead ? 1 : 0}:${t.date}:${t.messageCount}`)
             .join(",");
+
           if (currentSnapshot !== freshSnapshot) {
             if (data.threads.length > currentThreads.length) {
               setNewCount(data.threads.length - currentThreads.length);
@@ -73,6 +91,7 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
           }
           return;
         }
+
         setThreads(data.threads ?? []);
         setNextPageToken(data.nextPageToken);
       } catch (e: unknown) {
@@ -81,26 +100,21 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
         if (!silent) setLoading(false);
       }
     },
-    [threads]
+    []
   );
 
-  // Initial load + label change
   useEffect(() => {
     setPageTokenStack([]);
     setCurrentToken(undefined);
     setNextPageToken(undefined);
     setNewCount(null);
     fetchThreads(label, undefined);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [label]);
+  }, [label, fetchThreads]);
 
-  // Polling every 60 s
   useEffect(() => {
     if (pollingRef.current) clearInterval(pollingRef.current);
     pollingRef.current = setInterval(() => {
-      if (typeof document !== "undefined" && document.visibilityState !== "visible") {
-        return;
-      }
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
       fetchThreads(label, currentToken, true);
     }, 15_000);
     return () => {
@@ -116,7 +130,7 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
 
   function handleNext() {
     if (!nextPageToken) return;
-    setPageTokenStack((s) => [...s, currentToken ?? ""]);
+    setPageTokenStack((stack) => [...stack, currentToken ?? ""]);
     setCurrentToken(nextPageToken);
     fetchThreads(label, nextPageToken);
   }
@@ -132,54 +146,83 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
 
   const filtered = search.trim()
     ? threads.filter(
-        (t) =>
-          t.subject.toLowerCase().includes(search.toLowerCase()) ||
-          t.from.toLowerCase().includes(search.toLowerCase())
+        (thread) =>
+          thread.subject.toLowerCase().includes(search.toLowerCase()) ||
+          thread.from.toLowerCase().includes(search.toLowerCase())
       )
     : threads;
 
-  const TABS: { key: Label; label: string }[] = [
+  const tabs: Array<{ key: Label; label: string }> = [
     { key: "INBOX", label: "Inbox" },
     { key: "SENT", label: "Sent" },
     { key: "DRAFTS", label: "Drafts" },
   ];
 
-  return (
-    <div className="bg-white/3 border border-white/8 rounded-2xl overflow-hidden">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-white/8">
-        {/* Tabs */}
-        <div className="flex gap-1">
-          {TABS.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => handleLabelChange(t.key)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                label === t.key
-                  ? "bg-sky-500/15 text-sky-400"
-                  : "text-white/50 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+  const unreadCount = threads.filter((thread) => !thread.isRead).length;
+  const activeLabel = tabs.find((tab) => tab.key === label)?.label ?? "Inbox";
 
-        {/* Search */}
-        <input
-          type="text"
-          placeholder="Filter by sender or subject…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full sm:w-56 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors"
-        />
+  return (
+    <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.96),rgba(8,12,24,0.98))] shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
+      <div className="border-b border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.16),transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.015))]">
+        <div className="flex flex-col gap-4 px-5 py-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <div className="text-[11px] uppercase tracking-[0.28em] text-white/35">Mail Workspace</div>
+            <div className="mt-2 flex flex-wrap items-center gap-3">
+              <h2 className="text-xl font-semibold text-white">{activeLabel}</h2>
+              <span className="rounded-full border border-sky-400/25 bg-sky-400/10 px-2.5 py-1 text-[11px] font-medium text-sky-200">
+                {threads.length} thread{threads.length === 1 ? "" : "s"}
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-white/55">
+                {unreadCount} unread
+              </span>
+            </div>
+          </div>
+
+          <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto lg:items-center">
+            <div className="inline-flex rounded-2xl border border-white/10 bg-[#0b1220]/80 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => handleLabelChange(tab.key)}
+                  className={`rounded-xl px-3.5 py-2 text-sm font-medium transition-all ${
+                    label === tab.key
+                      ? "bg-white text-slate-950 shadow-[0_10px_30px_rgba(255,255,255,0.14)]"
+                      : "text-white/55 hover:bg-white/6 hover:text-white"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="relative w-full lg:w-80">
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m1.35-5.4a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search sender or subject"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full rounded-2xl border border-white/10 bg-[#0b1220]/88 py-2.5 pl-10 pr-4 text-sm text-white placeholder-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-colors focus:border-sky-400/40 focus:outline-none focus:ring-2 focus:ring-sky-400/15"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* New mail notice */}
       {newCount !== null && newCount > 0 && (
-        <div className="flex items-center justify-between px-4 py-2 bg-sky-500/10 border-b border-sky-500/20">
-          <span className="text-sky-400 text-sm">
-            {newCount} new email{newCount > 1 ? "s" : ""} arrived
+        <div className="flex items-center justify-between border-b border-emerald-400/15 bg-emerald-400/10 px-5 py-3">
+          <span className="text-sm font-medium text-emerald-200">
+            {newCount} new email{newCount > 1 ? "s" : ""} synced
           </span>
           <button
             onClick={() => {
@@ -188,70 +231,113 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
               setPageTokenStack([]);
               setCurrentToken(undefined);
             }}
-            className="text-xs text-sky-400 hover:text-sky-300 transition-colors"
+            className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-medium text-emerald-100 transition-colors hover:bg-emerald-300/18"
           >
-            Refresh
+            Show latest
           </button>
         </div>
       )}
 
-      {/* Thread list */}
+      <div className="border-b border-white/6 bg-[#0a1120]/85 px-5 py-3">
+        <div className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,2.2fr)_88px] gap-4 text-[11px] font-medium uppercase tracking-[0.18em] text-white/28">
+          <span>Sender</span>
+          <span>Conversation</span>
+          <span className="text-right">Updated</span>
+        </div>
+      </div>
+
       {loading ? (
-        <div className="px-4 py-12 text-center text-white/30 text-sm">Loading…</div>
+        <div className="space-y-3 bg-[#08101d] px-5 py-6">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div
+              key={index}
+              className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,2.2fr)_88px] items-center gap-4 rounded-2xl border border-white/6 bg-white/[0.025] px-4 py-4"
+            >
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 animate-pulse rounded-2xl bg-white/8" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <div className="h-3 w-24 animate-pulse rounded bg-white/8" />
+                  <div className="h-3 w-16 animate-pulse rounded bg-white/6" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="h-3 w-40 animate-pulse rounded bg-white/8" />
+                <div className="h-3 w-56 animate-pulse rounded bg-white/6" />
+              </div>
+              <div className="ml-auto h-3 w-12 animate-pulse rounded bg-white/6" />
+            </div>
+          ))}
+        </div>
       ) : error ? (
-        <div className="px-4 py-12 text-center text-red-400 text-sm">{error}</div>
+        <div className="bg-[#08101d] px-5 py-16 text-center">
+          <div className="mx-auto max-w-md rounded-3xl border border-red-400/15 bg-red-400/8 px-6 py-8">
+            <div className="text-sm font-medium text-red-300">Inbox unavailable</div>
+            <div className="mt-2 text-sm text-red-200/75">{error}</div>
+          </div>
+        </div>
       ) : filtered.length === 0 ? (
-        <div className="px-4 py-12 text-center text-white/25 text-sm">
-          {search ? "No threads match your filter." : "No threads found."}
+        <div className="bg-[#08101d] px-5 py-16 text-center">
+          <div className="mx-auto max-w-md rounded-3xl border border-white/8 bg-white/[0.03] px-6 py-10">
+            <div className="text-base font-medium text-white/80">
+              {search ? "No matching conversations" : "No conversations here yet"}
+            </div>
+            <div className="mt-2 text-sm text-white/35">
+              {search ? "Try a different sender or subject search." : `Your ${activeLabel.toLowerCase()} view is empty.`}
+            </div>
+          </div>
         </div>
       ) : (
-        <ul className="divide-y divide-white/5">
-          {filtered.map((t) => (
-            <li key={t.id}>
+        <ul className="space-y-2 bg-[#08101d] px-3 py-3">
+          {filtered.map((thread) => (
+            <li key={thread.id}>
               <Link
-                href={`/admin/email/thread/${t.id}`}
-                className="flex items-start gap-3 px-4 py-3 hover:bg-white/3 transition-colors group"
+                href={`/admin/email/thread/${thread.id}`}
+                className={`group grid grid-cols-[minmax(0,1.1fr)_minmax(0,2.2fr)_88px] items-center gap-4 rounded-2xl border px-3.5 py-3.5 transition-all ${
+                  thread.isRead
+                    ? "border-transparent bg-transparent hover:border-white/8 hover:bg-white/[0.035]"
+                    : "border-sky-400/14 bg-sky-400/[0.055] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:border-sky-300/24 hover:bg-sky-300/[0.08]"
+                }`}
               >
-                {/* Unread dot */}
-                <div className="mt-1.5 flex-shrink-0 w-2 h-2">
-                  {!t.isRead && (
-                    <span className="block w-2 h-2 rounded-full bg-sky-400" />
-                  )}
-                </div>
-
-                {/* From */}
-                <div className="w-36 flex-shrink-0 min-w-0">
-                  <span
-                    className={`truncate block text-sm ${
-                      !t.isRead ? "font-semibold text-white" : "text-white/70"
+                <div className="flex min-w-0 items-center gap-3">
+                  <div
+                    className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl border text-sm font-semibold ${
+                      thread.isRead
+                        ? "border-white/8 bg-white/[0.045] text-white/65"
+                        : "border-sky-300/20 bg-sky-300/15 text-sky-100"
                     }`}
                   >
-                    {extractName(t.from)}
-                  </span>
+                    {initials(thread.from)}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      {!thread.isRead && <span className="h-2 w-2 flex-shrink-0 rounded-full bg-sky-300" />}
+                      <span className={`block truncate text-sm ${thread.isRead ? "text-white/82" : "font-semibold text-white"}`}>
+                        {extractName(thread.from)}
+                      </span>
+                    </div>
+                    <div className="mt-1 truncate text-xs text-white/32">{thread.from}</div>
+                  </div>
                 </div>
 
-                {/* Subject + snippet */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline gap-2">
-                    <span
-                      className={`text-sm truncate ${
-                        !t.isRead ? "font-semibold text-white" : "text-white/80"
-                      }`}
-                    >
-                      {t.subject || "(no subject)"}
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className={`truncate text-sm ${thread.isRead ? "text-white/76" : "font-semibold text-white"}`}>
+                      {thread.subject || "(no subject)"}
                     </span>
-                    {t.messageCount > 1 && (
-                      <span className="flex-shrink-0 text-xs text-white/30 bg-white/5 px-1.5 py-0.5 rounded-full">
-                        {t.messageCount}
+                    {thread.messageCount > 1 && (
+                      <span className="flex-shrink-0 rounded-full border border-white/10 bg-white/[0.045] px-2 py-0.5 text-[11px] font-medium text-white/50">
+                        {thread.messageCount}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-white/30 truncate mt-0.5">{t.snippet}</p>
+                  <p className="mt-1 truncate text-xs leading-5 text-white/32">{thread.snippet}</p>
                 </div>
 
-                {/* Date */}
-                <div className="flex-shrink-0 text-xs text-white/30 group-hover:text-white/50 transition-colors">
-                  {formatDate(t.date)}
+                <div className="text-right">
+                  <div className={`text-xs ${thread.isRead ? "text-white/30" : "font-medium text-sky-100/85"}`}>
+                    {formatTime(thread.date)}
+                  </div>
+                  <div className="mt-1 text-[11px] text-white/22">{formatDate(thread.date)}</div>
                 </div>
               </Link>
             </li>
@@ -259,23 +345,38 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
         </ul>
       )}
 
-      {/* Pagination */}
       {!loading && !error && (
-        <div className="flex items-center justify-center gap-4 px-4 py-3 border-t border-white/8">
-          <button
-            onClick={handlePrev}
-            disabled={pageTokenStack.length === 0}
-            className="bg-white/5 hover:bg-white/8 border border-white/8 hover:border-white/15 text-white/70 hover:text-white text-sm px-4 py-2 rounded-xl transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            ← Previous
-          </button>
-          <button
-            onClick={handleNext}
-            disabled={!nextPageToken}
-            className="bg-white/5 hover:bg-white/8 border border-white/8 hover:border-white/15 text-white/70 hover:text-white text-sm px-4 py-2 rounded-xl transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            Next →
-          </button>
+        <div className="flex items-center justify-between border-t border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))] px-5 py-4">
+          <div className="text-xs text-white/30">
+            {filtered.length} visible thread{filtered.length === 1 ? "" : "s"}
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                setNewCount(null);
+                setPageTokenStack([]);
+                setCurrentToken(undefined);
+                fetchThreads(label, undefined);
+              }}
+              className="rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-sm text-white/70 transition-colors hover:bg-white/8 hover:text-white"
+            >
+              Refresh
+            </button>
+            <button
+              onClick={handlePrev}
+              disabled={pageTokenStack.length === 0}
+              className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 transition-colors hover:bg-white/8 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              ← Previous
+            </button>
+            <button
+              onClick={handleNext}
+              disabled={!nextPageToken}
+              className="rounded-xl border border-sky-300/20 bg-sky-300/12 px-4 py-2 text-sm text-sky-100 transition-colors hover:bg-sky-300/18 disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              Next →
+            </button>
+          </div>
         </div>
       )}
     </div>
