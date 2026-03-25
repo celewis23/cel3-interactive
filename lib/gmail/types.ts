@@ -39,6 +39,8 @@ export type GmailThreadSummary = {
   messageCount: number;
   subject: string;
   from: string;
+  to: string;
+  participant: string;
   date: number; // unix ms
   isRead: boolean;
   labelIds: string[];

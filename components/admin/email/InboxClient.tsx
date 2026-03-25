@@ -40,6 +40,11 @@ function initials(from: string): string {
   return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
 }
 
+function getThreadParty(thread: GmailThreadSummary, label: Label): string {
+  if (label === "SENT") return thread.participant || thread.to || thread.from;
+  return thread.participant || thread.from || thread.to;
+}
+
 export default function InboxClient({ initialLabel = "INBOX" }: Props) {
   const [label, setLabel] = useState<Label>(initialLabel as Label);
   const [threads, setThreads] = useState<GmailThreadSummary[]>([]);
@@ -160,6 +165,7 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
 
   const unreadCount = threads.filter((thread) => !thread.isRead).length;
   const activeLabel = tabs.find((tab) => tab.key === label)?.label ?? "Inbox";
+  const primaryColumnLabel = label === "SENT" ? "Recipient" : "Sender";
 
   return (
     <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#06080d] shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
@@ -209,7 +215,7 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
               </svg>
               <input
                 type="text"
-                placeholder="Search sender or subject"
+                placeholder={label === "SENT" ? "Search recipient or subject" : "Search sender or subject"}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full rounded-2xl border border-white/10 bg-black py-2.5 pl-10 pr-4 text-sm text-white placeholder-white/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-colors focus:border-sky-400/40 focus:outline-none focus:ring-2 focus:ring-sky-400/15"
@@ -240,7 +246,7 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
 
       <div className="border-b border-white/6 bg-[#090b10] px-5 py-3">
         <div className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,2.2fr)_88px] gap-4 text-[11px] font-medium uppercase tracking-[0.18em] text-white/28">
-          <span>Sender</span>
+          <span>{primaryColumnLabel}</span>
           <span>Conversation</span>
           <span className="text-right">Updated</span>
         </div>
@@ -306,16 +312,16 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
                         : "border-sky-300/20 bg-sky-300/15 text-sky-100"
                     }`}
                   >
-                    {initials(thread.from)}
+                    {initials(getThreadParty(thread, label))}
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       {!thread.isRead && <span className="h-2 w-2 flex-shrink-0 rounded-full bg-sky-300" />}
                       <span className={`block truncate text-sm ${thread.isRead ? "text-white/82" : "font-semibold text-white"}`}>
-                        {extractName(thread.from)}
+                        {extractName(getThreadParty(thread, label))}
                       </span>
                     </div>
-                    <div className="mt-1 truncate text-xs text-white/32">{thread.from}</div>
+                    <div className="mt-1 truncate text-xs text-white/32">{getThreadParty(thread, label)}</div>
                   </div>
                 </div>
 

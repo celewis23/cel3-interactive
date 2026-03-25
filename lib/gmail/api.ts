@@ -157,6 +157,7 @@ export async function listThreads(opts: {
   resultSizeEstimate: number;
 }> {
   const { gmail } = await getGmail();
+  const showRecipients = !!opts.labelIds?.includes("SENT") && !opts.labelIds?.includes("INBOX");
 
   const listRes = await gmail.users.threads.list({
     userId: "me",
@@ -177,19 +178,23 @@ export async function listThreads(opts: {
         userId: "me",
         id: t.id!,
         format: "metadata",
-        metadataHeaders: ["From", "Subject", "Date"],
+        metadataHeaders: ["From", "To", "Subject", "Date"],
       });
       const messages = res.data.messages ?? [];
       const lastMsg = messages[messages.length - 1];
       const headers = lastMsg?.payload?.headers ?? [];
       const allLabelIds = messages.flatMap((m) => m.labelIds ?? []);
+      const from = getHeader(headers, "From");
+      const to = getHeader(headers, "To");
       return {
         id: t.id ?? "",
         snippet: res.data.snippet ?? "",
         historyId: res.data.historyId ?? "",
         messageCount: messages.length,
         subject: getHeader(headers, "Subject") || "(no subject)",
-        from: getHeader(headers, "From"),
+        from,
+        to,
+        participant: showRecipients ? (to || from) : (from || to),
         date: parseInt(lastMsg?.internalDate ?? "0", 10),
         isRead: !allLabelIds.includes("UNREAD"),
         labelIds: [...new Set(allLabelIds)],
