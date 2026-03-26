@@ -49,7 +49,7 @@ export default function SubmissionsClient({
             <button
               type="button"
               onClick={() => setExpandedId(isOpen ? null : s._id)}
-              className="w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-white/3 transition-colors"
+              className="flex w-full items-start gap-4 px-4 py-4 text-left transition-colors hover:bg-white/3 sm:px-5"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3">
@@ -57,7 +57,7 @@ export default function SubmissionsClient({
                     {preview || "Submission"}
                   </span>
                 </div>
-                <div className="text-xs text-white/30 mt-0.5">
+                <div className="mt-0.5 break-words pr-2 text-xs text-white/30">
                   {date}{s.ipAddress ? ` · ${s.ipAddress}` : ""}
                 </div>
               </div>
@@ -76,8 +76,55 @@ export default function SubmissionsClient({
 
             {/* Expanded detail */}
             {isOpen && (
-              <div className="border-t border-white/8 px-5 py-4">
-                <table className="w-full text-sm">
+              <div className="border-t border-white/8 px-4 py-4 sm:px-5">
+                <div className="space-y-3 sm:hidden">
+                  {(form.fields || []).map(field => {
+                    if (field.fieldType === "section_header") {
+                      return (
+                        <div
+                          key={field.id}
+                          className="pt-2 text-xs font-medium uppercase tracking-widest text-white/30"
+                        >
+                          {field.label}
+                        </div>
+                      );
+                    }
+                    const raw = answers[field.id];
+                    const fieldFiles = files[field.id];
+                    const display = Array.isArray(raw)
+                      ? raw.join(", ")
+                      : raw !== undefined && raw !== null
+                        ? String(raw)
+                        : "";
+                    return (
+                      <div key={field.id} className="rounded-xl border border-white/8 bg-black/20 px-3 py-3">
+                        <div className="mb-1 text-[11px] font-medium uppercase tracking-widest text-white/35">
+                          {field.label}
+                        </div>
+                        <div className="break-words text-sm leading-relaxed text-white">
+                          {display || <span className="text-white/20">—</span>}
+                        </div>
+                        {fieldFiles?.length ? (
+                          <div className="mt-2 space-y-1">
+                            {fieldFiles.map(url => (
+                              <a
+                                key={url}
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block break-all text-xs text-sky-400 transition-colors hover:text-sky-300"
+                              >
+                                {url.split("/").pop() || url}
+                              </a>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <table className="hidden w-full text-sm sm:table">
                   <tbody>
                     {(form.fields || []).map(field => {
                       if (field.fieldType === "section_header") {
@@ -101,10 +148,10 @@ export default function SubmissionsClient({
                           : "";
                       return (
                         <tr key={field.id} className="border-b border-white/5 last:border-0">
-                          <td className="py-2 pr-4 text-white/40 text-xs align-top w-1/3 whitespace-nowrap">
+                          <td className="w-1/3 whitespace-nowrap py-2 pr-4 align-top text-xs text-white/40">
                             {field.label}
                           </td>
-                          <td className="py-2 text-white text-sm align-top">
+                          <td className="break-words py-2 align-top text-sm text-white">
                             {display || <span className="text-white/20">—</span>}
                             {fieldFiles?.length ? (
                               <div className="mt-1 space-y-0.5">
@@ -114,7 +161,7 @@ export default function SubmissionsClient({
                                     href={url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="block text-xs text-sky-400 hover:text-sky-300 transition-colors"
+                                    className="block break-all text-xs text-sky-400 transition-colors hover:text-sky-300"
                                   >
                                     {url.split("/").pop() || url}
                                   </a>
