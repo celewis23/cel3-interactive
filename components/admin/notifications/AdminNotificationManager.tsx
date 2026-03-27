@@ -55,6 +55,7 @@ export default function AdminNotificationManager() {
   });
   const [showPrompt, setShowPrompt] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushChecked, setPushChecked] = useState(false); // true once subscribe attempt completes
   const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
   const initializedRef = useRef(false);
   const seenKeysRef = useRef<Set<string>>(new Set());
@@ -135,10 +136,10 @@ export default function AdminNotificationManager() {
         }
 
         localStorage.setItem(VAPID_KEY_USED, WEB_PUSH_PUBLIC_KEY);
-        if (!cancelled) setPushEnabled(true);
+        if (!cancelled) { setPushEnabled(true); setPushChecked(true); }
       } catch (err) {
         console.error("ADMIN_PUSH_SUBSCRIBE_ERR:", err);
-        if (!cancelled) setPushEnabled(false);
+        if (!cancelled) { setPushEnabled(false); setPushChecked(true); }
       }
     }
 
@@ -221,9 +222,9 @@ export default function AdminNotificationManager() {
 
   if (permission === "unsupported") return null;
 
-  // Persistent bell button shown when notifications not yet granted, or when
-  // granted but push subscription isn't active (broken/stale)
-  const showBell = (permission === "default" && !showPrompt) || (permission === "granted" && !pushEnabled);
+  // Persistent bell: show when not yet granted, or when granted but push
+  // failed after the subscribe attempt completed (not just loading)
+  const showBell = (permission === "default" && !showPrompt) || (permission === "granted" && pushChecked && !pushEnabled);
 
   return (
     <>
