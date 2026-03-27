@@ -72,6 +72,15 @@ function getDaysInMonth(year: number, month: number) {
   return cells;
 }
 
+function buildEventDateTime(date: string, time: string): string {
+  return (
+    DateTime.fromISO(`${date}T${time}`, { zone: "local" }).toISO({
+      suppressMilliseconds: true,
+      includeOffset: true,
+    }) ?? `${date}T${time}:00`
+  );
+}
+
 export default function CalendarClient() {
   const [calendars, setCalendars] = useState<GoogleCalendar[]>([]);
   const [selectedCalendarId, setSelectedCalendarId] = useState<string>("primary");
@@ -201,8 +210,8 @@ export default function CalendarClient() {
         body.start = { date: newEventForm.date };
         body.end = { date: newEventForm.date };
       } else {
-        body.start = { dateTime: `${newEventForm.date}T${newEventForm.startTime}:00` };
-        body.end = { dateTime: `${newEventForm.date}T${newEventForm.endTime}:00` };
+        body.start = { dateTime: buildEventDateTime(newEventForm.date, newEventForm.startTime) };
+        body.end = { dateTime: buildEventDateTime(newEventForm.date, newEventForm.endTime) };
       }
 
       if (newEventForm.attendees.trim()) {
@@ -217,7 +226,10 @@ export default function CalendarClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      if (!res.ok) throw new Error("Failed to create event");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to create event");
+      }
       const created = await res.json();
       setEvents((prev) => [...prev, created]);
       setShowNewEvent(false);

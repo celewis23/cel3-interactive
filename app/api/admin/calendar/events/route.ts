@@ -35,6 +35,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(event, { status: 201 });
   } catch (err) {
     console.error("CALENDAR_CREATE_EVENT_ERROR:", err);
-    return NextResponse.json({ error: "Failed to create event" }, { status: 500 });
+    const message =
+      err instanceof Error
+        ? err.message
+        : "Failed to create event";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -1,5 +1,6 @@
 import { google } from "googleapis";
 import { getAuthenticatedClient } from "@/lib/gmail/client";
+import { DateTime } from "luxon";
 
 export type CalendarEvent = {
   id: string;
@@ -134,10 +135,38 @@ export async function createEvent(
   const auth = await getAuthenticatedClient();
   if (!auth) throw new Error("Not authenticated with Google");
 
+  const normalizedStart = params.start.date
+    ? { ...params.start }
+    : {
+        ...params.start,
+        dateTime: params.start.dateTime
+          ? DateTime.fromISO(params.start.dateTime).toUTC().toISO()
+          : undefined,
+      };
+  const normalizedEnd = params.end.date
+    ? {
+        ...params.end,
+        // Google Calendar all-day events use an exclusive end date.
+        date:
+          params.end.date && params.start.date && params.end.date === params.start.date
+            ? DateTime.fromISO(params.end.date).plus({ days: 1 }).toISODate() ?? params.end.date
+            : params.end.date,
+      }
+    : {
+        ...params.end,
+        dateTime: params.end.dateTime
+          ? DateTime.fromISO(params.end.dateTime).toUTC().toISO()
+          : undefined,
+      };
+
   const calendar = google.calendar({ version: "v3", auth: auth.oauth2Client });
   const res = await calendar.events.insert({
     calendarId,
-    requestBody: params,
+    requestBody: {
+      ...params,
+      start: normalizedStart,
+      end: normalizedEnd,
+    },
   });
 
   return mapEvent(res.data, calendarId);
