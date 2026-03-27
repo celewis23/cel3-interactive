@@ -15,6 +15,7 @@ type NotificationItem = {
 const POLL_MS = 20_000;
 const DISMISS_KEY = "cel3_notifications_prompt_dismissed";
 const SEEN_KEY = "cel3_notifications_seen";
+const VAPID_KEY_USED = "cel3_vapid_key_used";
 const WEB_PUSH_PUBLIC_KEY = process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY ?? "";
 
 function supportsBrowserNotifications() {
@@ -103,10 +104,24 @@ export default function AdminNotificationManager() {
         const registration = registrationRef.current ?? await navigator.serviceWorker.ready;
         registrationRef.current = registration;
 
+        const applicationServerKey = await loadApplicationServerKey();
+
+        // Detect VAPID key change OR first run — force unsubscribe stale
+        // subscription so a fresh one is created with the current key
+        const lastKey = localStorage.getItem(VAPID_KEY_USED);
+        const keyChanged = WEB_PUSH_PUBLIC_KEY && lastKey !== WEB_PUSH_PUBLIC_KEY;
+        if (keyChanged) {
+          const stale = await registration.pushManager.getSubscription();
+          if (stale) {
+            await stale.unsubscribe();
+          }
+          localStorage.removeItem(VAPID_KEY_USED);
+        }
+
         const existing = await registration.pushManager.getSubscription();
         const subscription = existing ?? await registration.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: await loadApplicationServerKey(),
+          applicationServerKey,
         });
 
         const res = await fetch("/api/admin/notifications/push", {
@@ -119,6 +134,7 @@ export default function AdminNotificationManager() {
           throw new Error("Failed to register push subscription");
         }
 
+        localStorage.setItem(VAPID_KEY_USED, WEB_PUSH_PUBLIC_KEY);
         if (!cancelled) setPushEnabled(true);
       } catch (err) {
         console.error("ADMIN_PUSH_SUBSCRIBE_ERR:", err);
@@ -205,17 +221,18 @@ export default function AdminNotificationManager() {
 
   if (permission === "unsupported") return null;
 
-  // Persistent bell button shown when notifications not yet enabled (even if prompt dismissed)
-  const showBell = permission === "default" && !showPrompt;
+  // Persistent bell button shown when notifications not yet granted, or when
+  // granted but push subscription isn't active (broken/stale)
+  const showBell = (permission === "default" && !showPrompt) || (permission === "granted" && !pushEnabled);
 
   return (
     <>
-      {/* Persistent bell — visible when prompt is dismissed but permission still not granted */}
+      {/* Persistent bell — visible when notifications aren't working */}
       {showBell && (
         <button
           type="button"
-          onClick={() => setShowPrompt(true)}
-          title="Enable push notifications"
+          onClick={permission === "granted" ? () => { localStorage.removeItem(VAPID_KEY_USED); window.location.reload(); } : () => setShowPrompt(true)}
+          title={permission === "granted" ? "Reconnect push notifications" : "Enable push notifications"}
           className="fixed bottom-[136px] right-4 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#0f1116] text-white/50 shadow-lg transition-colors hover:text-sky-400 lg:bottom-[88px] lg:right-6"
         >
           <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
