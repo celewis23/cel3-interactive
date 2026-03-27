@@ -15,6 +15,7 @@ type NotificationItem = {
 const POLL_MS = 20_000;
 const DISMISS_KEY = "cel3_notifications_prompt_dismissed";
 const SEEN_KEY = "cel3_notifications_seen";
+const WEB_PUSH_PUBLIC_KEY = process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY ?? "";
 
 function supportsBrowserNotifications() {
   return typeof window !== "undefined" && "Notification" in window;
@@ -202,31 +203,54 @@ export default function AdminNotificationManager() {
     setShowPrompt(false);
   }
 
-  if (!showPrompt || permission === "unsupported") return null;
+  if (permission === "unsupported") return null;
+
+  // Persistent bell button shown when notifications not yet enabled (even if prompt dismissed)
+  const showBell = permission === "default" && !showPrompt;
 
   return (
-    <div className="fixed bottom-24 right-4 z-50 w-[min(92vw,360px)] rounded-2xl border border-white/10 bg-[#0f1116] p-4 shadow-[0_18px_50px_rgba(0,0,0,0.4)] lg:bottom-6 lg:right-6">
-      <div className="text-sm font-semibold text-white">Enable notifications</div>
-      <p className="mt-1 text-sm leading-relaxed text-white/55">
-        Turn on desktop and mobile alerts for new email, form submissions, leads, bookings, and team notifications. On iPhone, add the app to your Home Screen for closed-app push support.
-      </p>
-      <div className="mt-4 flex items-center gap-2">
+    <>
+      {/* Persistent bell — visible when prompt is dismissed but permission still not granted */}
+      {showBell && (
         <button
           type="button"
-          onClick={requestPermission}
-          className="rounded-xl bg-sky-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-sky-400"
+          onClick={() => setShowPrompt(true)}
+          title="Enable push notifications"
+          className="fixed bottom-[136px] right-4 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#0f1116] text-white/50 shadow-lg transition-colors hover:text-sky-400 lg:bottom-[88px] lg:right-6"
         >
-          Enable
+          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+          </svg>
+          <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-sky-500" />
         </button>
-        <button
-          type="button"
-          onClick={dismissPrompt}
-          className="rounded-xl border border-white/10 bg-black px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
-        >
-          Not now
-        </button>
-      </div>
-    </div>
+      )}
+
+      {/* One-time prompt card */}
+      {showPrompt && (
+        <div className="fixed bottom-[136px] right-4 z-50 w-[min(92vw,360px)] rounded-2xl border border-white/10 bg-[#0f1116] p-4 shadow-[0_18px_50px_rgba(0,0,0,0.4)] lg:bottom-[88px] lg:right-6">
+          <div className="text-sm font-semibold text-white">Enable notifications</div>
+          <p className="mt-1 text-sm leading-relaxed text-white/55">
+            Turn on desktop and mobile alerts for new email, form submissions, leads, bookings, and team notifications. On iPhone, add the app to your Home Screen for closed-app push support.
+          </p>
+          <div className="mt-4 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={requestPermission}
+              className="rounded-xl bg-sky-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-sky-400"
+            >
+              Enable
+            </button>
+            <button
+              type="button"
+              onClick={dismissPrompt}
+              className="rounded-xl border border-white/10 bg-black px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
+            >
+              Not now
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -254,6 +278,9 @@ async function showDesktopNotification(item: NotificationItem, registration: Ser
 }
 
 async function loadApplicationServerKey() {
+  if (WEB_PUSH_PUBLIC_KEY) {
+    return urlBase64ToUint8Array(WEB_PUSH_PUBLIC_KEY);
+  }
   const res = await fetch("/api/admin/notifications/push", { cache: "no-store" });
   if (!res.ok) {
     throw new Error("Failed to load push config");

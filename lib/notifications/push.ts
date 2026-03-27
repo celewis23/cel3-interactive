@@ -177,7 +177,7 @@ export async function sendPushNotificationToAudience(
         const statusCode = typeof err === "object" && err !== null && "statusCode" in err
           ? Number((err as { statusCode?: number }).statusCode)
           : null;
-        if (statusCode === 404 || statusCode === 410) {
+        if (statusCode === 401 || statusCode === 404 || statusCode === 410) {
           await removePushSubscription(subscription.endpoint);
           return;
         }
