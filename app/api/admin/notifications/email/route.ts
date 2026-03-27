@@ -10,9 +10,10 @@ import { sendPushNotificationToAudience } from "@/lib/notifications/push";
 const STATE_DOC_ID = "email-notification-state";
 
 function verifySecret(req: NextRequest): "ok" | "not_configured" | "wrong_secret" {
-  const secret = process.env.NOTIFICATION_SECRET;
-  if (!secret) return "not_configured";
-  return req.headers.get("authorization") === `Bearer ${secret}` ? "ok" : "wrong_secret";
+  const authHeader = req.headers.get("authorization");
+  const secrets = [process.env.CRON_SECRET, process.env.NOTIFICATION_SECRET].filter(Boolean);
+  if (secrets.length === 0) return "not_configured";
+  return secrets.some((secret) => authHeader === `Bearer ${secret}`) ? "ok" : "wrong_secret";
 }
 
 function parseFrom(from: string): { name: string; email: string } {
@@ -31,9 +32,6 @@ export async function POST(req: NextRequest) {
   }
 
   const notificationSpace = process.env.NOTIFICATION_CHAT_SPACE;
-  if (!notificationSpace) {
-    return NextResponse.json({ error: "NOTIFICATION_CHAT_SPACE not configured" }, { status: 500 });
-  }
 
   const auth = await getAuthenticatedClient();
   if (!auth) {
@@ -67,7 +65,9 @@ export async function POST(req: NextRequest) {
   const messages = listRes.data.messages ?? [];
   if (messages.length === 0) return NextResponse.json({ notified: 0 });
 
-  const userChat = google.chat({ version: "v1", auth: auth.oauth2Client });
+  const userChat = notificationSpace
+    ? google.chat({ version: "v1", auth: auth.oauth2Client })
+    : null;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://cel3interactive.com";
 
   let notified = 0;
@@ -91,10 +91,12 @@ export async function POST(req: NextRequest) {
       const snippetLine = snippet ? `\n${snippet.length > 140 ? snippet.slice(0, 140) + "…" : snippet}` : "";
       const text = `📧 *New Email*\n*From:* ${fromLine}\n*Subject:* ${subject}${snippetLine}\n${siteUrl}/admin/email`;
 
-      await userChat.spaces.messages.create({
-        parent: notificationSpace,
-        requestBody: { text },
-      });
+      if (userChat && notificationSpace) {
+        await userChat.spaces.messages.create({
+          parent: notificationSpace,
+          requestBody: { text },
+        });
+      }
       await sendPushNotificationToAudience(
         {
           title: subject,
@@ -115,7 +117,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     notified,
     total: messages.length,
-    space: notificationSpace,
+    ...(notificationSpace ? { space: notificationSpace } : { space: null }),
     ...(errors.length ? { errors } : {}),
   });
 }
