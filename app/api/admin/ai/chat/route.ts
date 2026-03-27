@@ -7,7 +7,11 @@ import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { createCustomer, listCustomers, listInvoices, listSubscriptions, getBalance } from "@/lib/stripe/billing";
 import { createContact as createGoogleContact, searchContacts as searchGoogleContacts } from "@/lib/google/contacts";
-import { sendEmail } from "@/lib/gmail/api";
+import { sendEmail, listThreads } from "@/lib/gmail/api";
+import { listEvents, createEvent } from "@/lib/google/calendar";
+import { listFiles, createFolder } from "@/lib/google/drive";
+import { listSpaces, listMessages, sendMessage as chatSendMessage } from "@/lib/google/chat";
+import { listUpcomingMeetings, createMeeting as googleCreateMeeting } from "@/lib/google/meet";
 import { slugify } from "@/lib/forms";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -532,6 +536,270 @@ async function executeTool(name: string, input: Record<string, unknown>): Promis
       return listInvoices({ status: so(input.status) as import("stripe").Stripe.Invoice.Status | undefined, customerId: so(input.customerId), limit: n(input.limit, 20) });
     case "search_stripe_subscriptions":
       return listSubscriptions({ status: so(input.status), customerId: so(input.customerId), limit: n(input.limit, 20) });
+
+    // ── Bookings ─────────────────────────────────────────────────────────────
+    case "search_bookings": {
+      const filters = [`_type == "assessmentBooking"`];
+      if (input.status) filters.push(`status == "${s(input.status)}"`);
+      if (query) filters.push(`(${makeMatch("name", query)} || ${makeMatch("email", query)})`);
+      return sanityServer.fetch(`*[${filters.join(" && ")}] | order(_createdAt desc) [0...${limit}] { _id, name, email, phone, status, date, notes, _createdAt }`);
+    }
+
+    // ── Calendar ─────────────────────────────────────────────────────────────
+    case "search_calendar_events":
+      return listEvents({
+        calendarId: "primary",
+        q: so(query),
+        timeMin: so(input.from as string) ?? new Date().toISOString(),
+        timeMax: so(input.to as string),
+        maxResults: n(input.maxResults, 20),
+      });
+    case "create_calendar_event": {
+      const start = s(input.start);
+      const end = s(input.end);
+      const summary = s(input.summary);
+      if (!start || !end || !summary) throw new Error("summary, start, and end are required");
+      const attendees = (Array.isArray(input.attendees) ? input.attendees as string[] : []).map((email) => ({ email }));
+      return createEvent("primary", {
+        summary,
+        description: so(input.description),
+        start: { dateTime: start },
+        end: { dateTime: end },
+        attendees: attendees.length ? attendees : undefined,
+      });
+    }
+
+    // ── Case Studies ─────────────────────────────────────────────────────────
+    case "search_case_studies": {
+      const filters = [`_type == "project"`];
+      if (query) filters.push(`(${makeMatch("title", query)} || ${makeMatch("client", query)})`);
+      return sanityServer.fetch(`*[${filters.join(" && ")}] | order(featured desc, _createdAt desc) [0...${limit}] { _id, title, client, slug, featured, tags, _createdAt }`);
+    }
+
+    // ── Form Submissions ─────────────────────────────────────────────────────
+    case "get_form_submissions": {
+      let formId = s(input.formId);
+      if (!formId && input.slug) {
+        const found = await sanityServer.fetch<{ _id: string } | null>(`*[_type == "cel3Form" && slug == $slug][0]{ _id }`, { slug: s(input.slug) });
+        formId = found?._id ?? "";
+      }
+      if (!formId) throw new Error("formId or slug is required");
+      return sanityServer.fetch(`*[_type == "formSubmission" && formId == $formId] | order(_createdAt desc) [0...${limit}] { _id, formId, data, submittedAt, _createdAt }`, { formId });
+    }
+
+    // ── Onboarding ───────────────────────────────────────────────────────────
+    case "search_onboarding": {
+      const docType = s(input.type) === "template" ? "onboardingTemplate" : "onboardingInstance";
+      const filters = [`_type == "${docType}"`];
+      if (query) filters.push(makeMatch("name", query));
+      return sanityServer.fetch(`*[${filters.join(" && ")}] | order(_createdAt desc) [0...${limit}] { _id, name, status, steps, _createdAt }`);
+    }
+
+    // ── Pins ─────────────────────────────────────────────────────────────────
+    case "search_pins": {
+      const filters = input.category ? [`_type == "pin" && category == "${s(input.category)}"`] : [`_type == "pin"`];
+      return sanityServer.fetch(`*[${filters.join(" && ")}] | order(order asc) [0...${limit}] { _id, title, url, description, category, color, order, _createdAt }`);
+    }
+    case "create_pin": {
+      const title = s(input.title);
+      if (!title) throw new Error("title is required");
+      const maxOrder = await sanityServer.fetch<number>(`coalesce(max(*[_type == "pin"].order), 0)`);
+      return sanityWriteClient.create({
+        _type: "pin",
+        title,
+        url: so(input.url) ?? null,
+        description: so(input.description) ?? null,
+        category: so(input.category) ?? null,
+        color: so(input.color) ?? null,
+        order: (maxOrder ?? 0) + 1,
+      });
+    }
+
+    // ── Portal Users ─────────────────────────────────────────────────────────
+    case "search_portal_users": {
+      const filters = [`_type == "clientPortalUser"`];
+      if (query) filters.push(`(${makeMatch("name", query)} || ${makeMatch("email", query)})`);
+      return sanityServer.fetch(`*[${filters.join(" && ")}] | order(_createdAt desc) [0...${limit}] { _id, name, email, stripeCustomerId, isActive, _createdAt }`);
+    }
+
+    // ── Google Drive ─────────────────────────────────────────────────────────
+    case "search_drive_files":
+      return listFiles({
+        search: so(query),
+        folderId: so(input.folderId as string),
+        pageSize: n(input.limit, 20),
+      });
+    case "create_drive_folder": {
+      const name = s(input.name);
+      if (!name) throw new Error("name is required");
+      return createFolder(name, so(input.parentFolderId));
+    }
+
+    // ── Email Threads ─────────────────────────────────────────────────────────
+    case "search_email_threads":
+      return listThreads({
+        labelIds: [s(input.label) || "INBOX"],
+        q: so(query),
+        maxResults: n(input.maxResults, 20),
+      });
+
+    // ── Google Chat ───────────────────────────────────────────────────────────
+    case "list_chat_spaces":
+      return listSpaces();
+    case "search_chat_messages":
+      return listMessages(s(input.spaceName));
+    case "send_chat_message":
+      return chatSendMessage(s(input.spaceName), s(input.text));
+
+    // ── Google Meet ───────────────────────────────────────────────────────────
+    case "list_meetings":
+      return listUpcomingMeetings({ maxResults: n(input.maxResults, 10) });
+    case "create_meeting": {
+      const title = s(input.title);
+      const startTime = s(input.startTime);
+      const endTime = s(input.endTime);
+      if (!title || !startTime || !endTime) throw new Error("title, startTime, and endTime are required");
+      return googleCreateMeeting({
+        summary: title,
+        startDateTime: startTime,
+        endDateTime: endTime,
+        attendeeEmails: Array.isArray(input.attendeeEmails) ? input.attendeeEmails as string[] : [],
+        description: so(input.description),
+      });
+    }
+
+    // ── Reports ───────────────────────────────────────────────────────────────
+    case "get_expense_report": {
+      const expFilters = [`_type == "expense"`];
+      if (input.from) expFilters.push(`date >= "${s(input.from)}"`);
+      if (input.to) expFilters.push(`date <= "${s(input.to)}"`);
+      const [expenses, categories] = await Promise.all([
+        sanityServer.fetch<Array<{ amountCents: number; currency: string; categoryId: string; date: string }>>(
+          `*[${expFilters.join(" && ")}] { amountCents, currency, categoryId, date }`
+        ),
+        sanityServer.fetch<Array<{ _id: string; name: string }>>(`*[_type == "expenseCategory"] { _id, name }`),
+      ]);
+      const categoryMap = Object.fromEntries(categories.map((c) => [c._id, c.name]));
+      const totalCents = expenses.reduce((sum, e) => sum + (e.amountCents ?? 0), 0);
+      const byCategory: Record<string, number> = {};
+      for (const e of expenses) {
+        const cat = categoryMap[e.categoryId] ?? "Uncategorised";
+        byCategory[cat] = (byCategory[cat] ?? 0) + (e.amountCents ?? 0);
+      }
+      return { totalCents, totalFormatted: `$${(totalCents / 100).toFixed(2)}`, count: expenses.length, byCategory };
+    }
+    case "get_time_report": {
+      const timeFilters = [`_type == "timeEntry"`];
+      if (input.from) timeFilters.push(`date >= "${s(input.from)}"`);
+      if (input.to) timeFilters.push(`date <= "${s(input.to)}"`);
+      if (input.projectId) timeFilters.push(`projectId == "${s(input.projectId)}"`);
+      const entries = await sanityServer.fetch<Array<{ durationMinutes: number; projectId: string; date: string }>>(
+        `*[${timeFilters.join(" && ")}] { durationMinutes, projectId, date }`
+      );
+      const totalMinutes = entries.reduce((sum, e) => sum + (e.durationMinutes ?? 0), 0);
+      const byProject: Record<string, number> = {};
+      for (const e of entries) {
+        byProject[e.projectId ?? "Unknown"] = (byProject[e.projectId ?? "Unknown"] ?? 0) + (e.durationMinutes ?? 0);
+      }
+      return { totalMinutes, totalHours: +(totalMinutes / 60).toFixed(2), count: entries.length, byProject };
+    }
+
+    // ── Automations ───────────────────────────────────────────────────────────
+    case "search_automations": {
+      const filters = [`_type == "automation"`];
+      if (typeof input.isEnabled === "boolean") filters.push(`isEnabled == ${input.isEnabled}`);
+      if (query) filters.push(makeMatch("name", query));
+      return sanityServer.fetch(`*[${filters.join(" && ")}] | order(_updatedAt desc) [0...${limit}] { _id, name, triggerType, isEnabled, _createdAt, _updatedAt }`);
+    }
+
+    // ── Expense Categories & Recurring ────────────────────────────────────────
+    case "search_expense_categories":
+      return sanityServer.fetch(`*[_type == "expenseCategory"] | order(name asc) { _id, name, color, icon }`);
+    case "search_recurring_expenses":
+      return sanityServer.fetch(`*[_type == "recurringExpense"] | order(_createdAt desc) [0...${limit}] { _id, vendor, description, amountCents, currency, categoryId, frequency, nextDueDate, isActive, _createdAt }`);
+    case "create_expense": {
+      const date = s(input.date);
+      const amountCents = n(input.amountCents, 0);
+      const vendor = s(input.vendor);
+      if (!date || !vendor || amountCents <= 0) throw new Error("date, amountCents (>0), and vendor are required");
+      return sanityWriteClient.create({
+        _type: "expense",
+        date,
+        amountCents,
+        currency: s(input.currency) || "usd",
+        vendor,
+        description: so(input.description) ?? null,
+        categoryId: so(input.categoryId) ?? null,
+      });
+    }
+
+    // ── Contract Templates ────────────────────────────────────────────────────
+    case "search_contract_templates": {
+      const filters = [`_type == "contractTemplate"`];
+      if (query) filters.push(`(${makeMatch("name", query)} || ${makeMatch("category", query)})`);
+      return sanityServer.fetch(`*[${filters.join(" && ")}] | order(_createdAt desc) [0...${limit}] { _id, name, category, _createdAt }`);
+    }
+
+    // ── Roles ─────────────────────────────────────────────────────────────────
+    case "search_roles":
+      return sanityServer.fetch(`*[_type == "staffRole"] | order(name asc) { _id, name, slug, permissions, _createdAt }`);
+
+    // ── Site Settings ─────────────────────────────────────────────────────────
+    case "get_site_settings":
+      return sanityServer.fetch(`*[_id == "siteSettings"][0]`);
+
+    // ── Announcements (write) ─────────────────────────────────────────────────
+    case "create_announcement": {
+      const title = s(input.title);
+      const body = s(input.body);
+      if (!title || !body) throw new Error("title and body are required");
+      return sanityWriteClient.create({
+        _type: "announcement",
+        title,
+        body,
+        authorName: so(input.authorName) ?? "AI Assistant",
+        _createdAt: new Date().toISOString(),
+      });
+    }
+
+    // ── Mutations ─────────────────────────────────────────────────────────────
+    case "update_task": {
+      const taskId = s(input.taskId);
+      if (!taskId) throw new Error("taskId is required");
+      const patch: Record<string, unknown> = {};
+      if (input.title !== undefined) patch.title = s(input.title);
+      if (input.description !== undefined) patch.description = s(input.description);
+      if (input.priority !== undefined) patch.priority = s(input.priority);
+      if (input.columnId !== undefined) patch.columnId = s(input.columnId);
+      if (input.dueDate !== undefined) patch.dueDate = so(input.dueDate) ?? null;
+      if (input.assignee !== undefined) patch.assignee = so(input.assignee) ?? null;
+      return sanityWriteClient.patch(taskId).set(patch).commit();
+    }
+    case "update_project": {
+      const projectId = s(input.projectId);
+      if (!projectId) throw new Error("projectId is required");
+      const patch: Record<string, unknown> = {};
+      if (input.name !== undefined) patch.name = s(input.name);
+      if (input.description !== undefined) patch.description = s(input.description);
+      if (input.status !== undefined) patch.status = s(input.status);
+      if (input.dueDate !== undefined) patch.dueDate = so(input.dueDate) ?? null;
+      return sanityWriteClient.patch(projectId).set(patch).commit();
+    }
+    case "update_contract": {
+      const contractId = s(input.contractId);
+      if (!contractId) throw new Error("contractId is required");
+      const patch: Record<string, unknown> = {};
+      if (input.status !== undefined) patch.status = s(input.status);
+      if (input.notes !== undefined) patch.notes = s(input.notes);
+      if (input.expiryDate !== undefined) patch.expiryDate = so(input.expiryDate) ?? null;
+      const now = new Date().toISOString();
+      if (s(input.status) === "sent") patch.sentAt = now;
+      if (s(input.status) === "signed") patch.signedAt = now;
+      if (s(input.status) === "declined") patch.declinedAt = now;
+      if (s(input.status) === "expired") patch.expiredAt = now;
+      return sanityWriteClient.patch(contractId).set(patch).commit();
+    }
+
     default:
       return { error: `Unknown tool: ${name}` };
   }
@@ -686,5 +954,193 @@ TOOLS.push(
     name: "search_stripe_subscriptions",
     description: "Search Stripe subscriptions by status or customer ID.",
     input_schema: { type: "object" as const, properties: { status: { type: "string" }, customerId: { type: "string" }, limit: { type: "number" } } },
+  },
+
+  // ── Bookings ───────────────────────────────────────────────────────────────
+  {
+    name: "search_bookings",
+    description: "Search/list assessment bookings.",
+    input_schema: { type: "object" as const, properties: { query: { type: "string", description: "Filter by name or email" }, status: { type: "string" }, limit: { type: "number" } } },
+  },
+
+  // ── Calendar ───────────────────────────────────────────────────────────────
+  {
+    name: "search_calendar_events",
+    description: "List upcoming Google Calendar events, optionally filtered by date range or search term.",
+    input_schema: { type: "object" as const, properties: { query: { type: "string" }, from: { type: "string", description: "ISO date/datetime start" }, to: { type: "string", description: "ISO date/datetime end" }, maxResults: { type: "number" } } },
+  },
+  {
+    name: "create_calendar_event",
+    description: "Create a Google Calendar event.",
+    input_schema: { type: "object" as const, properties: { summary: { type: "string" }, description: { type: "string" }, start: { type: "string", description: "ISO datetime" }, end: { type: "string", description: "ISO datetime" }, attendees: { type: "array", items: { type: "string" }, description: "Email addresses" } }, required: ["summary", "start", "end"] },
+  },
+
+  // ── Case Studies ───────────────────────────────────────────────────────────
+  {
+    name: "search_case_studies",
+    description: "Search portfolio/case study projects.",
+    input_schema: { type: "object" as const, properties: { query: { type: "string" }, limit: { type: "number" } } },
+  },
+
+  // ── Form Submissions ───────────────────────────────────────────────────────
+  {
+    name: "get_form_submissions",
+    description: "Get submissions for a specific form by its ID or slug.",
+    input_schema: { type: "object" as const, properties: { formId: { type: "string", description: "Sanity form _id" }, slug: { type: "string", description: "Form slug (used if formId not provided)" }, limit: { type: "number" } }, required: [] },
+  },
+
+  // ── Onboarding ─────────────────────────────────────────────────────────────
+  {
+    name: "search_onboarding",
+    description: "Search onboarding instances or templates.",
+    input_schema: { type: "object" as const, properties: { query: { type: "string" }, type: { type: "string", enum: ["instance", "template"], description: "Defaults to instance" }, limit: { type: "number" } } },
+  },
+
+  // ── Pins ───────────────────────────────────────────────────────────────────
+  {
+    name: "search_pins",
+    description: "List quick-access pins/notes, optionally filtered by category.",
+    input_schema: { type: "object" as const, properties: { category: { type: "string" }, limit: { type: "number" } } },
+  },
+  {
+    name: "create_pin",
+    description: "Create a quick-access pin/note.",
+    input_schema: { type: "object" as const, properties: { title: { type: "string" }, url: { type: "string" }, description: { type: "string" }, category: { type: "string" }, color: { type: "string" } }, required: ["title"] },
+  },
+
+  // ── Portal Users ───────────────────────────────────────────────────────────
+  {
+    name: "search_portal_users",
+    description: "Search client portal user accounts.",
+    input_schema: { type: "object" as const, properties: { query: { type: "string", description: "Filter by name or email" }, limit: { type: "number" } } },
+  },
+
+  // ── Google Drive ───────────────────────────────────────────────────────────
+  {
+    name: "search_drive_files",
+    description: "Search Google Drive files by name or type.",
+    input_schema: { type: "object" as const, properties: { query: { type: "string" }, mimeType: { type: "string", description: "MIME type filter, e.g. application/pdf" }, folderId: { type: "string" }, limit: { type: "number" } } },
+  },
+  {
+    name: "create_drive_folder",
+    description: "Create a new Google Drive folder.",
+    input_schema: { type: "object" as const, properties: { name: { type: "string" }, parentFolderId: { type: "string" } }, required: ["name"] },
+  },
+
+  // ── Email Threads ──────────────────────────────────────────────────────────
+  {
+    name: "search_email_threads",
+    description: "Search Gmail inbox threads by keyword or label.",
+    input_schema: { type: "object" as const, properties: { query: { type: "string", description: "Gmail search query, e.g. 'from:john@example.com'" }, label: { type: "string", description: "Gmail label, e.g. INBOX, SENT, STARRED" }, maxResults: { type: "number" } } },
+  },
+
+  // ── Google Chat ────────────────────────────────────────────────────────────
+  {
+    name: "list_chat_spaces",
+    description: "List Google Chat spaces and DMs.",
+    input_schema: { type: "object" as const, properties: {} },
+  },
+  {
+    name: "search_chat_messages",
+    description: "List messages in a Google Chat space.",
+    input_schema: { type: "object" as const, properties: { spaceName: { type: "string", description: "Space name, e.g. spaces/XXXXX" }, limit: { type: "number" } }, required: ["spaceName"] },
+  },
+  {
+    name: "send_chat_message",
+    description: "Send a message to a Google Chat space or DM.",
+    input_schema: { type: "object" as const, properties: { spaceName: { type: "string" }, text: { type: "string" } }, required: ["spaceName", "text"] },
+  },
+
+  // ── Google Meet ────────────────────────────────────────────────────────────
+  {
+    name: "list_meetings",
+    description: "List upcoming Google Meet meetings.",
+    input_schema: { type: "object" as const, properties: { maxResults: { type: "number" } } },
+  },
+  {
+    name: "create_meeting",
+    description: "Create a Google Meet meeting.",
+    input_schema: { type: "object" as const, properties: { title: { type: "string" }, startTime: { type: "string", description: "ISO datetime" }, endTime: { type: "string", description: "ISO datetime" }, attendeeEmails: { type: "array", items: { type: "string" } }, description: { type: "string" } }, required: ["title", "startTime", "endTime"] },
+  },
+
+  // ── Reports ────────────────────────────────────────────────────────────────
+  {
+    name: "get_expense_report",
+    description: "Get an expense summary: total spend, breakdown by category, for an optional date range.",
+    input_schema: { type: "object" as const, properties: { from: { type: "string" }, to: { type: "string" } } },
+  },
+  {
+    name: "get_time_report",
+    description: "Get a time-tracking summary: total hours logged, breakdown by project, for an optional date range.",
+    input_schema: { type: "object" as const, properties: { from: { type: "string" }, to: { type: "string" }, projectId: { type: "string" } } },
+  },
+
+  // ── Automations ────────────────────────────────────────────────────────────
+  {
+    name: "search_automations",
+    description: "List workflow automations and their status.",
+    input_schema: { type: "object" as const, properties: { query: { type: "string" }, isEnabled: { type: "boolean" }, limit: { type: "number" } } },
+  },
+
+  // ── Expense Categories & Recurring ────────────────────────────────────────
+  {
+    name: "search_expense_categories",
+    description: "List all expense categories.",
+    input_schema: { type: "object" as const, properties: {} },
+  },
+  {
+    name: "search_recurring_expenses",
+    description: "List recurring expense rules.",
+    input_schema: { type: "object" as const, properties: { limit: { type: "number" } } },
+  },
+  {
+    name: "create_expense",
+    description: "Create an expense record.",
+    input_schema: { type: "object" as const, properties: { date: { type: "string", description: "ISO date YYYY-MM-DD" }, amountCents: { type: "number" }, currency: { type: "string" }, vendor: { type: "string" }, description: { type: "string" }, categoryId: { type: "string" } }, required: ["date", "amountCents", "vendor"] },
+  },
+
+  // ── Contract Templates ─────────────────────────────────────────────────────
+  {
+    name: "search_contract_templates",
+    description: "Search contract templates.",
+    input_schema: { type: "object" as const, properties: { query: { type: "string" }, limit: { type: "number" } } },
+  },
+
+  // ── Roles ──────────────────────────────────────────────────────────────────
+  {
+    name: "search_roles",
+    description: "List all staff roles and their permissions.",
+    input_schema: { type: "object" as const, properties: {} },
+  },
+
+  // ── Site Settings ──────────────────────────────────────────────────────────
+  {
+    name: "get_site_settings",
+    description: "Get the site/organisation settings (name, contact info, branding, etc.).",
+    input_schema: { type: "object" as const, properties: {} },
+  },
+
+  // ── Announcements (write) ──────────────────────────────────────────────────
+  {
+    name: "create_announcement",
+    description: "Create a team announcement.",
+    input_schema: { type: "object" as const, properties: { title: { type: "string" }, body: { type: "string" }, authorName: { type: "string" } }, required: ["title", "body"] },
+  },
+
+  // ── Mutations ─────────────────────────────────────────────────────────────
+  {
+    name: "update_task",
+    description: "Update a task — change title, priority, due date, assignee, or move to a different column.",
+    input_schema: { type: "object" as const, properties: { taskId: { type: "string" }, title: { type: "string" }, description: { type: "string" }, priority: { type: "string", enum: ["low", "medium", "high", "urgent"] }, columnId: { type: "string" }, dueDate: { type: "string" }, assignee: { type: "string" } }, required: ["taskId"] },
+  },
+  {
+    name: "update_project",
+    description: "Update a project — change name, status, or due date.",
+    input_schema: { type: "object" as const, properties: { projectId: { type: "string" }, name: { type: "string" }, description: { type: "string" }, status: { type: "string", enum: ["active", "completed", "archived"] }, dueDate: { type: "string" } }, required: ["projectId"] },
+  },
+  {
+    name: "update_contract",
+    description: "Update a contract — change status, notes, or other fields.",
+    input_schema: { type: "object" as const, properties: { contractId: { type: "string" }, status: { type: "string", enum: ["draft", "sent", "viewed", "signed", "declined", "expired"] }, notes: { type: "string" }, expiryDate: { type: "string" } }, required: ["contractId"] },
   }
 );
