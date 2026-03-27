@@ -11,8 +11,8 @@ self.addEventListener("push", (event) => {
   const title = payload.title || "CEL3 Backoffice";
   const options = {
     body: payload.body || "",
-    icon: "/window.svg",
-    badge: "/window.svg",
+    icon: "/icon-192.png",
+    badge: "/icon-192.png",
     data: {
       url: payload.href || "/admin",
     },
@@ -25,21 +25,18 @@ self.addEventListener("push", (event) => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const targetUrl = event.notification.data?.url || "/admin";
+  const fullUrl = new URL(targetUrl, self.location.origin).href;
 
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      // Try to find an existing admin tab and navigate it to the right route
       for (const client of clientList) {
-        if ("focus" in client) {
-          if ("navigate" in client) {
-            return client.navigate(targetUrl).then(() => client.focus());
-          }
-          return client.focus();
+        if (client.url.includes(self.location.origin)) {
+          return client.navigate(fullUrl).then((c) => c && c.focus());
         }
       }
-      if (self.clients.openWindow) {
-        return self.clients.openWindow(targetUrl);
-      }
-      return undefined;
+      // No existing tab — open a new one
+      return self.clients.openWindow(fullUrl);
     })
   );
 });

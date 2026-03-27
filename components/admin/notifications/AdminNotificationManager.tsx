@@ -277,8 +277,8 @@ async function showDesktopNotification(item: NotificationItem, registration: Ser
     body: item.body,
     tag: item.key,
     data: { url: item.href },
-    icon: "/window.svg",
-    badge: "/window.svg",
+    icon: "/icon-192.png",
+    badge: "/icon-192.png",
   };
 
   if (registration?.showNotification) {
@@ -288,9 +288,9 @@ async function showDesktopNotification(item: NotificationItem, registration: Ser
 
   const notification = new Notification(title, options);
   notification.onclick = () => {
+    notification.close();
     window.focus();
     window.location.href = item.href;
-    notification.close();
   };
 }
 
