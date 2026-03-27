@@ -178,7 +178,6 @@ export default function AdminNotificationManager() {
         persistSeenKeys(seenKeysRef.current);
 
         if (permission !== "granted") return;
-        if (pushEnabled) return;
 
         for (const item of newItems.slice(0, 4)) {
           await showDesktopNotification(item, registrationRef.current);
@@ -198,7 +197,7 @@ export default function AdminNotificationManager() {
       cancelled = true;
       window.clearInterval(id);
     };
-  }, [permission, pushEnabled]);
+  }, [permission]);
 
   async function requestPermission() {
     if (!supportsBrowserNotifications()) return;
