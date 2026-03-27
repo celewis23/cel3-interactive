@@ -142,10 +142,10 @@ export default function AIAssistant() {
 
   return (
     <>
-      {/* Floating button */}
+      {/* Floating button — sits above the mobile bottom nav bar on small screens */}
       <button
         onClick={() => setOpen(!open)}
-        className={`fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full shadow-2xl flex items-center justify-center transition-all duration-200 ${
+        className={`fixed bottom-[76px] right-4 lg:bottom-6 lg:right-6 z-50 w-12 h-12 rounded-full shadow-2xl flex items-center justify-center transition-all duration-200 ${
           open
             ? "bg-white/10 border border-white/20 text-white/70"
             : "bg-sky-500 hover:bg-sky-400 text-black shadow-sky-500/30"
@@ -166,7 +166,9 @@ export default function AIAssistant() {
 
       {/* Panel */}
       {open && (
-        <div className="fixed bottom-22 right-6 z-50 w-[420px] max-w-[calc(100vw-2rem)] h-[600px] max-h-[calc(100vh-6rem)] bg-[#0f0f0f] border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+        <div className="fixed z-50 bg-[#0f0f0f] border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden
+          bottom-[136px] left-2 right-2 max-h-[calc(100dvh-180px)]
+          lg:bottom-[88px] lg:left-auto lg:right-6 lg:w-[420px] lg:max-w-[calc(100vw-2rem)] lg:h-[600px] lg:max-h-[calc(100vh-6rem)]">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/8 flex-shrink-0">
             <div className="flex items-center gap-2.5">

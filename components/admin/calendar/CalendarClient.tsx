@@ -255,15 +255,15 @@ export default function CalendarClient() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-semibold text-white">Calendar</h1>
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3 mb-5">
+        <h1 className="text-xl sm:text-2xl font-semibold text-white">Calendar</h1>
+        <div className="flex items-center gap-2">
           {/* Calendar selector */}
           {calendars.length > 0 && (
             <select
               value={selectedCalendarId}
               onChange={(e) => setSelectedCalendarId(e.target.value)}
-              className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-sky-500/50"
+              className="max-w-[140px] sm:max-w-none px-2 sm:px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-sky-500/50 truncate"
             >
               {calendars.map((cal) => (
                 <option key={cal.id} value={cal.id} style={{ backgroundColor: "#0a0a0a" }}>
@@ -274,12 +274,13 @@ export default function CalendarClient() {
           )}
           <button
             onClick={() => setShowNewEvent(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-white bg-sky-500 hover:bg-sky-400 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-white bg-sky-500 hover:bg-sky-400 transition-colors whitespace-nowrap"
           >
             <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
-            New Event
+            <span className="hidden sm:inline">New Event</span>
+            <span className="sm:hidden">New</span>
           </button>
         </div>
       </div>
@@ -290,7 +291,7 @@ export default function CalendarClient() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4 sm:gap-6">
         {/* Left: mini month grid */}
         <div className="bg-white/3 border border-white/8 rounded-2xl p-4 h-fit">
           {/* Month nav */}
@@ -326,11 +327,11 @@ export default function CalendarClient() {
                 <button
                   key={i}
                   onClick={() => handleDayClick(date)}
-                  className={`relative flex flex-col items-center py-1.5 rounded-lg transition-colors text-xs ${
+                  className={`relative flex flex-col items-center py-2 rounded-lg transition-colors text-xs min-h-[40px] ${
                     !currentMonth ? "text-white/20" : "text-white/80"
                   } ${isSelected ? "bg-sky-500/20" : "hover:bg-white/8"}`}
                 >
-                  <span className={`w-6 h-6 flex items-center justify-center rounded-full ${isToday ? "bg-sky-500 text-white font-semibold" : ""}`}>
+                  <span className={`w-7 h-7 flex items-center justify-center rounded-full text-sm ${isToday ? "bg-sky-500 text-white font-semibold" : ""}`}>
                     {date.getDate()}
                   </span>
                   {hasEvents && (
@@ -409,8 +410,8 @@ export default function CalendarClient() {
 
       {/* New Event Modal */}
       {showNewEvent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setShowNewEvent(false)}>
-          <div className="bg-[#111] border border-white/10 rounded-2xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 sm:p-4" onClick={() => setShowNewEvent(false)}>
+          <div className="bg-[#111] border border-white/10 rounded-t-2xl sm:rounded-2xl p-5 sm:p-6 w-full sm:max-w-md max-h-[92dvh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-semibold text-white">New Event</h2>
               <button onClick={() => setShowNewEvent(false)} className="text-white/40 hover:text-white transition-colors">
@@ -554,8 +555,8 @@ export default function CalendarClient() {
 
       {/* Event detail popover */}
       {selectedEvent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setSelectedEvent(null)}>
-          <div className="bg-[#111] border border-white/10 rounded-2xl p-6 w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 sm:p-4" onClick={() => setSelectedEvent(null)}>
+          <div className="bg-[#111] border border-white/10 rounded-t-2xl sm:rounded-2xl p-5 sm:p-6 w-full sm:max-w-sm max-h-[85dvh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between gap-3 mb-4">
               <div
                 className="w-1.5 rounded-full mt-1 flex-shrink-0 self-stretch min-h-[2rem]"
