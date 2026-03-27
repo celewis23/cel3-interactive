@@ -4,6 +4,7 @@ import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 import { automationEngine } from "@/lib/automations/engine";
+import { sendPushNotificationToAudience } from "@/lib/notifications/push";
 
 export const runtime = "nodejs";
 
@@ -75,6 +76,16 @@ export async function POST(req: NextRequest) {
       resourceLabel: body.name,
       description: "Lead created",
     });
+
+    sendPushNotificationToAudience(
+      {
+        title: "New lead created",
+        body: [contact.name, contact.company, contact.stage].filter(Boolean).join(" • "),
+        href: `/admin/pipeline/contacts/${contact._id}`,
+        tag: `lead:${contact._id}`,
+      },
+      { module: "leads", action: "view" }
+    ).catch(console.error);
 
     automationEngine.fire("default", "lead_created", {}, "contact", contact._id);
 

@@ -17,12 +17,18 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.cel3interactive.com"),
+  manifest: "/manifest.webmanifest",
   title: {
     default: "CEL3 Interactive",
     template: "%s | CEL3 Interactive",
   },
   description:
     "Custom web applications, CRMs, dashboards, and interactive digital experiences.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "CEL3 Backoffice",
+  },
 };
 
 

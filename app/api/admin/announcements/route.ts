@@ -5,6 +5,7 @@ import { requirePermission, getSessionInfo } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { logAudit, AuditAction } from "@/lib/audit/log";
+import { sendPushNotificationToAudience } from "@/lib/notifications/push";
 
 export async function GET(req: NextRequest) {
   const authErr = await requirePermission(req, "announcements", "view");
@@ -93,6 +94,15 @@ export async function POST(req: NextRequest) {
 
     // Best-effort: notify via Google Chat
     notifyChat(title.trim(), content.trim(), priority === "urgent").catch(() => {});
+    sendPushNotificationToAudience(
+      {
+        title: title.trim(),
+        body: content.trim(),
+        href: "/admin/announcements",
+        tag: `announcement:${announcement._id}`,
+      },
+      { module: "announcements", action: "view" }
+    ).catch(console.error);
 
     return NextResponse.json(announcement, { status: 201 });
   } catch (err) {

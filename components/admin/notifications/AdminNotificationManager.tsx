@@ -20,6 +20,14 @@ function supportsBrowserNotifications() {
   return typeof window !== "undefined" && "Notification" in window;
 }
 
+function supportsWebPush() {
+  return (
+    typeof window !== "undefined" &&
+    "serviceWorker" in navigator &&
+    "PushManager" in window
+  );
+}
+
 function loadSeenKeys(): Set<string> {
   if (typeof window === "undefined") return new Set();
   try {
@@ -44,6 +52,7 @@ export default function AdminNotificationManager() {
     return Notification.permission;
   });
   const [showPrompt, setShowPrompt] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState(false);
   const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
   const initializedRef = useRef(false);
   const seenKeysRef = useRef<Set<string>>(new Set());
@@ -78,6 +87,52 @@ export default function AdminNotificationManager() {
   }, [promptAllowed]);
 
   useEffect(() => {
+    if (permission !== "granted") {
+      setPushEnabled(false);
+      return;
+    }
+    if (!supportsWebPush()) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function subscribeForPush() {
+      try {
+        const registration = registrationRef.current ?? await navigator.serviceWorker.ready;
+        registrationRef.current = registration;
+
+        const existing = await registration.pushManager.getSubscription();
+        const subscription = existing ?? await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: await loadApplicationServerKey(),
+        });
+
+        const res = await fetch("/api/admin/notifications/push", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(subscription.toJSON()),
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to register push subscription");
+        }
+
+        if (!cancelled) setPushEnabled(true);
+      } catch (err) {
+        console.error("ADMIN_PUSH_SUBSCRIBE_ERR:", err);
+        if (!cancelled) setPushEnabled(false);
+      }
+    }
+
+    subscribeForPush();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [permission]);
+
+  useEffect(() => {
     let cancelled = false;
 
     async function fetchFeed(silentSeed = false) {
@@ -105,6 +160,7 @@ export default function AdminNotificationManager() {
         persistSeenKeys(seenKeysRef.current);
 
         if (permission !== "granted") return;
+        if (pushEnabled) return;
 
         for (const item of newItems.slice(0, 4)) {
           await showDesktopNotification(item, registrationRef.current);
@@ -124,7 +180,7 @@ export default function AdminNotificationManager() {
       cancelled = true;
       window.clearInterval(id);
     };
-  }, [permission]);
+  }, [permission, pushEnabled]);
 
   async function requestPermission() {
     if (!supportsBrowserNotifications()) return;
@@ -152,7 +208,7 @@ export default function AdminNotificationManager() {
     <div className="fixed bottom-24 right-4 z-50 w-[min(92vw,360px)] rounded-2xl border border-white/10 bg-[#0f1116] p-4 shadow-[0_18px_50px_rgba(0,0,0,0.4)] lg:bottom-6 lg:right-6">
       <div className="text-sm font-semibold text-white">Enable notifications</div>
       <p className="mt-1 text-sm leading-relaxed text-white/55">
-        Turn on desktop and mobile alerts for new email, form submissions, leads, bookings, and team notifications while you are logged in.
+        Turn on desktop and mobile alerts for new email, form submissions, leads, bookings, and team notifications. On iPhone, add the app to your Home Screen for closed-app push support.
       </p>
       <div className="mt-4 flex items-center gap-2">
         <button
@@ -195,4 +251,20 @@ async function showDesktopNotification(item: NotificationItem, registration: Ser
     window.location.href = item.href;
     notification.close();
   };
+}
+
+async function loadApplicationServerKey() {
+  const res = await fetch("/api/admin/notifications/push", { cache: "no-store" });
+  if (!res.ok) {
+    throw new Error("Failed to load push config");
+  }
+  const data = await res.json();
+  return urlBase64ToUint8Array(data.publicKey);
+}
+
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const rawData = window.atob(base64);
+  return Uint8Array.from(rawData, (char) => char.charCodeAt(0));
 }

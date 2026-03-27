@@ -4,6 +4,7 @@ import { sanityWriteClient } from "@/lib/sanity.write";
 import { Resend } from "resend";
 import { buildNotificationEmail } from "@/lib/forms/email";
 import { FormField, isFieldVisible } from "@/lib/forms";
+import { sendPushNotificationToAudience } from "@/lib/notifications/push";
 
 export const runtime = "nodejs";
 
@@ -136,6 +137,15 @@ export async function POST(
 
   // Fire-and-forget notifications — do not block the response
   sendNotifications(form._id, form.title, fields, answers, files, submission._id).catch(console.error);
+  sendPushNotificationToAudience(
+    {
+      title: "New form submission",
+      body: form.title,
+      href: `/admin/forms/${form._id}/submissions`,
+      tag: `form:${submission._id}`,
+    },
+    { module: "forms", action: "view" }
+  ).catch(console.error);
 
   return NextResponse.json({ ok: true, submissionId: submission._id });
 }

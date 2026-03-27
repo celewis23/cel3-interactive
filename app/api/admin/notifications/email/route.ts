@@ -5,6 +5,7 @@ import { google } from "googleapis";
 import { getAuthenticatedClient } from "@/lib/gmail/client";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
+import { sendPushNotificationToAudience } from "@/lib/notifications/push";
 
 const STATE_DOC_ID = "email-notification-state";
 
@@ -94,6 +95,15 @@ export async function POST(req: NextRequest) {
         parent: notificationSpace,
         requestBody: { text },
       });
+      await sendPushNotificationToAudience(
+        {
+          title: subject,
+          body: fromLine,
+          href: "/admin/email",
+          tag: `email:${msg.id}`,
+        },
+        { module: "email", action: "view" }
+      );
       notified++;
     } catch (err) {
       const msg2 = err instanceof Error ? err.message : String(err);

@@ -3,6 +3,7 @@ import { DateTime } from "luxon";
 import { stripe } from "@/lib/stripe";
 import { Resend } from "resend";
 import { sanityServer } from "@/lib/sanityServer";
+import { sendPushNotificationToAudience } from "@/lib/notifications/push";
 
 export const runtime = "nodejs";
 const TZ = "America/New_York";
@@ -184,6 +185,16 @@ export async function POST(req: Request) {
         </div>
       `,
     });
+
+    sendPushNotificationToAudience(
+      {
+        title: "New booking confirmed",
+        body: `${customerName} • ${displayStart} ET`,
+        href: "/admin/bookings",
+        tag: `booking:${bookingId}`,
+      },
+      { module: "dashboard", action: "view" }
+    ).catch(console.error);
 
     return NextResponse.json({ ok: true, bookingId }, { status: 200 });
   } catch (err: any){

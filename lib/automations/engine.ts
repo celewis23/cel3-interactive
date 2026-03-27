@@ -8,6 +8,7 @@
 
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
+import { sendPushNotificationToAudience } from "@/lib/notifications/push";
 import {
   type AutomationNode,
   type AutomationTriggerType,
@@ -565,7 +566,7 @@ export class AutomationEngine {
 
   private async _actionSendInternalNotification(ac: Record<string, unknown>, ctx: ExecutionContext): Promise<Record<string, unknown>> {
     const message = interpolate(String(ac.message ?? ""), ctx);
-    await sanityWriteClient.create({
+    const announcement = await sanityWriteClient.create({
       _type: "announcement",
       title: "Automation notification",
       body: message,
@@ -573,6 +574,15 @@ export class AutomationEngine {
       isInternal: true,
       _createdAt: new Date().toISOString(),
     });
+    sendPushNotificationToAudience(
+      {
+        title: "Automation notification",
+        body: message,
+        href: "/admin/announcements",
+        tag: `announcement:${announcement._id}`,
+      },
+      { module: "announcements", action: "view" }
+    ).catch(console.error);
     return { notified: true, message };
   }
 
