@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import LiveTimer from "@/components/admin/time/LiveTimer";
 import AIAssistant from "@/components/admin/ai/AIAssistant";
+import AdminNotificationManager from "@/components/admin/notifications/AdminNotificationManager";
 
 const TEAM_NAV = {
   label: "Team",
@@ -590,6 +591,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </nav>
 
       {/* AI Assistant — floating panel, rendered outside the sidebar/content flow */}
+      <AdminNotificationManager />
       <AIAssistant />
     </div>
   );
