@@ -398,13 +398,23 @@ const DEFAULT_ON = new Set(COLUMNS.filter((c) => c.defaultOn || c.always).map((c
 interface Props {
   customers: BillingCustomer[];
   hasMore: boolean;
+  importedContacts: Array<{ _id: string; name: string; stripeCustomerId: string | null }>;
 }
 
-export default function CustomersTable({ customers, hasMore }: Props) {
+export default function CustomersTable({ customers, hasMore, importedContacts }: Props) {
   const router = useRouter();
   const [visible, setVisible] = useState<Set<string>>(DEFAULT_ON);
   const [pickerOpen, setPickerOpen] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
+  const [importingId, setImportingId] = useState<string | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [linkedContacts, setLinkedContacts] = useState<Record<string, { _id: string; name: string }>>(
+    Object.fromEntries(
+      importedContacts
+        .filter((contact) => contact.stripeCustomerId)
+        .map((contact) => [contact.stripeCustomerId as string, { _id: contact._id, name: contact.name }])
+    )
+  );
 
   // Load from localStorage after mount
   useEffect(() => {
@@ -436,6 +446,31 @@ export default function CustomersTable({ customers, hasMore }: Props) {
   }
 
   const activeCols = COLUMNS.filter((col) => visible.has(col.id));
+
+  async function handleAddToContacts(customerId: string) {
+    setImportingId(customerId);
+    setImportError(null);
+    try {
+      const res = await fetch("/api/admin/pipeline/contacts/import-stripe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customerId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? "Failed to add customer to contacts");
+      }
+
+      setLinkedContacts((prev) => ({
+        ...prev,
+        [customerId]: { _id: data.contact._id, name: data.contact.name },
+      }));
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : "Failed to add customer to contacts");
+    } finally {
+      setImportingId(null);
+    }
+  }
 
   if (customers.length === 0) {
     return (
@@ -487,6 +522,12 @@ export default function CustomersTable({ customers, hasMore }: Props) {
         </div>
       </div>
 
+      {importError && (
+        <div className="mx-4 mt-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+          {importError}
+        </div>
+      )}
+
       {/* Scrollable table */}
       <div className="overflow-x-auto">
         <table className="w-full min-w-max">
@@ -500,6 +541,9 @@ export default function CustomersTable({ customers, hasMore }: Props) {
                   {col.label}
                 </th>
               ))}
+              <th className="text-left text-xs text-white/40 uppercase tracking-wide px-5 py-3 font-medium whitespace-nowrap">
+                Contacts
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
@@ -514,6 +558,30 @@ export default function CustomersTable({ customers, hasMore }: Props) {
                     {col.render(c)}
                   </td>
                 ))}
+                <td className="px-5 py-3.5 align-top">
+                  {linkedContacts[c.id] ? (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/admin/pipeline/contacts/${linkedContacts[c.id]._id}`);
+                      }}
+                      className="px-3 py-1.5 rounded-lg border border-emerald-500/25 bg-emerald-500/10 text-emerald-300 text-xs font-medium hover:bg-emerald-500/15 transition-colors"
+                    >
+                      View Contact
+                    </button>
+                  ) : (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        void handleAddToContacts(c.id);
+                      }}
+                      disabled={importingId === c.id}
+                      className="px-3 py-1.5 rounded-lg border border-sky-500/25 bg-sky-500/10 text-sky-300 text-xs font-medium hover:bg-sky-500/15 transition-colors disabled:opacity-50"
+                    >
+                      {importingId === c.id ? "Adding..." : "Add To Contacts"}
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
