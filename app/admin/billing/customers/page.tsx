@@ -15,11 +15,16 @@ export default async function CustomersPage() {
   const session = token ? verifySessionToken(token) : null;
   if (!session || session.step !== "full") redirect("/admin/login");
 
-  const [{ customers, hasMore }, importedContacts] = await Promise.all([
+  const [{ customers, hasMore }, importedContacts, portalUsers] = await Promise.all([
     listCustomers({ limit: 50 }),
     sanityServer.fetch<Array<{ _id: string; name: string; stripeCustomerId: string | null; googleContactResourceName: string | null }>>(
       `*[_type == "pipelineContact" && stripeCustomerId != null]{
         _id, name, stripeCustomerId, googleContactResourceName
+      }`
+    ),
+    sanityServer.fetch<Array<{ _id: string; email: string; stripeCustomerId: string | null; status: string; driveRootFolderId: string | null }>>(
+      `*[_type == "clientPortalUser" && stripeCustomerId != null]{
+        _id, email, stripeCustomerId, status, driveRootFolderId
       }`
     ),
   ]);
@@ -37,7 +42,7 @@ export default async function CustomersPage() {
         <CreateCustomerForm />
       </div>
 
-      <CustomersTable customers={customers} hasMore={hasMore} importedContacts={importedContacts} />
+      <CustomersTable customers={customers} hasMore={hasMore} importedContacts={importedContacts} portalUsers={portalUsers} />
     </div>
   );
 }

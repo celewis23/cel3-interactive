@@ -99,6 +99,14 @@ export default async function PortalDashboard() {
         </Link>
 
         <Link
+          href="/portal/requests"
+          className="bg-white/3 border border-white/8 rounded-2xl p-5 hover:border-white/20 transition-colors block"
+        >
+          <p className="text-xs text-white/50 mb-2">Requests</p>
+          <p className="text-sm font-medium text-white/60 mt-1">Submit work requests →</p>
+        </Link>
+
+        <Link
           href="/portal/appointments"
           className="bg-white/3 border border-white/8 rounded-2xl p-5 hover:border-white/20 transition-colors block"
         >

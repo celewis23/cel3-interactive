@@ -159,6 +159,15 @@ const NAV = [
     ),
   },
   {
+    label: "Client Requests",
+    href: "/admin/portal-requests",
+    icon: (
+      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3h5.25m-8.25 8.25h15A2.25 2.25 0 0 0 21 17.25V6.75A2.25 2.25 0 0 0 18.75 4.5H5.25A2.25 2.25 0 0 0 3 6.75v10.5A2.25 2.25 0 0 0 5.25 19.5Zm0 0-2.25 2.25" />
+      </svg>
+    ),
+  },
+  {
     label: "Staff",
     href: "/admin/staff",
     icon: (

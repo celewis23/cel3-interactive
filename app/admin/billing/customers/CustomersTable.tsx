@@ -62,11 +62,15 @@ type Col = {
 };
 
 type LinkedContact = { _id: string; name: string; googleContactResourceName?: string | null };
+type PortalAccess = { _id: string; email: string; status: string; driveRootFolderId: string | null };
 
 type RenderHelpers = {
   linkedContacts: Record<string, LinkedContact>;
+  portalUsers: Record<string, PortalAccess>;
   importingId: string | null;
+  provisioningPortalId: string | null;
   handleAddToContacts: (customerId: string) => Promise<void>;
+  handleGivePortalAccess: (customerId: string) => Promise<void>;
   router: ReturnType<typeof useRouter>;
 };
 
@@ -107,6 +111,30 @@ const COLUMNS: Col[] = [
               className="px-2.5 py-1 rounded-lg border border-sky-500/25 bg-sky-500/10 text-sky-300 text-[11px] font-medium hover:bg-sky-500/15 transition-colors disabled:opacity-50"
             >
               {helpers.importingId === c.id ? "Adding..." : helpers.linkedContacts[c.id] ? "Sync To Contacts" : "Add To Contacts"}
+            </button>
+          )}
+        </div>
+        <div className="mt-2">
+          {helpers.portalUsers[c.id] ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                helpers.router.push("/admin/portal-users");
+              }}
+              className="px-2.5 py-1 rounded-lg border border-violet-500/25 bg-violet-500/10 text-violet-300 text-[11px] font-medium hover:bg-violet-500/15 transition-colors"
+            >
+              {helpers.portalUsers[c.id].status === "active" ? "Portal Active" : "Portal Ready"}
+            </button>
+          ) : (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                void helpers.handleGivePortalAccess(c.id);
+              }}
+              disabled={helpers.provisioningPortalId === c.id}
+              className="px-2.5 py-1 rounded-lg border border-violet-500/25 bg-violet-500/10 text-violet-300 text-[11px] font-medium hover:bg-violet-500/15 transition-colors disabled:opacity-50"
+            >
+              {helpers.provisioningPortalId === c.id ? "Creating Portal..." : "Give Portal Access"}
             </button>
           )}
         </div>
@@ -432,14 +460,16 @@ interface Props {
   customers: BillingCustomer[];
   hasMore: boolean;
   importedContacts: Array<{ _id: string; name: string; stripeCustomerId: string | null; googleContactResourceName: string | null }>;
+  portalUsers: Array<{ _id: string; email: string; stripeCustomerId: string | null; status: string; driveRootFolderId: string | null }>;
 }
 
-export default function CustomersTable({ customers, hasMore, importedContacts }: Props) {
+export default function CustomersTable({ customers, hasMore, importedContacts, portalUsers }: Props) {
   const router = useRouter();
   const [visible, setVisible] = useState<Set<string>>(DEFAULT_ON);
   const [pickerOpen, setPickerOpen] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
   const [importingId, setImportingId] = useState<string | null>(null);
+  const [provisioningPortalId, setProvisioningPortalId] = useState<string | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [linkedContacts, setLinkedContacts] = useState<Record<string, LinkedContact>>(
     Object.fromEntries(
@@ -448,6 +478,16 @@ export default function CustomersTable({ customers, hasMore, importedContacts }:
         .map((contact) => [
           contact.stripeCustomerId as string,
           { _id: contact._id, name: contact.name, googleContactResourceName: contact.googleContactResourceName },
+        ])
+    )
+  );
+  const [portalAccessMap, setPortalAccessMap] = useState<Record<string, PortalAccess>>(
+    Object.fromEntries(
+      portalUsers
+        .filter((user) => user.stripeCustomerId)
+        .map((user) => [
+          user.stripeCustomerId as string,
+          { _id: user._id, email: user.email, status: user.status, driveRootFolderId: user.driveRootFolderId },
         ])
     )
   );
@@ -512,10 +552,41 @@ export default function CustomersTable({ customers, hasMore, importedContacts }:
     }
   }
 
+  async function handleGivePortalAccess(customerId: string) {
+    setProvisioningPortalId(customerId);
+    setImportError(null);
+    try {
+      const res = await fetch(`/api/admin/billing/customers/${customerId}/portal-access`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? "Failed to create portal access");
+      }
+
+      setPortalAccessMap((prev) => ({
+        ...prev,
+        [customerId]: {
+          _id: data.portalUser._id,
+          email: data.portalUser.email,
+          status: data.portalUser.status,
+          driveRootFolderId: data.portalUser.driveRootFolderId ?? null,
+        },
+      }));
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : "Failed to create portal access");
+    } finally {
+      setProvisioningPortalId(null);
+    }
+  }
+
   const renderHelpers: RenderHelpers = {
     linkedContacts,
+    portalUsers: portalAccessMap,
     importingId,
+    provisioningPortalId,
     handleAddToContacts,
+    handleGivePortalAccess,
     router,
   };
 

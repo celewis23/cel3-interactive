@@ -7,6 +7,7 @@ const NAV = [
   { label: "Getting Started", href: "/portal/onboarding" },
   { label: "Invoices", href: "/portal/invoices" },
   { label: "Projects", href: "/portal/projects" },
+  { label: "Requests", href: "/portal/requests" },
   { label: "Files", href: "/portal/files" },
   { label: "Estimates", href: "/portal/estimates" },
   { label: "Contracts", href: "/portal/contracts" },
