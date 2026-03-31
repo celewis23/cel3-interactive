@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Props = {
   title: string;
@@ -24,12 +24,34 @@ export default function SiteLaunchClient({
   homeHref,
 }: Props) {
   const formRef = useRef<HTMLFormElement>(null);
+  const [launching, setLaunching] = useState(false);
   const shouldAutoSubmit = Boolean(isWordPress && loginAction && username && password && managementUrl);
 
   useEffect(() => {
     if (!shouldAutoSubmit) return;
-    const timer = window.setTimeout(() => formRef.current?.submit(), 150);
-    return () => window.clearTimeout(timer);
+
+    let cancelled = false;
+    let timer: ReturnType<typeof window.setTimeout> | null = null;
+
+    const submitWhenReady = () => {
+      if (cancelled) return;
+      setLaunching(true);
+      timer = window.setTimeout(() => {
+        if (!cancelled) formRef.current?.submit();
+      }, 900);
+    };
+
+    if (document.readyState === "complete") {
+      submitWhenReady();
+    } else {
+      window.addEventListener("load", submitWhenReady, { once: true });
+    }
+
+    return () => {
+      cancelled = true;
+      if (timer) window.clearTimeout(timer);
+      window.removeEventListener("load", submitWhenReady);
+    };
   }, [shouldAutoSubmit]);
 
   return (
@@ -39,7 +61,9 @@ export default function SiteLaunchClient({
         <h1 className="mt-3 text-3xl font-semibold">{title}</h1>
         <p className="mt-3 text-sm text-white/55">
           {shouldAutoSubmit
-            ? "Launching the saved management login now."
+            ? launching
+              ? "Page loaded. Submitting the saved login now."
+              : "Preparing the saved management login."
             : "This site can be opened, but automatic login is only available for supported management URLs such as WordPress login screens."}
         </p>
 
@@ -81,11 +105,20 @@ export default function SiteLaunchClient({
 
         <div className="mt-6 flex flex-wrap gap-3">
           {managementUrl && (
+            <button
+              type="button"
+              onClick={() => formRef.current?.submit()}
+              className="rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-black hover:bg-sky-400 transition-colors"
+            >
+              Log In Now
+            </button>
+          )}
+          {managementUrl && (
             <a
               href={managementUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-black hover:bg-sky-400 transition-colors"
+              className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors"
             >
               Open Management URL
             </a>
