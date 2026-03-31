@@ -46,14 +46,14 @@ export default function PortalOnboardingPage() {
   }, []);
 
   if (loading) {
-    return <div className="py-16 text-center text-gray-400 text-sm">Loading…</div>;
+    return <div className="py-16 text-center text-white/40 text-sm">Loading…</div>;
   }
 
   if (instances.length === 0) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold text-gray-900">Getting Started</h1>
-        <div className="text-center py-16 text-gray-400 text-sm">
+        <h1 className="text-2xl font-bold text-white">Getting Started</h1>
+        <div className="text-center py-16 text-white/40 text-sm">
           No active onboarding checklist yet.
         </div>
       </div>
@@ -63,8 +63,8 @@ export default function PortalOnboardingPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Getting Started</h1>
-        <p className="text-gray-500 text-sm mt-1">
+        <h1 className="text-2xl font-bold text-white">Getting Started</h1>
+        <p className="text-white/40 text-sm mt-1">
           Your onboarding checklist — complete these steps to get your project started.
         </p>
       </div>
