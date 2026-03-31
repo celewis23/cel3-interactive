@@ -477,7 +477,11 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
             <div>
               <p className="text-xs text-white/30 mb-1">Email</p>
               {contact.emails.map((e, i) => (
-                <a key={i} href={`mailto:${e.value}`} className="block text-sm text-sky-400 hover:text-sky-300">
+                <a
+                  key={i}
+                  href={`/admin/email/compose?to=${encodeURIComponent(e.value)}`}
+                  className="block text-sm text-sky-400 hover:text-sky-300"
+                >
                   {e.value}{e.type ? ` (${e.type})` : ""}
                 </a>
               ))}
