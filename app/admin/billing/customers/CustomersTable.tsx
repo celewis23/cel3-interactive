@@ -58,7 +58,16 @@ type Col = {
   label: string;
   defaultOn: boolean;
   always?: boolean;
-  render: (c: BillingCustomer) => React.ReactNode;
+  render: (c: BillingCustomer, helpers: RenderHelpers) => React.ReactNode;
+};
+
+type LinkedContact = { _id: string; name: string };
+
+type RenderHelpers = {
+  linkedContacts: Record<string, LinkedContact>;
+  importingId: string | null;
+  handleAddToContacts: (customerId: string) => Promise<void>;
+  router: ReturnType<typeof useRouter>;
 };
 
 const COLUMNS: Col[] = [
@@ -67,7 +76,7 @@ const COLUMNS: Col[] = [
     label: "Customer",
     defaultOn: true,
     always: true,
-    render: (c) => (
+    render: (c, helpers) => (
       <div className="min-w-0">
         <div className="text-sm text-white font-medium truncate">
           {c.name ?? <span className="text-white/30 italic">No name</span>}
@@ -77,6 +86,30 @@ const COLUMNS: Col[] = [
           <div className="text-xs text-white/30 mt-0.5 truncate">{c.description}</div>
         )}
         <div className="text-xs text-white/20 mt-0.5 font-mono">{c.id}</div>
+        <div className="mt-2">
+          {helpers.linkedContacts[c.id] ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                helpers.router.push(`/admin/pipeline/contacts/${helpers.linkedContacts[c.id]._id}`);
+              }}
+              className="px-2.5 py-1 rounded-lg border border-emerald-500/25 bg-emerald-500/10 text-emerald-300 text-[11px] font-medium hover:bg-emerald-500/15 transition-colors"
+            >
+              View Contact
+            </button>
+          ) : (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                void helpers.handleAddToContacts(c.id);
+              }}
+              disabled={helpers.importingId === c.id}
+              className="px-2.5 py-1 rounded-lg border border-sky-500/25 bg-sky-500/10 text-sky-300 text-[11px] font-medium hover:bg-sky-500/15 transition-colors disabled:opacity-50"
+            >
+              {helpers.importingId === c.id ? "Adding..." : "Add To Contacts"}
+            </button>
+          )}
+        </div>
       </div>
     ),
   },
@@ -408,7 +441,7 @@ export default function CustomersTable({ customers, hasMore, importedContacts }:
   const pickerRef = useRef<HTMLDivElement>(null);
   const [importingId, setImportingId] = useState<string | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
-  const [linkedContacts, setLinkedContacts] = useState<Record<string, { _id: string; name: string }>>(
+  const [linkedContacts, setLinkedContacts] = useState<Record<string, LinkedContact>>(
     Object.fromEntries(
       importedContacts
         .filter((contact) => contact.stripeCustomerId)
@@ -471,6 +504,13 @@ export default function CustomersTable({ customers, hasMore, importedContacts }:
       setImportingId(null);
     }
   }
+
+  const renderHelpers: RenderHelpers = {
+    linkedContacts,
+    importingId,
+    handleAddToContacts,
+    router,
+  };
 
   if (customers.length === 0) {
     return (
@@ -541,9 +581,6 @@ export default function CustomersTable({ customers, hasMore, importedContacts }:
                   {col.label}
                 </th>
               ))}
-              <th className="text-left text-xs text-white/40 uppercase tracking-wide px-5 py-3 font-medium whitespace-nowrap">
-                Contacts
-              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
@@ -555,33 +592,9 @@ export default function CustomersTable({ customers, hasMore, importedContacts }:
               >
                 {activeCols.map((col) => (
                   <td key={col.id} className="px-5 py-3.5 align-top">
-                    {col.render(c)}
+                    {col.render(c, renderHelpers)}
                   </td>
                 ))}
-                <td className="px-5 py-3.5 align-top">
-                  {linkedContacts[c.id] ? (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(`/admin/pipeline/contacts/${linkedContacts[c.id]._id}`);
-                      }}
-                      className="px-3 py-1.5 rounded-lg border border-emerald-500/25 bg-emerald-500/10 text-emerald-300 text-xs font-medium hover:bg-emerald-500/15 transition-colors"
-                    >
-                      View Contact
-                    </button>
-                  ) : (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        void handleAddToContacts(c.id);
-                      }}
-                      disabled={importingId === c.id}
-                      className="px-3 py-1.5 rounded-lg border border-sky-500/25 bg-sky-500/10 text-sky-300 text-xs font-medium hover:bg-sky-500/15 transition-colors disabled:opacity-50"
-                    >
-                      {importingId === c.id ? "Adding..." : "Add To Contacts"}
-                    </button>
-                  )}
-                </td>
               </tr>
             ))}
           </tbody>
