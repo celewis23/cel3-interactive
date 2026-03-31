@@ -61,25 +61,45 @@ export async function syncPipelineContactToGoogleContact(
         googleContactResourceName?: string | null;
       }
 ) {
-  const pipelineContact =
-    "pipelineContactId" in input
-      ? await sanityServer.fetch<PipelineContactRecord | null>(
-          `*[_type == "pipelineContact" && _id == $id][0]{
-            _id, name, email, phone, company, notes, googleContactResourceName
-          }`,
-          { id: input.pipelineContactId }
-        )
-      : null;
+  const pipelineContactId = "pipelineContactId" in input ? input.pipelineContactId : null;
+  const pipelineContact = pipelineContactId
+    ? await sanityServer.fetch<PipelineContactRecord | null>(
+        `*[_type == "pipelineContact" && _id == $id][0]{
+          _id, name, email, phone, company, notes, googleContactResourceName
+        }`,
+        { id: pipelineContactId }
+      )
+    : null;
 
-  const source = pipelineContact ?? {
-    _id: null,
-    name: input.name,
-    email: input.email ?? null,
-    phone: input.phone ?? null,
-    company: input.company ?? null,
-    notes: input.notes ?? null,
-    googleContactResourceName: input.googleContactResourceName ?? null,
-  };
+  const source: PipelineContactRecord | {
+    _id: null;
+    name: string;
+    email: string | null;
+    phone: string | null;
+    company: string | null;
+    notes: string | null;
+    googleContactResourceName: string | null;
+  } = pipelineContact ?? (
+    "pipelineContactId" in input
+      ? {
+          _id: null,
+          name: "",
+          email: null,
+          phone: null,
+          company: null,
+          notes: null,
+          googleContactResourceName: null,
+        }
+      : {
+          _id: null,
+          name: input.name,
+          email: input.email ?? null,
+          phone: input.phone ?? null,
+          company: input.company ?? null,
+          notes: input.notes ?? null,
+          googleContactResourceName: input.googleContactResourceName ?? null,
+        }
+  );
 
   if (!source?.name?.trim()) {
     throw new Error("Contact name is required for Google sync");
