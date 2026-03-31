@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
 
       // Check overdue invoices
       const overdueInvoices = await sanityServer.fetch<Array<{ _id: string; clientId?: string }>>(
-        `*[_type == "invoice" && status == "sent" && dueDate < $today] [0...50] { _id, clientId }`,
+        `*[_type == "invoice" && status in ["open", "sent"] && dueDate < $today] [0...50] { _id, clientId }`,
         { today: todayStr }
       );
       for (const inv of overdueInvoices) {

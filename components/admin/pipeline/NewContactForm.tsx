@@ -29,6 +29,7 @@ export default function NewContactForm() {
     owner: "",
     estimatedValue: "",
     stage: initialStage,
+    createStripeCustomer: false,
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -56,6 +57,7 @@ export default function NewContactForm() {
           owner: form.owner.trim() || null,
           estimatedValue: form.estimatedValue ? Number(form.estimatedValue) : null,
           stage: form.stage,
+          createStripeCustomer: form.createStripeCustomer,
         }),
       });
 
@@ -192,6 +194,21 @@ export default function NewContactForm() {
           className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors resize-none"
         />
       </div>
+
+      <label className="flex items-start gap-3 p-4 rounded-xl bg-white/3 border border-white/8">
+        <input
+          type="checkbox"
+          checked={form.createStripeCustomer}
+          onChange={(e) => setForm({ ...form, createStripeCustomer: e.target.checked })}
+          className="mt-0.5 w-4 h-4 rounded accent-sky-400"
+        />
+        <span>
+          <span className="block text-sm text-white">Create and link a Stripe customer</span>
+          <span className="block text-xs text-white/35 mt-1">
+            Turn this client into a Stripe customer immediately so invoices and payments stay connected.
+          </span>
+        </span>
+      </label>
 
       {/* Actions */}
       <div className="flex items-center justify-between pt-2">

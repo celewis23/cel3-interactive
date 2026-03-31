@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { DateTime } from "luxon";
 import { getInvoice } from "@/lib/stripe/billing";
+import { syncStripeInvoiceToSanity } from "@/lib/stripe/sync";
 import InvoiceActions from "./InvoiceActions";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +46,9 @@ export default async function InvoicePage({
 
   const { id } = await params;
   const invoice = await getInvoice(id);
+  if (invoice) {
+    await syncStripeInvoiceToSanity(invoice);
+  }
 
   if (!invoice) {
     return (

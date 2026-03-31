@@ -5,6 +5,7 @@ import Link from "next/link";
 import { DateTime } from "luxon";
 import { listInvoices } from "@/lib/stripe/billing";
 import type { BillingInvoice } from "@/lib/stripe/billing";
+import { syncStripeInvoiceToSanity } from "@/lib/stripe/sync";
 import Stripe from "stripe";
 
 export const dynamic = "force-dynamic";
@@ -57,6 +58,7 @@ export default async function InvoicesPage({
     status: activeStatus ? (activeStatus as Stripe.Invoice.Status) : undefined,
     limit: 50,
   });
+  await Promise.all(invoices.map((invoice) => syncStripeInvoiceToSanity(invoice)));
 
   return (
     <div>

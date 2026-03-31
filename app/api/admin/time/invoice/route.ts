@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { createInvoice } from "@/lib/stripe/billing";
+import { syncStripeInvoiceToSanity } from "@/lib/stripe/sync";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
     // Build line items (amounts in cents for Stripe)
     const lineItems = entries.map((entry) => {
       const hours = entry.durationSeconds / 3600;
-      const amountCents = Math.round(hours * entry.hourlyRate * 100);
+      const amount = Number((hours * entry.hourlyRate).toFixed(2));
       const hoursDisplay = hours % 1 === 0 ? `${hours}h` : `${hours.toFixed(2)}h`;
       const desc = [
         entry.description || "Time tracking",
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
       ]
         .filter(Boolean)
         .join(" ");
-      return { description: desc, amount: amountCents, quantity: 1 };
+      return { description: desc, amount, quantity: 1 };
     });
 
     // Create Stripe invoice
@@ -64,6 +65,7 @@ export async function POST(req: NextRequest) {
       description: `Time tracking invoice${clientName ? ` — ${clientName}` : ""}`,
       send: false,
     });
+    await syncStripeInvoiceToSanity(invoice);
 
     // Mark entries as billed
     const now = new Date().toISOString();

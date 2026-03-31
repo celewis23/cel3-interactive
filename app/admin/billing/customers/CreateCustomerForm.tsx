@@ -8,10 +8,12 @@ export default function CreateCustomerForm() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [createBackofficeClient, setCreateBackofficeClient] = useState(true);
   const [form, setForm] = useState({ name: "", email: "", phone: "", description: "" });
 
   function reset() {
     setForm({ name: "", email: "", phone: "", description: "" });
+    setCreateBackofficeClient(true);
     setError(null);
   }
 
@@ -34,6 +36,18 @@ export default function CreateCustomerForm() {
       if (!res.ok) {
         setError(data.error ?? "Failed to create customer");
         return;
+      }
+      if (createBackofficeClient) {
+        const importRes = await fetch("/api/admin/pipeline/contacts/import-stripe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ customerId: data.id }),
+        });
+        const importData = await importRes.json().catch(() => ({}));
+        if (!importRes.ok) {
+          setError(importData.error ?? "Stripe customer was created, but backoffice import failed.");
+          return;
+        }
       }
       close();
       router.refresh();
@@ -121,6 +135,21 @@ export default function CreateCustomerForm() {
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-white/25 focus:outline-none focus:border-sky-500/60 transition-colors"
                 />
               </div>
+
+              <label className="flex items-start gap-3 p-3 rounded-xl bg-white/3 border border-white/8">
+                <input
+                  type="checkbox"
+                  checked={createBackofficeClient}
+                  onChange={(e) => setCreateBackofficeClient(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded accent-sky-400"
+                />
+                <span>
+                  <span className="block text-sm text-white">Also create a backoffice client</span>
+                  <span className="block text-xs text-white/35 mt-1">
+                    Keeps the Stripe customer linked to pipeline, AI, and invoice records.
+                  </span>
+                </span>
+              </label>
 
               <div className="flex gap-3 pt-1">
                 <button

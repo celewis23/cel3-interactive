@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { listInvoices, createInvoice } from "@/lib/stripe/billing";
+import { ensureStripeCustomerForPipelineContact, syncStripeInvoiceToSanity } from "@/lib/stripe/sync";
 import Stripe from "stripe";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 
@@ -23,6 +24,7 @@ export async function GET(req: NextRequest) {
       limit,
       startingAfter,
     });
+    await Promise.all(result.invoices.map((invoice) => syncStripeInvoiceToSanity(invoice)));
     return NextResponse.json(result);
   } catch (err: unknown) {
     console.error("BILLING_ERROR:", err);
@@ -36,10 +38,20 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { customerId, daysUntilDue, description, lineItems, send } = body;
+    const { customerId: rawCustomerId, pipelineContactId, createStripeCustomer, daysUntilDue, description, lineItems, send } = body;
+    let customerId = rawCustomerId as string | undefined;
+
+    if (!customerId && pipelineContactId) {
+      const resolved = await ensureStripeCustomerForPipelineContact(pipelineContactId);
+      customerId = resolved.customer.id;
+    }
+
+    if (!customerId && createStripeCustomer) {
+      return NextResponse.json({ error: "A backoffice client is required to create a Stripe customer." }, { status: 400 });
+    }
 
     if (!customerId) {
-      return NextResponse.json({ error: "customerId is required" }, { status: 400 });
+      return NextResponse.json({ error: "customerId or pipelineContactId is required" }, { status: 400 });
     }
     if (!Array.isArray(lineItems) || lineItems.length === 0) {
       return NextResponse.json({ error: "lineItems must be a non-empty array" }, { status: 400 });
@@ -52,6 +64,7 @@ export async function POST(req: NextRequest) {
       lineItems,
       send: send ?? false,
     });
+    await syncStripeInvoiceToSanity(invoice);
 
     logAudit(req, {
       action: AuditAction.BILLING_INVOICE_CREATED,

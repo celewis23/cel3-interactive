@@ -10,6 +10,7 @@ import {
   listInvoices,
   listSubscriptions,
 } from "@/lib/stripe/billing";
+import { syncStripeInvoiceToSanity } from "@/lib/stripe/sync";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -55,6 +56,7 @@ export default async function BillingPage() {
       listInvoices({ limit: 5, status: "open" as any }),
       listSubscriptions({ limit: 3 }),
     ]);
+  await Promise.all(invoicesResult.invoices.map((invoice) => syncStripeInvoiceToSanity(invoice)));
 
   // Sum available by currency (USD primary)
   const availableUsd =

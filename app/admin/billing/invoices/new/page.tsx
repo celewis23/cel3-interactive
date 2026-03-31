@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -9,10 +9,20 @@ const CLS_INPUT =
 const CLS_LABEL = "block text-sm font-medium text-white mb-1.5";
 
 type LineItem = { description: string; amount: string };
+type PipelineContact = {
+  _id: string;
+  name: string;
+  email: string | null;
+  company: string | null;
+  stripeCustomerId: string | null;
+};
 
 export default function NewInvoicePage() {
   const router = useRouter();
 
+  const [contacts, setContacts] = useState<PipelineContact[]>([]);
+  const [contactsLoaded, setContactsLoaded] = useState(false);
+  const [pipelineContactId, setPipelineContactId] = useState("");
   const [customerId, setCustomerId] = useState("");
   const [description, setDescription] = useState("");
   const [daysUntilDue, setDaysUntilDue] = useState(30);
@@ -23,6 +33,40 @@ export default function NewInvoicePage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [successId, setSuccessId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/admin/pipeline/contacts")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled && Array.isArray(data)) {
+          setContacts(
+            data
+              .map((contact) => ({
+                _id: String(contact._id),
+                name: String(contact.name ?? ""),
+                email: typeof contact.email === "string" ? contact.email : null,
+                company: typeof contact.company === "string" ? contact.company : null,
+                stripeCustomerId:
+                  typeof contact.stripeCustomerId === "string" ? contact.stripeCustomerId : null,
+              }))
+              .sort((a, b) => a.name.localeCompare(b.name))
+          );
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setContactsLoaded(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const selectedContact = useMemo(
+    () => contacts.find((contact) => contact._id === pipelineContactId) ?? null,
+    [contacts, pipelineContactId]
+  );
 
   function addLineItem() {
     setLineItems((prev) => [...prev, { description: "", amount: "" }]);
@@ -42,8 +86,8 @@ export default function NewInvoicePage() {
     e.preventDefault();
     setError("");
 
-    if (!customerId.trim()) {
-      setError("Customer ID is required.");
+    if (!customerId.trim() && !pipelineContactId) {
+      setError("Choose a backoffice client or enter a Stripe customer ID.");
       return;
     }
     if (lineItems.length === 0) {
@@ -67,7 +111,8 @@ export default function NewInvoicePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customerId: customerId.trim(),
+          customerId: customerId.trim() || undefined,
+          pipelineContactId: pipelineContactId || undefined,
           description: description.trim() || undefined,
           daysUntilDue: Number(daysUntilDue),
           lineItems: lineItems.map((l) => ({
@@ -126,19 +171,51 @@ export default function NewInvoicePage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label className={CLS_LABEL}>Backoffice Client</label>
+          <select
+            value={pipelineContactId}
+            onChange={(e) => {
+              const nextId = e.target.value;
+              setPipelineContactId(nextId);
+              const contact = contacts.find((item) => item._id === nextId);
+              setCustomerId(contact?.stripeCustomerId ?? "");
+            }}
+            className={CLS_INPUT}
+          >
+            <option value="">Select a client (optional)</option>
+            {contacts.map((contact) => (
+              <option key={contact._id} value={contact._id}>
+                {contact.name}
+                {contact.company ? ` — ${contact.company}` : ""}
+                {contact.email ? ` (${contact.email})` : ""}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1.5 text-xs text-white/30">
+            {selectedContact
+              ? selectedContact.stripeCustomerId
+                ? `Linked Stripe customer: ${selectedContact.stripeCustomerId}`
+                : "No Stripe customer linked yet. One will be created automatically when you create the invoice."
+              : contactsLoaded
+              ? "Choose a backoffice client to keep the invoice tied to your shared client record."
+              : "Loading backoffice clients..."}
+          </p>
+        </div>
+
         {/* Customer ID */}
         <div>
-          <label className={CLS_LABEL}>Customer ID</label>
+          <label className={CLS_LABEL}>Stripe Customer ID</label>
           <input
             type="text"
             value={customerId}
             onChange={(e) => setCustomerId(e.target.value)}
             placeholder="cus_xxx"
             className={CLS_INPUT}
-            required
+            required={!pipelineContactId}
           />
           <p className="mt-1.5 text-xs text-white/30">
-            Find the customer ID in the Stripe dashboard or use{" "}
+            Enter a Stripe customer directly, or choose a backoffice client above and let the system keep the linkage for you. You can still use{" "}
             <Link href="/admin/billing/customers" className="text-sky-400 hover:text-sky-300">
               All Customers
             </Link>

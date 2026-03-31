@@ -76,6 +76,12 @@ export default async function PipelineContactsPage() {
         </div>
         <div className="flex items-center gap-3">
           <Link
+            href="/admin/pipeline/contacts/import-stripe"
+            className="text-xs text-sky-300 hover:text-white transition-colors px-3 py-1.5 rounded-lg border border-sky-500/20 hover:border-sky-400/40 bg-sky-500/10 hover:bg-sky-500/15"
+          >
+            Import from Stripe
+          </Link>
+          <Link
             href="/admin/pipeline/settings"
             className="text-xs text-white/30 hover:text-white/70 transition-colors px-3 py-1.5 rounded-lg border border-white/8 hover:border-white/20"
           >

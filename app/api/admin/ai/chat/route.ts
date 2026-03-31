@@ -6,6 +6,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { createCustomer, listCustomers, listInvoices, listSubscriptions, getBalance } from "@/lib/stripe/billing";
+import { syncRecentStripeInvoicesToSanity, syncStripeCustomerToPipelineContact, syncStripeInvoiceToSanity } from "@/lib/stripe/sync";
 import { createContact as createGoogleContact, searchContacts as searchGoogleContacts } from "@/lib/google/contacts";
 import { sendEmail, listThreads } from "@/lib/gmail/api";
 import { listEvents, createEvent } from "@/lib/google/calendar";
@@ -310,6 +311,7 @@ async function executeTool(name: string, input: Record<string, unknown>): Promis
       return { stages: config?.stages ?? DEFAULT_PIPELINE_STAGES };
     }
     case "search_invoices": {
+      await syncRecentStripeInvoicesToSanity(limit);
       const filters = [`_type == "invoice"`];
       if (input.status) filters.push(`status == "${s(input.status)}"`);
       if (query) filters.push(`(${makeMatch("number", query)} || ${makeMatch("clientName", query)})`);
@@ -364,9 +366,10 @@ async function executeTool(name: string, input: Record<string, unknown>): Promis
       return sanityServer.fetch(`*[${filters.join(" && ")}] | order(timestamp desc) [0...${limit}] { _id, action, userName, description, resourceType, resourceLabel, timestamp }`);
     }
     case "get_dashboard_summary": {
+      await syncRecentStripeInvoicesToSanity(25);
       const [projects, openInvoices, recentAudit, leads] = await Promise.all([
         sanityServer.fetch<number>(`count(*[_type == "pmProject" && status == "active"])`),
-        sanityServer.fetch<number>(`count(*[_type == "invoice" && status == "open"])`),
+        sanityServer.fetch<number>(`count(*[_type == "invoice" && status in ["open", "sent", "overdue"])`),
         sanityServer.fetch(`*[_type == "auditEvent"] | order(timestamp desc) [0...5] { action, userName, description, timestamp }`),
         sanityServer.fetch<number>(`count(*[_type == "pipelineContact"])`),
       ]);
@@ -437,7 +440,9 @@ async function executeTool(name: string, input: Record<string, unknown>): Promis
     case "create_client": {
       const name = s(input.name);
       if (!name) throw new Error("Client name is required");
-      return createCustomer({ name, email: so(input.email), phone: so(input.phone), description: so(input.description) });
+      const customer = await createCustomer({ name, email: so(input.email), phone: so(input.phone), description: so(input.description) });
+      const contact = await syncStripeCustomerToPipelineContact(customer, { source: "AI Assistant", stage: "won" });
+      return { customer, contact };
     }
     case "create_google_contact": {
       if (!so(input.givenName) && !so(input.familyName)) throw new Error("givenName or familyName is required");
@@ -533,7 +538,11 @@ async function executeTool(name: string, input: Record<string, unknown>): Promis
     case "search_stripe_customers":
       return listCustomers({ limit: n(input.limit, 20), email: so(input.email) });
     case "search_stripe_invoices":
-      return listInvoices({ status: so(input.status) as import("stripe").Stripe.Invoice.Status | undefined, customerId: so(input.customerId), limit: n(input.limit, 20) });
+      {
+        const result = await listInvoices({ status: so(input.status) as import("stripe").Stripe.Invoice.Status | undefined, customerId: so(input.customerId), limit: n(input.limit, 20) });
+        await Promise.all(result.invoices.map((invoice) => syncStripeInvoiceToSanity(invoice)));
+        return result;
+      }
     case "search_stripe_subscriptions":
       return listSubscriptions({ status: so(input.status), customerId: so(input.customerId), limit: n(input.limit, 20) });
 

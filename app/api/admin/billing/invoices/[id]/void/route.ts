@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { voidInvoice } from "@/lib/stripe/billing";
+import { syncStripeInvoiceToSanity } from "@/lib/stripe/sync";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
@@ -15,6 +16,7 @@ export async function POST(
   try {
     const { id } = await params;
     const invoice = await voidInvoice(id);
+    await syncStripeInvoiceToSanity(invoice);
 
     logAudit(req, {
       action: AuditAction.BILLING_INVOICE_VOIDED,

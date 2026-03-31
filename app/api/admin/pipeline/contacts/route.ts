@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
+import { createCustomer } from "@/lib/stripe/billing";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 import { automationEngine } from "@/lib/automations/engine";
 import { sendPushNotificationToAudience } from "@/lib/notifications/push";
@@ -39,6 +40,17 @@ export async function POST(req: NextRequest) {
     }
 
     const now = new Date().toISOString();
+    let stripeCustomerId: string | null = null;
+    if (body.createStripeCustomer) {
+      const customer = await createCustomer({
+        name: body.name.trim(),
+        email: body.email?.trim() || undefined,
+        phone: body.phone?.trim() || undefined,
+        description: body.company?.trim() || undefined,
+      });
+      stripeCustomerId = customer.id;
+    }
+
     const contact = await sanityWriteClient.create({
       _type: "pipelineContact",
       name: body.name.trim(),
@@ -51,7 +63,7 @@ export async function POST(req: NextRequest) {
       stage: body.stage || "new-lead",
       stageEnteredAt: now,
       estimatedValue: body.estimatedValue ? Number(body.estimatedValue) : null,
-      stripeCustomerId: null,
+      stripeCustomerId,
       closedAt: null,
       driveFileUrl: null,
       driveFileName: null,
@@ -68,6 +80,18 @@ export async function POST(req: NextRequest) {
       toStage: contact.stage,
       author: "Admin",
     });
+
+    if (stripeCustomerId) {
+      await sanityWriteClient.create({
+        _type: "pipelineActivity",
+        contactId: contact._id,
+        type: "converted",
+        text: `Created Stripe customer (${stripeCustomerId})`,
+        fromStage: null,
+        toStage: null,
+        author: "Admin",
+      });
+    }
 
     logAudit(req, {
       action: AuditAction.LEAD_CREATED,
