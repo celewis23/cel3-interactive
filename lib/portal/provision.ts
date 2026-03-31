@@ -66,7 +66,7 @@ export async function ensurePortalAccessForStripeCustomer(customerId: string): P
   );
 
   if (existing) {
-    const updated = await sanityWriteClient.patch(existing._id).set({
+    await sanityWriteClient.patch(existing._id).set({
       email: customer.email.toLowerCase(),
       name,
       company,
@@ -75,7 +75,16 @@ export async function ensurePortalAccessForStripeCustomer(customerId: string): P
       driveRootFolderId: existing.driveRootFolderId ?? rootFolder.id,
       status: existing.status === "suspended" ? "suspended" : existing.status || "ready",
     }).commit();
-    return updated as PortalUserRecord;
+    return {
+      ...existing,
+      email: customer.email.toLowerCase(),
+      name,
+      company,
+      stripeCustomerId: customer.id,
+      pipelineContactId: pipelineContact._id,
+      driveRootFolderId: existing.driveRootFolderId ?? rootFolder.id,
+      status: existing.status === "suspended" ? "suspended" : existing.status || "ready",
+    };
   }
 
   const created = await sanityWriteClient.create({
@@ -95,7 +104,7 @@ export async function ensurePortalAccessForStripeCustomer(customerId: string): P
     lastLoginAt: null,
   });
 
-  return created as PortalUserRecord;
+  return created as unknown as PortalUserRecord;
 }
 
 export async function createPortalTicketArtifacts(params: {
