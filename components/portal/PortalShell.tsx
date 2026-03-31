@@ -73,7 +73,6 @@ export default function PortalShell({
     ? "md:hidden border-b border-black/10 bg-[#f7f6f2] px-4 py-2"
     : "md:hidden border-b border-white/8 bg-[#0a0a0a] px-4 py-2";
   const brandClass = theme === "light" ? "text-sm font-semibold text-[#111111] flex-shrink-0" : "text-sm font-semibold text-white flex-shrink-0";
-  const helperTextClass = theme === "light" ? "text-xs text-black/45 hidden sm:block truncate max-w-[180px]" : "text-xs text-white/30 hidden sm:block truncate max-w-[180px]";
   const iconButtonClass = theme === "light"
     ? "w-10 h-10 rounded-full border border-black/10 bg-white/70 text-[#111111] hover:bg-white transition-colors flex items-center justify-center"
     : "w-10 h-10 rounded-full border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors flex items-center justify-center";
@@ -86,7 +85,7 @@ export default function PortalShell({
   const mutedClass = theme === "light" ? "text-black/50" : "text-white/40";
 
   return (
-    <div className={shellClass}>
+    <div className={`portal-shell ${shellClass}`}>
       {/* Top bar */}
       <header className={headerClass}>
         <div className="max-w-6xl mx-auto px-4 lg:px-8 h-14 flex items-center justify-between">
@@ -119,9 +118,6 @@ export default function PortalShell({
             </nav>
           </div>
           <div className="flex items-center gap-3">
-            <span className={helperTextClass}>
-              {user.company || user.email}
-            </span>
             <button
               type="button"
               onClick={() => setTheme((prev) => prev === "dark" ? "light" : "dark")}

@@ -298,6 +298,11 @@ export async function updateCustomer(customerId: string, params: {
   email?: string | null;
   phone?: string | null;
   description?: string | null;
+  addressLine1?: string | null;
+  addressCity?: string | null;
+  addressState?: string | null;
+  addressPostalCode?: string | null;
+  addressCountry?: string | null;
 }): Promise<BillingCustomer> {
   const normalizeNullableField = (value: string | null | undefined) => (
     value === null ? "" : value
@@ -308,6 +313,23 @@ export async function updateCustomer(customerId: string, params: {
     ...(params.email !== undefined ? { email: normalizeNullableField(params.email) } : {}),
     ...(params.phone !== undefined ? { phone: normalizeNullableField(params.phone) } : {}),
     ...(params.description !== undefined ? { description: normalizeNullableField(params.description) } : {}),
+    ...(
+      params.addressLine1 !== undefined ||
+      params.addressCity !== undefined ||
+      params.addressState !== undefined ||
+      params.addressPostalCode !== undefined ||
+      params.addressCountry !== undefined
+        ? {
+            address: {
+              ...(params.addressLine1 !== undefined ? { line1: normalizeNullableField(params.addressLine1) } : {}),
+              ...(params.addressCity !== undefined ? { city: normalizeNullableField(params.addressCity) } : {}),
+              ...(params.addressState !== undefined ? { state: normalizeNullableField(params.addressState) } : {}),
+              ...(params.addressPostalCode !== undefined ? { postal_code: normalizeNullableField(params.addressPostalCode) } : {}),
+              ...(params.addressCountry !== undefined ? { country: normalizeNullableField(params.addressCountry) } : {}),
+            },
+          }
+        : {}
+    ),
   });
   return mapCustomer(c);
 }

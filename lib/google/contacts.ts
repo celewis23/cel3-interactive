@@ -118,6 +118,11 @@ export async function createContact(params: {
   phones?: string[];
   organization?: string;
   notes?: string;
+  addressLine1?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
 }): Promise<Contact> {
   const token = await getAccessToken();
 
@@ -133,6 +138,20 @@ export async function createContact(params: {
   }
   if (params.organization) {
     body.organizations = [{ name: params.organization }];
+  }
+  if (params.addressLine1 || params.city || params.state || params.postalCode || params.country) {
+    body.addresses = [{
+      streetAddress: params.addressLine1 ?? "",
+      city: params.city ?? "",
+      region: params.state ?? "",
+      postalCode: params.postalCode ?? "",
+      country: params.country ?? "",
+      formattedValue: [
+        params.addressLine1,
+        [params.city, params.state, params.postalCode].filter(Boolean).join(" ").trim(),
+        params.country,
+      ].filter(Boolean).join(", "),
+    }];
   }
   if (params.notes) {
     body.biographies = [{ value: params.notes, contentType: "TEXT_PLAIN" }];
@@ -164,6 +183,14 @@ export async function updateContact(
     phones?: { value: string; type?: string }[];
     organization?: string;
     notes?: string;
+    addresses?: Array<{
+      streetAddress?: string;
+      city?: string;
+      region?: string;
+      postalCode?: string;
+      country?: string;
+      formattedValue?: string;
+    }>;
   }
 ): Promise<Contact> {
   const token = await getAccessToken();
@@ -186,6 +213,10 @@ export async function updateContact(
   if (params.organization !== undefined) {
     updatePersonFields.push("organizations");
     body.organizations = params.organization ? [{ name: params.organization }] : [];
+  }
+  if (params.addresses !== undefined) {
+    updatePersonFields.push("addresses");
+    body.addresses = params.addresses;
   }
   if (params.notes !== undefined) {
     updatePersonFields.push("biographies");

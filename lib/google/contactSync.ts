@@ -10,6 +10,11 @@ type PipelineContactRecord = {
   company: string | null;
   notes: string | null;
   googleContactResourceName: string | null;
+  addressLine1?: string | null;
+  addressCity?: string | null;
+  addressState?: string | null;
+  addressPostalCode?: string | null;
+  addressCountry?: string | null;
 };
 
 function splitName(name: string) {
@@ -59,6 +64,11 @@ export async function syncPipelineContactToGoogleContact(
         company?: string | null;
         notes?: string | null;
         googleContactResourceName?: string | null;
+        addressLine1?: string | null;
+        addressCity?: string | null;
+        addressState?: string | null;
+        addressPostalCode?: string | null;
+        addressCountry?: string | null;
       }
 ) {
   const pipelineContactId = "pipelineContactId" in input ? input.pipelineContactId : null;
@@ -79,6 +89,11 @@ export async function syncPipelineContactToGoogleContact(
     company: string | null;
     notes: string | null;
     googleContactResourceName: string | null;
+    addressLine1?: string | null;
+    addressCity?: string | null;
+    addressState?: string | null;
+    addressPostalCode?: string | null;
+    addressCountry?: string | null;
   } = pipelineContact ?? (
     "pipelineContactId" in input
       ? {
@@ -89,6 +104,11 @@ export async function syncPipelineContactToGoogleContact(
           company: null,
           notes: null,
           googleContactResourceName: null,
+          addressLine1: null,
+          addressCity: null,
+          addressState: null,
+          addressPostalCode: null,
+          addressCountry: null,
         }
       : {
           _id: null,
@@ -98,6 +118,11 @@ export async function syncPipelineContactToGoogleContact(
           company: input.company ?? null,
           notes: input.notes ?? null,
           googleContactResourceName: input.googleContactResourceName ?? null,
+          addressLine1: input.addressLine1 ?? null,
+          addressCity: input.addressCity ?? null,
+          addressState: input.addressState ?? null,
+          addressPostalCode: input.addressPostalCode ?? null,
+          addressCountry: input.addressCountry ?? null,
         }
   );
 
@@ -115,7 +140,22 @@ export async function syncPipelineContactToGoogleContact(
       familyName,
       emails: source.email ? [{ value: source.email }] : [],
       phones: source.phone ? [{ value: source.phone }] : [],
+      addresses: source.addressLine1 || source.addressCity || source.addressState || source.addressPostalCode || source.addressCountry
+        ? [{
+            streetAddress: source.addressLine1 ?? "",
+            city: source.addressCity ?? "",
+            region: source.addressState ?? "",
+            postalCode: source.addressPostalCode ?? "",
+            country: source.addressCountry ?? "",
+            formattedValue: [
+              source.addressLine1,
+              [source.addressCity, source.addressState, source.addressPostalCode].filter(Boolean).join(" ").trim(),
+              source.addressCountry,
+            ].filter(Boolean).join(", "),
+          }]
+        : [],
       notes: source.notes ?? undefined,
+      organization: source.company ?? undefined,
     });
   } else if (existing) {
     googleContact = existing;
@@ -127,6 +167,11 @@ export async function syncPipelineContactToGoogleContact(
       phones: source.phone ? [source.phone] : undefined,
       organization: source.company ?? undefined,
       notes: source.notes ?? undefined,
+      addressLine1: source.addressLine1 ?? undefined,
+      city: source.addressCity ?? undefined,
+      state: source.addressState ?? undefined,
+      postalCode: source.addressPostalCode ?? undefined,
+      country: source.addressCountry ?? undefined,
     });
   }
 
