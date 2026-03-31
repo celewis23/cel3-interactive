@@ -61,7 +61,7 @@ type Col = {
   render: (c: BillingCustomer, helpers: RenderHelpers) => React.ReactNode;
 };
 
-type LinkedContact = { _id: string; name: string };
+type LinkedContact = { _id: string; name: string; googleContactResourceName?: string | null };
 
 type RenderHelpers = {
   linkedContacts: Record<string, LinkedContact>;
@@ -87,7 +87,7 @@ const COLUMNS: Col[] = [
         )}
         <div className="text-xs text-white/20 mt-0.5 font-mono">{c.id}</div>
         <div className="mt-2">
-          {helpers.linkedContacts[c.id] ? (
+          {helpers.linkedContacts[c.id]?.googleContactResourceName ? (
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -106,7 +106,7 @@ const COLUMNS: Col[] = [
               disabled={helpers.importingId === c.id}
               className="px-2.5 py-1 rounded-lg border border-sky-500/25 bg-sky-500/10 text-sky-300 text-[11px] font-medium hover:bg-sky-500/15 transition-colors disabled:opacity-50"
             >
-              {helpers.importingId === c.id ? "Adding..." : "Add To Contacts"}
+              {helpers.importingId === c.id ? "Adding..." : helpers.linkedContacts[c.id] ? "Sync To Contacts" : "Add To Contacts"}
             </button>
           )}
         </div>
@@ -431,7 +431,7 @@ const DEFAULT_ON = new Set(COLUMNS.filter((c) => c.defaultOn || c.always).map((c
 interface Props {
   customers: BillingCustomer[];
   hasMore: boolean;
-  importedContacts: Array<{ _id: string; name: string; stripeCustomerId: string | null }>;
+  importedContacts: Array<{ _id: string; name: string; stripeCustomerId: string | null; googleContactResourceName: string | null }>;
 }
 
 export default function CustomersTable({ customers, hasMore, importedContacts }: Props) {
@@ -445,7 +445,10 @@ export default function CustomersTable({ customers, hasMore, importedContacts }:
     Object.fromEntries(
       importedContacts
         .filter((contact) => contact.stripeCustomerId)
-        .map((contact) => [contact.stripeCustomerId as string, { _id: contact._id, name: contact.name }])
+        .map((contact) => [
+          contact.stripeCustomerId as string,
+          { _id: contact._id, name: contact.name, googleContactResourceName: contact.googleContactResourceName },
+        ])
     )
   );
 
@@ -496,7 +499,11 @@ export default function CustomersTable({ customers, hasMore, importedContacts }:
 
       setLinkedContacts((prev) => ({
         ...prev,
-        [customerId]: { _id: data.contact._id, name: data.contact.name },
+        [customerId]: {
+          _id: data.contact._id,
+          name: data.contact.name,
+          googleContactResourceName: data.contact.googleContactResourceName ?? data.googleContact?.resourceName ?? null,
+        },
       }));
     } catch (err) {
       setImportError(err instanceof Error ? err.message : "Failed to add customer to contacts");

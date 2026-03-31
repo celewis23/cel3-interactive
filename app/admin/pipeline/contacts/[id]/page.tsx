@@ -24,6 +24,7 @@ type PipelineContact = {
   stageEnteredAt: string;
   estimatedValue: number | null;
   stripeCustomerId: string | null;
+  googleContactResourceName: string | null;
   closedAt: string | null;
   driveFileUrl: string | null;
   driveFileName: string | null;
@@ -67,7 +68,7 @@ export default async function ContactDetailPage({
       `*[_type == "pipelineContact" && _id == $id][0] {
         _id, _type, _createdAt,
         name, email, phone, company, source, notes, owner,
-        stage, stageEnteredAt, estimatedValue, stripeCustomerId,
+        stage, stageEnteredAt, estimatedValue, stripeCustomerId, googleContactResourceName,
         closedAt, driveFileUrl, driveFileName, followUpEventId
       }`,
       { id }

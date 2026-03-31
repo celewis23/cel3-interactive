@@ -2,6 +2,7 @@ import { getAuthenticatedClient } from "@/lib/gmail/client";
 
 export type Contact = {
   resourceName: string;
+  etag?: string | null;
   displayName: string | null;
   givenName: string | null;
   familyName: string | null;
@@ -39,6 +40,7 @@ function mapContact(person: Record<string, any>): Contact {
 
   return {
     resourceName: person.resourceName ?? "",
+    etag: person.etag ?? null,
     displayName: names[0]?.displayName ?? null,
     givenName: names[0]?.givenName ?? null,
     familyName: names[0]?.familyName ?? null,

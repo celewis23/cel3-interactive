@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
+import { syncPipelineContactToGoogleContact } from "@/lib/google/contactSync";
 import { createCustomer } from "@/lib/stripe/billing";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 import { automationEngine } from "@/lib/automations/engine";
@@ -18,7 +19,7 @@ export async function GET(req: NextRequest) {
       `*[_type == "pipelineContact"] | order(stageEnteredAt desc) {
         _id, _type, _createdAt,
         name, email, phone, company, source, notes, owner,
-        stage, stageEnteredAt, estimatedValue, stripeCustomerId,
+        stage, stageEnteredAt, estimatedValue, stripeCustomerId, googleContactResourceName,
         closedAt, driveFileUrl, driveFileName, followUpEventId
       }`
     );
@@ -64,11 +65,18 @@ export async function POST(req: NextRequest) {
       stageEnteredAt: now,
       estimatedValue: body.estimatedValue ? Number(body.estimatedValue) : null,
       stripeCustomerId,
+      googleContactResourceName: null,
       closedAt: null,
       driveFileUrl: null,
       driveFileName: null,
       followUpEventId: null,
     });
+
+    try {
+      await syncPipelineContactToGoogleContact({ pipelineContactId: contact._id });
+    } catch (googleErr) {
+      console.error("PIPELINE_CONTACT_GOOGLE_SYNC_ERR:", googleErr);
+    }
 
     // Create "created" activity
     await sanityWriteClient.create({

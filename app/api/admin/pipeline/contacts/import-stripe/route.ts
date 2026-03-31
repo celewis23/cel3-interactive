@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { getCustomer } from "@/lib/stripe/billing";
+import { syncPipelineContactToGoogleContact } from "@/lib/google/contactSync";
 import { syncStripeCustomerToPipelineContact } from "@/lib/stripe/sync";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 
@@ -26,6 +27,7 @@ export async function POST(req: NextRequest) {
       source: "Stripe",
       stage: "won",
     });
+    const googleContact = await syncPipelineContactToGoogleContact({ pipelineContactId: contact._id });
 
     logAudit(req, {
       action: AuditAction.LEAD_CONVERTED,
@@ -35,9 +37,17 @@ export async function POST(req: NextRequest) {
       description: `Imported Stripe customer ${customerId} into pipeline`,
     });
 
-    return NextResponse.json({ ok: true, contact });
+    return NextResponse.json({
+      ok: true,
+      contact: {
+        ...contact,
+        googleContactResourceName: googleContact.resourceName,
+      },
+      googleContact,
+    });
   } catch (err) {
     console.error("PIPELINE_IMPORT_STRIPE_ERR:", err);
-    return NextResponse.json({ error: "Failed to import Stripe customer" }, { status: 500 });
+    const message = err instanceof Error ? err.message : "Failed to import Stripe customer";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

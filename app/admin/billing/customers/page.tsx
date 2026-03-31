@@ -17,9 +17,9 @@ export default async function CustomersPage() {
 
   const [{ customers, hasMore }, importedContacts] = await Promise.all([
     listCustomers({ limit: 50 }),
-    sanityServer.fetch<Array<{ _id: string; name: string; stripeCustomerId: string | null }>>(
+    sanityServer.fetch<Array<{ _id: string; name: string; stripeCustomerId: string | null; googleContactResourceName: string | null }>>(
       `*[_type == "pipelineContact" && stripeCustomerId != null]{
-        _id, name, stripeCustomerId
+        _id, name, stripeCustomerId, googleContactResourceName
       }`
     ),
   ]);

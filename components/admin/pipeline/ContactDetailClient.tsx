@@ -20,6 +20,7 @@ type PipelineContact = {
   stageEnteredAt: string;
   estimatedValue: number | null;
   stripeCustomerId: string | null;
+  googleContactResourceName?: string | null;
   closedAt: string | null;
   driveFileUrl: string | null;
   driveFileName: string | null;

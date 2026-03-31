@@ -21,6 +21,7 @@ const ALLOWED_FIELDS = [
   "driveFileName",
   "followUpEventId",
   "stripeCustomerId",
+  "googleContactResourceName",
 ] as const;
 
 export async function GET(
@@ -36,7 +37,7 @@ export async function GET(
       `*[_type == "pipelineContact" && _id == $id][0] {
         _id, _type, _createdAt,
         name, email, phone, company, source, notes, owner,
-        stage, stageEnteredAt, estimatedValue, stripeCustomerId,
+        stage, stageEnteredAt, estimatedValue, stripeCustomerId, googleContactResourceName,
         closedAt, driveFileUrl, driveFileName, followUpEventId
       }`,
       { id }
