@@ -23,6 +23,14 @@ function parseFrom(from: string): { name: string; email: string } {
 }
 
 export async function POST(req: NextRequest) {
+  return handleNotificationCheck(req);
+}
+
+export async function GET(req: NextRequest) {
+  return handleNotificationCheck(req);
+}
+
+async function handleNotificationCheck(req: NextRequest) {
   const authResult = verifySecret(req);
   if (authResult === "not_configured") {
     return NextResponse.json({ error: "NOTIFICATION_SECRET not configured on server" }, { status: 401 });
