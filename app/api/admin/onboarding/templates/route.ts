@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
-import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
+import { ensureDefaultOnboardingTemplates } from "@/lib/onboarding/defaultTemplates";
 
 export const runtime = "nodejs";
 
@@ -9,11 +9,7 @@ export async function GET(req: NextRequest) {
   const authErr = await requirePermission(req, "onboarding", "view");
   if (authErr) return authErr;
   try {
-    const templates = await sanityServer.fetch(
-      `*[_type == "onboardingTemplate"] | order(_createdAt desc) {
-        _id, name, description, category, steps, _createdAt
-      }`
-    );
+    const templates = await ensureDefaultOnboardingTemplates();
     return NextResponse.json(templates);
   } catch (err) {
     console.error("ONBOARDING_TEMPLATES_GET_ERR:", err);

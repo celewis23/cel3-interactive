@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import LiveTimer from "@/components/admin/time/LiveTimer";
 import AIAssistant from "@/components/admin/ai/AIAssistant";
 import AdminNotificationManager from "@/components/admin/notifications/AdminNotificationManager";
@@ -18,6 +18,7 @@ const TEAM_NAV = {
 
 interface CurrentUser {
   name: string;
+  email: string;
   roleName: string;
   isOwner: boolean;
 }
@@ -285,12 +286,41 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch("/api/admin/auth/me")
       .then((r) => r.ok ? r.json() : null)
-      .then((d) => { if (d) setCurrentUser({ name: d.name, roleName: d.roleName, isOwner: d.isOwner }); })
+      .then((d) => {
+        if (d) {
+          setCurrentUser({ name: d.name, email: d.email, roleName: d.roleName, isOwner: d.isOwner });
+        }
+      })
       .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem("cel3-admin-theme");
+    const nextTheme = stored === "light" ? "light" : "dark";
+    setTheme(nextTheme);
+    document.documentElement.setAttribute("data-admin-theme", nextTheme);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-admin-theme", theme);
+    window.localStorage.setItem("cel3-admin-theme", theme);
+  }, [theme]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -333,14 +363,56 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     router.push("/admin/login");
   }
 
+  const initials = (currentUser?.name || currentUser?.email || "Admin")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("") || "A";
+  const shellClass = theme === "light"
+    ? "min-h-screen bg-[#f1efea] text-[#111111] flex"
+    : "min-h-screen bg-black text-white flex";
+  const sidebarClass = theme === "light"
+    ? "hidden lg:flex flex-col w-56 bg-[#f6f4ef] border-r border-black/8 flex-shrink-0"
+    : "hidden lg:flex flex-col w-56 bg-[#0a0a0a] border-r border-white/8 flex-shrink-0";
+  const desktopTopbarClass = theme === "light"
+    ? "hidden lg:flex items-center justify-between px-8 h-16 border-b border-black/8 bg-[#f8f6f1]/95 backdrop-blur-sm flex-shrink-0"
+    : "hidden lg:flex items-center justify-between px-8 h-16 border-b border-white/8 bg-[#0a0a0a]/95 backdrop-blur-sm flex-shrink-0";
+  const mobileHeaderClass = theme === "light"
+    ? "lg:hidden flex items-center justify-between px-5 py-3.5 border-b border-black/8 flex-shrink-0 bg-[#f8f6f1]"
+    : "lg:hidden flex items-center justify-between px-5 py-3.5 border-b border-white/8 flex-shrink-0 bg-[#0a0a0a]";
+  const iconButtonClass = theme === "light"
+    ? "w-10 h-10 rounded-full border border-black/10 bg-white/70 text-[#111111] hover:bg-white transition-colors flex items-center justify-center"
+    : "w-10 h-10 rounded-full border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors flex items-center justify-center";
+  const menuClass = theme === "light"
+    ? "absolute right-0 top-full mt-3 w-80 rounded-2xl border border-black/10 bg-white/95 shadow-[0_24px_80px_rgba(0,0,0,0.12)] backdrop-blur-xl overflow-hidden"
+    : "absolute right-0 top-full mt-3 w-80 rounded-2xl border border-white/10 bg-[#101010]/95 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl overflow-hidden";
+  const accountRowClass = theme === "light"
+    ? "flex items-center gap-3 px-4 py-3 text-sm text-[#111111] hover:bg-black/5 transition-colors"
+    : "flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-white/5 transition-colors";
+  const shellMutedClass = theme === "light" ? "text-black/45" : "text-white/35";
+  const mainClass = theme === "light"
+    ? "flex-1 p-4 pb-28 lg:p-8 max-w-6xl w-full mx-auto"
+    : "flex-1 p-4 pb-28 lg:p-8 max-w-6xl w-full mx-auto";
+  const bottomBarClass = theme === "light"
+    ? "lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#f8f6f1]/95 backdrop-blur-md border-t border-black/8 flex items-stretch"
+    : "lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#0a0a0a]/95 backdrop-blur-md border-t border-white/8 flex items-stretch";
+  const moreSheetClass = theme === "light"
+    ? `fixed bottom-0 inset-x-0 z-50 bg-[#f8f6f1] rounded-t-2xl border-t border-black/10 lg:hidden flex flex-col transition-transform duration-300 ease-out max-h-[85dvh] ${
+        moreOpen ? "translate-y-0" : "translate-y-full"
+      }`
+    : `fixed bottom-0 inset-x-0 z-50 bg-[#0f0f0f] rounded-t-2xl border-t border-white/10 lg:hidden flex flex-col transition-transform duration-300 ease-out max-h-[85dvh] ${
+        moreOpen ? "translate-y-0" : "translate-y-full"
+      }`;
+
   return (
-    <div className="min-h-screen bg-black text-white flex">
+    <div className={shellClass}>
       {/* Sidebar — desktop only */}
-      <aside className="hidden lg:flex flex-col w-56 bg-[#0a0a0a] border-r border-white/8 flex-shrink-0">
+      <aside className={sidebarClass}>
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-white/8">
+        <div className={`px-5 py-5 ${theme === "light" ? "border-b border-black/8" : "border-b border-white/8"}`}>
           <div className="text-xs tracking-widest uppercase text-sky-400 mb-0.5">Backoffice</div>
-          <div className="text-sm font-semibold text-white">CEL3 Interactive</div>
+          <div className={`text-sm font-semibold ${theme === "light" ? "text-[#111111]" : "text-white"}`}>CEL3 Interactive</div>
         </div>
 
         {/* Nav */}
@@ -356,7 +428,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                   isActive
                     ? "bg-sky-500/10 text-sky-400"
-                    : "text-white/50 hover:text-white hover:bg-white/5"
+                    : theme === "light"
+                      ? "text-black/55 hover:text-black hover:bg-black/5"
+                      : "text-white/50 hover:text-white hover:bg-white/5"
                 }`}
               >
                 {item.icon}
@@ -377,22 +451,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         {/* Live Timer */}
-        <div className="border-t border-white/8">
+        <div className={theme === "light" ? "border-t border-black/8" : "border-t border-white/8"}>
           <LiveTimer />
         </div>
 
         {/* Footer */}
-        <div className="px-3 py-4 border-t border-white/8">
+        <div className={`px-3 py-4 ${theme === "light" ? "border-t border-black/8" : "border-t border-white/8"}`}>
           {/* Current user identity */}
           {currentUser && (
             <div className="px-3 py-2 mb-2">
-              <div className="text-xs text-white/70 font-medium truncate">{currentUser.name}</div>
-              <div className="text-[10px] text-white/30 mt-0.5">{currentUser.roleName}</div>
+              <div className={`text-xs font-medium truncate ${theme === "light" ? "text-black/75" : "text-white/70"}`}>{currentUser.name}</div>
+              <div className={`text-[10px] mt-0.5 truncate ${theme === "light" ? "text-black/40" : "text-white/30"}`}>{currentUser.email}</div>
             </div>
           )}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-white/40 hover:text-white hover:bg-white/5 transition-colors w-full"
+            className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors w-full ${
+              theme === "light" ? "text-black/50 hover:text-black hover:bg-black/5" : "text-white/40 hover:text-white hover:bg-white/5"
+            }`}
           >
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
@@ -402,7 +478,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link
             href="/"
             target="_blank"
-            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-white/40 hover:text-white hover:bg-white/5 transition-colors mt-0.5"
+            className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors mt-0.5 ${
+              theme === "light" ? "text-black/50 hover:text-black hover:bg-black/5" : "text-white/40 hover:text-white hover:bg-white/5"
+            }`}
           >
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
@@ -422,13 +500,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* More sheet — slides up from bottom on mobile */}
       <div
-        className={`fixed bottom-0 inset-x-0 z-50 bg-[#0f0f0f] rounded-t-2xl border-t border-white/10 lg:hidden flex flex-col transition-transform duration-300 ease-out max-h-[85dvh] ${
-          moreOpen ? "translate-y-0" : "translate-y-full"
-        }`}
+        className={moreSheetClass}
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
-          <div className="w-9 h-1 rounded-full bg-white/20" />
+          <div className={`w-9 h-1 rounded-full ${theme === "light" ? "bg-black/20" : "bg-white/20"}`} />
         </div>
 
         {/* All nav items */}
@@ -443,7 +519,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 href={item.href}
                 onClick={() => setMoreOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-                  isActive ? "bg-sky-500/10 text-sky-400" : "text-white/70"
+                  isActive
+                    ? "bg-sky-500/10 text-sky-400"
+                    : theme === "light"
+                      ? "text-black/70"
+                      : "text-white/70"
                 }`}
               >
                 {item.icon}
@@ -464,16 +544,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         {/* User + actions footer */}
-        <div className="flex-shrink-0 border-t border-white/8 px-4 py-3 pb-8">
+        <div className={`flex-shrink-0 px-4 py-3 pb-8 ${theme === "light" ? "border-t border-black/8" : "border-t border-white/8"}`}>
           {currentUser && (
             <div className="px-4 py-2 mb-1">
-              <div className="text-sm font-medium text-white">{currentUser.name}</div>
-              <div className="text-xs text-white/40 mt-0.5">{currentUser.roleName}</div>
+              <div className={`text-sm font-medium ${theme === "light" ? "text-[#111111]" : "text-white"}`}>{currentUser.name}</div>
+              <div className={`text-xs mt-0.5 ${theme === "light" ? "text-black/40" : "text-white/40"}`}>{currentUser.email}</div>
             </div>
           )}
           <button
             onClick={() => { setMoreOpen(false); handleLogout(); }}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/60 w-full"
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm w-full ${
+              theme === "light" ? "text-black/60" : "text-white/60"
+            }`}
           >
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
@@ -484,7 +566,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href="/"
             target="_blank"
             onClick={() => setMoreOpen(false)}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/60"
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm ${
+              theme === "light" ? "text-black/60" : "text-white/60"
+            }`}
           >
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
@@ -496,23 +580,151 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Mobile header — page title only */}
-        <div className="lg:hidden flex items-center px-5 py-3.5 border-b border-white/8 flex-shrink-0 bg-[#0a0a0a]">
+        <div className={desktopTopbarClass}>
+          <div>
+            <div className="text-xs tracking-[0.28em] uppercase font-semibold text-sky-400">
+              {[...NAV, TEAM_NAV].find((n) =>
+                n.href === "/admin" ? pathname === "/admin" : pathname.startsWith(n.href.split("?")[0])
+              )?.label ?? "Backoffice"}
+            </div>
+            <div className={`text-sm mt-0.5 ${shellMutedClass}`}>
+              Premium controls for your workspace, account, and theme.
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {currentUser?.email && (
+              <span className={`hidden xl:block text-sm max-w-[260px] truncate ${shellMutedClass}`}>
+                {currentUser.email}
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={() => setTheme((prev) => prev === "dark" ? "light" : "dark")}
+              className={iconButtonClass}
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1.5m0 15V21m9-9h-1.5m-15 0H3m15.364 6.364-1.06-1.06M6.697 6.697 5.636 5.636m12.728 0-1.06 1.061M6.697 17.303l-1.061 1.06M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0Z" />
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 12.79A9 9 0 1111.21 3c-.008.116-.01.233-.01.35A7.5 7.5 0 0018.65 10.8c.117 0 .234-.002.35-.01Z" />
+                </svg>
+              )}
+            </button>
+            <div
+              ref={menuRef}
+              className="relative"
+              onMouseEnter={() => setMenuOpen(true)}
+              onMouseLeave={() => setMenuOpen(false)}
+            >
+              <button
+                type="button"
+                onClick={() => setMenuOpen((prev) => !prev)}
+                className={`${iconButtonClass} overflow-hidden`}
+                aria-label="Open account menu"
+              >
+                <span className="w-full h-full flex items-center justify-center rounded-full bg-sky-500/15 text-sky-400 font-semibold text-sm">
+                  {initials}
+                </span>
+              </button>
+              {menuOpen && (
+                <div className={menuClass}>
+                  <div className={`px-4 py-4 border-b ${theme === "light" ? "border-black/8" : "border-white/8"}`}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-2xl bg-sky-500/15 text-sky-400 font-semibold flex items-center justify-center">
+                        {initials}
+                      </div>
+                      <div className="min-w-0">
+                        <p className={`text-sm font-semibold truncate ${theme === "light" ? "text-[#111111]" : "text-white"}`}>
+                          {currentUser?.name ?? "Admin Account"}
+                        </p>
+                        <p className={`text-xs truncate ${shellMutedClass}`}>{currentUser?.email ?? "Loading account"}</p>
+                        <p className={`text-[11px] truncate mt-1 ${shellMutedClass}`}>{currentUser?.roleName ?? "Workspace access"}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="py-2">
+                    <Link href="/admin/settings" className={accountRowClass}>
+                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12a7.5 7.5 0 1115 0 7.5 7.5 0 01-15 0Zm7.5-3v3l2.25 2.25" />
+                      </svg>
+                      <span>Settings</span>
+                    </Link>
+                    <Link href="/admin/privacy" className={accountRowClass}>
+                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 9h10.5A2.25 2.25 0 0019.5 17.25v-4.5A2.25 2.25 0 0017.25 10.5H6.75A2.25 2.25 0 004.5 12.75v4.5A2.25 2.25 0 006.75 19.5Z" />
+                      </svg>
+                      <span>Privacy</span>
+                    </Link>
+                    <div className={`px-4 pt-2 pb-1 text-xs ${shellMutedClass}`}>
+                      Signed in as {currentUser?.email ?? "your admin account"}
+                    </div>
+                    <div className={`px-4 py-3 border-t mt-2 ${theme === "light" ? "border-black/8" : "border-white/8"}`}>
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className={`w-full flex items-center gap-3 text-left text-sm transition-colors ${theme === "light" ? "text-[#111111] hover:text-sky-600" : "text-white hover:text-sky-300"}`}
+                      >
+                        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                        </svg>
+                        <span>Log out</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className={mobileHeaderClass}>
           <span className="text-xs tracking-widest uppercase font-semibold text-sky-400">
             {[...NAV, TEAM_NAV].find((n) =>
               n.href === "/admin" ? pathname === "/admin" : pathname.startsWith(n.href.split("?")[0])
             )?.label ?? "Backoffice"}
           </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setTheme((prev) => prev === "dark" ? "light" : "dark")}
+              className={iconButtonClass}
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1.5m0 15V21m9-9h-1.5m-15 0H3m15.364 6.364-1.06-1.06M6.697 6.697 5.636 5.636m12.728 0-1.06 1.061M6.697 17.303l-1.061 1.06M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0Z" />
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 12.79A9 9 0 1111.21 3c-.008.116-.01.233-.01.35A7.5 7.5 0 0018.65 10.8c.117 0 .234-.002.35-.01Z" />
+                </svg>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMoreOpen(true)}
+              className={iconButtonClass}
+              aria-label="Open more menu"
+            >
+              <span className="w-full h-full flex items-center justify-center rounded-full bg-sky-500/15 text-sky-400 font-semibold text-xs">
+                {initials}
+              </span>
+            </button>
+          </div>
         </div>
 
-        <main className="flex-1 p-4 pb-28 lg:p-8 max-w-6xl w-full mx-auto">
+        <main className={mainClass}>
           {children}
         </main>
       </div>
 
       {/* Bottom tab bar — mobile only */}
       <nav
-        className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#0a0a0a]/95 backdrop-blur-md border-t border-white/8 flex items-stretch"
+        className={bottomBarClass}
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         {[
@@ -569,7 +781,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               key={tab.href}
               href={tab.href}
               className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 relative min-h-[56px] transition-colors ${
-                isActive ? "text-sky-400" : "text-white/40"
+                isActive ? "text-sky-400" : theme === "light" ? "text-black/40" : "text-white/40"
               }`}
             >
               <div className="relative">
@@ -590,7 +802,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* More tab */}
         <button
           onClick={() => setMoreOpen(true)}
-          className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-white/40 min-h-[56px]"
+          className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 min-h-[56px] ${
+            theme === "light" ? "text-black/40" : "text-white/40"
+          }`}
         >
           <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
