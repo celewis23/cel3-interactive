@@ -25,12 +25,34 @@ function sanitizeFolderName(input: string) {
   return cleaned || "Client Portal";
 }
 
+async function findDriveFolderByNames(names: string[], parentId?: string) {
+  const normalizedNames = names.map((name) => name.trim().toLowerCase()).filter(Boolean);
+  if (normalizedNames.length === 0) return null;
+
+  const { files } = await listFiles({ folderId: parentId, foldersOnly: true, pageSize: 200 });
+  return files.find((file) => file.isFolder && normalizedNames.includes(file.name.trim().toLowerCase())) ?? null;
+}
+
 export async function getOrCreateDriveFolderByName(name: string, parentId?: string) {
   const normalized = sanitizeFolderName(name);
   const { files } = await listFiles({ folderId: parentId, foldersOnly: true, pageSize: 200 });
   const existing = files.find((file) => file.isFolder && file.name.trim().toLowerCase() === normalized.toLowerCase());
   if (existing) return existing;
   return createFolder(normalized, parentId);
+}
+
+async function resolveClientsFolderParentId() {
+  const explicitClientsFolderId =
+    process.env.GOOGLE_DRIVE_CLIENTS_FOLDER_ID?.trim()
+    || process.env.GOOGLE_DRIVE_CLIENT_FOLDER_ID?.trim();
+  if (explicitClientsFolderId) return explicitClientsFolderId;
+
+  const portalRootFolderId = process.env.GOOGLE_DRIVE_PORTAL_ROOT_FOLDER_ID?.trim() || undefined;
+  const existingClientsFolder = await findDriveFolderByNames(["Clients", "Client"], portalRootFolderId);
+  if (existingClientsFolder) return existingClientsFolder.id;
+
+  const createdClientsFolder = await createFolder("Clients", portalRootFolderId);
+  return createdClientsFolder.id;
 }
 
 function getPortalFolderBaseName(input: { company?: string | null; name?: string | null; email?: string | null }) {
@@ -53,8 +75,8 @@ export async function ensurePortalAccessForStripeCustomer(customerId: string): P
   const company = pipelineContact.company ?? customer.description ?? null;
   const name = customer.name ?? pipelineContact.name ?? customer.email;
   const folderName = getPortalFolderBaseName({ company, name, email: customer.email });
-  const rootParentId = process.env.GOOGLE_DRIVE_PORTAL_ROOT_FOLDER_ID || undefined;
-  const rootFolder = await getOrCreateDriveFolderByName(folderName, rootParentId);
+  const clientsFolderParentId = await resolveClientsFolderParentId();
+  const rootFolder = await getOrCreateDriveFolderByName(folderName, clientsFolderParentId);
   await getOrCreateDriveFolderByName("Requests", rootFolder.id).catch(() => null);
 
   const existing = await sanityServer.fetch<PortalUserRecord | null>(
