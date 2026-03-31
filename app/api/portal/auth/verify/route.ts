@@ -23,6 +23,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL("/portal/auth/login?error=expired", req.url));
     }
 
+    const portalUser = await sanityServer.fetch<{ mustChangePassword: boolean | null } | null>(
+      `*[_type == "clientPortalUser" && _id == $id][0]{ mustChangePassword }`,
+      { id: tokenDoc.userId }
+    );
+
     await sanityWriteClient.patch(tokenDoc._id).set({ used: true }).commit();
     await sanityWriteClient
       .patch(tokenDoc.userId)
@@ -30,7 +35,8 @@ export async function GET(req: NextRequest) {
       .commit();
 
     const sessionToken = createPortalSessionToken(tokenDoc.userId, tokenDoc.email);
-    const response = NextResponse.redirect(new URL("/portal", req.url));
+    const redirectPath = portalUser?.mustChangePassword ? "/portal/auth/change-password" : "/portal";
+    const response = NextResponse.redirect(new URL(redirectPath, req.url));
     response.cookies.set(PORTAL_COOKIE, sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

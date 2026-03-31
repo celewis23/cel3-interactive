@@ -43,3 +43,13 @@ export function verifyPortalSessionToken(token: string): PortalSession | null {
 export function generateMagicToken(): string {
   return randomBytes(32).toString("hex");
 }
+
+export function generateTemporaryPortalPassword(length = 14): string {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
+  const bytes = randomBytes(length);
+  let password = "";
+  for (let i = 0; i < length; i += 1) {
+    password += alphabet[bytes[i] % alphabet.length];
+  }
+  return password;
+}

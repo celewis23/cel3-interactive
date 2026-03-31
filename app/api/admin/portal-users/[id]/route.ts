@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
-import { generateMagicToken } from "@/lib/portal/auth";
+import { generateTemporaryPortalPassword } from "@/lib/portal/auth";
 import { sendEmail } from "@/lib/gmail/api";
+import { hashPassword } from "@/lib/admin/staffPassword";
 
 export const runtime = "nodejs";
 
@@ -70,7 +71,7 @@ export async function DELETE(
   }
 }
 
-// Resend invite
+// Send or resend invitation email with temporary credentials
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -79,41 +80,52 @@ export async function POST(
   if (authErr) return authErr;
   const { id } = await params;
   try {
-    const user = await sanityServer.fetch<{ email: string; name: string | null } | null>(
-      `*[_type == "clientPortalUser" && _id == $id][0]{ email, name }`,
+    const user = await sanityServer.fetch<{ email: string; name: string | null; status: string | null } | null>(
+      `*[_type == "clientPortalUser" && _id == $id][0]{ email, name, status }`,
       { id }
     );
     if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (user.status === "suspended") {
+      return NextResponse.json({ error: "Restore this portal user before sending an invitation" }, { status: 409 });
+    }
 
-    const token = generateMagicToken();
-    const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
-    await sanityWriteClient.create({
-      _type: "clientPortalToken",
-      email: user.email,
-      userId: id,
-      token,
-      expiresAt,
-      used: false,
-    });
+    const temporaryPassword = generateTemporaryPortalPassword();
+    const { hash, salt } = hashPassword(temporaryPassword);
+    const portalLoginUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? new URL(req.url).origin}/portal/auth/login`;
+    const invitationSentAt = new Date().toISOString();
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(req.url).origin;
-    const inviteLink = `${siteUrl}/portal/auth/verify?token=${token}`;
+    await sanityWriteClient.patch(id).set({
+      passwordHash: hash,
+      passwordSalt: salt,
+      mustChangePassword: true,
+      invitationSentAt,
+      status: "invited",
+    }).commit();
 
     let emailSent = false;
     try {
       await sendEmail({
         to: user.email,
-        subject: "Your CEL3 Interactive Portal Sign-In Link",
+        subject: "Your CEL3 Interactive Client Portal Login",
         htmlBody: `
           <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;">
             <p style="font-size:13px;color:#888;margin:0 0 6px;text-transform:uppercase;letter-spacing:0.08em">CEL3 Interactive</p>
-            <h1 style="font-size:22px;font-weight:700;color:#000;margin:0 0 16px;line-height:1.3">Sign in to your client portal</h1>
+            <h1 style="font-size:22px;font-weight:700;color:#000;margin:0 0 16px;line-height:1.3">Your client portal is ready</h1>
             <p style="font-size:15px;color:#444;margin:0 0 28px;line-height:1.6">
-              Click the button below to sign in. This link expires in 48 hours.
+              ${user.name ? `Hi ${user.name},` : "Hi,"} your CEL3 Interactive client portal is ready. Use the login details below to sign in.
             </p>
-            <a href="${inviteLink}" style="display:inline-block;padding:13px 28px;background:#0ea5e9;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:15px;">
-              Access your portal
+            <div style="background:#f5f5f5;border-radius:12px;padding:18px 20px;margin:0 0 24px;">
+              <p style="font-size:13px;color:#666;margin:0 0 8px;">Login email</p>
+              <p style="font-size:15px;color:#111;margin:0 0 14px;font-weight:600;">${user.email}</p>
+              <p style="font-size:13px;color:#666;margin:0 0 8px;">Temporary password</p>
+              <p style="font-size:15px;color:#111;margin:0;font-weight:600;letter-spacing:0.02em;">${temporaryPassword}</p>
+            </div>
+            <a href="${portalLoginUrl}" style="display:inline-block;padding:13px 28px;background:#0ea5e9;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:15px;">
+              Go to portal login
             </a>
+            <p style="font-size:13px;color:#aaa;margin:24px 0 0;line-height:1.6">
+              For security, you&apos;ll be asked to change this password the first time you sign in.
+            </p>
           </div>
         `,
       });
@@ -122,9 +134,16 @@ export async function POST(
       console.error("PORTAL_RESEND_EMAIL_ERR:", emailErr);
     }
 
-    return NextResponse.json({ ok: true, emailSent, inviteLink });
+    return NextResponse.json({
+      ok: true,
+      emailSent,
+      loginUrl: portalLoginUrl,
+      loginEmail: user.email,
+      temporaryPassword,
+      invitationSentAt,
+    });
   } catch (err) {
     console.error("ADMIN_PORTAL_USER_RESEND_ERR:", err);
-    return NextResponse.json({ error: "Failed to resend invite" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to send portal invitation" }, { status: 500 });
   }
 }

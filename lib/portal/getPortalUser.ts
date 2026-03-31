@@ -12,6 +12,7 @@ export type PortalUser = {
   pipelineContactId: string | null;
   driveRootFolderId: string | null;
   status: string;
+  mustChangePassword?: boolean | null;
 };
 
 export async function getPortalUser(): Promise<PortalUser> {
@@ -22,10 +23,11 @@ export async function getPortalUser(): Promise<PortalUser> {
 
   const user = await sanityServer.fetch<PortalUser | null>(
     `*[_type == "clientPortalUser" && _id == $id && status != "suspended"][0]{
-      _id, email, name, company, stripeCustomerId, pipelineContactId, driveRootFolderId, status
+      _id, email, name, company, stripeCustomerId, pipelineContactId, driveRootFolderId, status, mustChangePassword
     }`,
     { id: session.userId }
   );
   if (!user) redirect("/portal/auth/login");
+  if (user.mustChangePassword) redirect("/portal/auth/change-password");
   return user;
 }

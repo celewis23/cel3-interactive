@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   try {
     const user = await sanityServer.fetch(
       `*[_type == "clientPortalUser" && _id == $id][0]{
-        _id, email, name, company, stripeCustomerId, pipelineContactId, driveRootFolderId, status, createdAt
+        _id, email, name, company, stripeCustomerId, pipelineContactId, driveRootFolderId, status, mustChangePassword, createdAt
       }`,
       { id: session.userId }
     );

@@ -18,13 +18,15 @@ export default async function ProtectedPortalLayout({ children }: { children: Re
     email: string;
     name: string | null;
     company: string | null;
+    mustChangePassword: boolean | null;
   } | null>(
     `*[_type == "clientPortalUser" && _id == $id && status != "suspended"][0]{
-      _id, email, name, company
+      _id, email, name, company, mustChangePassword
     }`,
     { id: session.userId }
   );
   if (!user) redirect("/portal/auth/login");
+  if (user.mustChangePassword) redirect("/portal/auth/change-password");
 
   return <PortalShell user={user}>{children}</PortalShell>;
 }

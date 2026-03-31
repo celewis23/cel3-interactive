@@ -1,26 +1,54 @@
 "use client";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Suspense } from "react";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [magicLoading, setMagicLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   const searchParams = useSearchParams();
+  const router = useRouter();
   const errorParam = searchParams.get("error");
 
   const errorMessages: Record<string, string> = {
     expired: "That sign-in link has expired or already been used. Please request a new one.",
     invalid: "Invalid sign-in link. Please request a new one.",
     server: "Something went wrong. Please try again.",
+    password_change_required: "Please change your password before continuing.",
   };
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handlePasswordLogin(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim() || !password) return;
     setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/portal/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+      const data = await res.json().catch(() => ({})) as { error?: string; redirectTo?: string };
+      if (!res.ok) {
+        setError(data.error ?? "Something went wrong. Please try again.");
+        return;
+      }
+      router.push(data.redirectTo ?? "/portal");
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleMagicLinkRequest() {
+    if (!email.trim()) return;
+    setMagicLoading(true);
     setError("");
     try {
       await fetch("/api/portal/auth/request", {
@@ -32,7 +60,7 @@ function LoginForm() {
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
-      setLoading(false);
+      setMagicLoading(false);
     }
   }
 
@@ -58,14 +86,14 @@ function LoginForm() {
               If an account exists for <span className="text-white/80">{email}</span>, a sign-in link has been sent. It expires in 15 minutes.
             </p>
             <button
-              onClick={() => { setSent(false); setEmail(""); }}
+              onClick={() => { setSent(false); setEmail(""); setPassword(""); }}
               className="mt-4 text-xs text-white/40 hover:text-white transition-colors"
             >
               Use a different email
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handlePasswordLogin} className="space-y-4">
             {error && (
               <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl p-3">
                 {error}
@@ -82,12 +110,31 @@ function LoginForm() {
                 className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
               />
             </div>
+            <div>
+              <label className="text-xs text-white/50 mb-1.5 block">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
             <button
               type="submit"
-              disabled={loading || !email.trim()}
+              disabled={loading || !email.trim() || !password}
               className="w-full px-4 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:opacity-40 text-black font-semibold text-sm transition-colors"
             >
-              {loading ? "Sending…" : "Send sign-in link"}
+              {loading ? "Signing in…" : "Sign in"}
+            </button>
+            <button
+              type="button"
+              onClick={handleMagicLinkRequest}
+              disabled={magicLoading || !email.trim()}
+              className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/8 disabled:opacity-40 text-white text-sm transition-colors"
+            >
+              {magicLoading ? "Sending…" : "Email me a sign-in link instead"}
             </button>
           </form>
         )}

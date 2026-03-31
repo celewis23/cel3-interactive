@@ -16,7 +16,7 @@ export default async function AdminPortalUsersPage() {
   const users = await sanityServer.fetch(
     `*[_type == "clientPortalUser"] | order(_createdAt desc) {
       _id, email, name, company, stripeCustomerId, pipelineContactId,
-      driveRootFolderId, status, lastLoginAt, _createdAt
+      driveRootFolderId, status, lastLoginAt, invitationSentAt, mustChangePassword, _createdAt
     }`
   );
 
