@@ -20,7 +20,13 @@ export default function PortalShell({
   user,
   children,
 }: {
-  user: { name: string | null; company: string | null; email: string };
+  user: {
+    name: string | null;
+    company: string | null;
+    email: string;
+    siteUrl?: string | null;
+    managementUrl?: string | null;
+  };
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -28,6 +34,7 @@ export default function PortalShell({
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const closeTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const stored = window.localStorage.getItem("cel3-portal-theme");
@@ -49,6 +56,14 @@ export default function PortalShell({
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current !== null) {
+        window.clearTimeout(closeTimerRef.current);
+      }
+    };
   }, []);
 
   async function handleLogout() {
@@ -83,6 +98,24 @@ export default function PortalShell({
     ? "flex items-center gap-3 px-4 py-3 text-sm text-[#111111] hover:bg-black/5 transition-colors"
     : "flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-white/5 transition-colors";
   const mutedClass = theme === "light" ? "text-black/50" : "text-white/40";
+
+  function openMenu() {
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+    setMenuOpen(true);
+  }
+
+  function closeMenuSoon() {
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+    }
+    closeTimerRef.current = window.setTimeout(() => {
+      setMenuOpen(false);
+      closeTimerRef.current = null;
+    }, 320);
+  }
 
   return (
     <div className={`portal-shell ${shellClass}`}>
@@ -137,8 +170,8 @@ export default function PortalShell({
             <div
               ref={menuRef}
               className="relative"
-              onMouseEnter={() => setMenuOpen(true)}
-              onMouseLeave={() => setMenuOpen(false)}
+              onMouseEnter={openMenu}
+              onMouseLeave={closeMenuSoon}
             >
               <button
                 type="button"
@@ -152,7 +185,7 @@ export default function PortalShell({
               </button>
 
               {menuOpen && (
-                <div className={menuClass}>
+                <div className={menuClass} onMouseEnter={openMenu} onMouseLeave={closeMenuSoon}>
                   <div className={`px-4 py-4 border-b ${theme === "light" ? "border-black/8" : "border-white/8"}`}>
                     <div className="flex items-center gap-3">
                       <div className="w-11 h-11 rounded-2xl bg-sky-500/15 text-sky-400 font-semibold flex items-center justify-center">
@@ -168,6 +201,22 @@ export default function PortalShell({
                   </div>
 
                   <div className="py-2">
+                    {user.managementUrl && (
+                      <Link href="/portal/manage-site" target="_blank" className={rowClass}>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5h15m-13.5-3.75L17.25 4.5m-8.25 0h8.25v8.25" />
+                        </svg>
+                        <span>Manage Site</span>
+                      </Link>
+                    )}
+                    {user.siteUrl && (
+                      <a href={user.siteUrl} target="_blank" rel="noopener noreferrer" className={rowClass}>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                        </svg>
+                        <span>Open Site</span>
+                      </a>
+                    )}
                     <Link href="/portal/settings" className={rowClass}>
                       <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 12h9.75m-9.75 6h9.75M3.75 6h.008v.008H3.75V6Zm0 6h.008v.008H3.75V12Zm0 6h.008v.008H3.75V18Z" />

@@ -31,7 +31,7 @@ export default function SiteLaunchClient({
     if (!shouldAutoSubmit) return;
 
     let cancelled = false;
-    let timer: ReturnType<typeof window.setTimeout> | null = null;
+    let timer: number | null = null;
 
     const submitWhenReady = () => {
       if (cancelled) return;
