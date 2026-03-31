@@ -12,6 +12,25 @@ const AVATAR_COLORS = [
   "bg-teal-500/30 text-teal-300",
 ];
 
+const SOURCE_OPTIONS = ["Referral", "Website", "LinkedIn", "Cold Outreach", "Event", "Other"];
+
+type Stage = { id: string; name: string };
+
+type LinkedPipelineContact = {
+  _id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  company: string | null;
+  source: string | null;
+  notes: string | null;
+  owner: string | null;
+  stage: string;
+  estimatedValue: number | null;
+  stripeCustomerId: string | null;
+  googleContactResourceName: string | null;
+};
+
 function AvatarCircle({ name, index }: { name: string | null; index: number }) {
   const initial = name ? name.charAt(0).toUpperCase() : "?";
   const color = AVATAR_COLORS[index % AVATAR_COLORS.length];
@@ -30,10 +49,24 @@ interface ContactFormData {
   phone: string;
   company: string;
   notes: string;
+  source: string;
+  owner: string;
+  stage: string;
+  estimatedValue: string;
 }
 
 function emptyFormData(): ContactFormData {
-  return { name: "", email: "", phone: "", company: "", notes: "" };
+  return {
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    notes: "",
+    source: "",
+    owner: "",
+    stage: "new-lead",
+    estimatedValue: "",
+  };
 }
 
 function contactToFormData(c: Contact): ContactFormData {
@@ -43,6 +76,24 @@ function contactToFormData(c: Contact): ContactFormData {
     phone: c.phones[0]?.value ?? "",
     company: c.organizations[0]?.name ?? "",
     notes: c.notes ?? "",
+    source: "",
+    owner: "",
+    stage: "new-lead",
+    estimatedValue: "",
+  };
+}
+
+function pipelineContactToFormData(c: LinkedPipelineContact): ContactFormData {
+  return {
+    name: c.name,
+    email: c.email ?? "",
+    phone: c.phone ?? "",
+    company: c.company ?? "",
+    notes: c.notes ?? "",
+    source: c.source ?? "",
+    owner: c.owner ?? "",
+    stage: c.stage,
+    estimatedValue: c.estimatedValue?.toString() ?? "",
   };
 }
 
@@ -53,10 +104,27 @@ interface ContactFormProps {
   submitLabel: string;
   loading: boolean;
   error: string | null;
+  stages?: Stage[];
+  showPipelineFields?: boolean;
+  stripeCustomerId?: string | null;
 }
 
-function ContactForm({ initialData, onSubmit, onCancel, submitLabel, loading, error }: ContactFormProps) {
+function ContactForm({
+  initialData,
+  onSubmit,
+  onCancel,
+  submitLabel,
+  loading,
+  error,
+  stages = [],
+  showPipelineFields = false,
+  stripeCustomerId = null,
+}: ContactFormProps) {
   const [form, setForm] = useState<ContactFormData>(initialData ?? emptyFormData());
+
+  useEffect(() => {
+    setForm(initialData ?? emptyFormData());
+  }, [initialData]);
 
   function setField<K extends keyof ContactFormData>(key: K, value: ContactFormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -69,67 +137,131 @@ function ContactForm({ initialData, onSubmit, onCancel, submitLabel, loading, er
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="text-xs text-white/40 block mb-1">Name</label>
-          <input
-            type="text"
-            value={form.name}
-            onChange={(e) => setField("name", e.target.value)}
-            className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50"
-          />
-        </div>
-        <div>
-          <label className="text-xs text-white/40 block mb-1">Company</label>
-          <input
-            type="text"
-            value={form.company}
-            onChange={(e) => setField("company", e.target.value)}
-            className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50"
-          />
-        </div>
+      <div>
+        <label className="block text-xs text-white/50 mb-1.5">Name</label>
+        <input
+          type="text"
+          value={form.name}
+          onChange={(e) => setField("name", e.target.value)}
+          className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50 transition-colors"
+        />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      {showPipelineFields && stripeCustomerId && (
         <div>
-          <label className="text-xs text-white/40 block mb-1">Email</label>
+          <a
+            href={`https://dashboard.stripe.com/customers/${stripeCustomerId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-green-400/10 text-green-400 hover:bg-green-400/20 transition-colors font-semibold"
+          >
+            <svg width="10" height="10" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+            </svg>
+            Stripe Customer
+          </a>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div>
+          <label className="block text-xs text-white/50 mb-1.5">Email</label>
           <input
             type="email"
             value={form.email}
             onChange={(e) => setField("email", e.target.value)}
             placeholder="email@example.com"
-            className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50"
+            className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
           />
         </div>
         <div>
-          <label className="text-xs text-white/40 block mb-1">Phone</label>
+          <label className="block text-xs text-white/50 mb-1.5">Phone</label>
           <input
             type="tel"
             value={form.phone}
             onChange={(e) => setField("phone", e.target.value)}
             placeholder="+1 555 000 0000"
-            className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50"
+            className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
           />
         </div>
       </div>
 
       <div>
-        <label className="text-xs text-white/40 block mb-1">Company</label>
+        <label className="block text-xs text-white/50 mb-1.5">Company</label>
         <input
           type="text"
           value={form.company}
           onChange={(e) => setField("company", e.target.value)}
-          className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50"
+          className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
         />
       </div>
 
+      {showPipelineFields && (
+        <>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label className="block text-xs text-white/50 mb-1.5">Source</label>
+              <select
+                value={form.source}
+                onChange={(e) => setField("source", e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-sky-500/50 [color-scheme:dark]"
+              >
+                <option value="">— None —</option>
+                {SOURCE_OPTIONS.map((source) => (
+                  <option key={source} value={source}>{source}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-white/50 mb-1.5">Stage</label>
+              <select
+                value={form.stage}
+                onChange={(e) => setField("stage", e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-sky-500/50 [color-scheme:dark]"
+              >
+                {stages.map((stage) => (
+                  <option key={stage.id} value={stage.id}>{stage.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label className="block text-xs text-white/50 mb-1.5">Owner</label>
+              <input
+                type="text"
+                value={form.owner}
+                onChange={(e) => setField("owner", e.target.value)}
+                placeholder="Name or email"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-white/50 mb-1.5">Estimated Value</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 text-sm">$</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={form.estimatedValue}
+                  onChange={(e) => setField("estimatedValue", e.target.value)}
+                  placeholder="0"
+                  className="w-full pl-7 pr-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
       <div>
-        <label className="text-xs text-white/40 block mb-1">Notes</label>
+        <label className="block text-xs text-white/50 mb-1.5">Notes</label>
         <textarea
           value={form.notes}
           onChange={(e) => setField("notes", e.target.value)}
-          rows={3}
-          className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50 resize-none"
+          rows={4}
+          className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors resize-none"
         />
       </div>
 
@@ -148,7 +280,7 @@ function ContactForm({ initialData, onSubmit, onCancel, submitLabel, loading, er
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2 rounded-xl text-sm text-white bg-sky-500 hover:bg-sky-400 disabled:opacity-50 transition-colors"
+          className="px-4 py-2 rounded-xl text-sm font-semibold text-black bg-sky-500 hover:bg-sky-400 disabled:opacity-50 transition-colors"
         >
           {loading ? "Saving…" : submitLabel}
         </button>
@@ -172,39 +304,97 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
   const [saveError, setSaveError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [linkedContact, setLinkedContact] = useState<LinkedPipelineContact | null>(null);
+  const [stages, setStages] = useState<Stage[]>([]);
+  const [loadingEditContext, setLoadingEditContext] = useState(false);
 
   const id = contact.resourceName.replace("people/", "");
+
+  useEffect(() => {
+    setEditing(false);
+    setSaveError(null);
+    setConfirmDelete(false);
+    setLinkedContact(null);
+    setStages([]);
+  }, [contact.resourceName]);
+
+  const openEditor = async () => {
+    setLoadingEditContext(true);
+    setSaveError(null);
+    try {
+      const res = await fetch(`/api/admin/contacts/${id}/linked`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(err.error ?? "Failed to load contact editor");
+      }
+      const data = await res.json() as { pipelineContact: LinkedPipelineContact | null; stages: Stage[] };
+      setLinkedContact(data.pipelineContact ?? null);
+      setStages(data.stages ?? []);
+      setEditing(true);
+    } catch (e) {
+      setSaveError((e as Error).message);
+    } finally {
+      setLoadingEditContext(false);
+    }
+  };
 
   const handleUpdate = async (form: ContactFormData) => {
     setSaving(true);
     setSaveError(null);
     try {
-      // First get current etag
-      const getRes = await fetch(`/api/admin/contacts/${id}`);
-      if (!getRes.ok) throw new Error("Failed to fetch contact for update");
-      const current = await getRes.json() as Contact & { etag?: string };
-      const nameParts = form.name.trim().split(/\s+/).filter(Boolean);
-      const givenName = nameParts[0] ?? "";
-      const familyName = nameParts.slice(1).join(" ");
+      if (linkedContact) {
+        const patchRes = await fetch(`/api/admin/pipeline/contacts/${linkedContact._id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: form.name.trim(),
+            email: form.email.trim() || null,
+            phone: form.phone.trim() || null,
+            company: form.company.trim() || null,
+            source: form.source || null,
+            notes: form.notes.trim() || null,
+            owner: form.owner.trim() || null,
+            estimatedValue: form.estimatedValue ? Number(form.estimatedValue) : null,
+            stage: form.stage,
+          }),
+        });
+        if (!patchRes.ok) {
+          const err = await patchRes.json().catch(() => ({})) as { error?: string };
+          throw new Error(err.error ?? "Failed to update contact");
+        }
 
-      const putRes = await fetch(`/api/admin/contacts/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          etag: (current as Record<string, unknown>).etag ?? "*",
-          givenName: givenName || undefined,
-          familyName: familyName || undefined,
-          emails: form.email.trim() ? [{ value: form.email.trim() }] : [],
-          phones: form.phone.trim() ? [{ value: form.phone.trim() }] : [],
-          organization: form.company.trim() || "",
-          notes: form.notes || undefined,
-        }),
-      });
-      if (!putRes.ok) {
-        const err = await putRes.json().catch(() => ({})) as { error?: string };
-        throw new Error(err.error ?? "Failed to update contact");
+        const updatedPipeline = await patchRes.json() as LinkedPipelineContact;
+        setLinkedContact(updatedPipeline);
+      } else {
+        const getRes = await fetch(`/api/admin/contacts/${id}`);
+        if (!getRes.ok) throw new Error("Failed to fetch contact for update");
+        const current = await getRes.json() as Contact & { etag?: string };
+        const nameParts = form.name.trim().split(/\s+/).filter(Boolean);
+        const givenName = nameParts[0] ?? "";
+        const familyName = nameParts.slice(1).join(" ");
+
+        const putRes = await fetch(`/api/admin/contacts/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            etag: (current as Record<string, unknown>).etag ?? "*",
+            givenName: givenName || undefined,
+            familyName: familyName || undefined,
+            emails: form.email.trim() ? [{ value: form.email.trim() }] : [],
+            phones: form.phone.trim() ? [{ value: form.phone.trim() }] : [],
+            organization: form.company.trim() || "",
+            notes: form.notes || undefined,
+          }),
+        });
+        if (!putRes.ok) {
+          const err = await putRes.json().catch(() => ({})) as { error?: string };
+          throw new Error(err.error ?? "Failed to update contact");
+        }
       }
-      const updated = await putRes.json() as Contact;
+
+      const refreshRes = await fetch(`/api/admin/contacts/${id}`);
+      if (!refreshRes.ok) throw new Error("Failed to refresh contact");
+      const updated = await refreshRes.json() as Contact;
       onUpdate(updated);
       setEditing(false);
     } catch (e) {
@@ -239,13 +429,21 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
         </div>
         <div className="flex-1 overflow-y-auto p-5">
           <ContactForm
-            initialData={contactToFormData(contact)}
+            initialData={linkedContact ? pipelineContactToFormData(linkedContact) : contactToFormData(contact)}
             onSubmit={handleUpdate}
             onCancel={() => setEditing(false)}
             submitLabel="Save"
             loading={saving}
             error={saveError}
+            stages={stages}
+            showPipelineFields={Boolean(linkedContact)}
+            stripeCustomerId={linkedContact?.stripeCustomerId ?? null}
           />
+          {!linkedContact && (
+            <p className="mt-4 text-xs text-white/35">
+              This contact is not linked to a pipeline record yet, so this editor will update Google and any matched synced records using the shared fields.
+            </p>
+          )}
         </div>
       </div>
     );
@@ -338,10 +536,11 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
 
       <div className="flex-shrink-0 px-5 py-4 border-t border-white/8 flex gap-2">
         <button
-          onClick={() => setEditing(true)}
-          className="flex-1 px-3 py-2 rounded-xl text-sm text-white bg-sky-500 hover:bg-sky-400 transition-colors"
+          onClick={openEditor}
+          disabled={loadingEditContext}
+          className="flex-1 px-3 py-2 rounded-xl text-sm text-white bg-sky-500 hover:bg-sky-400 disabled:opacity-50 transition-colors"
         >
-          Edit
+          {loadingEditContext ? "Loading…" : "Edit"}
         </button>
         {!confirmDelete ? (
           <button
