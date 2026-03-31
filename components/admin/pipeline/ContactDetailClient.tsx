@@ -25,6 +25,9 @@ type PipelineContact = {
   driveFileUrl: string | null;
   driveFileName: string | null;
   followUpEventId: string | null;
+  siteUrl: string | null;
+  managementUrl: string | null;
+  managementUsername: string | null;
 };
 
 type PipelineActivity = {
@@ -118,6 +121,10 @@ export default function ContactDetailClient({
     owner: initialContact.owner ?? "",
     estimatedValue: initialContact.estimatedValue?.toString() ?? "",
     stage: initialContact.stage,
+    siteUrl: initialContact.siteUrl ?? "",
+    managementUrl: initialContact.managementUrl ?? "",
+    managementUsername: initialContact.managementUsername ?? "",
+    managementPassword: "",
   });
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -177,6 +184,10 @@ export default function ContactDetailClient({
           owner: form.owner.trim() || null,
           estimatedValue: form.estimatedValue ? Number(form.estimatedValue) : null,
           stage: form.stage,
+          siteUrl: form.siteUrl.trim() || null,
+          managementUrl: form.managementUrl.trim() || null,
+          managementUsername: form.managementUsername.trim() || null,
+          managementPassword: form.managementPassword,
         }),
       });
       if (res.ok) {
@@ -322,7 +333,11 @@ export default function ContactDetailClient({
     form.notes !== (contact.notes ?? "") ||
     form.owner !== (contact.owner ?? "") ||
     form.estimatedValue !== (contact.estimatedValue?.toString() ?? "") ||
-    form.stage !== contact.stage;
+    form.stage !== contact.stage ||
+    form.siteUrl !== (contact.siteUrl ?? "") ||
+    form.managementUrl !== (contact.managementUrl ?? "") ||
+    form.managementUsername !== (contact.managementUsername ?? "") ||
+    form.managementPassword !== "";
 
   return (
     <div className="flex flex-col lg:flex-row gap-8">
@@ -404,6 +419,72 @@ export default function ContactDetailClient({
               className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
             />
           </div>
+
+          <div>
+            <label className="block text-xs text-white/50 mb-1.5">Website URL</label>
+            <input
+              value={form.siteUrl}
+              onChange={(e) => setForm({ ...form, siteUrl: e.target.value })}
+              placeholder="https://clientsite.com"
+              className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2">
+              <label className="block text-xs text-white/50 mb-1.5">Management URL</label>
+              <input
+                value={form.managementUrl}
+                onChange={(e) => setForm({ ...form, managementUrl: e.target.value })}
+                placeholder="https://clientsite.com/wp-admin"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-white/50 mb-1.5">Management Username</label>
+              <input
+                value={form.managementUsername}
+                onChange={(e) => setForm({ ...form, managementUsername: e.target.value })}
+                placeholder="admin"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-white/50 mb-1.5">Management Password</label>
+              <input
+                type="password"
+                value={form.managementPassword}
+                onChange={(e) => setForm({ ...form, managementPassword: e.target.value })}
+                placeholder="Leave blank to keep saved password"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
+          </div>
+
+          {(contact.siteUrl || contact.managementUrl) && (
+            <div className="flex flex-wrap gap-2">
+              {contact.siteUrl && (
+                <a
+                  href={contact.siteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-2 rounded-xl bg-white/8 hover:bg-white/12 text-white text-sm transition-colors"
+                >
+                  Open Site
+                </a>
+              )}
+              {contact.managementUrl && (
+                <a
+                  href={`/admin/manage-site/${contact._id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-semibold text-sm transition-colors"
+                >
+                  Manage Site
+                </a>
+              )}
+            </div>
+          )}
 
           {/* Source + Stage */}
           <div className="grid grid-cols-2 gap-3">

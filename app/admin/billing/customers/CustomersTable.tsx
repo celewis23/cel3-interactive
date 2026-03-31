@@ -61,7 +61,7 @@ type Col = {
   render: (c: BillingCustomer, helpers: RenderHelpers) => React.ReactNode;
 };
 
-type LinkedContact = { _id: string; name: string; googleContactResourceName?: string | null };
+type LinkedContact = { _id: string; name: string; googleContactResourceName?: string | null; managementUrl?: string | null; siteUrl?: string | null };
 type PortalAccess = { _id: string; email: string; status: string; driveRootFolderId: string | null };
 
 type RenderHelpers = {
@@ -138,6 +138,26 @@ const COLUMNS: Col[] = [
             </button>
           )}
         </div>
+        {(helpers.linkedContacts[c.id]?.managementUrl || helpers.linkedContacts[c.id]?.siteUrl) && (
+          <div className="mt-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                const linked = helpers.linkedContacts[c.id];
+                if (linked?.managementUrl) {
+                  window.open(`/admin/manage-site/${linked._id}`, "_blank", "noopener,noreferrer");
+                  return;
+                }
+                if (linked?.siteUrl) {
+                  window.open(linked.siteUrl, "_blank", "noopener,noreferrer");
+                }
+              }}
+              className="px-2.5 py-1 rounded-lg border border-amber-500/25 bg-amber-500/10 text-amber-300 text-[11px] font-medium hover:bg-amber-500/15 transition-colors"
+            >
+              Manage Site
+            </button>
+          </div>
+        )}
       </div>
     ),
   },
@@ -459,7 +479,7 @@ const DEFAULT_ON = new Set(COLUMNS.filter((c) => c.defaultOn || c.always).map((c
 interface Props {
   customers: BillingCustomer[];
   hasMore: boolean;
-  importedContacts: Array<{ _id: string; name: string; stripeCustomerId: string | null; googleContactResourceName: string | null }>;
+  importedContacts: Array<{ _id: string; name: string; stripeCustomerId: string | null; googleContactResourceName: string | null; managementUrl: string | null; siteUrl: string | null }>;
   portalUsers: Array<{ _id: string; email: string; stripeCustomerId: string | null; status: string; driveRootFolderId: string | null }>;
 }
 
@@ -477,7 +497,13 @@ export default function CustomersTable({ customers, hasMore, importedContacts, p
         .filter((contact) => contact.stripeCustomerId)
         .map((contact) => [
           contact.stripeCustomerId as string,
-          { _id: contact._id, name: contact.name, googleContactResourceName: contact.googleContactResourceName },
+          {
+            _id: contact._id,
+            name: contact.name,
+            googleContactResourceName: contact.googleContactResourceName,
+            managementUrl: contact.managementUrl,
+            siteUrl: contact.siteUrl,
+          },
         ])
     )
   );
@@ -543,6 +569,8 @@ export default function CustomersTable({ customers, hasMore, importedContacts, p
           _id: data.contact._id,
           name: data.contact.name,
           googleContactResourceName: data.contact.googleContactResourceName ?? data.googleContact?.resourceName ?? null,
+          managementUrl: data.contact.managementUrl ?? null,
+          siteUrl: data.contact.siteUrl ?? null,
         },
       }));
     } catch (err) {

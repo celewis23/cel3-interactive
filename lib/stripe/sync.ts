@@ -12,6 +12,9 @@ type PipelineContact = {
   owner: string | null;
   stage: string;
   stripeCustomerId: string | null;
+  siteUrl?: string | null;
+  managementUrl?: string | null;
+  managementUsername?: string | null;
 };
 
 type SyncStripeCustomerOptions = {
@@ -34,7 +37,8 @@ function isoDateTimeFromUnix(seconds: number | null): string | null {
 export async function findPipelineContactByStripeCustomerId(stripeCustomerId: string) {
   return sanityServer.fetch<PipelineContact | null>(
     `*[_type == "pipelineContact" && stripeCustomerId == $stripeCustomerId][0]{
-      _id, name, email, phone, company, source, owner, stage, stripeCustomerId
+      _id, name, email, phone, company, source, owner, stage, stripeCustomerId,
+      siteUrl, managementUrl, managementUsername
     }`,
     { stripeCustomerId }
   );
@@ -43,7 +47,8 @@ export async function findPipelineContactByStripeCustomerId(stripeCustomerId: st
 export async function findPipelineContactByEmail(email: string) {
   return sanityServer.fetch<PipelineContact | null>(
     `*[_type == "pipelineContact" && lower(email) == lower($email)][0]{
-      _id, name, email, phone, company, source, owner, stage, stripeCustomerId
+      _id, name, email, phone, company, source, owner, stage, stripeCustomerId,
+      siteUrl, managementUrl, managementUsername
     }`,
     { email }
   );
@@ -117,6 +122,11 @@ export async function syncStripeCustomerToPipelineContact(
     driveFileUrl: null,
     driveFileName: null,
     followUpEventId: null,
+    siteUrl: null,
+    managementUrl: null,
+    managementUsername: null,
+    managementPasswordEncrypted: null,
+    managementPasswordIv: null,
   });
 
   await sanityWriteClient.create({
@@ -135,7 +145,8 @@ export async function syncStripeCustomerToPipelineContact(
 export async function ensureStripeCustomerForPipelineContact(contactId: string) {
   const contact = await sanityServer.fetch<PipelineContact | null>(
     `*[_type == "pipelineContact" && _id == $id][0]{
-      _id, name, email, phone, company, source, owner, stage, stripeCustomerId
+      _id, name, email, phone, company, source, owner, stage, stripeCustomerId,
+      siteUrl, managementUrl, managementUsername
     }`,
     { id: contactId }
   );

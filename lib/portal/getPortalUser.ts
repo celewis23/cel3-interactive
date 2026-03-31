@@ -13,6 +13,8 @@ export type PortalUser = {
   driveRootFolderId: string | null;
   status: string;
   mustChangePassword?: boolean | null;
+  siteUrl?: string | null;
+  managementUrl?: string | null;
 };
 
 export async function getPortalUser(): Promise<PortalUser> {
@@ -23,7 +25,8 @@ export async function getPortalUser(): Promise<PortalUser> {
 
   const user = await sanityServer.fetch<PortalUser | null>(
     `*[_type == "clientPortalUser" && _id == $id && status != "suspended"][0]{
-      _id, email, name, company, stripeCustomerId, pipelineContactId, driveRootFolderId, status, mustChangePassword
+      _id, email, name, company, stripeCustomerId, pipelineContactId, driveRootFolderId, status, mustChangePassword,
+      siteUrl, managementUrl
     }`,
     { id: session.userId }
   );

@@ -5,6 +5,7 @@ import { sanityWriteClient } from "@/lib/sanity.write";
 import { syncContactProfileFromPipeline } from "@/lib/contacts/unifiedSync";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 import { automationEngine } from "@/lib/automations/engine";
+import { buildSiteAccessPatch } from "@/lib/siteAccess";
 
 export const runtime = "nodejs";
 
@@ -23,6 +24,9 @@ const ALLOWED_FIELDS = [
   "followUpEventId",
   "stripeCustomerId",
   "googleContactResourceName",
+  "siteUrl",
+  "managementUrl",
+  "managementUsername",
 ] as const;
 
 export async function GET(
@@ -39,7 +43,8 @@ export async function GET(
         _id, _type, _createdAt,
         name, email, phone, company, source, notes, owner,
         stage, stageEnteredAt, estimatedValue, stripeCustomerId, googleContactResourceName,
-        closedAt, driveFileUrl, driveFileName, followUpEventId
+        closedAt, driveFileUrl, driveFileName, followUpEventId,
+        siteUrl, managementUrl, managementUsername
       }`,
       { id }
     );
@@ -76,6 +81,15 @@ export async function PATCH(
         patch[field] = body[field];
       }
     }
+    Object.assign(
+      patch,
+      buildSiteAccessPatch({
+        siteUrl: "siteUrl" in body ? body.siteUrl : undefined,
+        managementUrl: "managementUrl" in body ? body.managementUrl : undefined,
+        managementUsername: "managementUsername" in body ? body.managementUsername : undefined,
+        managementPassword: "managementPassword" in body ? body.managementPassword : undefined,
+      })
+    );
 
     const stageChanging = "stage" in body && body.stage !== current.stage;
     const now = new Date().toISOString();
@@ -108,7 +122,8 @@ export async function PATCH(
         _id, _type, _createdAt,
         name, email, phone, company, source, notes, owner,
         stage, stageEnteredAt, estimatedValue, stripeCustomerId, googleContactResourceName,
-        closedAt, driveFileUrl, driveFileName, followUpEventId
+        closedAt, driveFileUrl, driveFileName, followUpEventId,
+        siteUrl, managementUrl, managementUsername
       }`,
       { id }
     );

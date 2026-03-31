@@ -17,9 +17,9 @@ export default async function CustomersPage() {
 
   const [{ customers, hasMore }, importedContacts, portalUsers] = await Promise.all([
     listCustomers({ limit: 50 }),
-    sanityServer.fetch<Array<{ _id: string; name: string; stripeCustomerId: string | null; googleContactResourceName: string | null }>>(
+    sanityServer.fetch<Array<{ _id: string; name: string; stripeCustomerId: string | null; googleContactResourceName: string | null; managementUrl: string | null; siteUrl: string | null }>>(
       `*[_type == "pipelineContact" && stripeCustomerId != null]{
-        _id, name, stripeCustomerId, googleContactResourceName
+        _id, name, stripeCustomerId, googleContactResourceName, managementUrl, siteUrl
       }`
     ),
     sanityServer.fetch<Array<{ _id: string; email: string; stripeCustomerId: string | null; status: string; driveRootFolderId: string | null }>>(

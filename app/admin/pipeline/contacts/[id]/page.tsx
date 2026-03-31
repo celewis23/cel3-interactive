@@ -29,6 +29,9 @@ type PipelineContact = {
   driveFileUrl: string | null;
   driveFileName: string | null;
   followUpEventId: string | null;
+  siteUrl: string | null;
+  managementUrl: string | null;
+  managementUsername: string | null;
 };
 
 type PipelineActivity = {
@@ -69,7 +72,8 @@ export default async function ContactDetailPage({
         _id, _type, _createdAt,
         name, email, phone, company, source, notes, owner,
         stage, stageEnteredAt, estimatedValue, stripeCustomerId, googleContactResourceName,
-        closedAt, driveFileUrl, driveFileName, followUpEventId
+        closedAt, driveFileUrl, driveFileName, followUpEventId,
+        siteUrl, managementUrl, managementUsername
       }`,
       { id }
     ),

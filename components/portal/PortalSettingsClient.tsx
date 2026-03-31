@@ -12,6 +12,10 @@ type PortalProfile = {
   addressState: string | null;
   addressPostalCode: string | null;
   addressCountry: string | null;
+  siteUrl: string | null;
+  managementUrl: string | null;
+  managementUsername: string | null;
+  hasManagementPassword: boolean;
 };
 
 export default function PortalSettingsClient({ initialProfile }: { initialProfile: PortalProfile }) {
@@ -24,6 +28,10 @@ export default function PortalSettingsClient({ initialProfile }: { initialProfil
     addressState: initialProfile.addressState ?? "",
     addressPostalCode: initialProfile.addressPostalCode ?? "",
     addressCountry: initialProfile.addressCountry ?? "",
+    siteUrl: initialProfile.siteUrl ?? "",
+    managementUrl: initialProfile.managementUrl ?? "",
+    managementUsername: initialProfile.managementUsername ?? "",
+    managementPassword: "",
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -45,7 +53,7 @@ export default function PortalSettingsClient({ initialProfile }: { initialProfil
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      const data = await res.json().catch(() => ({})) as { error?: string; displayName?: string; email?: string; phone?: string | null; addressLine1?: string | null; addressCity?: string | null; addressState?: string | null; addressPostalCode?: string | null; addressCountry?: string | null };
+      const data = await res.json().catch(() => ({})) as { error?: string; displayName?: string; email?: string; phone?: string | null; addressLine1?: string | null; addressCity?: string | null; addressState?: string | null; addressPostalCode?: string | null; addressCountry?: string | null; siteUrl?: string | null; managementUrl?: string | null; managementUsername?: string | null; hasManagementPassword?: boolean };
       if (!res.ok) {
         throw new Error(data.error ?? "Failed to update profile");
       }
@@ -60,6 +68,10 @@ export default function PortalSettingsClient({ initialProfile }: { initialProfil
         addressState: data.addressState ?? "",
         addressPostalCode: data.addressPostalCode ?? "",
         addressCountry: data.addressCountry ?? "",
+        siteUrl: data.siteUrl ?? "",
+        managementUrl: data.managementUrl ?? "",
+        managementUsername: data.managementUsername ?? "",
+        managementPassword: "",
       }));
       setSuccess("Your profile has been updated everywhere it is linked.");
     } catch (err) {
@@ -151,7 +163,70 @@ export default function PortalSettingsClient({ initialProfile }: { initialProfil
               className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
             />
           </div>
+          <div className="sm:col-span-2">
+            <label className="text-xs text-white/50 mb-1.5 block">Website URL</label>
+            <input
+              value={form.siteUrl}
+              onChange={(e) => setField("siteUrl", e.target.value)}
+              type="url"
+              placeholder="https://yoursite.com"
+              className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="text-xs text-white/50 mb-1.5 block">Management URL</label>
+            <input
+              value={form.managementUrl}
+              onChange={(e) => setField("managementUrl", e.target.value)}
+              type="url"
+              placeholder="https://yoursite.com/wp-admin"
+              className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-white/50 mb-1.5 block">Management Username</label>
+            <input
+              value={form.managementUsername}
+              onChange={(e) => setField("managementUsername", e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-white/50 mb-1.5 block">Management Password</label>
+            <input
+              value={form.managementPassword}
+              onChange={(e) => setField("managementPassword", e.target.value)}
+              type="password"
+              placeholder={initialProfile.hasManagementPassword ? "Leave blank to keep saved password" : "Enter password"}
+              className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+            />
+          </div>
         </div>
+
+        {(form.siteUrl || form.managementUrl) && (
+          <div className="flex flex-wrap gap-2">
+            {form.siteUrl && (
+              <a
+                href={form.siteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 rounded-xl bg-white/8 hover:bg-white/12 text-white text-sm transition-colors"
+              >
+                Open Site
+              </a>
+            )}
+            {form.managementUrl && (
+              <a
+                href="/portal/manage-site"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-semibold text-sm transition-colors"
+              >
+                Manage Site
+              </a>
+            )}
+          </div>
+        )}
 
         {error && (
           <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">

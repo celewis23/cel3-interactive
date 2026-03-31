@@ -29,6 +29,9 @@ type LinkedPipelineContact = {
   estimatedValue: number | null;
   stripeCustomerId: string | null;
   googleContactResourceName: string | null;
+  siteUrl: string | null;
+  managementUrl: string | null;
+  managementUsername: string | null;
 };
 
 function AvatarCircle({ name, index }: { name: string | null; index: number }) {
@@ -53,6 +56,10 @@ interface ContactFormData {
   owner: string;
   stage: string;
   estimatedValue: string;
+  siteUrl: string;
+  managementUrl: string;
+  managementUsername: string;
+  managementPassword: string;
 }
 
 function emptyFormData(): ContactFormData {
@@ -66,6 +73,10 @@ function emptyFormData(): ContactFormData {
     owner: "",
     stage: "new-lead",
     estimatedValue: "",
+    siteUrl: "",
+    managementUrl: "",
+    managementUsername: "",
+    managementPassword: "",
   };
 }
 
@@ -80,6 +91,10 @@ function contactToFormData(c: Contact): ContactFormData {
     owner: "",
     stage: "new-lead",
     estimatedValue: "",
+    siteUrl: "",
+    managementUrl: "",
+    managementUsername: "",
+    managementPassword: "",
   };
 }
 
@@ -94,6 +109,10 @@ function pipelineContactToFormData(c: LinkedPipelineContact): ContactFormData {
     owner: c.owner ?? "",
     stage: c.stage,
     estimatedValue: c.estimatedValue?.toString() ?? "",
+    siteUrl: c.siteUrl ?? "",
+    managementUrl: c.managementUrl ?? "",
+    managementUsername: c.managementUsername ?? "",
+    managementPassword: "",
   };
 }
 
@@ -195,6 +214,54 @@ function ContactForm({
           className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
         />
       </div>
+
+      {showPipelineFields && (
+        <>
+          <div>
+            <label className="block text-xs text-white/50 mb-1.5">Website URL</label>
+            <input
+              type="url"
+              value={form.siteUrl}
+              onChange={(e) => setField("siteUrl", e.target.value)}
+              placeholder="https://clientsite.com"
+              className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <label className="block text-xs text-white/50 mb-1.5">Management URL</label>
+              <input
+                type="url"
+                value={form.managementUrl}
+                onChange={(e) => setField("managementUrl", e.target.value)}
+                placeholder="https://clientsite.com/wp-admin"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-white/50 mb-1.5">Management Username</label>
+              <input
+                type="text"
+                value={form.managementUsername}
+                onChange={(e) => setField("managementUsername", e.target.value)}
+                placeholder="admin"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-white/50 mb-1.5">Management Password</label>
+              <input
+                type="password"
+                value={form.managementPassword}
+                onChange={(e) => setField("managementPassword", e.target.value)}
+                placeholder="Leave blank to keep saved password"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
+          </div>
+        </>
+      )}
 
       {showPipelineFields && (
         <>
@@ -356,6 +423,10 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
             owner: form.owner.trim() || null,
             estimatedValue: form.estimatedValue ? Number(form.estimatedValue) : null,
             stage: form.stage,
+            siteUrl: form.siteUrl.trim() || null,
+            managementUrl: form.managementUrl.trim() || null,
+            managementUsername: form.managementUsername.trim() || null,
+            managementPassword: form.managementPassword,
           }),
         });
         if (!patchRes.ok) {
@@ -443,6 +514,18 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
             <p className="mt-4 text-xs text-white/35">
               This contact is not linked to a pipeline record yet, so this editor will update Google and any matched synced records using the shared fields.
             </p>
+          )}
+          {linkedContact?.managementUrl && (
+            <div className="mt-4">
+              <a
+                href={`/admin/manage-site/${linkedContact._id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-black hover:bg-sky-400 transition-colors"
+              >
+                Manage Site
+              </a>
+            </div>
           )}
         </div>
       </div>

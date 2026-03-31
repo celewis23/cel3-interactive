@@ -27,6 +27,9 @@ type LinkedPipelineContact = {
   estimatedValue: number | null;
   stripeCustomerId: string | null;
   googleContactResourceName: string | null;
+  siteUrl: string | null;
+  managementUrl: string | null;
+  managementUsername: string | null;
 };
 
 export async function GET(
@@ -57,7 +60,8 @@ export async function GET(
           )
         ][0]{
           _id, name, email, phone, company, source, notes, owner,
-          stage, estimatedValue, stripeCustomerId, googleContactResourceName
+          stage, estimatedValue, stripeCustomerId, googleContactResourceName,
+          siteUrl, managementUrl, managementUsername
         }`,
         { resourceName, email }
       ),

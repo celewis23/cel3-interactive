@@ -7,6 +7,7 @@ import { createCustomer } from "@/lib/stripe/billing";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 import { automationEngine } from "@/lib/automations/engine";
 import { sendPushNotificationToAudience } from "@/lib/notifications/push";
+import { buildSiteAccessPatch } from "@/lib/siteAccess";
 
 export const runtime = "nodejs";
 
@@ -20,7 +21,8 @@ export async function GET(req: NextRequest) {
         _id, _type, _createdAt,
         name, email, phone, company, source, notes, owner,
         stage, stageEnteredAt, estimatedValue, stripeCustomerId, googleContactResourceName,
-        closedAt, driveFileUrl, driveFileName, followUpEventId
+        closedAt, driveFileUrl, driveFileName, followUpEventId,
+        siteUrl, managementUrl, managementUsername
       }`
     );
     return NextResponse.json(contacts);
@@ -52,6 +54,13 @@ export async function POST(req: NextRequest) {
       stripeCustomerId = customer.id;
     }
 
+    const siteAccessPatch = buildSiteAccessPatch({
+      siteUrl: body.siteUrl,
+      managementUrl: body.managementUrl,
+      managementUsername: body.managementUsername,
+      managementPassword: body.managementPassword,
+    });
+
     const contact = await sanityWriteClient.create({
       _type: "pipelineContact",
       name: body.name.trim(),
@@ -70,6 +79,12 @@ export async function POST(req: NextRequest) {
       driveFileUrl: null,
       driveFileName: null,
       followUpEventId: null,
+      siteUrl: null,
+      managementUrl: null,
+      managementUsername: null,
+      managementPasswordEncrypted: null,
+      managementPasswordIv: null,
+      ...siteAccessPatch,
     });
 
     await syncContactProfileFromPipeline(contact._id).catch((syncErr) => {

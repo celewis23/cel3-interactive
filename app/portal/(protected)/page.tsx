@@ -15,7 +15,7 @@ export default async function PortalDashboard() {
 
   const refs = [user.stripeCustomerId, user.pipelineContactId].filter(Boolean) as string[];
 
-  const [invoiceData, projects, estimates] = await Promise.all([
+  const [invoiceData, projects, estimates, siteAccess] = await Promise.all([
     user.stripeCustomerId
       ? listInvoices({ customerId: user.stripeCustomerId, status: "open", limit: 50 }).catch(
           () => ({ invoices: [] })
@@ -41,6 +41,12 @@ export default async function PortalDashboard() {
         }
       )
       .catch(() => []),
+    user.pipelineContactId
+      ? sanityServer.fetch<{ siteUrl: string | null; managementUrl: string | null } | null>(
+          `*[_type == "pipelineContact" && _id == $id][0]{ siteUrl, managementUrl }`,
+          { id: user.pipelineContactId }
+        ).catch(() => null)
+      : Promise.resolve(null),
   ]);
 
   const openInvoices = invoiceData.invoices;
@@ -113,6 +119,20 @@ export default async function PortalDashboard() {
           <p className="text-xs text-white/50 mb-2">Appointments</p>
           <p className="text-sm font-medium text-white/60 mt-1">View calendar →</p>
         </Link>
+
+        {(siteAccess?.managementUrl || user.managementUrl || siteAccess?.siteUrl || user.siteUrl) && (
+          <a
+            href={(siteAccess?.managementUrl || user.managementUrl) ? "/portal/manage-site" : ((siteAccess?.siteUrl || user.siteUrl) as string)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-white/3 border border-white/8 rounded-2xl p-5 hover:border-white/20 transition-colors block"
+          >
+            <p className="text-xs text-white/50 mb-2">Site Access</p>
+            <p className="text-sm font-medium text-white/60 mt-1">
+              {(siteAccess?.managementUrl || user.managementUrl) ? "Manage site →" : "Open website →"}
+            </p>
+          </a>
+        )}
       </div>
 
       {/* Open Invoices */}

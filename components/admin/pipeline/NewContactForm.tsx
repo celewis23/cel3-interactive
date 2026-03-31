@@ -30,6 +30,10 @@ export default function NewContactForm() {
     estimatedValue: "",
     stage: initialStage,
     createStripeCustomer: false,
+    siteUrl: "",
+    managementUrl: "",
+    managementUsername: "",
+    managementPassword: "",
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -58,6 +62,10 @@ export default function NewContactForm() {
           estimatedValue: form.estimatedValue ? Number(form.estimatedValue) : null,
           stage: form.stage,
           createStripeCustomer: form.createStripeCustomer,
+          siteUrl: form.siteUrl.trim() || null,
+          managementUrl: form.managementUrl.trim() || null,
+          managementUsername: form.managementUsername.trim() || null,
+          managementPassword: form.managementPassword,
         }),
       });
 
@@ -193,6 +201,47 @@ export default function NewContactForm() {
           rows={3}
           className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors resize-none"
         />
+      </div>
+
+      <div>
+        <label className="block text-xs text-white/50 mb-1.5">Website URL</label>
+        <input
+          value={form.siteUrl}
+          onChange={(e) => setForm({ ...form, siteUrl: e.target.value })}
+          placeholder="https://clientsite.com"
+          className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="col-span-2">
+          <label className="block text-xs text-white/50 mb-1.5">Management URL</label>
+          <input
+            value={form.managementUrl}
+            onChange={(e) => setForm({ ...form, managementUrl: e.target.value })}
+            placeholder="https://clientsite.com/wp-admin"
+            className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-white/50 mb-1.5">Management Username</label>
+          <input
+            value={form.managementUsername}
+            onChange={(e) => setForm({ ...form, managementUsername: e.target.value })}
+            placeholder="admin"
+            className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-white/50 mb-1.5">Management Password</label>
+          <input
+            type="password"
+            value={form.managementPassword}
+            onChange={(e) => setForm({ ...form, managementPassword: e.target.value })}
+            placeholder="Optional"
+            className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+          />
+        </div>
       </div>
 
       <label className="flex items-start gap-3 p-4 rounded-xl bg-white/3 border border-white/8">
