@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
+import { syncContactProfileFromPipeline } from "@/lib/contacts/unifiedSync";
 import { getCustomer } from "@/lib/stripe/billing";
-import { syncPipelineContactToGoogleContact } from "@/lib/google/contactSync";
 import { syncStripeCustomerToPipelineContact } from "@/lib/stripe/sync";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       source: "Stripe",
       stage: "won",
     });
-    const googleContact = await syncPipelineContactToGoogleContact({ pipelineContactId: contact._id });
+    const syncResult = await syncContactProfileFromPipeline(contact._id);
 
     logAudit(req, {
       action: AuditAction.LEAD_CONVERTED,
@@ -41,9 +41,11 @@ export async function POST(req: NextRequest) {
       ok: true,
       contact: {
         ...contact,
-        googleContactResourceName: googleContact.resourceName,
+        googleContactResourceName: syncResult.googleContactResourceName,
       },
-      googleContact,
+      googleContact: syncResult.googleContactResourceName
+        ? { resourceName: syncResult.googleContactResourceName }
+        : null,
     });
   } catch (err) {
     console.error("PIPELINE_IMPORT_STRIPE_ERR:", err);

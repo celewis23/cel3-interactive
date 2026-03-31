@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
-import { syncPipelineContactToGoogleContact } from "@/lib/google/contactSync";
+import { syncContactProfileFromPipeline } from "@/lib/contacts/unifiedSync";
 import { createCustomer } from "@/lib/stripe/billing";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 import { automationEngine } from "@/lib/automations/engine";
@@ -72,11 +72,9 @@ export async function POST(req: NextRequest) {
       followUpEventId: null,
     });
 
-    try {
-      await syncPipelineContactToGoogleContact({ pipelineContactId: contact._id });
-    } catch (googleErr) {
-      console.error("PIPELINE_CONTACT_GOOGLE_SYNC_ERR:", googleErr);
-    }
+    await syncContactProfileFromPipeline(contact._id).catch((syncErr) => {
+      console.error("PIPELINE_CONTACT_CREATE_SYNC_ERR:", syncErr);
+    });
 
     // Create "created" activity
     await sanityWriteClient.create({

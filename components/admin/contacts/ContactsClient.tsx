@@ -25,28 +25,24 @@ function AvatarCircle({ name, index }: { name: string | null; index: number }) {
 // ─── Contact Form ─────────────────────────────────────────────────────────────
 
 interface ContactFormData {
-  givenName: string;
-  familyName: string;
-  emails: string[];
-  phones: string[];
-  organization: string;
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
   notes: string;
-  birthday: string;
 }
 
 function emptyFormData(): ContactFormData {
-  return { givenName: "", familyName: "", emails: [""], phones: [""], organization: "", notes: "", birthday: "" };
+  return { name: "", email: "", phone: "", company: "", notes: "" };
 }
 
 function contactToFormData(c: Contact): ContactFormData {
   return {
-    givenName: c.givenName ?? "",
-    familyName: c.familyName ?? "",
-    emails: c.emails.map((e) => e.value).concat([""] as string[]).slice(0, Math.max(c.emails.length + 1, 1)),
-    phones: c.phones.map((p) => p.value).concat([""] as string[]).slice(0, Math.max(c.phones.length + 1, 1)),
-    organization: c.organizations[0]?.name ?? "",
+    name: c.displayName ?? [c.givenName, c.familyName].filter(Boolean).join(" "),
+    email: c.emails[0]?.value ?? "",
+    phone: c.phones[0]?.value ?? "",
+    company: c.organizations[0]?.name ?? "",
     notes: c.notes ?? "",
-    birthday: c.birthday ?? "",
   };
 }
 
@@ -66,24 +62,6 @@ function ContactForm({ initialData, onSubmit, onCancel, submitLabel, loading, er
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  function setMultiField(key: "emails" | "phones", index: number, value: string) {
-    setForm((prev) => {
-      const arr = [...prev[key]];
-      arr[index] = value;
-      // Add empty entry if last non-empty
-      if (index === arr.length - 1 && value !== "") arr.push("");
-      return { ...prev, [key]: arr };
-    });
-  }
-
-  function removeMultiField(key: "emails" | "phones", index: number) {
-    setForm((prev) => {
-      const arr = prev[key].filter((_, i) => i !== index);
-      if (arr.length === 0) arr.push("");
-      return { ...prev, [key]: arr };
-    });
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     await onSubmit(form);
@@ -93,94 +71,54 @@ function ContactForm({ initialData, onSubmit, onCancel, submitLabel, loading, er
     <form onSubmit={handleSubmit} className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-xs text-white/40 block mb-1">First name</label>
+          <label className="text-xs text-white/40 block mb-1">Name</label>
           <input
             type="text"
-            value={form.givenName}
-            onChange={(e) => setField("givenName", e.target.value)}
+            value={form.name}
+            onChange={(e) => setField("name", e.target.value)}
             className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50"
           />
         </div>
         <div>
-          <label className="text-xs text-white/40 block mb-1">Last name</label>
+          <label className="text-xs text-white/40 block mb-1">Company</label>
           <input
             type="text"
-            value={form.familyName}
-            onChange={(e) => setField("familyName", e.target.value)}
+            value={form.company}
+            onChange={(e) => setField("company", e.target.value)}
+            className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs text-white/40 block mb-1">Email</label>
+          <input
+            type="email"
+            value={form.email}
+            onChange={(e) => setField("email", e.target.value)}
+            placeholder="email@example.com"
+            className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50"
+          />
+        </div>
+        <div>
+          <label className="text-xs text-white/40 block mb-1">Phone</label>
+          <input
+            type="tel"
+            value={form.phone}
+            onChange={(e) => setField("phone", e.target.value)}
+            placeholder="+1 555 000 0000"
             className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50"
           />
         </div>
       </div>
 
       <div>
-        <label className="text-xs text-white/40 block mb-1">Email(s)</label>
-        {form.emails.map((email, i) => (
-          <div key={i} className="flex gap-2 mb-1.5">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setMultiField("emails", i, e.target.value)}
-              placeholder="email@example.com"
-              className="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50"
-            />
-            {form.emails.length > 1 && (
-              <button
-                type="button"
-                onClick={() => removeMultiField("emails", i)}
-                className="text-white/30 hover:text-red-400 transition-colors"
-              >
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
-
-      <div>
-        <label className="text-xs text-white/40 block mb-1">Phone(s)</label>
-        {form.phones.map((phone, i) => (
-          <div key={i} className="flex gap-2 mb-1.5">
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setMultiField("phones", i, e.target.value)}
-              placeholder="+1 555 000 0000"
-              className="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50"
-            />
-            {form.phones.length > 1 && (
-              <button
-                type="button"
-                onClick={() => removeMultiField("phones", i)}
-                className="text-white/30 hover:text-red-400 transition-colors"
-              >
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
-
-      <div>
-        <label className="text-xs text-white/40 block mb-1">Organization</label>
+        <label className="text-xs text-white/40 block mb-1">Company</label>
         <input
           type="text"
-          value={form.organization}
-          onChange={(e) => setField("organization", e.target.value)}
-          className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50"
-        />
-      </div>
-
-      <div>
-        <label className="text-xs text-white/40 block mb-1">Birthday (YYYY-MM-DD)</label>
-        <input
-          type="text"
-          value={form.birthday}
-          onChange={(e) => setField("birthday", e.target.value)}
-          placeholder="1990-01-15"
+          value={form.company}
+          onChange={(e) => setField("company", e.target.value)}
           className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50"
         />
       </div>
@@ -245,22 +183,20 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
       const getRes = await fetch(`/api/admin/contacts/${id}`);
       if (!getRes.ok) throw new Error("Failed to fetch contact for update");
       const current = await getRes.json() as Contact & { etag?: string };
-
-      // We need the raw etag — fetch it from the People API via our GET endpoint
-      // The contact returned from API doesn't include etag, so we need to get it
-      // Use a workaround: PUT with empty etag will fail, but that's the API contract
-      const emails = form.emails.filter(Boolean).map((v) => ({ value: v }));
-      const phones = form.phones.filter(Boolean).map((v) => ({ value: v }));
+      const nameParts = form.name.trim().split(/\s+/).filter(Boolean);
+      const givenName = nameParts[0] ?? "";
+      const familyName = nameParts.slice(1).join(" ");
 
       const putRes = await fetch(`/api/admin/contacts/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           etag: (current as Record<string, unknown>).etag ?? "*",
-          givenName: form.givenName || undefined,
-          familyName: form.familyName || undefined,
-          emails: emails.length ? emails : undefined,
-          phones: phones.length ? phones : undefined,
+          givenName: givenName || undefined,
+          familyName: familyName || undefined,
+          emails: form.email.trim() ? [{ value: form.email.trim() }] : [],
+          phones: form.phone.trim() ? [{ value: form.phone.trim() }] : [],
+          organization: form.company.trim() || "",
           notes: form.notes || undefined,
         }),
       });
@@ -500,17 +436,16 @@ export default function ContactsClient() {
     setCreating(true);
     setCreateError(null);
     try {
-      const emails = form.emails.filter(Boolean);
-      const phones = form.phones.filter(Boolean);
+      const nameParts = form.name.trim().split(/\s+/).filter(Boolean);
       const res = await fetch("/api/admin/contacts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          givenName: form.givenName || undefined,
-          familyName: form.familyName || undefined,
-          emails: emails.length ? emails : undefined,
-          phones: phones.length ? phones : undefined,
-          organization: form.organization || undefined,
+          givenName: nameParts[0] || undefined,
+          familyName: nameParts.slice(1).join(" ") || undefined,
+          emails: form.email.trim() ? [form.email.trim()] : undefined,
+          phones: form.phone.trim() ? [form.phone.trim()] : undefined,
+          organization: form.company || undefined,
           notes: form.notes || undefined,
         }),
       });

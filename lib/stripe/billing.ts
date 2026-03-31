@@ -293,6 +293,21 @@ export async function createCustomer(params: {
   return mapCustomer(c);
 }
 
+export async function updateCustomer(customerId: string, params: {
+  name?: string;
+  email?: string | null;
+  phone?: string | null;
+  description?: string | null;
+}): Promise<BillingCustomer> {
+  const c = await stripe.customers.update(customerId, {
+    ...(params.name !== undefined ? { name: params.name } : {}),
+    ...(params.email !== undefined ? { email: params.email } : {}),
+    ...(params.phone !== undefined ? { phone: params.phone } : {}),
+    ...(params.description !== undefined ? { description: params.description } : {}),
+  });
+  return mapCustomer(c);
+}
+
 // ─── Invoices ─────────────────────────────────────────────────────────────────
 
 export async function listInvoices(opts?: {

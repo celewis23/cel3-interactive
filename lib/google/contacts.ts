@@ -162,6 +162,7 @@ export async function updateContact(
     familyName?: string;
     emails?: { value: string; type?: string }[];
     phones?: { value: string; type?: string }[];
+    organization?: string;
     notes?: string;
   }
 ): Promise<Contact> {
@@ -181,6 +182,10 @@ export async function updateContact(
   if (params.phones !== undefined) {
     updatePersonFields.push("phoneNumbers");
     body.phoneNumbers = params.phones;
+  }
+  if (params.organization !== undefined) {
+    updatePersonFields.push("organizations");
+    body.organizations = params.organization ? [{ name: params.organization }] : [];
   }
   if (params.notes !== undefined) {
     updatePersonFields.push("biographies");

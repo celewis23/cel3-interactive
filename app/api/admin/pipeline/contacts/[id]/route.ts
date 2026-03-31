@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
+import { syncContactProfileFromPipeline } from "@/lib/contacts/unifiedSync";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 import { automationEngine } from "@/lib/automations/engine";
 
@@ -98,7 +99,19 @@ export async function PATCH(
       });
     }
 
-    const updated = await sanityWriteClient.patch(id).set(patch).commit();
+    await sanityWriteClient.patch(id).set(patch).commit();
+    await syncContactProfileFromPipeline(id).catch((syncErr) => {
+      console.error("PIPELINE_CONTACT_SYNC_ERR:", syncErr);
+    });
+    const updated = await sanityServer.fetch(
+      `*[_type == "pipelineContact" && _id == $id][0] {
+        _id, _type, _createdAt,
+        name, email, phone, company, source, notes, owner,
+        stage, stageEnteredAt, estimatedValue, stripeCustomerId, googleContactResourceName,
+        closedAt, driveFileUrl, driveFileName, followUpEventId
+      }`,
+      { id }
+    );
 
     logAudit(req, {
       action: AuditAction.LEAD_UPDATED,
