@@ -487,16 +487,27 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
     }
   };
 
+  const actionButtonClass =
+    "inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50";
+
   if (editing) {
     return (
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full min-h-0">
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/8 flex-shrink-0">
           <h3 className="text-sm font-semibold text-white">Edit Contact</h3>
-          <button onClick={() => setEditing(false)} className="text-white/40 hover:text-white">
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setEditing(false)}
+              className={`${actionButtonClass} bg-white/5 text-white/60 hover:bg-white/8 hover:text-white`}
+            >
+              Cancel
+            </button>
+            <button onClick={onClose} className="text-white/40 hover:text-white" aria-label="Close contact panel">
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
         <div className="flex-1 overflow-y-auto p-5">
           <ContactForm
@@ -533,14 +544,23 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
       <div className="flex items-center justify-between px-5 py-4 border-b border-white/8 flex-shrink-0">
         <h3 className="text-sm font-semibold text-white">Contact</h3>
-        <button onClick={onClose} className="text-white/40 hover:text-white">
-          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={openEditor}
+            disabled={loadingEditContext}
+            className={`${actionButtonClass} bg-sky-500 text-white hover:bg-sky-400 lg:hidden`}
+          >
+            {loadingEditContext ? "Loading…" : "Edit"}
+          </button>
+          <button onClick={onClose} className="text-white/40 hover:text-white" aria-label="Close contact panel">
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </div>
       <div className="flex-1 overflow-y-auto p-5">
         <div className="flex items-center gap-4 mb-5">
@@ -621,11 +641,11 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
         )}
       </div>
 
-      <div className="flex-shrink-0 px-5 py-4 border-t border-white/8 flex gap-2">
+      <div className="flex-shrink-0 px-5 py-4 border-t border-white/8 flex gap-2 bg-inherit sticky bottom-0">
         <button
           onClick={openEditor}
           disabled={loadingEditContext}
-          className="flex-1 px-3 py-2 rounded-xl text-sm text-white bg-sky-500 hover:bg-sky-400 disabled:opacity-50 transition-colors"
+          className="flex-1 px-3 py-2 rounded-xl text-sm text-white bg-sky-500 hover:bg-sky-400 disabled:opacity-50 transition-colors hidden lg:inline-flex lg:items-center lg:justify-center"
         >
           {loadingEditContext ? "Loading…" : "Edit"}
         </button>
@@ -884,7 +904,7 @@ export default function ContactsClient() {
 
       {/* Detail panel — full-screen overlay on mobile, side panel on lg+ */}
       {selected && (
-        <div className="fixed inset-0 z-40 lg:static lg:inset-auto lg:z-auto lg:w-80 lg:flex-shrink-0 bg-[#0d0d0d] lg:bg-white/3 lg:border lg:border-white/8 lg:rounded-2xl overflow-hidden flex flex-col">
+        <div className="fixed inset-0 z-40 h-[100dvh] lg:h-auto lg:static lg:inset-auto lg:z-auto lg:w-80 lg:flex-shrink-0 bg-[#0d0d0d] lg:bg-white/3 lg:border lg:border-white/8 lg:rounded-2xl overflow-hidden flex flex-col">
           <DetailPanel
             contact={selected}
             onClose={() => setSelected(null)}
