@@ -406,7 +406,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }`;
 
   return (
-    <div className={shellClass}>
+    <div className={`admin-shell ${shellClass}`}>
       {/* Sidebar — desktop only */}
       <aside className={sidebarClass}>
         {/* Logo */}

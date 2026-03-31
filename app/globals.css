@@ -69,6 +69,77 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+[data-admin-theme="light"] .admin-shell {
+  color: #111111;
+}
+
+[data-admin-theme="light"] .admin-shell .text-white {
+  color: #111111 !important;
+}
+
+[data-admin-theme="light"] .admin-shell .text-white\/85 {
+  color: rgb(17 17 17 / 0.85) !important;
+}
+
+[data-admin-theme="light"] .admin-shell .text-white\/80,
+[data-admin-theme="light"] .admin-shell .text-white\/70 {
+  color: rgb(17 17 17 / 0.72) !important;
+}
+
+[data-admin-theme="light"] .admin-shell .text-white\/65,
+[data-admin-theme="light"] .admin-shell .text-white\/60 {
+  color: rgb(17 17 17 / 0.62) !important;
+}
+
+[data-admin-theme="light"] .admin-shell .text-white\/55,
+[data-admin-theme="light"] .admin-shell .text-white\/50 {
+  color: rgb(17 17 17 / 0.54) !important;
+}
+
+[data-admin-theme="light"] .admin-shell .text-white\/45,
+[data-admin-theme="light"] .admin-shell .text-white\/40 {
+  color: rgb(17 17 17 / 0.42) !important;
+}
+
+[data-admin-theme="light"] .admin-shell .text-white\/35,
+[data-admin-theme="light"] .admin-shell .text-white\/30 {
+  color: rgb(17 17 17 / 0.32) !important;
+}
+
+[data-admin-theme="light"] .admin-shell .text-white\/25,
+[data-admin-theme="light"] .admin-shell .text-white\/20 {
+  color: rgb(17 17 17 / 0.24) !important;
+}
+
+[data-admin-theme="light"] .admin-shell .bg-white\/3,
+[data-admin-theme="light"] .admin-shell .bg-white\/4,
+[data-admin-theme="light"] .admin-shell .bg-white\/5,
+[data-admin-theme="light"] .admin-shell .bg-white\/6,
+[data-admin-theme="light"] .admin-shell .bg-white\/10 {
+  background-color: rgb(17 17 17 / 0.04) !important;
+}
+
+[data-admin-theme="light"] .admin-shell .border-white\/8,
+[data-admin-theme="light"] .admin-shell .border-white\/10 {
+  border-color: rgb(17 17 17 / 0.1) !important;
+}
+
+[data-admin-theme="light"] .admin-shell .placeholder-white\/20::placeholder,
+[data-admin-theme="light"] .admin-shell .placeholder-white\/25::placeholder,
+[data-admin-theme="light"] .admin-shell .placeholder-white\/30::placeholder {
+  color: rgb(17 17 17 / 0.3) !important;
+}
+
+[data-admin-theme="light"] .admin-shell .hover\:text-white:hover {
+  color: #111111 !important;
+}
+
+[data-admin-theme="light"] .admin-shell .hover\:bg-white\/3:hover,
+[data-admin-theme="light"] .admin-shell .hover\:bg-white\/5:hover,
+[data-admin-theme="light"] .admin-shell .hover\:bg-white\/10:hover {
+  background-color: rgb(17 17 17 / 0.06) !important;
+}
+
 .footer-sweep {
   background: linear-gradient(
     to right,
@@ -131,4 +202,3 @@ body {
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath d='M3 1l3 3-3 3' stroke='%230ea5e9' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E")
     center / 8px no-repeat;
 }
-
