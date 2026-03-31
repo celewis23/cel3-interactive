@@ -299,11 +299,15 @@ export async function updateCustomer(customerId: string, params: {
   phone?: string | null;
   description?: string | null;
 }): Promise<BillingCustomer> {
+  const normalizeNullableField = (value: string | null | undefined) => (
+    value === null ? "" : value
+  );
+
   const c = await stripe.customers.update(customerId, {
     ...(params.name !== undefined ? { name: params.name } : {}),
-    ...(params.email !== undefined ? { email: params.email } : {}),
-    ...(params.phone !== undefined ? { phone: params.phone } : {}),
-    ...(params.description !== undefined ? { description: params.description } : {}),
+    ...(params.email !== undefined ? { email: normalizeNullableField(params.email) } : {}),
+    ...(params.phone !== undefined ? { phone: normalizeNullableField(params.phone) } : {}),
+    ...(params.description !== undefined ? { description: normalizeNullableField(params.description) } : {}),
   });
   return mapCustomer(c);
 }
