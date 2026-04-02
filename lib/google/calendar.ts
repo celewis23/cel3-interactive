@@ -13,6 +13,10 @@ export type CalendarEvent = {
   htmlLink?: string;
   colorId?: string;
   attendees?: { email: string; displayName?: string; responseStatus?: string }[];
+  reminders?: {
+    useDefault: boolean;
+    overrides?: { method: "email" | "popup"; minutes: number }[];
+  };
   allDay: boolean;
   calendarId: string;
 };
@@ -38,6 +42,10 @@ function mapEvent(
     htmlLink?: string | null;
     colorId?: string | null;
     attendees?: { email?: string | null; displayName?: string | null; responseStatus?: string | null }[] | null;
+    reminders?: {
+      useDefault?: boolean | null;
+      overrides?: { method?: string | null; minutes?: number | null }[] | null;
+    } | null;
   },
   calendarId: string
 ): CalendarEvent {
@@ -67,6 +75,17 @@ function mapEvent(
           displayName: a.displayName ?? undefined,
           responseStatus: a.responseStatus ?? undefined,
         }))
+      : undefined,
+    reminders: e.reminders
+      ? {
+          useDefault: e.reminders.useDefault ?? true,
+          overrides: e.reminders.overrides
+            ?.filter((override) => (override.method === "email" || override.method === "popup") && typeof override.minutes === "number")
+            .map((override) => ({
+              method: override.method as "email" | "popup",
+              minutes: override.minutes as number,
+            })),
+        }
       : undefined,
     allDay: !e.start?.dateTime,
     calendarId,
@@ -130,6 +149,10 @@ export async function createEvent(
     start: { dateTime?: string; date?: string; timeZone?: string };
     end: { dateTime?: string; date?: string; timeZone?: string };
     attendees?: { email: string }[];
+    reminders?: {
+      useDefault?: boolean;
+      overrides?: { method: "email" | "popup"; minutes: number }[];
+    };
   }
 ): Promise<CalendarEvent> {
   const auth = await getAuthenticatedClient();
@@ -166,6 +189,7 @@ export async function createEvent(
       ...params,
       start: normalizedStart,
       end: normalizedEnd,
+      reminders: params.reminders,
     },
   });
 
@@ -181,6 +205,10 @@ export async function updateEvent(
     location: string;
     start: { dateTime?: string; date?: string; timeZone?: string };
     end: { dateTime?: string; date?: string; timeZone?: string };
+    reminders: {
+      useDefault?: boolean;
+      overrides?: { method: "email" | "popup"; minutes: number }[];
+    };
   }>
 ): Promise<CalendarEvent> {
   const auth = await getAuthenticatedClient();

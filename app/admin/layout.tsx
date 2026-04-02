@@ -97,6 +97,15 @@ const NAV = [
     ),
   },
   {
+    label: "Tasks",
+    href: "/admin/tasks",
+    icon: (
+      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75h9m-9 5.25h9m-9 5.25h9M6 7.5h.008v.008H6V7.5zm0 5.25h.008v.008H6v-.008zm0 5.25h.008v.008H6v-.008z" />
+      </svg>
+    ),
+  },
+  {
     label: "Meet",
     href: "/admin/meet",
     icon: (

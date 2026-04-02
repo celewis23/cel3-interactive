@@ -9,10 +9,11 @@ import { createCustomer, listCustomers, listInvoices, listSubscriptions, getBala
 import { syncRecentStripeInvoicesToSanity, syncStripeCustomerToPipelineContact, syncStripeInvoiceToSanity } from "@/lib/stripe/sync";
 import { createContact as createGoogleContact, searchContacts as searchGoogleContacts } from "@/lib/google/contacts";
 import { sendEmail, listThreads } from "@/lib/gmail/api";
-import { listEvents, createEvent } from "@/lib/google/calendar";
+import { listEvents, createEvent, updateEvent } from "@/lib/google/calendar";
 import { listFiles, createFolder } from "@/lib/google/drive";
 import { listSpaces, listMessages, sendMessage as chatSendMessage } from "@/lib/google/chat";
 import { listUpcomingMeetings, createMeeting as googleCreateMeeting } from "@/lib/google/meet";
+import { listTaskLists, listTasks as listGoogleTasks, createTask as createGoogleTask, updateTask as updateGoogleTask, deleteTask as deleteGoogleTask } from "@/lib/google/tasks";
 import { slugify } from "@/lib/forms";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -64,6 +65,10 @@ function n(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
+function b(value: unknown, fallback = false): boolean {
+  return typeof value === "boolean" ? value : fallback;
+}
+
 function escapeMatch(value: string): string {
   return value.replace(/"/g, '\\"');
 }
@@ -74,6 +79,20 @@ function makeMatch(field: string, query: string): string {
 
 function textToHtml(text: string): string {
   return text.split("\n").map((line) => line.trimEnd()).join("<br />");
+}
+
+function reminderOverrides(value: unknown): Array<{ method: "email" | "popup"; minutes: number }> | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const parsed = value
+    .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+    .map((item) => {
+      const method = s(item.method);
+      const minutes = n(item.minutes, -1);
+      if ((method !== "email" && method !== "popup") || minutes < 0) return null;
+      return { method, minutes };
+    })
+    .filter((item): item is { method: "email" | "popup"; minutes: number } => Boolean(item));
+  return parsed.length ? parsed : undefined;
 }
 
 function makeFormField(field: Record<string, unknown>, sortOrder: number) {
@@ -575,7 +594,77 @@ async function executeTool(name: string, input: Record<string, unknown>): Promis
         start: { dateTime: start },
         end: { dateTime: end },
         attendees: attendees.length ? attendees : undefined,
+        reminders: {
+          useDefault: b(input.useDefaultReminders, false),
+          overrides: reminderOverrides(input.reminders),
+        },
       });
+    }
+    case "update_calendar_event": {
+      const eventId = s(input.eventId);
+      if (!eventId) throw new Error("eventId is required");
+      return updateEvent("primary", eventId, {
+        summary: input.summary !== undefined ? s(input.summary) : undefined,
+        description: input.description !== undefined ? so(input.description) ?? "" : undefined,
+        location: input.location !== undefined ? so(input.location) ?? "" : undefined,
+        start: input.start !== undefined ? { dateTime: s(input.start) } : undefined,
+        end: input.end !== undefined ? { dateTime: s(input.end) } : undefined,
+        reminders:
+          input.useDefaultReminders !== undefined || input.reminders !== undefined
+            ? {
+                useDefault: b(input.useDefaultReminders, false),
+                overrides: reminderOverrides(input.reminders),
+              }
+            : undefined,
+      });
+    }
+
+    // ── Google Tasks ──────────────────────────────────────────────────────────
+    case "list_google_task_lists":
+      return listTaskLists();
+    case "search_google_tasks": {
+      const taskListId = s(input.taskListId);
+      if (!taskListId) throw new Error("taskListId is required");
+      const tasks = await listGoogleTasks({
+        taskListId,
+        query: so(query),
+        showCompleted: input.status !== "open",
+        showDeleted: false,
+        showHidden: false,
+        maxResults: n(input.limit, 50),
+      });
+      if (input.status === "done") return tasks.filter((task) => task.status === "completed");
+      if (input.status === "open") return tasks.filter((task) => task.status !== "completed");
+      return tasks;
+    }
+    case "create_google_task": {
+      const taskListId = s(input.taskListId);
+      const title = s(input.title);
+      if (!taskListId || !title) throw new Error("taskListId and title are required");
+      return createGoogleTask(taskListId, {
+        title,
+        notes: so(input.notes),
+        due: so(input.due),
+        status: s(input.status) === "completed" ? "completed" : "needsAction",
+      });
+    }
+    case "update_google_task": {
+      const taskListId = s(input.taskListId);
+      const taskId = s(input.taskId);
+      if (!taskListId || !taskId) throw new Error("taskListId and taskId are required");
+      return updateGoogleTask(taskListId, taskId, {
+        title: input.title !== undefined ? s(input.title) : undefined,
+        notes: input.notes !== undefined ? so(input.notes) ?? null : undefined,
+        due: input.due !== undefined ? so(input.due) ?? null : undefined,
+        status: input.status === "completed" ? "completed" : input.status === "needsAction" ? "needsAction" : undefined,
+      });
+    }
+    case "delete_google_task": {
+      const taskListId = s(input.taskListId);
+      const taskId = s(input.taskId);
+      if (!taskListId || !taskId) throw new Error("taskListId and taskId are required");
+      await deleteGoogleTask(taskListId, taskId);
+      return { deleted: true, taskId, taskListId };
     }
 
     // ── Case Studies ─────────────────────────────────────────────────────────
@@ -980,8 +1069,13 @@ TOOLS.push(
   },
   {
     name: "create_calendar_event",
-    description: "Create a Google Calendar event.",
-    input_schema: { type: "object" as const, properties: { summary: { type: "string" }, description: { type: "string" }, start: { type: "string", description: "ISO datetime" }, end: { type: "string", description: "ISO datetime" }, attendees: { type: "array", items: { type: "string" }, description: "Email addresses" } }, required: ["summary", "start", "end"] },
+    description: "Create a Google Calendar event, optionally with reminder notifications.",
+    input_schema: { type: "object" as const, properties: { summary: { type: "string" }, description: { type: "string" }, start: { type: "string", description: "ISO datetime" }, end: { type: "string", description: "ISO datetime" }, attendees: { type: "array", items: { type: "string" }, description: "Email addresses" }, useDefaultReminders: { type: "boolean" }, reminders: { type: "array", items: { type: "object", properties: { method: { type: "string", enum: ["email", "popup"] }, minutes: { type: "number" } }, required: ["method", "minutes"] } } }, required: ["summary", "start", "end"] },
+  },
+  {
+    name: "update_calendar_event",
+    description: "Update a Google Calendar event, including reminder notifications.",
+    input_schema: { type: "object" as const, properties: { eventId: { type: "string" }, summary: { type: "string" }, description: { type: "string" }, location: { type: "string" }, start: { type: "string", description: "ISO datetime" }, end: { type: "string", description: "ISO datetime" }, useDefaultReminders: { type: "boolean" }, reminders: { type: "array", items: { type: "object", properties: { method: { type: "string", enum: ["email", "popup"] }, minutes: { type: "number" } }, required: ["method", "minutes"] } } }, required: ["eventId"] },
   },
 
   // ── Case Studies ───────────────────────────────────────────────────────────
@@ -1034,6 +1128,33 @@ TOOLS.push(
     name: "create_drive_folder",
     description: "Create a new Google Drive folder.",
     input_schema: { type: "object" as const, properties: { name: { type: "string" }, parentFolderId: { type: "string" } }, required: ["name"] },
+  },
+
+  // ── Google Tasks ───────────────────────────────────────────────────────────
+  {
+    name: "list_google_task_lists",
+    description: "List the available Google Task lists.",
+    input_schema: { type: "object" as const, properties: {} },
+  },
+  {
+    name: "search_google_tasks",
+    description: "Search tasks in a Google Task list.",
+    input_schema: { type: "object" as const, properties: { taskListId: { type: "string" }, query: { type: "string" }, status: { type: "string", enum: ["all", "open", "done"] }, limit: { type: "number" } }, required: ["taskListId"] },
+  },
+  {
+    name: "create_google_task",
+    description: "Create a Google Task.",
+    input_schema: { type: "object" as const, properties: { taskListId: { type: "string" }, title: { type: "string" }, notes: { type: "string" }, due: { type: "string", description: "ISO date or datetime" }, status: { type: "string", enum: ["needsAction", "completed"] } }, required: ["taskListId", "title"] },
+  },
+  {
+    name: "update_google_task",
+    description: "Update a Google Task, including due date or completion status.",
+    input_schema: { type: "object" as const, properties: { taskListId: { type: "string" }, taskId: { type: "string" }, title: { type: "string" }, notes: { type: "string" }, due: { type: "string", description: "ISO date or datetime" }, status: { type: "string", enum: ["needsAction", "completed"] } }, required: ["taskListId", "taskId"] },
+  },
+  {
+    name: "delete_google_task",
+    description: "Delete a Google Task.",
+    input_schema: { type: "object" as const, properties: { taskListId: { type: "string" }, taskId: { type: "string" } }, required: ["taskListId", "taskId"] },
   },
 
   // ── Email Threads ──────────────────────────────────────────────────────────
