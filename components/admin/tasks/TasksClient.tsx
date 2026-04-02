@@ -185,7 +185,12 @@ export default function TasksClient() {
 
       {error && (
         <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-          {error}
+          <div>{error}</div>
+          {(error.toLowerCase().includes("reconnect") || error.toLowerCase().includes("permissions")) && (
+            <div className="mt-2 text-white/55">
+              Reconnect Google from <a href="/admin/email" className="text-sky-400 hover:text-sky-300 underline">Email</a> or check <a href="/admin/integrations" className="text-sky-400 hover:text-sky-300 underline">Integrations</a>.
+            </div>
+          )}
         </div>
       )}
 

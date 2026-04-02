@@ -40,7 +40,25 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(filtered);
   } catch (err) {
     console.error("TASKS_LIST_ERROR:", err);
-    return NextResponse.json({ error: "Failed to list tasks" }, { status: 500 });
+    const message = err instanceof Error ? err.message : "Failed to list tasks";
+    const lower = message.toLowerCase();
+    const needsReconnect =
+      lower.includes("insufficient authentication scopes") ||
+      lower.includes("invalid credentials") ||
+      lower.includes("not authenticated");
+    const apiDisabled =
+      lower.includes("tasks api") && (lower.includes("not been used") || lower.includes("disabled"));
+
+    return NextResponse.json(
+      {
+        error: needsReconnect
+          ? "Google Tasks needs new permissions. Reconnect your Google account from Email or Integrations to grant Tasks access."
+          : apiDisabled
+          ? "Google Tasks API is not enabled in your Google Cloud project yet."
+          : message,
+      },
+      { status: 500 }
+    );
   }
 }
 
