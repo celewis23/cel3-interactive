@@ -263,6 +263,14 @@ export interface MimeAttachment {
   data: Buffer;
 }
 
+function wrapBase64(value: string): string {
+  return value.match(/.{1,76}/g)?.join("\r\n") ?? value;
+}
+
+function encodeMimePartText(value: string): string {
+  return wrapBase64(Buffer.from(value, "utf-8").toString("base64"));
+}
+
 function htmlToPlainText(html: string): string {
   return html
     .replace(/<br\s*\/?>/gi, "\n")
@@ -283,9 +291,28 @@ function htmlToPlainText(html: string): string {
 
 /** RFC 2047 encode a header value when it contains non-ASCII characters */
 function encodeHeader(value: string): string {
-  // eslint-disable-next-line no-control-regex
   if (!/[^\x00-\x7F]/.test(value)) return value;
   return `=?UTF-8?B?${Buffer.from(value, "utf-8").toString("base64")}?=`;
+}
+
+function escapeHeaderParam(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+function encodeRfc2231Param(value: string): string {
+  return encodeURIComponent(value)
+    .replace(/['()*]/g, (char) =>
+      `%${char.charCodeAt(0).toString(16).toUpperCase()}`
+    );
+}
+
+function formatFilenameParams(filename: string): string[] {
+  const safeQuoted = escapeHeaderParam(filename);
+  const params = [`filename="${safeQuoted}"`];
+  if (/[^\x20-\x7E]/.test(filename)) {
+    params.push(`filename*=UTF-8''${encodeRfc2231Param(filename)}`);
+  }
+  return params;
 }
 
 function buildRawMessage(opts: {
@@ -326,6 +353,7 @@ function buildRawMessage(opts: {
     ...(opts.references ? [`References: ${opts.references}`] : []),
     "MIME-Version: 1.0",
     `Content-Type: ${topContentType}`,
+    ...(!hasAttachments && !hasHtml ? ["Content-Transfer-Encoding: base64"] : []),
   ].join("\r\n");
 
   // Build the alt block (text + html)
@@ -333,13 +361,15 @@ function buildRawMessage(opts: {
     ? [
         `--${B_ALT}`,
         "Content-Type: text/plain; charset=UTF-8",
+        "Content-Transfer-Encoding: base64",
         "",
-        opts.body,
+        encodeMimePartText(opts.body),
         "",
         `--${B_ALT}`,
         "Content-Type: text/html; charset=UTF-8",
+        "Content-Transfer-Encoding: base64",
         "",
-        opts.htmlBody,
+        encodeMimePartText(opts.htmlBody ?? ""),
         "",
         `--${B_ALT}--`,
       ].join("\r\n")
@@ -349,17 +379,23 @@ function buildRawMessage(opts: {
   if (hasAttachments) {
     const innerPart = hasHtml
       ? [`Content-Type: multipart/alternative; boundary="${B_ALT}"`, "", altBlock!].join("\r\n")
-      : ["Content-Type: text/plain; charset=UTF-8", "", opts.body].join("\r\n");
+      : [
+          "Content-Type: text/plain; charset=UTF-8",
+          "Content-Transfer-Encoding: base64",
+          "",
+          encodeMimePartText(opts.body),
+        ].join("\r\n");
 
     const parts: string[] = [`--${B_MIX}`, innerPart];
 
     for (const att of opts.attachments!) {
-      const b64 = att.data.toString("base64");
-      const wrapped = b64.match(/.{1,76}/g)?.join("\r\n") ?? b64;
+      const wrapped = wrapBase64(att.data.toString("base64"));
+      const filenameParams = formatFilenameParams(att.filename).join("; ");
+      const safeMimeType = att.mimeType || "application/octet-stream";
       parts.push(
         `--${B_MIX}`,
-        `Content-Type: ${att.mimeType}; name="${att.filename}"`,
-        `Content-Disposition: attachment; filename="${att.filename}"`,
+        `Content-Type: ${safeMimeType}; ${filenameParams}`,
+        `Content-Disposition: attachment; ${filenameParams}`,
         "Content-Transfer-Encoding: base64",
         "",
         wrapped,
@@ -370,7 +406,7 @@ function buildRawMessage(opts: {
   } else if (hasHtml) {
     bodyContent = altBlock!;
   } else {
-    bodyContent = opts.body;
+    bodyContent = encodeMimePartText(opts.body);
   }
 
   return Buffer.from(`${headerLines}\r\n\r\n${bodyContent}`).toString("base64url");
