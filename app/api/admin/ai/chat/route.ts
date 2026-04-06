@@ -5,8 +5,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
-import { createCustomer, listCustomers, listInvoices, listSubscriptions, getBalance } from "@/lib/stripe/billing";
-import { syncRecentStripeInvoicesToSanity, syncStripeCustomerToPipelineContact, syncStripeInvoiceToSanity } from "@/lib/stripe/sync";
+import { createCustomer, createInvoice, listCustomers, listInvoices, listSubscriptions, getBalance } from "@/lib/stripe/billing";
+import { ensureStripeCustomerForPipelineContact, syncRecentStripeInvoicesToSanity, syncStripeCustomerToPipelineContact, syncStripeInvoiceToSanity } from "@/lib/stripe/sync";
 import { createContact as createGoogleContact, searchContacts as searchGoogleContacts } from "@/lib/google/contacts";
 import { sendEmail, listThreads } from "@/lib/gmail/api";
 import { listEvents, createEvent, updateEvent } from "@/lib/google/calendar";
@@ -15,6 +15,7 @@ import { listSpaces, listMessages, sendMessage as chatSendMessage } from "@/lib/
 import { listUpcomingMeetings, createMeeting as googleCreateMeeting } from "@/lib/google/meet";
 import { listTaskLists, listTasks as listGoogleTasks, createTask as createGoogleTask, updateTask as updateGoogleTask, deleteTask as deleteGoogleTask } from "@/lib/google/tasks";
 import { slugify } from "@/lib/forms";
+import { AuditAction, logAudit } from "@/lib/audit/log";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -117,6 +118,18 @@ function makeFormField(field: Record<string, unknown>, sortOrder: number) {
     sliderMinLabel: s(field.sliderMinLabel),
     sliderMaxLabel: s(field.sliderMaxLabel),
   };
+}
+
+function parseInvoiceLineItems(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+    .map((item) => ({
+      description: s(item.description),
+      amount: typeof item.amount === "number" ? item.amount : Number(item.amount),
+      quantity: item.quantity === undefined ? 1 : Number(item.quantity),
+    }))
+    .filter((item) => item.description && Number.isFinite(item.amount) && item.amount > 0 && Number.isFinite(item.quantity) && item.quantity > 0);
 }
 
 async function getMemoryFacts() {
@@ -290,7 +303,7 @@ async function createProjectWithTasks(input: Record<string, unknown>) {
   return { ...project, tasks: createdTasks };
 }
 
-async function executeTool(name: string, input: Record<string, unknown>): Promise<unknown> {
+async function executeTool(req: NextRequest, name: string, input: Record<string, unknown>): Promise<unknown> {
   const limit = n(input.limit, 10);
   const query = s(input.query);
 
@@ -462,6 +475,44 @@ async function executeTool(name: string, input: Record<string, unknown>): Promis
       const customer = await createCustomer({ name, email: so(input.email), phone: so(input.phone), description: so(input.description) });
       const contact = await syncStripeCustomerToPipelineContact(customer, { source: "AI Assistant", stage: "won" });
       return { customer, contact };
+    }
+    case "create_invoice": {
+      let customerId = so(input.customerId);
+      const pipelineContactId = so(input.pipelineContactId);
+      const lineItems = parseInvoiceLineItems(input.lineItems);
+
+      if (!customerId && pipelineContactId) {
+        const resolved = await ensureStripeCustomerForPipelineContact(pipelineContactId);
+        customerId = resolved.customer.id;
+      }
+
+      if (!customerId) throw new Error("customerId or pipelineContactId is required");
+      if (!lineItems.length) throw new Error("At least one valid invoice line item is required");
+
+      const invoice = await createInvoice({
+        customerId,
+        daysUntilDue: n(input.daysUntilDue, 30),
+        description: so(input.description),
+        lineItems,
+        send: b(input.send, false),
+      });
+      const synced = await syncStripeInvoiceToSanity(invoice);
+
+      logAudit(req, {
+        action: AuditAction.BILLING_INVOICE_CREATED,
+        resourceType: "invoice",
+        resourceId: invoice.id,
+        resourceLabel: invoice.number ?? invoice.id,
+        description: `Invoice created via AI Assistant for customer ${customerId}`,
+        metadata: {
+          customerId,
+          pipelineContactId: pipelineContactId ?? null,
+          sent: b(input.send, false),
+          lineItemCount: lineItems.length,
+        },
+      });
+
+      return { invoice, synced };
     }
     case "create_google_contact": {
       if (!so(input.givenName) && !so(input.familyName)) throw new Error("givenName or familyName is required");
@@ -931,7 +982,7 @@ export async function POST(req: NextRequest) {
       const toolUseBlocks = response.content.filter((block): block is Anthropic.ToolUseBlock => block.type === "tool_use");
       const toolResults = await Promise.all(toolUseBlocks.map(async (block) => {
         try {
-          const result = await executeTool(block.name, block.input as Record<string, unknown>);
+          const result = await executeTool(req, block.name, block.input as Record<string, unknown>);
           return { type: "tool_result" as const, tool_use_id: block.id, content: JSON.stringify(result, null, 2) };
         } catch (err) {
           return { type: "tool_result" as const, tool_use_id: block.id, content: `Error: ${err instanceof Error ? err.message : String(err)}`, is_error: true };
@@ -992,6 +1043,33 @@ TOOLS.push(
     name: "create_client",
     description: "Create a Stripe customer client.",
     input_schema: { type: "object" as const, properties: { name: { type: "string" }, email: { type: "string" }, phone: { type: "string" }, description: { type: "string" } }, required: ["name"] },
+  },
+  {
+    name: "create_invoice",
+    description: "Create an invoice in Stripe and sync it back into the backoffice invoice records.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        customerId: { type: "string", description: "Stripe customer ID. Optional if pipelineContactId is provided." },
+        pipelineContactId: { type: "string", description: "Backoffice pipeline contact ID. If provided, a Stripe customer will be created or reused automatically." },
+        daysUntilDue: { type: "number", description: "Days until the invoice due date. Defaults to 30." },
+        description: { type: "string", description: "Invoice-level memo or description." },
+        send: { type: "boolean", description: "Whether to email the invoice immediately after creation." },
+        lineItems: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              description: { type: "string" },
+              amount: { type: "number", description: "Unit amount in dollars." },
+              quantity: { type: "number", description: "Quantity for this line item." },
+            },
+            required: ["description", "amount"],
+          },
+        },
+      },
+      required: ["lineItems"],
+    },
   },
   {
     name: "create_google_contact",

@@ -850,7 +850,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* AI Assistant — floating panel, rendered outside the sidebar/content flow */}
       <AdminNotificationManager />
-      <AIAssistant />
+      <AIAssistant theme={theme} />
     </div>
   );
 }
