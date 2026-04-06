@@ -33,6 +33,73 @@ function isGoogleNative(mimeType: string) {
     !mimeType.includes("shortcut");
 }
 
+async function uploadDriveFileDirect(params: {
+  accessToken: string;
+  file: File;
+  folderId?: string | null;
+}): Promise<DriveFile> {
+  const initRes = await fetch(
+    "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&supportsAllDrives=true&fields=id,name,mimeType,size,modifiedTime,thumbnailLink,webViewLink,webContentLink,parents,iconLink",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${params.accessToken}`,
+        "Content-Type": "application/json; charset=UTF-8",
+        "X-Upload-Content-Type": params.file.type || "application/octet-stream",
+        "X-Upload-Content-Length": String(params.file.size),
+      },
+      body: JSON.stringify({
+        name: params.file.name,
+        parents: params.folderId ? [params.folderId] : undefined,
+      }),
+    }
+  );
+
+  if (!initRes.ok) {
+    const data = await initRes.json().catch(() => ({}));
+    const message =
+      (data as { error?: { message?: string } }).error?.message ??
+      "Failed to start Drive upload";
+    throw new Error(message);
+  }
+
+  const uploadUrl = initRes.headers.get("Location");
+  if (!uploadUrl) {
+    throw new Error("Drive upload session did not return an upload URL");
+  }
+
+  const uploadRes = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": params.file.type || "application/octet-stream",
+    },
+    body: params.file,
+  });
+
+  if (!uploadRes.ok) {
+    const data = await uploadRes.json().catch(() => ({}));
+    const message =
+      (data as { error?: { message?: string } }).error?.message ??
+      "Drive upload failed";
+    throw new Error(message);
+  }
+
+  const uploaded = await uploadRes.json();
+  return {
+    id: uploaded.id ?? "",
+    name: uploaded.name ?? params.file.name,
+    mimeType: uploaded.mimeType ?? params.file.type ?? "application/octet-stream",
+    size: uploaded.size ? parseInt(String(uploaded.size), 10) : params.file.size,
+    modifiedTime: uploaded.modifiedTime ?? new Date().toISOString(),
+    thumbnailLink: uploaded.thumbnailLink ?? undefined,
+    webViewLink: uploaded.webViewLink ?? undefined,
+    webContentLink: uploaded.webContentLink ?? undefined,
+    parents: uploaded.parents ?? undefined,
+    isFolder: uploaded.mimeType === "application/vnd.google-apps.folder",
+    iconLink: uploaded.iconLink ?? undefined,
+  };
+}
+
 function FolderIcon({ className = "text-sky-400" }: { className?: string }) {
   return (
     <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" className={className}>
@@ -320,16 +387,17 @@ export default function DriveClient() {
     setUploading(true);
     setError(null);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      if (folderId) formData.append("folderId", folderId);
-      const res = await fetch("/api/admin/drive/files", { method: "POST", body: formData });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(
-          (data as { error?: string }).error ?? "Upload failed"
-        );
+      const configRes = await fetch("/api/admin/drive/config");
+      const config = await configRes.json().catch(() => ({}));
+      if (!configRes.ok || !config.accessToken) {
+        throw new Error("Google Drive is not connected. Reconnect Google and try again.");
       }
+
+      await uploadDriveFileDirect({
+        accessToken: config.accessToken as string,
+        file,
+        folderId,
+      });
       await fetchFiles(folderId);
     } catch (e) {
       setError((e as Error).message);

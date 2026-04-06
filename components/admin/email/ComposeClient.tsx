@@ -184,11 +184,33 @@ async function buildRawGmailMessage(opts: {
   return `${headerLines}\r\n\r\n${bodyContent}`;
 }
 
-function toBase64Url(value: string): string {
-  return encodeTextToBase64(value)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/g, "");
+function estimateMimeMessageSize(opts: {
+  htmlBody: string;
+  subject: string;
+  to: string[];
+  cc: string[];
+  bcc: string[];
+  attachments: AttachedFile[];
+}): number {
+  const plainBody = htmlToPlainText(opts.htmlBody);
+  const textBytes = new TextEncoder().encode(plainBody).length;
+  const htmlBytes = new TextEncoder().encode(opts.htmlBody).length;
+  const encodedBodyBytes =
+    Math.ceil(textBytes / 3) * 4 + Math.ceil(htmlBytes / 3) * 4;
+  const encodedAttachmentBytes = opts.attachments.reduce((sum, attachment) => {
+    const base64Bytes = Math.ceil(attachment.size / 3) * 4;
+    const lineBreaks = Math.ceil(base64Bytes / 76) * 2;
+    const headerBytes = 512 + attachment.name.length * 4;
+    return sum + base64Bytes + lineBreaks + headerBytes;
+  }, 0);
+  const headerBytes =
+    2048 +
+    opts.subject.length * 4 +
+    opts.to.join(", ").length * 2 +
+    opts.cc.join(", ").length * 2 +
+    opts.bcc.join(", ").length * 2;
+
+  return headerBytes + encodedBodyBytes + encodedAttachmentBytes;
 }
 
 async function sendViaGmailApi(opts: {
@@ -201,14 +223,20 @@ async function sendViaGmailApi(opts: {
   attachments?: AttachedFile[];
 }) {
   const rawMessage = await buildRawGmailMessage(opts);
-  const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+  const messageBlob = new Blob([rawMessage], {
+    type: "message/rfc822;charset=UTF-8",
+  });
+  const res = await fetch(
+    "https://gmail.googleapis.com/upload/gmail/v1/users/me/messages/send?uploadType=media",
+    {
     method: "POST",
     headers: {
       Authorization: `Bearer ${opts.accessToken}`,
-      "Content-Type": "application/json",
+      "Content-Type": "message/rfc822",
     },
-    body: JSON.stringify({ raw: toBase64Url(rawMessage) }),
-  });
+      body: messageBlob,
+    }
+  );
 
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
@@ -219,7 +247,8 @@ async function sendViaGmailApi(opts: {
   }
 }
 
-const GMAIL_ATTACHMENT_SOFT_LIMIT_BYTES = 18 * 1024 * 1024;
+const GMAIL_ATTACHMENT_LIMIT_BYTES = 25 * 1024 * 1024;
+const GMAIL_MESSAGE_UPLOAD_LIMIT_BYTES = 35 * 1024 * 1024;
 
 export default function ComposeClient({ initialTo = "" }: Props) {
   const [toEmails, setToEmails] = useState<string[]>(
@@ -349,13 +378,24 @@ export default function ComposeClient({ initialTo = "" }: Props) {
 
     try {
       if (attachments.length > 0) {
-        const totalAttachmentSize = attachments.reduce(
-          (sum, att) => sum + att.size,
-          0
-        );
-        if (totalAttachmentSize > GMAIL_ATTACHMENT_SOFT_LIMIT_BYTES) {
+        const totalAttachmentSize = attachments.reduce((sum, att) => sum + att.size, 0);
+        if (totalAttachmentSize > GMAIL_ATTACHMENT_LIMIT_BYTES) {
           throw new Error(
-            "Attachments are too large for Gmail. Keep total attachments under about 18 MB, or use Drive links instead."
+            "Gmail only allows up to 25 MB in attachments. For anything larger, use Drive links instead."
+          );
+        }
+
+        const estimatedMimeSize = estimateMimeMessageSize({
+          htmlBody,
+          subject: subject.trim(),
+          to: toEmails,
+          cc: ccEmails,
+          bcc: bccEmails,
+          attachments,
+        });
+        if (estimatedMimeSize > GMAIL_MESSAGE_UPLOAD_LIMIT_BYTES) {
+          throw new Error(
+            "This email is too large after encoding. Try a slightly smaller file or use a Drive link."
           );
         }
 
