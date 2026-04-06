@@ -385,13 +385,27 @@ export async function createInvoice(params: {
 
   // Add line items
   for (const item of params.lineItems) {
+    const quantity = Math.max(1, Math.round(item.quantity ?? 1));
+    const lineTotalCents = Math.round(item.amount * 100);
+
+    if (quantity > 1) {
+      await stripe.invoiceItems.create({
+        customer: params.customerId,
+        invoice: inv.id,
+        currency: "usd",
+        description: item.description,
+        quantity,
+        unit_amount_decimal: (lineTotalCents / quantity).toFixed(12).replace(/\.?0+$/, ""),
+      });
+      continue;
+    }
+
     await stripe.invoiceItems.create({
       customer: params.customerId,
       invoice: inv.id,
-      amount: Math.round(item.amount * 100), // dollars -> cents
+      amount: lineTotalCents, // dollars -> cents
       currency: "usd",
       description: item.description,
-      quantity: item.quantity ?? 1,
     });
   }
 
