@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
+import { normalizeDriveId } from "@/lib/google/drive";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 
@@ -46,6 +47,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const driveRootFolderId = normalizeDriveId(body.driveRootFolderId) || null;
+
     const user = await sanityWriteClient.create({
       _type: "clientPortalUser",
       email,
@@ -53,7 +56,7 @@ export async function POST(req: NextRequest) {
       company: body.company?.trim() || null,
       stripeCustomerId: body.stripeCustomerId || null,
       pipelineContactId: body.pipelineContactId || null,
-      driveRootFolderId: body.driveRootFolderId || null,
+      driveRootFolderId,
       passwordHash: null,
       passwordSalt: null,
       mustChangePassword: false,

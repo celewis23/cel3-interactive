@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
+import { normalizeDriveId } from "@/lib/google/drive";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { generateTemporaryPortalPassword } from "@/lib/portal/auth";
@@ -40,7 +41,12 @@ export async function PATCH(
     const body = await req.json();
     const patch: Record<string, unknown> = {};
     for (const field of ALLOWED) {
-      if (field in body) patch[field] = body[field] ?? null;
+      if (!(field in body)) continue;
+      if (field === "driveRootFolderId") {
+        patch[field] = normalizeDriveId(body[field]) ?? null;
+        continue;
+      }
+      patch[field] = body[field] ?? null;
     }
     const updated = await sanityWriteClient.patch(id).set(patch).commit();
     return NextResponse.json(updated);

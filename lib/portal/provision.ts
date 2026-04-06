@@ -1,4 +1,9 @@
-import { createFolder, listFiles, uploadFile } from "@/lib/google/drive";
+import {
+  createFolder,
+  listFiles,
+  normalizeDriveId,
+  uploadFile,
+} from "@/lib/google/drive";
 import { getCustomer } from "@/lib/stripe/billing";
 import { syncContactProfileFromPipeline } from "@/lib/contacts/unifiedSync";
 import { sanityServer } from "@/lib/sanityServer";
@@ -42,12 +47,15 @@ export async function getOrCreateDriveFolderByName(name: string, parentId?: stri
 }
 
 async function resolveClientsFolderParentId() {
-  const explicitClientsFolderId =
+  const explicitClientsFolderId = normalizeDriveId(
     process.env.GOOGLE_DRIVE_CLIENTS_FOLDER_ID?.trim()
-    || process.env.GOOGLE_DRIVE_CLIENT_FOLDER_ID?.trim();
+    || process.env.GOOGLE_DRIVE_CLIENT_FOLDER_ID?.trim()
+  );
   if (explicitClientsFolderId) return explicitClientsFolderId;
 
-  const portalRootFolderId = process.env.GOOGLE_DRIVE_PORTAL_ROOT_FOLDER_ID?.trim() || undefined;
+  const portalRootFolderId = normalizeDriveId(
+    process.env.GOOGLE_DRIVE_PORTAL_ROOT_FOLDER_ID?.trim() || undefined
+  );
   const existingClientsFolder = await findDriveFolderByNames(["Clients", "Client"], portalRootFolderId);
   if (existingClientsFolder) return existingClientsFolder.id;
 

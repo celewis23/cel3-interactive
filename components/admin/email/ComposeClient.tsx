@@ -48,6 +48,179 @@ function formatBytes(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function encodeBytesToBase64(bytes: Uint8Array): string {
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+  return btoa(binary);
+}
+
+function encodeTextToBase64(value: string): string {
+  return encodeBytesToBase64(new TextEncoder().encode(value));
+}
+
+function wrapBase64(value: string): string {
+  return value.match(/.{1,76}/g)?.join("\r\n") ?? value;
+}
+
+function encodeMimeText(value: string): string {
+  return wrapBase64(encodeTextToBase64(value));
+}
+
+function encodeHeader(value: string): string {
+  if (!/[^\x00-\x7F]/.test(value)) return value;
+  return `=?UTF-8?B?${encodeTextToBase64(value)}?=`;
+}
+
+function escapeHeaderParam(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+function encodeRfc2231Param(value: string): string {
+  return encodeURIComponent(value).replace(
+    /['()*]/g,
+    (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`
+  );
+}
+
+function formatFilenameParams(filename: string): string {
+  const params = [`filename="${escapeHeaderParam(filename)}"`];
+  if (/[^\x20-\x7E]/.test(filename)) {
+    params.push(`filename*=UTF-8''${encodeRfc2231Param(filename)}`);
+  }
+  return params.join("; ");
+}
+
+function htmlToPlainText(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<\/div>/gi, "\n")
+    .replace(/<\/li>/gi, "\n")
+    .replace(/<li[^>]*>/gi, "  • ")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+async function buildRawGmailMessage(opts: {
+  to: string;
+  subject: string;
+  htmlBody: string;
+  cc?: string;
+  bcc?: string;
+  attachments?: AttachedFile[];
+}): Promise<string> {
+  const uid = Date.now().toString(36);
+  const altBoundary = `alt_${uid}`;
+  const mixBoundary = `mix_${uid}`;
+  const plainBody = htmlToPlainText(opts.htmlBody);
+  const hasAttachments = !!opts.attachments?.length;
+
+  const headerLines = [
+    `To: ${opts.to}`,
+    ...(opts.cc ? [`Cc: ${opts.cc}`] : []),
+    ...(opts.bcc ? [`Bcc: ${opts.bcc}`] : []),
+    `Subject: ${encodeHeader(opts.subject)}`,
+    "MIME-Version: 1.0",
+    `Content-Type: ${
+      hasAttachments
+        ? `multipart/mixed; boundary="${mixBoundary}"`
+        : `multipart/alternative; boundary="${altBoundary}"`
+    }`,
+  ].join("\r\n");
+
+  const altBlock = [
+    `--${altBoundary}`,
+    "Content-Type: text/plain; charset=UTF-8",
+    "Content-Transfer-Encoding: base64",
+    "",
+    encodeMimeText(plainBody),
+    "",
+    `--${altBoundary}`,
+    "Content-Type: text/html; charset=UTF-8",
+    "Content-Transfer-Encoding: base64",
+    "",
+    encodeMimeText(opts.htmlBody),
+    "",
+    `--${altBoundary}--`,
+  ].join("\r\n");
+
+  let bodyContent = altBlock;
+
+  if (hasAttachments) {
+    const parts: string[] = [
+      `--${mixBoundary}`,
+      `Content-Type: multipart/alternative; boundary="${altBoundary}"`,
+      "",
+      altBlock,
+    ];
+
+    for (const attachment of opts.attachments ?? []) {
+      const bytes = new Uint8Array(await attachment.file.arrayBuffer());
+      parts.push(
+        `--${mixBoundary}`,
+        `Content-Type: ${attachment.mimeType || "application/octet-stream"}; ${formatFilenameParams(attachment.name)}`,
+        `Content-Disposition: attachment; ${formatFilenameParams(attachment.name)}`,
+        "Content-Transfer-Encoding: base64",
+        "",
+        wrapBase64(encodeBytesToBase64(bytes))
+      );
+    }
+
+    parts.push(`--${mixBoundary}--`);
+    bodyContent = parts.join("\r\n");
+  }
+
+  return `${headerLines}\r\n\r\n${bodyContent}`;
+}
+
+function toBase64Url(value: string): string {
+  return encodeTextToBase64(value)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+}
+
+async function sendViaGmailApi(opts: {
+  accessToken: string;
+  to: string;
+  subject: string;
+  htmlBody: string;
+  cc?: string;
+  bcc?: string;
+  attachments?: AttachedFile[];
+}) {
+  const rawMessage = await buildRawGmailMessage(opts);
+  const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${opts.accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ raw: toBase64Url(rawMessage) }),
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    const message =
+      (data as { error?: { message?: string } }).error?.message ??
+      `Failed to send email (${res.status})`;
+    throw new Error(message);
+  }
+}
+
+const GMAIL_ATTACHMENT_SOFT_LIMIT_BYTES = 18 * 1024 * 1024;
+
 export default function ComposeClient({ initialTo = "" }: Props) {
   const [toEmails, setToEmails] = useState<string[]>(
     initialTo ? [initialTo] : []
@@ -175,21 +348,53 @@ export default function ComposeClient({ initialTo = "" }: Props) {
     setError("");
 
     try {
-      const fd = new FormData();
-      fd.append("to", toEmails.join(", "));
-      fd.append("subject", subject.trim());
-      fd.append("htmlBody", htmlBody);
-      if (ccEmails.length > 0) fd.append("cc", ccEmails.join(", "));
-      if (bccEmails.length > 0) fd.append("bcc", bccEmails.join(", "));
-      for (const att of attachments) {
-        fd.append("attachments", att.file, att.name);
-      }
+      if (attachments.length > 0) {
+        const totalAttachmentSize = attachments.reduce(
+          (sum, att) => sum + att.size,
+          0
+        );
+        if (totalAttachmentSize > GMAIL_ATTACHMENT_SOFT_LIMIT_BYTES) {
+          throw new Error(
+            "Attachments are too large for Gmail. Keep total attachments under about 18 MB, or use Drive links instead."
+          );
+        }
 
-      const res = await fetch("/api/admin/email/send", { method: "POST", body: fd });
+        const configRes = await fetch("/api/admin/email/drive-config");
+        const config = await configRes.json().catch(() => ({}));
+        if (!configRes.ok || !config.accessToken) {
+          throw new Error(
+            "Gmail is not connected. Reconnect Gmail and try again."
+          );
+        }
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error((data as { error?: string }).error ?? `HTTP ${res.status}`);
+        await sendViaGmailApi({
+          accessToken: config.accessToken as string,
+          to: toEmails.join(", "),
+          subject: subject.trim(),
+          htmlBody,
+          cc: ccEmails.length > 0 ? ccEmails.join(", ") : undefined,
+          bcc: bccEmails.length > 0 ? bccEmails.join(", ") : undefined,
+          attachments,
+        });
+      } else {
+        const fd = new FormData();
+        fd.append("to", toEmails.join(", "));
+        fd.append("subject", subject.trim());
+        fd.append("htmlBody", htmlBody);
+        if (ccEmails.length > 0) fd.append("cc", ccEmails.join(", "));
+        if (bccEmails.length > 0) fd.append("bcc", bccEmails.join(", "));
+
+        const res = await fetch("/api/admin/email/send", {
+          method: "POST",
+          body: fd,
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(
+            (data as { error?: string }).error ?? `HTTP ${res.status}`
+          );
+        }
       }
 
       setDone(true);

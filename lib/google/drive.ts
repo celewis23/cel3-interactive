@@ -29,6 +29,28 @@ const ALL_DRIVE_MUTATION_OPTIONS = {
   supportsAllDrives: true,
 } as const;
 
+export function normalizeDriveId(value?: string | null): string | undefined {
+  const input = value?.trim();
+  if (!input) return undefined;
+  if (input === "root") return input;
+  if (!input.includes("/") && !input.includes("?")) return input;
+
+  try {
+    const url = new URL(input);
+    const idParam = url.searchParams.get("id")?.trim();
+    if (idParam) return idParam;
+
+    const pathMatch = url.pathname.match(
+      /\/(?:drive\/(?:u\/\d+\/)?folders|folders|file\/d)\/([^/]+)/
+    );
+    if (pathMatch?.[1]) return pathMatch[1];
+  } catch {
+    return input;
+  }
+
+  return input;
+}
+
 function mapFile(f: {
   id?: string | null;
   name?: string | null;
@@ -73,7 +95,7 @@ export async function listFiles(opts?: {
     q = `fullText contains '${opts.search.replace(/'/g, "\\'")}' and trashed = false`;
     if (opts?.foldersOnly) q += ` and mimeType = '${FOLDER_MIME}'`;
   } else {
-    const folderId = opts?.folderId ?? "root";
+    const folderId = normalizeDriveId(opts?.folderId) ?? "root";
     q = `'${folderId}' in parents and trashed = false`;
     if (opts?.foldersOnly) q += ` and mimeType = '${FOLDER_MIME}'`;
   }
@@ -100,7 +122,7 @@ export async function getFileMeta(fileId: string): Promise<DriveFile> {
 
   const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
   const res = await drive.files.get({
-    fileId,
+    fileId: normalizeDriveId(fileId) ?? fileId,
     fields:
       "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
     ...ALL_DRIVE_MUTATION_OPTIONS,
@@ -121,7 +143,7 @@ export async function createFolder(
     requestBody: {
       name,
       mimeType: FOLDER_MIME,
-      parents: parentId ? [parentId] : undefined,
+      parents: normalizeDriveId(parentId) ? [normalizeDriveId(parentId)!] : undefined,
     },
     fields:
       "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
@@ -136,7 +158,10 @@ export async function deleteFile(fileId: string): Promise<void> {
   if (!auth) throw new Error("Not authenticated with Google");
 
   const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
-  await drive.files.delete({ fileId, ...ALL_DRIVE_MUTATION_OPTIONS });
+  await drive.files.delete({
+    fileId: normalizeDriveId(fileId) ?? fileId,
+    ...ALL_DRIVE_MUTATION_OPTIONS,
+  });
 }
 
 export async function createGoogleDoc(
@@ -151,7 +176,7 @@ export async function createGoogleDoc(
     requestBody: {
       name,
       mimeType: DOC_MIME,
-      parents: parentId ? [parentId] : undefined,
+      parents: normalizeDriveId(parentId) ? [normalizeDriveId(parentId)!] : undefined,
     },
     fields:
       "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
@@ -172,7 +197,7 @@ export async function createGoogleSheet(
     requestBody: {
       name,
       mimeType: SHEET_MIME,
-      parents: parentId ? [parentId] : undefined,
+      parents: normalizeDriveId(parentId) ? [normalizeDriveId(parentId)!] : undefined,
     },
     fields:
       "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
@@ -190,7 +215,7 @@ export async function renameFile(
 
   const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
   const res = await drive.files.update({
-    fileId,
+    fileId: normalizeDriveId(fileId) ?? fileId,
     requestBody: { name },
     fields:
       "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
@@ -207,13 +232,14 @@ export async function exportDriveFile(
   if (!auth) throw new Error("Not authenticated with Google");
 
   const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
+  const normalizedFileId = normalizeDriveId(fileId) ?? fileId;
   const meta = await drive.files.get({
-    fileId,
+    fileId: normalizedFileId,
     fields: "name",
     ...ALL_DRIVE_MUTATION_OPTIONS,
   });
   const res = await drive.files.export(
-    { fileId, mimeType: exportMimeType },
+    { fileId: normalizedFileId, mimeType: exportMimeType },
     { responseType: "arraybuffer" }
   );
   return {
@@ -231,10 +257,13 @@ export async function moveFile(
   if (!auth) throw new Error("Not authenticated with Google");
 
   const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
+  const normalizedFileId = normalizeDriveId(fileId) ?? fileId;
+  const normalizedNewParentId = normalizeDriveId(newParentId) ?? newParentId;
+  const normalizedOldParentId = normalizeDriveId(oldParentId) ?? oldParentId;
   const res = await drive.files.update({
-    fileId,
-    addParents: newParentId,
-    removeParents: oldParentId,
+    fileId: normalizedFileId,
+    addParents: normalizedNewParentId,
+    removeParents: normalizedOldParentId,
     fields:
       "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
     ...ALL_DRIVE_MUTATION_OPTIONS,
@@ -252,10 +281,10 @@ export async function copyFile(
 
   const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
   const res = await drive.files.copy({
-    fileId,
+    fileId: normalizeDriveId(fileId) ?? fileId,
     requestBody: {
       name: name ?? undefined,
-      parents: parentId ? [parentId] : undefined,
+      parents: normalizeDriveId(parentId) ? [normalizeDriveId(parentId)!] : undefined,
     },
     fields:
       "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
@@ -271,13 +300,14 @@ export async function downloadFileContent(
   if (!auth) throw new Error("Not authenticated with Google");
 
   const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
+  const normalizedFileId = normalizeDriveId(fileId) ?? fileId;
   const meta = await drive.files.get({
-    fileId,
+    fileId: normalizedFileId,
     fields: "name, mimeType",
     ...ALL_DRIVE_MUTATION_OPTIONS,
   });
   const res = await drive.files.get(
-    { fileId, alt: "media", ...ALL_DRIVE_MUTATION_OPTIONS },
+    { fileId: normalizedFileId, alt: "media", ...ALL_DRIVE_MUTATION_OPTIONS },
     { responseType: "arraybuffer" }
   );
   return {
@@ -298,11 +328,12 @@ export async function uploadFile(params: {
 
   const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
   const { Readable } = await import("stream");
+  const parentId = normalizeDriveId(params.parentId);
 
   const res = await drive.files.create({
     requestBody: {
       name: params.name,
-      parents: params.parentId ? [params.parentId] : undefined,
+      parents: parentId ? [parentId] : undefined,
     },
     media: {
       mimeType: params.mimeType,
