@@ -245,7 +245,7 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
       )}
 
       <div className="border-b border-white/6 bg-[#090b10] px-5 py-3">
-        <div className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,2.2fr)_88px] gap-4 text-[11px] font-medium uppercase tracking-[0.18em] text-white/28">
+        <div className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,2.2fr)_88px] gap-4 text-[11px] font-medium uppercase tracking-[0.18em] text-white/25">
           <span>{primaryColumnLabel}</span>
           <span>Conversation</span>
           <span className="text-right">Updated</span>
@@ -317,17 +317,17 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       {!thread.isRead && <span className="h-2 w-2 flex-shrink-0 rounded-full bg-sky-300" />}
-                      <span className={`block truncate text-sm ${thread.isRead ? "text-white/82" : "font-semibold text-white"}`}>
+                      <span className={`block truncate text-sm ${thread.isRead ? "text-white/80" : "font-semibold text-white"}`}>
                         {extractName(getThreadParty(thread, label))}
                       </span>
                     </div>
-                    <div className="mt-1 truncate text-xs text-white/32">{getThreadParty(thread, label)}</div>
+                    <div className="mt-1 truncate text-xs text-white/30">{getThreadParty(thread, label)}</div>
                   </div>
                 </div>
 
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className={`truncate text-sm ${thread.isRead ? "text-white/76" : "font-semibold text-white"}`}>
+                    <span className={`truncate text-sm ${thread.isRead ? "text-white/70" : "font-semibold text-white"}`}>
                       {thread.subject || "(no subject)"}
                     </span>
                     {thread.messageCount > 1 && (
@@ -336,14 +336,14 @@ export default function InboxClient({ initialLabel = "INBOX" }: Props) {
                       </span>
                     )}
                   </div>
-                  <p className="mt-1 truncate text-xs leading-5 text-white/32">{thread.snippet}</p>
+                  <p className="mt-1 truncate text-xs leading-5 text-white/30">{thread.snippet}</p>
                 </div>
 
                 <div className="text-right">
                   <div className={`text-xs ${thread.isRead ? "text-white/30" : "font-medium text-sky-100/85"}`}>
                     {formatTime(thread.date)}
                   </div>
-                  <div className="mt-1 text-[11px] text-white/22">{formatDate(thread.date)}</div>
+                  <div className="mt-1 text-[11px] text-white/20">{formatDate(thread.date)}</div>
                 </div>
               </Link>
             </li>

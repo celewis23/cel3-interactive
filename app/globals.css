@@ -81,11 +81,13 @@ body {
   color: rgb(17 17 17 / 0.85) !important;
 }
 
+[data-admin-theme="light"] .admin-shell .text-white\/82,
 [data-admin-theme="light"] .admin-shell .text-white\/80,
 [data-admin-theme="light"] .admin-shell .text-white\/70 {
   color: rgb(17 17 17 / 0.72) !important;
 }
 
+[data-admin-theme="light"] .admin-shell .text-white\/76,
 [data-admin-theme="light"] .admin-shell .text-white\/65,
 [data-admin-theme="light"] .admin-shell .text-white\/60 {
   color: rgb(17 17 17 / 0.62) !important;
@@ -102,11 +104,14 @@ body {
 }
 
 [data-admin-theme="light"] .admin-shell .text-white\/35,
+[data-admin-theme="light"] .admin-shell .text-white\/32,
 [data-admin-theme="light"] .admin-shell .text-white\/30 {
   color: rgb(17 17 17 / 0.32) !important;
 }
 
+[data-admin-theme="light"] .admin-shell .text-white\/28,
 [data-admin-theme="light"] .admin-shell .text-white\/25,
+[data-admin-theme="light"] .admin-shell .text-white\/22,
 [data-admin-theme="light"] .admin-shell .text-white\/20 {
   color: rgb(17 17 17 / 0.24) !important;
 }
@@ -185,11 +190,13 @@ body {
   color: rgb(17 17 17 / 0.85) !important;
 }
 
+[data-portal-theme="light"] .portal-shell .text-white\/82,
 [data-portal-theme="light"] .portal-shell .text-white\/80,
 [data-portal-theme="light"] .portal-shell .text-white\/70 {
   color: rgb(17 17 17 / 0.72) !important;
 }
 
+[data-portal-theme="light"] .portal-shell .text-white\/76,
 [data-portal-theme="light"] .portal-shell .text-white\/65,
 [data-portal-theme="light"] .portal-shell .text-white\/60 {
   color: rgb(17 17 17 / 0.62) !important;
@@ -206,11 +213,14 @@ body {
 }
 
 [data-portal-theme="light"] .portal-shell .text-white\/35,
+[data-portal-theme="light"] .portal-shell .text-white\/32,
 [data-portal-theme="light"] .portal-shell .text-white\/30 {
   color: rgb(17 17 17 / 0.32) !important;
 }
 
+[data-portal-theme="light"] .portal-shell .text-white\/28,
 [data-portal-theme="light"] .portal-shell .text-white\/25,
+[data-portal-theme="light"] .portal-shell .text-white\/22,
 [data-portal-theme="light"] .portal-shell .text-white\/20 {
   color: rgb(17 17 17 / 0.24) !important;
 }

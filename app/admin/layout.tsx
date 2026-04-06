@@ -6,7 +6,20 @@ import LiveTimer from "@/components/admin/time/LiveTimer";
 import AIAssistant from "@/components/admin/ai/AIAssistant";
 import AdminNotificationManager from "@/components/admin/notifications/AdminNotificationManager";
 
-const TEAM_NAV = {
+interface CurrentUser {
+  name: string;
+  email: string;
+  roleName: string;
+  isOwner: boolean;
+}
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon: React.ReactNode;
+}
+
+const TEAM_NAV: NavItem = {
   label: "Team",
   href: "/admin/announcements",
   icon: (
@@ -16,14 +29,7 @@ const TEAM_NAV = {
   ),
 };
 
-interface CurrentUser {
-  name: string;
-  email: string;
-  roleName: string;
-  isOwner: boolean;
-}
-
-const NAV = [
+const NAV: NavItem[] = [
   {
     label: "Dashboard",
     href: "/admin",
@@ -288,6 +294,64 @@ const NAV = [
   },
 ];
 
+const NAV_ITEMS: NavItem[] = [...NAV, TEAM_NAV];
+
+const NAV_SECTION_DEFS = [
+  {
+    title: "Overview",
+    hrefs: ["/admin", "/admin/announcements", "/admin/analytics"],
+  },
+  {
+    title: "Clients",
+    hrefs: [
+      "/admin/pipeline",
+      "/admin/contacts",
+      "/admin/estimates",
+      "/admin/contracts",
+      "/admin/billing",
+      "/admin/bookings",
+      "/admin/portal-users",
+      "/admin/portal-requests",
+      "/admin/onboarding",
+      "/admin/forms",
+    ],
+  },
+  {
+    title: "Delivery",
+    hrefs: ["/admin/projects", "/admin/tasks", "/admin/calendar", "/admin/time"],
+  },
+  {
+    title: "Communication",
+    hrefs: ["/admin/email", "/admin/chat", "/admin/meet"],
+  },
+  {
+    title: "Content",
+    hrefs: ["/admin/drive", "/admin/assets", "/admin/photos", "/admin/content", "/admin/case-studies"],
+  },
+  {
+    title: "Operations",
+    hrefs: ["/admin/expenses", "/admin/staff", "/admin/automations", "/admin/integrations", "/admin/audit"],
+  },
+];
+
+const MOBILE_PRIMARY_TABS = [
+  "/admin",
+  "/admin/projects",
+  "/admin/email",
+  "/admin/announcements",
+].map((href) => NAV_ITEMS.find((item) => item.href === href)).filter((item): item is NavItem => Boolean(item));
+
+const NAV_SECTIONS = NAV_SECTION_DEFS.map((section) => ({
+  title: section.title,
+  items: section.hrefs
+    .map((href) => NAV_ITEMS.find((item) => item.href === href))
+    .filter((item): item is NavItem => Boolean(item)),
+}));
+
+function isNavItemActive(pathname: string, href: string) {
+  return href === "/admin" ? pathname === "/admin" : pathname.startsWith(href.split("?")[0]);
+}
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -295,7 +359,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    if (typeof window === "undefined") return "dark";
+    return window.localStorage.getItem("cel3-admin-theme") === "light" ? "light" : "dark";
+  });
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -308,13 +375,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }
       })
       .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem("cel3-admin-theme");
-    const nextTheme = stored === "light" ? "light" : "dark";
-    setTheme(nextTheme);
-    document.documentElement.setAttribute("data-admin-theme", nextTheme);
   }, []);
 
   useEffect(() => {
@@ -413,6 +473,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     : `fixed bottom-0 inset-x-0 z-50 bg-[#0f0f0f] rounded-t-2xl border-t border-white/10 lg:hidden flex flex-col transition-transform duration-300 ease-out max-h-[85dvh] ${
         moreOpen ? "translate-y-0" : "translate-y-full"
       }`;
+  const navSectionLabelClass = theme === "light" ? "text-black/35" : "text-white/28";
+  const currentNavItem = NAV_ITEMS.find((item) => isNavItemActive(pathname, item.href));
+
+  function getNavBadgeCount(item: NavItem) {
+    if (item.href === "/admin/email") return unreadCount;
+    if (item.href === "/admin/announcements") return unreadAnnouncements;
+    return 0;
+  }
+
+  function getNavBadge(item: NavItem) {
+    const count = getNavBadgeCount(item);
+    if (count <= 0) return null;
+    const badgeClass = item.href === "/admin/announcements" ? "bg-amber-500" : "bg-sky-500";
+    return (
+      <span className={`min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full ${badgeClass} text-white text-[10px] font-semibold leading-none`}>
+        {count > 99 ? "99+" : count}
+      </span>
+    );
+  }
 
   return (
     <div className={`admin-shell ${shellClass}`}>
@@ -425,38 +504,36 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-          {[...NAV, TEAM_NAV].map((item) => {
-            const isActive = item.href === "/admin"
-              ? pathname === "/admin"
-              : pathname.startsWith(item.href.split("?")[0]);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${
-                  isActive
-                    ? "bg-sky-500/10 text-sky-400"
-                    : theme === "light"
-                      ? "text-black/55 hover:text-black hover:bg-black/5"
-                      : "text-white/50 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                {item.icon}
-                <span className="flex-1">{item.label}</span>
-                {item.label === "Email" && unreadCount > 0 && (
-                  <span className="ml-auto min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-sky-500 text-white text-[10px] font-semibold leading-none">
-                    {unreadCount > 99 ? "99+" : unreadCount}
-                  </span>
-                )}
-                {item.label === "Team" && unreadAnnouncements > 0 && (
-                  <span className="ml-auto min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-amber-500 text-white text-[10px] font-semibold leading-none">
-                    {unreadAnnouncements > 99 ? "99+" : unreadAnnouncements}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.title} className="pb-4 last:pb-0">
+              <div className={`px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.2em] ${navSectionLabelClass}`}>
+                {section.title}
+              </div>
+              <div className="space-y-0.5">
+                {section.items.map((item) => {
+                  const isActive = isNavItemActive(pathname, item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${
+                        isActive
+                          ? "bg-sky-500/10 text-sky-400"
+                          : theme === "light"
+                            ? "text-black/55 hover:text-black hover:bg-black/5"
+                            : "text-white/50 hover:text-white hover:bg-white/5"
+                      }`}
+                    >
+                      {item.icon}
+                      <span className="flex-1">{item.label}</span>
+                      {getNavBadge(item)}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* Live Timer */}
@@ -517,39 +594,37 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* All nav items */}
-        <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-0.5">
-          {[...NAV, TEAM_NAV].map((item) => {
-            const isActive = item.href === "/admin"
-              ? pathname === "/admin"
-              : pathname.startsWith(item.href.split("?")[0]);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMoreOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-sky-500/10 text-sky-400"
-                    : theme === "light"
-                      ? "text-black/70"
-                      : "text-white/70"
-                }`}
-              >
-                {item.icon}
-                <span className="flex-1">{item.label}</span>
-                {item.label === "Email" && unreadCount > 0 && (
-                  <span className="min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-sky-500 text-white text-[10px] font-semibold leading-none">
-                    {unreadCount > 99 ? "99+" : unreadCount}
-                  </span>
-                )}
-                {item.label === "Team" && unreadAnnouncements > 0 && (
-                  <span className="min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-amber-500 text-white text-[10px] font-semibold leading-none">
-                    {unreadAnnouncements > 99 ? "99+" : unreadAnnouncements}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 overflow-y-auto px-3 py-2">
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.title} className="pb-4 last:pb-0">
+              <div className={`px-4 pb-2 pt-2 text-[11px] font-semibold uppercase tracking-[0.2em] ${navSectionLabelClass}`}>
+                {section.title}
+              </div>
+              <div className="space-y-0.5">
+                {section.items.map((item) => {
+                  const isActive = isNavItemActive(pathname, item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMoreOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                        isActive
+                          ? "bg-sky-500/10 text-sky-400"
+                          : theme === "light"
+                            ? "text-black/70"
+                            : "text-white/70"
+                      }`}
+                    >
+                      {item.icon}
+                      <span className="flex-1">{item.label}</span>
+                      {getNavBadge(item)}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* User + actions footer */}
@@ -592,9 +667,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className={desktopTopbarClass}>
           <div>
             <div className="text-xs tracking-[0.28em] uppercase font-semibold text-sky-400">
-              {[...NAV, TEAM_NAV].find((n) =>
-                n.href === "/admin" ? pathname === "/admin" : pathname.startsWith(n.href.split("?")[0])
-              )?.label ?? "Backoffice"}
+              {currentNavItem?.label ?? "Backoffice"}
             </div>
             <div className={`text-sm mt-0.5 ${shellMutedClass}`}>
               Premium controls for your workspace, account, and theme.
@@ -692,9 +765,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <div className={mobileHeaderClass}>
           <span className="text-xs tracking-widest uppercase font-semibold text-sky-400">
-            {[...NAV, TEAM_NAV].find((n) =>
-              n.href === "/admin" ? pathname === "/admin" : pathname.startsWith(n.href.split("?")[0])
-            )?.label ?? "Backoffice"}
+            {currentNavItem?.label ?? "Backoffice"}
           </span>
           <div className="flex items-center gap-2">
             <button
@@ -736,55 +807,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         className={bottomBarClass}
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
-        {[
-          {
-            label: "Home",
-            href: "/admin",
-            badge: 0,
-            badgeColor: "sky",
-            icon: (
-              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
-              </svg>
-            ),
-          },
-          {
-            label: "Projects",
-            href: "/admin/projects",
-            badge: 0,
-            badgeColor: "sky",
-            icon: (
-              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
-              </svg>
-            ),
-          },
-          {
-            label: "Email",
-            href: "/admin/email",
-            badge: unreadCount,
-            badgeColor: "sky",
-            icon: (
-              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-              </svg>
-            ),
-          },
-          {
-            label: "Team",
-            href: "/admin/announcements",
-            badge: unreadAnnouncements,
-            badgeColor: "amber",
-            icon: (
-              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-              </svg>
-            ),
-          },
-        ].map((tab) => {
-          const isActive = tab.href === "/admin"
-            ? pathname === "/admin"
-            : pathname.startsWith(tab.href);
+        {MOBILE_PRIMARY_TABS.map((tab) => {
+          const isActive = isNavItemActive(pathname, tab.href);
+          const badgeCount = getNavBadgeCount(tab);
+          const badgeColor = tab.href === "/admin/announcements" ? "amber" : "sky";
           return (
             <Link
               key={tab.href}
@@ -795,15 +821,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             >
               <div className="relative">
                 {tab.icon}
-                {tab.badge > 0 && (
+                {badgeCount > 0 && (
                   <span className={`absolute -top-1 -right-2 min-w-[14px] h-[14px] px-0.5 flex items-center justify-center rounded-full ${
-                    tab.badgeColor === "amber" ? "bg-amber-500" : "bg-sky-500"
+                    badgeColor === "amber" ? "bg-amber-500" : "bg-sky-500"
                   } text-white text-[9px] font-bold leading-none`}>
-                    {tab.badge > 99 ? "99+" : tab.badge}
+                    {badgeCount > 99 ? "99+" : badgeCount}
                   </span>
                 )}
               </div>
-              <span className="text-[10px] font-medium">{tab.label}</span>
+              <span className="text-[10px] font-medium">{tab.href === "/admin" ? "Home" : tab.label}</span>
             </Link>
           );
         })}
