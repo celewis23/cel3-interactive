@@ -20,6 +20,15 @@ export type DriveFile = {
 
 export const FOLDER_MIME = "application/vnd.google-apps.folder";
 
+const ALL_DRIVE_LIST_OPTIONS = {
+  includeItemsFromAllDrives: true,
+  supportsAllDrives: true,
+} as const;
+
+const ALL_DRIVE_MUTATION_OPTIONS = {
+  supportsAllDrives: true,
+} as const;
+
 function mapFile(f: {
   id?: string | null;
   name?: string | null;
@@ -76,6 +85,7 @@ export async function listFiles(opts?: {
     pageToken: opts?.pageToken,
     fields:
       "nextPageToken, files(id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink)",
+    ...ALL_DRIVE_LIST_OPTIONS,
   });
 
   return {
@@ -93,6 +103,7 @@ export async function getFileMeta(fileId: string): Promise<DriveFile> {
     fileId,
     fields:
       "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
+    ...ALL_DRIVE_MUTATION_OPTIONS,
   });
 
   return mapFile(res.data);
@@ -114,6 +125,7 @@ export async function createFolder(
     },
     fields:
       "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
+    ...ALL_DRIVE_MUTATION_OPTIONS,
   });
 
   return mapFile(res.data);
@@ -124,7 +136,7 @@ export async function deleteFile(fileId: string): Promise<void> {
   if (!auth) throw new Error("Not authenticated with Google");
 
   const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
-  await drive.files.delete({ fileId });
+  await drive.files.delete({ fileId, ...ALL_DRIVE_MUTATION_OPTIONS });
 }
 
 export async function createGoogleDoc(
@@ -143,6 +155,7 @@ export async function createGoogleDoc(
     },
     fields:
       "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
+    ...ALL_DRIVE_MUTATION_OPTIONS,
   });
   return mapFile(res.data);
 }
@@ -163,6 +176,7 @@ export async function createGoogleSheet(
     },
     fields:
       "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
+    ...ALL_DRIVE_MUTATION_OPTIONS,
   });
   return mapFile(res.data);
 }
@@ -180,6 +194,7 @@ export async function renameFile(
     requestBody: { name },
     fields:
       "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
+    ...ALL_DRIVE_MUTATION_OPTIONS,
   });
   return mapFile(res.data);
 }
@@ -192,7 +207,11 @@ export async function exportDriveFile(
   if (!auth) throw new Error("Not authenticated with Google");
 
   const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
-  const meta = await drive.files.get({ fileId, fields: "name" });
+  const meta = await drive.files.get({
+    fileId,
+    fields: "name",
+    ...ALL_DRIVE_MUTATION_OPTIONS,
+  });
   const res = await drive.files.export(
     { fileId, mimeType: exportMimeType },
     { responseType: "arraybuffer" }
@@ -218,6 +237,7 @@ export async function moveFile(
     removeParents: oldParentId,
     fields:
       "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
+    ...ALL_DRIVE_MUTATION_OPTIONS,
   });
   return mapFile(res.data);
 }
@@ -239,6 +259,7 @@ export async function copyFile(
     },
     fields:
       "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
+    ...ALL_DRIVE_MUTATION_OPTIONS,
   });
   return mapFile(res.data);
 }
@@ -250,9 +271,13 @@ export async function downloadFileContent(
   if (!auth) throw new Error("Not authenticated with Google");
 
   const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
-  const meta = await drive.files.get({ fileId, fields: "name, mimeType" });
+  const meta = await drive.files.get({
+    fileId,
+    fields: "name, mimeType",
+    ...ALL_DRIVE_MUTATION_OPTIONS,
+  });
   const res = await drive.files.get(
-    { fileId, alt: "media" },
+    { fileId, alt: "media", ...ALL_DRIVE_MUTATION_OPTIONS },
     { responseType: "arraybuffer" }
   );
   return {
@@ -285,6 +310,7 @@ export async function uploadFile(params: {
     },
     fields:
       "id, name, mimeType, size, modifiedTime, thumbnailLink, webViewLink, webContentLink, parents, iconLink",
+    ...ALL_DRIVE_MUTATION_OPTIONS,
   });
 
   return mapFile(res.data);

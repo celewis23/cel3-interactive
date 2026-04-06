@@ -318,12 +318,18 @@ export default function DriveClient() {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setError(null);
     try {
       const formData = new FormData();
       formData.append("file", file);
       if (folderId) formData.append("folderId", folderId);
       const res = await fetch("/api/admin/drive/files", { method: "POST", body: formData });
-      if (!res.ok) throw new Error("Upload failed");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(
+          (data as { error?: string }).error ?? "Upload failed"
+        );
+      }
       await fetchFiles(folderId);
     } catch (e) {
       setError((e as Error).message);

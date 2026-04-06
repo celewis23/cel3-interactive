@@ -54,6 +54,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(result, { status: 201 });
   } catch (err) {
     console.error("DRIVE_UPLOAD_ERROR:", err);
-    return NextResponse.json({ error: "Failed to upload file" }, { status: 500 });
+    const message =
+      err instanceof Error && err.message.trim()
+        ? err.message
+        : "Failed to upload file";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
