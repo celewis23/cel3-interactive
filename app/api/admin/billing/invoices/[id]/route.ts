@@ -9,7 +9,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const authErr = await requirePermission(req, "billing", "view");
+  const authErr = await requirePermission(req, "invoices", "view");
   if (authErr) return authErr;
 
   try {

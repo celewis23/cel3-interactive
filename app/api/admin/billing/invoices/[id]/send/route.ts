@@ -11,7 +11,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const authErr = await requirePermission(req, "billing", "edit");
+  const authErr = await requirePermission(req, "invoices", "edit");
   if (authErr) return authErr;
 
   try {
@@ -32,6 +32,9 @@ export async function POST(
     return NextResponse.json(invoice);
   } catch (err: unknown) {
     console.error("BILLING_ERROR:", err);
-    return NextResponse.json({ error: "Failed to send invoice" }, { status: 500 });
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Failed to send invoice" },
+      { status: 500 }
+    );
   }
 }

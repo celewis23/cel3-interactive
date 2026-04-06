@@ -39,10 +39,15 @@ export default function NewInvoicePage() {
     fetch("/api/admin/pipeline/contacts")
       .then((res) => res.json())
       .then((data) => {
-        if (!cancelled && Array.isArray(data)) {
+        const records: Array<Record<string, unknown>> = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.contacts)
+            ? data.contacts
+            : [];
+        if (!cancelled && records.length) {
           setContacts(
-            data
-              .map((contact) => ({
+            records
+              .map((contact: Record<string, unknown>) => ({
                 _id: String(contact._id),
                 name: String(contact.name ?? ""),
                 email: typeof contact.email === "string" ? contact.email : null,
@@ -50,7 +55,7 @@ export default function NewInvoicePage() {
                 stripeCustomerId:
                   typeof contact.stripeCustomerId === "string" ? contact.stripeCustomerId : null,
               }))
-              .sort((a, b) => a.name.localeCompare(b.name))
+              .sort((a: PipelineContact, b: PipelineContact) => a.name.localeCompare(b.name))
           );
         }
       })
@@ -125,7 +130,7 @@ export default function NewInvoicePage() {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Failed to create invoice.");
+        setError(data.error ?? (res.status === 403 ? "You do not have permission to create invoices." : "Failed to create invoice."));
         return;
       }
 
