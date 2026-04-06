@@ -213,6 +213,13 @@ function estimateMimeMessageSize(opts: {
   return headerBytes + encodedBodyBytes + encodedAttachmentBytes;
 }
 
+function toBase64Url(value: string): string {
+  return encodeTextToBase64(value)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+}
+
 async function sendViaGmailApi(opts: {
   accessToken: string;
   to: string;
@@ -223,18 +230,17 @@ async function sendViaGmailApi(opts: {
   attachments?: AttachedFile[];
 }) {
   const rawMessage = await buildRawGmailMessage(opts);
-  const messageBlob = new Blob([rawMessage], {
-    type: "message/rfc822;charset=UTF-8",
-  });
   const res = await fetch(
-    "https://gmail.googleapis.com/upload/gmail/v1/users/me/messages/send?uploadType=media",
+    "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
     {
     method: "POST",
     headers: {
       Authorization: `Bearer ${opts.accessToken}`,
-      "Content-Type": "message/rfc822",
+      "Content-Type": "application/json",
     },
-      body: messageBlob,
+      body: JSON.stringify({
+        raw: toBase64Url(rawMessage),
+      }),
     }
   );
 
