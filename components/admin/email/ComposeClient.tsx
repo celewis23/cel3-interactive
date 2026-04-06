@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import EmailTagInput from "./EmailTagInput";
+import EmailTagInput, { type EmailSuggestion } from "./EmailTagInput";
 
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), { ssr: false });
 
@@ -271,8 +271,11 @@ export default function ComposeClient({ initialTo = "" }: Props) {
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
   const [driveLoading, setDriveLoading] = useState(false);
+  const [recipientSuggestions, setRecipientSuggestions] = useState<EmailSuggestion[]>([]);
+  const [recipientSearchLoading, setRecipientSearchLoading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const recipientSearchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load signature on mount and pre-populate the body
   useEffect(() => {
@@ -282,6 +285,14 @@ export default function ComposeClient({ initialTo = "" }: Props) {
         if (html) setHtmlBody(`<p><br></p><p><br></p>${html}`);
       })
       .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (recipientSearchTimeout.current) {
+        clearTimeout(recipientSearchTimeout.current);
+      }
+    };
   }, []);
 
   function reset() {
@@ -316,6 +327,30 @@ export default function ComposeClient({ initialTo = "" }: Props) {
 
   function removeAttachment(id: string) {
     setAttachments((prev) => prev.filter((a) => a.id !== id));
+  }
+
+  function handleRecipientInputChange(value: string) {
+    if (recipientSearchTimeout.current) {
+      clearTimeout(recipientSearchTimeout.current);
+    }
+
+    const query = value.trim();
+    if (query.length < 2) {
+      setRecipientSuggestions([]);
+      setRecipientSearchLoading(false);
+      return;
+    }
+
+    setRecipientSearchLoading(true);
+    recipientSearchTimeout.current = setTimeout(() => {
+      fetch(`/api/admin/email/recipients?q=${encodeURIComponent(query)}`)
+        .then((res) => (res.ok ? res.json() : { suggestions: [] }))
+        .then((data: { suggestions?: EmailSuggestion[] }) => {
+          setRecipientSuggestions(data.suggestions ?? []);
+        })
+        .catch(() => setRecipientSuggestions([]))
+        .finally(() => setRecipientSearchLoading(false));
+    }, 180);
   }
 
   async function openDrivePicker() {
@@ -511,6 +546,9 @@ export default function ComposeClient({ initialTo = "" }: Props) {
           onChange={setToEmails}
           placeholder="recipient@example.com — press Enter or comma to add"
           required
+          suggestions={recipientSuggestions}
+          loadingSuggestions={recipientSearchLoading}
+          onInputChange={handleRecipientInputChange}
         />
       </div>
 
@@ -531,6 +569,9 @@ export default function ComposeClient({ initialTo = "" }: Props) {
             emails={ccEmails}
             onChange={setCcEmails}
             placeholder="cc@example.com"
+            suggestions={recipientSuggestions}
+            loadingSuggestions={recipientSearchLoading}
+            onInputChange={handleRecipientInputChange}
           />
         </div>
       )}
@@ -552,6 +593,9 @@ export default function ComposeClient({ initialTo = "" }: Props) {
             emails={bccEmails}
             onChange={setBccEmails}
             placeholder="bcc@example.com"
+            suggestions={recipientSuggestions}
+            loadingSuggestions={recipientSearchLoading}
+            onInputChange={handleRecipientInputChange}
           />
         </div>
       )}
