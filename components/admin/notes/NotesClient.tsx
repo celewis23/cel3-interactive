@@ -184,6 +184,10 @@ function DrawingCanvas({
   initialData: CanvasData;
   onSave: (data: CanvasData) => void;
 }) {
+  // Two-canvas stack: background (dark fill + dot grid) is static; ink canvas sits
+  // on top and is transparent where not inked. Erasing removes pixels from the ink
+  // canvas via destination-out, revealing the background canvas underneath.
+  const bgCanvasRef = useRef<HTMLCanvasElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [strokes, setStrokes] = useState<Stroke[]>(initialData.strokes ?? []);
   // Refs that mirror state so renderCanvas() always reads the latest values
@@ -215,31 +219,55 @@ function DrawingCanvas({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [strokes]);
 
-  // Size the canvas to its CSS box and re-render whenever it resizes
+  // Size both canvases to match their CSS box; re-render on resize
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const ink = canvasRef.current;
+    const bg = bgCanvasRef.current;
+    if (!ink || !bg) return;
     function resize() {
-      if (!canvas) return;
-      if (canvas.width !== canvas.offsetWidth || canvas.height !== canvas.offsetHeight) {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
+      if (!ink || !bg) return;
+      const w = ink.offsetWidth;
+      const h = ink.offsetHeight;
+      if (ink.width !== w || ink.height !== h) {
+        ink.width = w; ink.height = h;
+        bg.width = w; bg.height = h;
       }
-      renderCanvas(); // eslint-disable-line react-hooks/exhaustive-deps
+      renderBackground(); // eslint-disable-line react-hooks/exhaustive-deps
+      renderCanvas();     // eslint-disable-line react-hooks/exhaustive-deps
     }
     const obs = new ResizeObserver(resize);
-    obs.observe(canvas);
+    obs.observe(ink);
     resize();
     return () => obs.disconnect();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function renderCanvas() {
-    const canvas = canvasRef.current;
-    if (!canvas || !canvas.width || !canvas.height) return;
-    const ctx = canvas.getContext("2d");
+  function renderBackground() {
+    const bg = bgCanvasRef.current;
+    if (!bg || !bg.width || !bg.height) return;
+    const ctx = bg.getContext("2d");
     if (!ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const { width: w, height: h } = bg;
+    // Dark canvas fill
+    ctx.fillStyle = "#080808";
+    ctx.fillRect(0, 0, w, h);
+    // Dot grid
+    ctx.fillStyle = "rgba(255,255,255,0.06)";
+    for (let x = 0; x < w; x += 20) {
+      for (let y = 0; y < h; y += 20) {
+        ctx.beginPath();
+        ctx.arc(x + 0.75, y + 0.75, 0.75, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  function renderCanvas() {
+    const ink = canvasRef.current;
+    if (!ink || !ink.width || !ink.height) return;
+    const ctx = ink.getContext("2d");
+    if (!ctx) return;
+    ctx.clearRect(0, 0, ink.width, ink.height);
     for (const s of strokesRef.current) {
       drawStrokeToCanvas(ctx, s.points, s.isEraser ? s.size * 3 : s.size, s.color, s.isEraser);
     }
@@ -481,17 +509,13 @@ function DrawingCanvas({
         </span>
       </div>
 
-      {/* Canvas – dot grid is a CSS background so erasing reveals it naturally */}
-      <div
-        className="flex-1 overflow-hidden relative select-none"
-        style={{
-          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.06) 0.75px, transparent 0.75px)",
-          backgroundSize: "20px 20px",
-          backgroundPosition: "0.75px 0.75px",
-        }}
-      >
+      {/* Two-canvas stack: background (always visible) + ink layer (with erasing) */}
+      <div className="flex-1 overflow-hidden relative select-none">
+        {/* Background canvas – dark fill + dot grid; never cleared by erasing */}
+        <canvas ref={bgCanvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+
         {strokes.length === 0 && !drawing && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none z-10">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-white/8">
               <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -501,9 +525,10 @@ function DrawingCanvas({
           </div>
         )}
 
+        {/* Ink canvas – transparent; destination-out erasing reveals the background canvas */}
         <canvas
           ref={canvasRef}
-          className="w-full h-full touch-none"
+          className="absolute inset-0 w-full h-full touch-none"
           style={{ touchAction: "none", cursor: tool === "eraser" ? "cell" : "crosshair" }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
