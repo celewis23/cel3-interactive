@@ -610,6 +610,21 @@ export default function NotesClient() {
   const [saving, setSaving] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Auto-enter fullscreen whenever a note is opened or created
+  useEffect(() => {
+    if (selectedId) setIsFullscreen(true);
+  }, [selectedId]);
+
+  // Escape exits fullscreen
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape" && isFullscreen) setIsFullscreen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isFullscreen]);
 
   // ── Foldable / dual-screen layout ──────────────────────────────────────────
   // When the app is spanned across two screens (Surface Duo, Galaxy Z Fold…)
@@ -846,11 +861,30 @@ export default function NotesClient() {
         </div>
       </div>
 
-      {/* ── Right: editor ── */}
+      {/* ── Right: editor (or fullscreen overlay) ── */}
       {selected ? (
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <div className={
+          isFullscreen
+            ? "fixed inset-0 z-[9999] flex flex-col bg-[#080808]"
+            : "flex-1 flex flex-col overflow-hidden min-w-0"
+        }>
           {/* Top bar */}
-          <div className="flex items-center gap-2 px-5 py-2.5 border-b border-white/8 shrink-0">
+          <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/8 shrink-0">
+
+            {/* Back to notes — only visible in fullscreen */}
+            {isFullscreen && (
+              <button
+                onClick={() => setIsFullscreen(false)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white/45 hover:text-white/80 hover:bg-white/6 transition-colors shrink-0 mr-1"
+                title="Back to notes list  (Esc)"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="text-xs font-medium">Notes</span>
+              </button>
+            )}
+
             <input
               value={selected.title}
               onChange={(e) => scheduleSave(selected._id, { title: e.target.value })}
@@ -923,6 +957,25 @@ export default function NotesClient() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
+            </button>
+
+            {/* Fullscreen toggle */}
+            <button
+              onClick={() => setIsFullscreen((f) => !f)}
+              className="p-1.5 rounded-lg text-white/25 hover:text-white/60 hover:bg-white/5 transition-colors ml-0.5"
+              title={isFullscreen ? "Exit fullscreen  (Esc)" : "Fullscreen"}
+            >
+              {isFullscreen ? (
+                /* Compress / exit icon */
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M8 3v3a2 2 0 01-2 2H3M21 8h-3a2 2 0 01-2-2V3M3 16h3a2 2 0 012 2v3M16 21v-3a2 2 0 012-2h3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              ) : (
+                /* Expand icon */
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M3 16v3a2 2 0 002 2h3M16 21h3a2 2 0 002-2v-3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
             </button>
           </div>
 
