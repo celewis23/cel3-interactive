@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from "react";
 import { getStroke } from "perfect-freehand";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -45,6 +45,89 @@ function getSvgPath(points: number[][], size: number): string {
   }
   d.push("Z");
   return d.join(" ");
+}
+
+// ─── Foldable / dual-screen layout hook ──────────────────────────────────────
+//
+// Detects whether the app is spanned across two screens (Surface Duo, Galaxy Z
+// Fold, etc.) using the CSS `vertical-viewport-segments` media feature and the
+// legacy `window.getWindowSegments()` API shipped on Surface Duo.
+//
+// Returns:
+//   isSpanned      – true when two side-by-side viewport segments are detected
+//   leftScreenWidth – pixel width of the left segment (viewport origin → hinge)
+//                     null if the exact position cannot be determined
+//
+type FoldState = { isSpanned: boolean; leftScreenWidth: number | null };
+
+function useFoldableLayout(): FoldState {
+  const [state, setState] = useState<FoldState>({ isSpanned: false, leftScreenWidth: null });
+
+  useEffect(() => {
+    function detect() {
+      // Vertical fold = two columns side by side (Surface Duo portrait, Z Fold landscape)
+      const mq = window.matchMedia("(vertical-viewport-segments: 2)");
+      if (!mq.matches) {
+        setState({ isSpanned: false, leftScreenWidth: null });
+        return;
+      }
+
+      let leftWidth: number | null = null;
+
+      // Method 1 – legacy Surface Duo API (still present on Duo 1 / Duo 2)
+      const getSegs = (window as unknown as Record<string, unknown>).getWindowSegments as
+        (() => DOMRect[]) | undefined;
+      if (typeof getSegs === "function") {
+        const segs = getSegs();
+        if (segs.length >= 2) leftWidth = segs[0].right;
+      }
+
+      // Method 2 – probe element with CSS env() variable
+      // env(viewport-segment-right, 0, 0) = right edge of the first segment
+      if (leftWidth === null) {
+        const probe = document.createElement("div");
+        probe.setAttribute(
+          "style",
+          "position:fixed;top:-9999px;left:0;width:env(viewport-segment-right,0,0);height:1px;pointer-events:none;visibility:hidden;"
+        );
+        document.body.appendChild(probe);
+        const w = parseFloat(getComputedStyle(probe).width);
+        document.body.removeChild(probe);
+        if (w > 0 && w < window.innerWidth * 0.95) leftWidth = w;
+      }
+
+      setState({ isSpanned: true, leftScreenWidth: leftWidth });
+    }
+
+    detect();
+    const mq = window.matchMedia("(vertical-viewport-segments: 2)");
+    mq.addEventListener("change", detect);
+    window.addEventListener("resize", detect);
+    return () => {
+      mq.removeEventListener("change", detect);
+      window.removeEventListener("resize", detect);
+    };
+  }, []);
+
+  return state;
+}
+
+// ─── Pen eraser detection ─────────────────────────────────────────────────────
+//
+// The Surface Pen (and many other digitizers) has two ends:
+//   • Tip  – the writing nib
+//   • Tail – the flat eraser end
+//
+// The W3C Pointer Events spec encodes the eraser end as:
+//   e.button  === 5  on pointerdown  (the "eraser" button index)
+//   e.buttons  & 32  on any event    (bit 5 of the buttons bitmask)
+//
+// OneNote uses exactly this mechanism.  We auto-detect it per-stroke so the
+// user never needs to manually toggle the toolbar tool when using a stylus.
+//
+function isPenEraser(e: React.PointerEvent): boolean {
+  if (e.pointerType !== "pen") return false;
+  return (e.buttons & 32) !== 0 || e.button === 5;
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -100,6 +183,12 @@ function DrawingCanvas({
   const [penColor, setPenColor] = useState(PEN_COLORS[0]);
   const [sizeIdx, setSizeIdx] = useState(1);
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
+  // Tracks the effective tool for the stroke currently being drawn.
+  // Separate from `tool` so that pen-eraser auto-detection works mid-stroke
+  // without flipping the toolbar state permanently.
+  const currentStrokeIsEraserRef = useRef(false);
+  // True while a physical pen eraser end is in contact — drives toolbar highlight
+  const [penEraserActive, setPenEraserActive] = useState(false);
 
   const pushHistory = useCallback((s: Stroke[]) => {
     setHistory((h) => {
@@ -134,23 +223,46 @@ function DrawingCanvas({
   function onPointerDown(e: React.PointerEvent<SVGSVGElement>) {
     e.currentTarget.setPointerCapture(e.pointerId);
     setDrawing(true);
+
+    // For a physical pen, auto-detect which end is in contact.
+    // For mouse / touch, honour the toolbar state.
+    const erasing = e.pointerType === "pen" ? isPenEraser(e) : tool === "eraser";
+    currentStrokeIsEraserRef.current = erasing;
+
+    if (e.pointerType === "pen") {
+      // Reflect in the toolbar so the user can see what mode is active
+      setPenEraserActive(erasing);
+      setTool(erasing ? "eraser" : "pen");
+    }
+
     setCurrentPts([getPoint(e)]);
   }
 
   function onPointerMove(e: React.PointerEvent<SVGSVGElement>) {
     if (!drawing) return;
+    // Keep eraser detection live for the ongoing stroke (handles hover→contact transitions)
+    if (e.pointerType === "pen") {
+      const erasing = isPenEraser(e);
+      if (erasing !== currentStrokeIsEraserRef.current) {
+        currentStrokeIsEraserRef.current = erasing;
+        setPenEraserActive(erasing);
+        setTool(erasing ? "eraser" : "pen");
+      }
+    }
     setCurrentPts((p) => [...p, getPoint(e)]);
   }
 
-  function onPointerUp() {
+  function onPointerUp(e?: React.PointerEvent<SVGSVGElement>) {
     if (!drawing || !currentPts.length) return;
     setDrawing(false);
+    if (e?.pointerType === "pen") setPenEraserActive(false);
+    const isEraser = currentStrokeIsEraserRef.current;
     const newStroke: Stroke = {
       id: Math.random().toString(36).slice(2),
       points: currentPts,
-      color: tool === "eraser" ? "eraser" : penColor,
+      color: isEraser ? "eraser" : penColor,
       size: PEN_SIZES[sizeIdx],
-      isEraser: tool === "eraser",
+      isEraser,
     };
     const next = [...strokes, newStroke];
     setStrokes(next);
@@ -190,7 +302,7 @@ function DrawingCanvas({
             Pen
           </button>
           <button
-            onClick={() => setTool("eraser")}
+            onClick={() => { setTool("eraser"); setPenEraserActive(false); }}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border-l border-white/10 transition-colors ${
               tool === "eraser" ? "bg-white/15 text-white" : "text-white/45 hover:text-white/70 hover:bg-white/5"
             }`}
@@ -200,6 +312,10 @@ function DrawingCanvas({
               <path d="M6.0001 17.9999L17 7" strokeLinecap="round" />
             </svg>
             Eraser
+            {/* Dim indicator when pen eraser end is auto-detected */}
+            {penEraserActive && (
+              <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" title="Pen eraser detected" />
+            )}
           </button>
         </div>
 
@@ -320,8 +436,8 @@ function DrawingCanvas({
           style={{ touchAction: "none", cursor: tool === "eraser" ? "cell" : "crosshair" }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerLeave={onPointerUp}
+          onPointerUp={(e) => onPointerUp(e)}
+          onPointerLeave={(e) => onPointerUp(e)}
         >
           {/* Dot grid */}
           <defs>
@@ -348,10 +464,10 @@ function DrawingCanvas({
             )
           )}
 
-          {/* Live stroke */}
+          {/* Live stroke – uses the ref so pen eraser auto-detection is instant */}
           {drawing && currentPts.length > 1 && (
-            tool === "eraser" ? (
-              <path d={getSvgPath(currentPts, eraserSize)} fill="black" />
+            currentStrokeIsEraserRef.current ? (
+              <path d={getSvgPath(currentPts, currentSize * 3)} fill="black" />
             ) : (
               <path d={getSvgPath(currentPts, currentSize)} fill={penColor} />
             )
@@ -495,6 +611,27 @@ export default function NotesClient() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
 
+  // ── Foldable / dual-screen layout ──────────────────────────────────────────
+  // When the app is spanned across two screens (Surface Duo, Galaxy Z Fold…)
+  // we expand the notes list to fill exactly the left screen so the hinge gap
+  // falls precisely on the divider between the list and the editor pane.
+  const { isSpanned, leftScreenWidth } = useFoldableLayout();
+  const listRef = useRef<HTMLDivElement>(null);
+  const [listPanelWidth, setListPanelWidth] = useState<number | undefined>(undefined);
+
+  useLayoutEffect(() => {
+    if (!isSpanned || leftScreenWidth === null) {
+      setListPanelWidth(undefined);
+      return;
+    }
+    if (listRef.current) {
+      const containerLeft = listRef.current.getBoundingClientRect().left;
+      // Width = (right edge of left screen) − (left edge of our panel)
+      const w = Math.max(160, Math.floor(leftScreenWidth - containerLeft));
+      setListPanelWidth(w);
+    }
+  }, [isSpanned, leftScreenWidth]);
+
   // Load notes
   useEffect(() => {
     fetch("/api/admin/notes")
@@ -610,7 +747,11 @@ export default function NotesClient() {
   return (
     <div className="flex h-full overflow-hidden">
       {/* ── Left: note list ── */}
-      <div className="flex flex-col w-64 shrink-0 border-r border-white/8 bg-black/20 overflow-hidden">
+      <div
+        ref={listRef}
+        className="flex flex-col shrink-0 border-r border-white/8 bg-black/20 overflow-hidden transition-[width] duration-200"
+        style={{ width: listPanelWidth ?? 256 }}
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/8 shrink-0">
           <div className="flex items-center gap-2">
