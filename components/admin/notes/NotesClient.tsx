@@ -447,31 +447,38 @@ function DrawingCanvas({
           </defs>
           <rect width="100%" height="100%" fill="url(#notes-dot)" />
 
-          {/* Completed strokes */}
-          {strokes.map((s) =>
-            s.isEraser ? (
-              <path
-                key={s.id}
-                d={getSvgPath(s.points, s.size * 3)}
-                fill="black"
-              />
-            ) : (
-              <path
-                key={s.id}
-                d={getSvgPath(s.points, s.size)}
-                fill={s.color}
-              />
-            )
-          )}
+          {/* Strokes – isolated so eraser blend mode only affects ink, not the background */}
+          <g style={{ isolation: "isolate" }}>
+            {strokes.map((s) =>
+              s.isEraser ? (
+                <path
+                  key={s.id}
+                  d={getSvgPath(s.points, s.size * 3)}
+                  fill="black"
+                  style={{ mixBlendMode: "destination-out" } as unknown as React.CSSProperties}
+                />
+              ) : (
+                <path
+                  key={s.id}
+                  d={getSvgPath(s.points, s.size)}
+                  fill={s.color}
+                />
+              )
+            )}
 
-          {/* Live stroke – uses the ref so pen eraser auto-detection is instant */}
-          {drawing && currentPts.length > 1 && (
-            currentStrokeIsEraserRef.current ? (
-              <path d={getSvgPath(currentPts, currentSize * 3)} fill="black" />
-            ) : (
-              <path d={getSvgPath(currentPts, currentSize)} fill={penColor} />
-            )
-          )}
+            {/* Live stroke – uses the ref so pen eraser auto-detection is instant */}
+            {drawing && currentPts.length > 1 && (
+              currentStrokeIsEraserRef.current ? (
+                <path
+                  d={getSvgPath(currentPts, currentSize * 3)}
+                  fill="black"
+                  style={{ mixBlendMode: "destination-out" } as unknown as React.CSSProperties}
+                />
+              ) : (
+                <path d={getSvgPath(currentPts, currentSize)} fill={penColor} />
+              )
+            )}
+          </g>
         </svg>
       </div>
     </div>
