@@ -24,7 +24,23 @@ type Stroke = {
   isEraser: boolean;
 };
 
-type CanvasData = { strokes: Stroke[] };
+type AttachmentDisplayMode = "inline" | "file";
+
+type Attachment = {
+  id: string;
+  name: string;
+  mimeType: string;
+  dataUrl?: string;        // base64 for local files
+  url?: string;            // for URL-based attachments
+  extractedHtml?: string;  // docx / xlsx rendered to HTML
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  displayMode: AttachmentDisplayMode;
+};
+
+type CanvasData = { strokes: Stroke[]; attachments?: Attachment[] };
 
 // ─── Canvas stroke renderer ───────────────────────────────────────────────────
 //
@@ -56,6 +72,278 @@ function drawStrokeToCanvas(
   ctx.closePath();
   ctx.fill();
   ctx.restore();
+}
+
+// ─── Attachment file-processing utilities ────────────────────────────────────
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result as string);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+async function processFile(
+  file: File,
+  containerW: number,
+  containerH: number
+): Promise<Attachment> {
+  const id = Math.random().toString(36).slice(2);
+  const { name, type: mimeType } = file;
+  const cx = Math.max(20, (containerW - 400) / 2);
+  const cy = Math.max(20, (containerH - 320) / 2);
+
+  if (mimeType.startsWith("image/")) {
+    return { id, name, mimeType, dataUrl: await fileToDataUrl(file), x: cx, y: cy, width: 400, height: 300, displayMode: "inline" };
+  }
+  if (mimeType.startsWith("video/")) {
+    return { id, name, mimeType, dataUrl: await fileToDataUrl(file), x: cx, y: cy, width: 480, height: 270, displayMode: "inline" };
+  }
+  if (mimeType === "application/pdf") {
+    return { id, name, mimeType, dataUrl: await fileToDataUrl(file), x: cx, y: cy, width: 620, height: 820, displayMode: "inline" };
+  }
+  // DOCX
+  if (mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || name.endsWith(".docx")) {
+    const arrayBuffer = await file.arrayBuffer();
+    const mammoth = await import("mammoth");
+    const result = await mammoth.convertToHtml({ arrayBuffer });
+    return { id, name, mimeType, extractedHtml: result.value, x: cx, y: cy, width: 640, height: 520, displayMode: "inline" };
+  }
+  // XLSX / XLS
+  if (
+    mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+    mimeType === "application/vnd.ms-excel" ||
+    name.endsWith(".xlsx") || name.endsWith(".xls")
+  ) {
+    const arrayBuffer = await file.arrayBuffer();
+    const XLSX = await import("xlsx");
+    const wb = XLSX.read(arrayBuffer, { type: "array" });
+    const firstSheet = wb.SheetNames[0];
+    const html = XLSX.utils.sheet_to_html(wb.Sheets[firstSheet]);
+    return { id, name, mimeType, extractedHtml: html, x: cx, y: cy, width: 720, height: 420, displayMode: "inline" };
+  }
+  // CSV
+  if (mimeType === "text/csv" || name.endsWith(".csv")) {
+    const text = await file.text();
+    const rows = text.trim().split("\n").map((r) => r.split(",").map((c) => c.replace(/^"|"$/g, "")));
+    const html = `<table>${rows.map((r, i) => `<tr>${r.map((c) => i === 0 ? `<th>${c}</th>` : `<td>${c}</td>`).join("")}</tr>`).join("")}</table>`;
+    return { id, name, mimeType, extractedHtml: html, x: cx, y: cy, width: 640, height: 320, displayMode: "inline" };
+  }
+  // Everything else — file chip
+  return { id, name, mimeType, dataUrl: await fileToDataUrl(file), x: cx, y: cy, width: 300, height: 72, displayMode: "file" };
+}
+
+function processUrl(rawUrl: string): Attachment {
+  const id = Math.random().toString(36).slice(2);
+  const name = rawUrl.split("/").pop()?.split("?")[0] ?? rawUrl;
+  const ext = name.split(".").pop()?.toLowerCase() ?? "";
+  const isImage = ["jpg","jpeg","png","gif","webp","svg","avif","bmp"].includes(ext);
+  const isVideo = ["mp4","webm","mov","avi","mkv"].includes(ext);
+  const mimeType = isImage ? `image/${ext === "jpg" ? "jpeg" : ext}` : isVideo ? `video/${ext}` : "text/html";
+  return {
+    id, name, mimeType, url: rawUrl,
+    x: 60, y: 60,
+    width: isVideo ? 480 : 400,
+    height: isVideo ? 270 : 300,
+    displayMode: "inline",
+  };
+}
+
+function openAttachment(att: Attachment) {
+  const src = att.dataUrl ?? att.url;
+  if (!src) return;
+  if (att.dataUrl) {
+    const [header, data] = att.dataUrl.split(",");
+    const mime = header.split(":")[1]?.split(";")[0] ?? "application/octet-stream";
+    const bytes = atob(data);
+    const arr = new Uint8Array(bytes.length);
+    for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+    const blob = new Blob([arr], { type: mime });
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, "_blank", "noopener,noreferrer");
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 10_000);
+  } else {
+    window.open(src, "_blank", "noopener,noreferrer");
+  }
+}
+
+// ─── Attachment helper components ─────────────────────────────────────────────
+
+function FileTypeIcon({ mimeType, size = 14 }: { mimeType: string; size?: number }) {
+  const s = { width: size, height: size };
+  if (mimeType.startsWith("image/"))
+    return <svg {...s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-sky-400"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>;
+  if (mimeType.startsWith("video/"))
+    return <svg {...s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-purple-400"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>;
+  if (mimeType === "application/pdf")
+    return <svg {...s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-red-400"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>;
+  if (mimeType.includes("spreadsheet") || mimeType.includes("excel") || mimeType === "text/csv")
+    return <svg {...s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-green-400"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>;
+  if (mimeType.includes("word") || mimeType.includes("document"))
+    return <svg {...s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-blue-400"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>;
+  return <svg {...s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-white/40"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>;
+}
+
+function InlineContent({ att }: { att: Attachment }) {
+  const src = att.dataUrl ?? att.url;
+  if (att.extractedHtml)
+    return (
+      // Content comes from user's own files (mammoth/xlsx); internal admin tool only
+      <div
+        className="w-full h-full overflow-auto p-3 text-white/80 text-xs leading-relaxed notes-doc-content"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: att.extractedHtml }}
+      />
+    );
+  if (att.mimeType.startsWith("image/"))
+    return <img src={src} alt={att.name} className="w-full h-full object-contain" draggable={false} />;
+  if (att.mimeType.startsWith("video/"))
+    return <video src={src} controls className="w-full h-full bg-black" />;
+  if (att.mimeType === "application/pdf" && src)
+    return <iframe src={src} className="w-full h-full border-0" title={att.name} />;
+  return <FileChipDisplay att={att} />;
+}
+
+function FileChipDisplay({ att }: { att: Attachment }) {
+  return (
+    <div className="flex items-center gap-3 p-3 h-full">
+      <div className="w-10 h-10 rounded-lg bg-white/6 flex items-center justify-center shrink-0">
+        <FileTypeIcon mimeType={att.mimeType} size={20} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-medium text-white/80 truncate">{att.name}</p>
+        <p className="text-[10px] text-white/35 mt-0.5">{att.mimeType || "Unknown type"}</p>
+      </div>
+      <button
+        onClick={(e) => { e.stopPropagation(); openAttachment(att); }}
+        className="shrink-0 px-3 py-1.5 rounded-lg bg-white/8 hover:bg-white/15 text-xs text-white/60 hover:text-white transition-colors"
+      >
+        Open
+      </button>
+    </div>
+  );
+}
+
+function AttachmentWidget({
+  att, isSelected, onSelect, onUpdate, onDelete,
+}: {
+  att: Attachment;
+  isSelected: boolean;
+  onSelect: () => void;
+  onUpdate: (u: Partial<Attachment>) => void;
+  onDelete: () => void;
+}) {
+  const dragRef = useRef<{ mx: number; my: number; ox: number; oy: number } | null>(null);
+  const resizeRef = useRef<{ mx: number; my: number; ow: number; oh: number } | null>(null);
+
+  function onBarPointerDown(e: React.PointerEvent) {
+    e.stopPropagation();
+    onSelect();
+    dragRef.current = { mx: e.clientX, my: e.clientY, ox: att.x, oy: att.y };
+    (e.currentTarget as Element).setPointerCapture(e.pointerId);
+  }
+  function onBarPointerMove(e: React.PointerEvent) {
+    if (!dragRef.current) return;
+    onUpdate({
+      x: Math.max(0, dragRef.current.ox + e.clientX - dragRef.current.mx),
+      y: Math.max(0, dragRef.current.oy + e.clientY - dragRef.current.my),
+    });
+  }
+  function onBarPointerUp() { dragRef.current = null; }
+
+  function onResizePointerDown(e: React.PointerEvent) {
+    e.stopPropagation();
+    resizeRef.current = { mx: e.clientX, my: e.clientY, ow: att.width, oh: att.height };
+    (e.currentTarget as Element).setPointerCapture(e.pointerId);
+  }
+  function onResizePointerMove(e: React.PointerEvent) {
+    if (!resizeRef.current) return;
+    onUpdate({
+      width: Math.max(120, resizeRef.current.ow + e.clientX - resizeRef.current.mx),
+      height: Math.max(56, resizeRef.current.oh + e.clientY - resizeRef.current.my),
+    });
+  }
+  function onResizePointerUp() { resizeRef.current = null; }
+
+  const isFile = att.displayMode === "file";
+
+  return (
+    <div
+      className={`absolute flex flex-col rounded-lg overflow-hidden shadow-xl border transition-[border-color] ${
+        isSelected ? "border-sky-400/50 shadow-sky-500/10" : "border-white/10 shadow-black/50"
+      }`}
+      style={{ left: att.x, top: att.y, width: att.width, height: isFile ? 72 : att.height }}
+      onPointerDown={(e) => { e.stopPropagation(); onSelect(); }}
+    >
+      {/* ── Title / drag bar ── */}
+      <div
+        className="flex items-center gap-1.5 px-2 h-7 bg-[#1a1a1a]/95 border-b border-white/8 cursor-move select-none shrink-0"
+        onPointerDown={onBarPointerDown}
+        onPointerMove={onBarPointerMove}
+        onPointerUp={onBarPointerUp}
+      >
+        <FileTypeIcon mimeType={att.mimeType} size={11} />
+        <span className="text-[10px] text-white/45 truncate flex-1 min-w-0">{att.name}</span>
+        <div className="flex items-center gap-0.5 shrink-0">
+          {/* Toggle inline ↔ file chip */}
+          <button
+            className="p-0.5 rounded text-white/25 hover:text-white/60 hover:bg-white/8 transition-colors"
+            title={isFile ? "Show inline" : "Show as file"}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); onUpdate({ displayMode: isFile ? "inline" : "file" }); }}
+          >
+            {isFile
+              ? <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M3 16v3a2 2 0 002 2h3M16 21h3a2 2 0 002-2v-3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              : <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 3v3a2 2 0 01-2 2H3M21 8h-3a2 2 0 01-2-2V3M3 16h3a2 2 0 012 2v3M16 21v-3a2 2 0 012-2h3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            }
+          </button>
+          {/* Open with OS */}
+          <button
+            className="p-0.5 rounded text-white/25 hover:text-white/60 hover:bg-white/8 transition-colors"
+            title="Open"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); openAttachment(att); }}
+          >
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </button>
+          {/* Remove */}
+          <button
+            className="p-0.5 rounded text-white/25 hover:text-red-400 hover:bg-red-500/8 transition-colors"
+            title="Remove attachment"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          >
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" strokeLinecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      {/* ── Content ── */}
+      {!isFile && (
+        <div className="flex-1 overflow-hidden bg-[#111] relative">
+          <InlineContent att={att} />
+        </div>
+      )}
+      {isFile && (
+        <div className="bg-[#111]" style={{ height: 72 - 28 }}>
+          <FileChipDisplay att={att} />
+        </div>
+      )}
+
+      {/* ── Resize handle (bottom-right corner) ── */}
+      {!isFile && (
+        <div
+          className="absolute bottom-0 right-0 w-5 h-5 cursor-se-resize z-10"
+          style={{ background: "linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.12) 50%)" }}
+          onPointerDown={onResizePointerDown}
+          onPointerMove={onResizePointerMove}
+          onPointerUp={onResizePointerUp}
+        />
+      )}
+    </div>
+  );
 }
 
 // ─── Foldable / dual-screen layout hook ──────────────────────────────────────
@@ -189,6 +477,7 @@ function DrawingCanvas({
   // canvas via destination-out, revealing the background canvas underneath.
   const bgCanvasRef = useRef<HTMLCanvasElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [strokes, setStrokes] = useState<Stroke[]>(initialData.strokes ?? []);
   // Refs that mirror state so renderCanvas() always reads the latest values
   // without needing to be re-created on every render.
@@ -209,6 +498,71 @@ function DrawingCanvas({
   // Live stroke points accumulated during a pointer-drag (ref avoids per-point re-renders)
   const currentPtsRef = useRef<number[][]>([]);
   const rafRef = useRef<number | null>(null);
+
+  // ── Attachments ──────────────────────────────────────────────────────────────
+  const [attachments, setAttachments] = useState<Attachment[]>(initialData.attachments ?? []);
+  const attachmentsRef = useRef<Attachment[]>(initialData.attachments ?? []);
+  const [selectedAttId, setSelectedAttId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [attachMenuOpen, setAttachMenuOpen] = useState(false);
+  const [urlInputOpen, setUrlInputOpen] = useState(false);
+  const [urlValue, setUrlValue] = useState("");
+  const [processing, setProcessing] = useState(false);
+
+  useEffect(() => { attachmentsRef.current = attachments; }, [attachments]);
+
+  function saveAll(s: Stroke[], a: Attachment[]) {
+    onSave({ strokes: s, attachments: a });
+  }
+
+  async function handleFileInput(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    setProcessing(true);
+    const cw = containerRef.current?.offsetWidth ?? 800;
+    const ch = containerRef.current?.offsetHeight ?? 600;
+    const newAtts: Attachment[] = [];
+    for (const file of files) {
+      const att = await processFile(file, cw, ch);
+      // Stagger positions when attaching multiple files
+      newAtts.push({ ...att, x: att.x + newAtts.length * 24, y: att.y + newAtts.length * 24 });
+    }
+    const next = [...attachmentsRef.current, ...newAtts];
+    setAttachments(next);
+    attachmentsRef.current = next;
+    saveAll(strokesRef.current, next);
+    e.target.value = "";
+    setProcessing(false);
+    setAttachMenuOpen(false);
+  }
+
+  function handleUrlAttach() {
+    const raw = urlValue.trim();
+    if (!raw) return;
+    const att = processUrl(raw);
+    const next = [...attachmentsRef.current, att];
+    setAttachments(next);
+    attachmentsRef.current = next;
+    saveAll(strokesRef.current, next);
+    setUrlValue("");
+    setUrlInputOpen(false);
+    setAttachMenuOpen(false);
+  }
+
+  function updateAttachment(id: string, updates: Partial<Attachment>) {
+    const next = attachmentsRef.current.map((a) => (a.id === id ? { ...a, ...updates } : a));
+    setAttachments(next);
+    attachmentsRef.current = next;
+    saveAll(strokesRef.current, next);
+  }
+
+  function deleteAttachment(id: string) {
+    const next = attachmentsRef.current.filter((a) => a.id !== id);
+    setAttachments(next);
+    attachmentsRef.current = next;
+    if (selectedAttId === id) setSelectedAttId(null);
+    saveAll(strokesRef.current, next);
+  }
 
   // Sync state → refs
   useEffect(() => { penColorRef.current = penColor; }, [penColor]);
@@ -295,7 +649,7 @@ function DrawingCanvas({
     const prev = history[histIdx - 1];
     setHistIdx((i) => i - 1);
     setStrokes(prev);
-    onSave({ strokes: prev });
+    saveAll(prev, attachmentsRef.current);
   }
 
   function redo() {
@@ -303,7 +657,7 @@ function DrawingCanvas({
     const next = history[histIdx + 1];
     setHistIdx((i) => i + 1);
     setStrokes(next);
-    onSave({ strokes: next });
+    saveAll(next, attachmentsRef.current);
   }
 
   function getPoint(e: React.PointerEvent<HTMLCanvasElement>): number[] {
@@ -312,6 +666,7 @@ function DrawingCanvas({
   }
 
   function onPointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
+    setSelectedAttId(null); // clicking the canvas deselects any attachment
     e.currentTarget.setPointerCapture(e.pointerId);
     setDrawing(true);
     const erasing = e.pointerType === "pen" ? isPenEraser(e) : tool === "eraser";
@@ -361,7 +716,7 @@ function DrawingCanvas({
     const next = [...strokesRef.current, newStroke];
     setStrokes(next);
     pushHistory(next);
-    onSave({ strokes: next });
+    saveAll(next, attachmentsRef.current);
   }
 
   // Keyboard shortcuts
@@ -498,23 +853,96 @@ function DrawingCanvas({
         <div className="w-px h-4 bg-white/10 mx-0.5" />
 
         <button
-          onClick={() => { setStrokes([]); pushHistory([]); onSave({ strokes: [] }); }}
+          onClick={() => { setStrokes([]); pushHistory([]); saveAll([], attachmentsRef.current); }}
           className="px-2.5 py-1.5 text-xs text-white/35 hover:text-red-400 hover:bg-red-500/8 rounded-lg transition-colors"
         >
           Clear
         </button>
 
-        <span className="ml-auto text-[11px] text-white/25">
-          {strokes.length} stroke{strokes.length !== 1 ? "s" : ""}
-        </span>
+        {/* ── Attach button ── */}
+        <div className="relative ml-auto">
+          <button
+            onClick={() => { setAttachMenuOpen((o) => !o); setUrlInputOpen(false); }}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-lg border transition-colors ${
+              attachMenuOpen ? "border-white/20 bg-white/8 text-white/70" : "border-white/10 text-white/40 hover:text-white/65 hover:bg-white/5"
+            }`}
+            title="Attach file or URL"
+          >
+            {processing ? (
+              <span className="w-3 h-3 rounded-full border border-white/25 border-t-white/70 animate-spin block" />
+            ) : (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+            Attach
+          </button>
+
+          {attachMenuOpen && (
+            <div className="absolute right-0 top-full mt-1 z-50 w-48 rounded-xl border border-white/10 bg-[#111]/95 backdrop-blur-xl shadow-2xl overflow-hidden">
+              <button
+                onClick={() => { setAttachMenuOpen(false); fileInputRef.current?.click(); }}
+                className="flex items-center gap-2.5 w-full px-3 py-2.5 text-xs text-white/65 hover:bg-white/8 hover:text-white transition-colors"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                Upload file
+              </button>
+              <button
+                onClick={() => { setUrlInputOpen((o) => !o); }}
+                className="flex items-center gap-2.5 w-full px-3 py-2.5 text-xs text-white/65 hover:bg-white/8 hover:text-white transition-colors border-t border-white/5"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" strokeLinecap="round"/></svg>
+                From URL
+              </button>
+              {urlInputOpen && (
+                <div className="px-3 pb-3 pt-1 border-t border-white/5">
+                  <input
+                    autoFocus
+                    value={urlValue}
+                    onChange={(e) => setUrlValue(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleUrlAttach(); if (e.key === "Escape") setUrlInputOpen(false); }}
+                    placeholder="https://..."
+                    className="w-full px-2.5 py-1.5 bg-white/6 rounded-lg text-xs text-white/80 placeholder-white/22 outline-none focus:bg-white/10 transition-colors"
+                  />
+                  <button
+                    onClick={handleUrlAttach}
+                    className="mt-1.5 w-full py-1.5 rounded-lg bg-white/10 hover:bg-white/16 text-xs text-white/70 hover:text-white transition-colors"
+                  >
+                    Attach
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {attachments.length > 0 && (
+          <span className="text-[11px] text-white/20 shrink-0">
+            {attachments.length} file{attachments.length !== 1 ? "s" : ""}
+          </span>
+        )}
       </div>
 
-      {/* Two-canvas stack: background (always visible) + ink layer (with erasing) */}
-      <div className="flex-1 overflow-hidden relative select-none">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        className="hidden"
+        accept="image/*,video/*,application/pdf,.docx,.xlsx,.xls,.csv,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,*/*"
+        onChange={handleFileInput}
+      />
+
+      {/* Two-canvas stack + attachment overlay */}
+      <div
+        ref={containerRef}
+        className="flex-1 overflow-hidden relative select-none"
+        onClick={() => { setAttachMenuOpen(false); setSelectedAttId(null); }}
+      >
         {/* Background canvas – dark fill + dot grid; never cleared by erasing */}
         <canvas ref={bgCanvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
 
-        {strokes.length === 0 && !drawing && (
+        {strokes.length === 0 && !drawing && attachments.length === 0 && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none z-10">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-white/8">
               <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z" strokeLinecap="round" strokeLinejoin="round" />
@@ -535,6 +963,18 @@ function DrawingCanvas({
           onPointerUp={(e) => onPointerUp(e)}
           onPointerLeave={(e) => onPointerUp(e)}
         />
+
+        {/* Attachment widgets – float above the ink canvas */}
+        {attachments.map((att) => (
+          <AttachmentWidget
+            key={att.id}
+            att={att}
+            isSelected={att.id === selectedAttId}
+            onSelect={() => setSelectedAttId(att.id)}
+            onUpdate={(u) => updateAttachment(att.id, u)}
+            onDelete={() => deleteAttachment(att.id)}
+          />
+        ))}
       </div>
     </div>
   );
@@ -823,6 +1263,21 @@ export default function NotesClient() {
 
   return (
     <div className="flex h-full overflow-hidden">
+      {/* Styles for Word/Excel/CSV content rendered inside attachment widgets */}
+      <style>{`
+        .notes-doc-content table { border-collapse: collapse; width: 100%; font-size: 11px; }
+        .notes-doc-content th, .notes-doc-content td { border: 1px solid rgba(255,255,255,0.1); padding: 3px 6px; text-align: left; }
+        .notes-doc-content th { background: rgba(255,255,255,0.06); font-weight: 600; color: rgba(255,255,255,0.75); }
+        .notes-doc-content td { color: rgba(255,255,255,0.6); }
+        .notes-doc-content h1, .notes-doc-content h2, .notes-doc-content h3 { font-weight: 600; color: rgba(255,255,255,0.85); margin: 8px 0 4px; }
+        .notes-doc-content h1 { font-size: 16px; } .notes-doc-content h2 { font-size: 13px; } .notes-doc-content h3 { font-size: 11px; }
+        .notes-doc-content p { margin: 3px 0; color: rgba(255,255,255,0.7); }
+        .notes-doc-content ul, .notes-doc-content ol { margin: 4px 0 4px 16px; }
+        .notes-doc-content li { color: rgba(255,255,255,0.7); margin: 1px 0; }
+        .notes-doc-content strong, .notes-doc-content b { font-weight: 600; color: rgba(255,255,255,0.85); }
+        .notes-doc-content em, .notes-doc-content i { font-style: italic; }
+        .notes-doc-content a { color: #60a5fa; text-decoration: underline; }
+      `}</style>
       {/* ── Left: note list ── */}
       <div
         ref={listRef}
