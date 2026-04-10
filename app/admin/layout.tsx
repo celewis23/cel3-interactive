@@ -212,6 +212,15 @@ const NAV: NavItem[] = [
     ),
   },
   {
+    label: "Notes",
+    href: "/admin/notes",
+    icon: (
+      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+      </svg>
+    ),
+  },
+  {
     label: "Expenses",
     href: "/admin/expenses",
     icon: (
@@ -318,7 +327,7 @@ const NAV_SECTION_DEFS = [
   },
   {
     title: "Delivery",
-    hrefs: ["/admin/projects", "/admin/tasks", "/admin/calendar", "/admin/time"],
+    hrefs: ["/admin/projects", "/admin/tasks", "/admin/calendar", "/admin/time", "/admin/notes"],
   },
   {
     title: "Communication",
