@@ -26,25 +26,36 @@ type Stroke = {
 
 type CanvasData = { strokes: Stroke[] };
 
-// ─── Perfect-freehand helpers ─────────────────────────────────────────────────
+// ─── Canvas stroke renderer ───────────────────────────────────────────────────
+//
+// Draws a single perfect-freehand stroke onto a 2D canvas context.
+// Eraser strokes use `destination-out` compositing so they punch through ink
+// to reveal the transparent canvas background (and the CSS dot-grid behind it).
+//
 
-function getSvgPath(points: number[][], size: number): string {
-  const stroke = getStroke(points, {
-    size,
-    smoothing: 0.5,
-    thinning: 0.5,
-    streamline: 0.5,
-    simulatePressure: true,
-  });
-  if (!stroke.length) return "";
-  const d: (string | number)[] = ["M", stroke[0][0], stroke[0][1], "Q"];
-  for (let i = 0; i < stroke.length; i++) {
-    const [x0, y0] = stroke[i];
-    const [x1, y1] = stroke[(i + 1) % stroke.length];
-    d.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2);
+function drawStrokeToCanvas(
+  ctx: CanvasRenderingContext2D,
+  points: number[][],
+  size: number,
+  color: string,
+  isEraser: boolean
+) {
+  const outline = getStroke(points, { size, thinning: 0.5, smoothing: 0.5, streamline: 0.5, simulatePressure: true });
+  if (outline.length < 2) return;
+  ctx.save();
+  if (isEraser) {
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.fillStyle = "rgba(0,0,0,1)";
+  } else {
+    ctx.globalCompositeOperation = "source-over";
+    ctx.fillStyle = color;
   }
-  d.push("Z");
-  return d.join(" ");
+  ctx.beginPath();
+  ctx.moveTo(outline[0][0], outline[0][1]);
+  for (let i = 1; i < outline.length; i++) ctx.lineTo(outline[i][0], outline[i][1]);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
 }
 
 // ─── Foldable / dual-screen layout hook ──────────────────────────────────────
@@ -173,22 +184,74 @@ function DrawingCanvas({
   initialData: CanvasData;
   onSave: (data: CanvasData) => void;
 }) {
-  const svgRef = useRef<SVGSVGElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [strokes, setStrokes] = useState<Stroke[]>(initialData.strokes ?? []);
+  // Refs that mirror state so renderCanvas() always reads the latest values
+  // without needing to be re-created on every render.
+  const strokesRef = useRef<Stroke[]>(initialData.strokes ?? []);
   const [history, setHistory] = useState<Stroke[][]>([initialData.strokes ?? []]);
   const [histIdx, setHistIdx] = useState(0);
-  const [currentPts, setCurrentPts] = useState<number[][]>([]);
   const [drawing, setDrawing] = useState(false);
   const [tool, setTool] = useState<"pen" | "eraser">("pen");
   const [penColor, setPenColor] = useState(PEN_COLORS[0]);
+  const penColorRef = useRef(PEN_COLORS[0]);
   const [sizeIdx, setSizeIdx] = useState(1);
+  const sizeIdxRef = useRef(1);
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   // Tracks the effective tool for the stroke currently being drawn.
-  // Separate from `tool` so that pen-eraser auto-detection works mid-stroke
-  // without flipping the toolbar state permanently.
   const currentStrokeIsEraserRef = useRef(false);
   // True while a physical pen eraser end is in contact — drives toolbar highlight
   const [penEraserActive, setPenEraserActive] = useState(false);
+  // Live stroke points accumulated during a pointer-drag (ref avoids per-point re-renders)
+  const currentPtsRef = useRef<number[][]>([]);
+  const rafRef = useRef<number | null>(null);
+
+  // Sync state → refs
+  useEffect(() => { penColorRef.current = penColor; }, [penColor]);
+  useEffect(() => { sizeIdxRef.current = sizeIdx; }, [sizeIdx]);
+  useEffect(() => {
+    strokesRef.current = strokes;
+    renderCanvas();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [strokes]);
+
+  // Size the canvas to its CSS box and re-render whenever it resizes
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    function resize() {
+      if (!canvas) return;
+      if (canvas.width !== canvas.offsetWidth || canvas.height !== canvas.offsetHeight) {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+      }
+      renderCanvas(); // eslint-disable-line react-hooks/exhaustive-deps
+    }
+    const obs = new ResizeObserver(resize);
+    obs.observe(canvas);
+    resize();
+    return () => obs.disconnect();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function renderCanvas() {
+    const canvas = canvasRef.current;
+    if (!canvas || !canvas.width || !canvas.height) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const s of strokesRef.current) {
+      drawStrokeToCanvas(ctx, s.points, s.isEraser ? s.size * 3 : s.size, s.color, s.isEraser);
+    }
+    const livePts = currentPtsRef.current;
+    if (livePts.length > 1) {
+      const isEraser = currentStrokeIsEraserRef.current;
+      const liveSize = isEraser
+        ? PEN_SIZES[sizeIdxRef.current] * 3
+        : PEN_SIZES[sizeIdxRef.current];
+      drawStrokeToCanvas(ctx, livePts, liveSize, penColorRef.current, isEraser);
+    }
+  }
 
   const pushHistory = useCallback((s: Stroke[]) => {
     setHistory((h) => {
@@ -215,32 +278,25 @@ function DrawingCanvas({
     onSave({ strokes: next });
   }
 
-  function getPoint(e: React.PointerEvent<SVGSVGElement>): number[] {
-    const rect = svgRef.current!.getBoundingClientRect();
+  function getPoint(e: React.PointerEvent<HTMLCanvasElement>): number[] {
+    const rect = canvasRef.current!.getBoundingClientRect();
     return [e.clientX - rect.left, e.clientY - rect.top, e.pressure || 0.5];
   }
 
-  function onPointerDown(e: React.PointerEvent<SVGSVGElement>) {
+  function onPointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
     e.currentTarget.setPointerCapture(e.pointerId);
     setDrawing(true);
-
-    // For a physical pen, auto-detect which end is in contact.
-    // For mouse / touch, honour the toolbar state.
     const erasing = e.pointerType === "pen" ? isPenEraser(e) : tool === "eraser";
     currentStrokeIsEraserRef.current = erasing;
-
     if (e.pointerType === "pen") {
-      // Reflect in the toolbar so the user can see what mode is active
       setPenEraserActive(erasing);
       setTool(erasing ? "eraser" : "pen");
     }
-
-    setCurrentPts([getPoint(e)]);
+    currentPtsRef.current = [getPoint(e)];
   }
 
-  function onPointerMove(e: React.PointerEvent<SVGSVGElement>) {
+  function onPointerMove(e: React.PointerEvent<HTMLCanvasElement>) {
     if (!drawing) return;
-    // Keep eraser detection live for the ongoing stroke (handles hover→contact transitions)
     if (e.pointerType === "pen") {
       const erasing = isPenEraser(e);
       if (erasing !== currentStrokeIsEraserRef.current) {
@@ -249,26 +305,35 @@ function DrawingCanvas({
         setTool(erasing ? "eraser" : "pen");
       }
     }
-    setCurrentPts((p) => [...p, getPoint(e)]);
+    currentPtsRef.current = [...currentPtsRef.current, getPoint(e)];
+    // Throttle redraws to one per animation frame
+    if (rafRef.current === null) {
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null;
+        renderCanvas();
+      });
+    }
   }
 
-  function onPointerUp(e?: React.PointerEvent<SVGSVGElement>) {
-    if (!drawing || !currentPts.length) return;
+  function onPointerUp(e?: React.PointerEvent<HTMLCanvasElement>) {
+    if (!drawing || !currentPtsRef.current.length) return;
     setDrawing(false);
     if (e?.pointerType === "pen") setPenEraserActive(false);
     const isEraser = currentStrokeIsEraserRef.current;
+    const pts = currentPtsRef.current;
+    currentPtsRef.current = [];
+    if (pts.length < 2) return;
     const newStroke: Stroke = {
       id: Math.random().toString(36).slice(2),
-      points: currentPts,
-      color: isEraser ? "eraser" : penColor,
-      size: PEN_SIZES[sizeIdx],
+      points: pts,
+      color: isEraser ? "eraser" : penColorRef.current,
+      size: PEN_SIZES[sizeIdxRef.current],
       isEraser,
     };
-    const next = [...strokes, newStroke];
+    const next = [...strokesRef.current, newStroke];
     setStrokes(next);
     pushHistory(next);
     onSave({ strokes: next });
-    setCurrentPts([]);
   }
 
   // Keyboard shortcuts
@@ -282,7 +347,6 @@ function DrawingCanvas({
   });
 
   const currentSize = PEN_SIZES[sizeIdx];
-  const eraserSize = currentSize * 3;
 
   return (
     <div className="flex flex-col h-full">
@@ -417,8 +481,15 @@ function DrawingCanvas({
         </span>
       </div>
 
-      {/* SVG Canvas */}
-      <div className="flex-1 overflow-hidden relative select-none">
+      {/* Canvas – dot grid is a CSS background so erasing reveals it naturally */}
+      <div
+        className="flex-1 overflow-hidden relative select-none"
+        style={{
+          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.06) 0.75px, transparent 0.75px)",
+          backgroundSize: "20px 20px",
+          backgroundPosition: "0.75px 0.75px",
+        }}
+      >
         {strokes.length === 0 && !drawing && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-white/8">
@@ -430,56 +501,15 @@ function DrawingCanvas({
           </div>
         )}
 
-        <svg
-          ref={svgRef}
+        <canvas
+          ref={canvasRef}
           className="w-full h-full touch-none"
           style={{ touchAction: "none", cursor: tool === "eraser" ? "cell" : "crosshair" }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={(e) => onPointerUp(e)}
           onPointerLeave={(e) => onPointerUp(e)}
-        >
-          {/* Dot grid */}
-          <defs>
-            <pattern id="notes-dot" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-              <circle cx="0.75" cy="0.75" r="0.75" fill="rgba(255,255,255,0.06)" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#notes-dot)" />
-
-          {/* Strokes – isolated so eraser blend mode only affects ink, not the background */}
-          <g style={{ isolation: "isolate" }}>
-            {strokes.map((s) =>
-              s.isEraser ? (
-                <path
-                  key={s.id}
-                  d={getSvgPath(s.points, s.size * 3)}
-                  fill="black"
-                  style={{ mixBlendMode: "destination-out" } as unknown as React.CSSProperties}
-                />
-              ) : (
-                <path
-                  key={s.id}
-                  d={getSvgPath(s.points, s.size)}
-                  fill={s.color}
-                />
-              )
-            )}
-
-            {/* Live stroke – uses the ref so pen eraser auto-detection is instant */}
-            {drawing && currentPts.length > 1 && (
-              currentStrokeIsEraserRef.current ? (
-                <path
-                  d={getSvgPath(currentPts, currentSize * 3)}
-                  fill="black"
-                  style={{ mixBlendMode: "destination-out" } as unknown as React.CSSProperties}
-                />
-              ) : (
-                <path d={getSvgPath(currentPts, currentSize)} fill={penColor} />
-              )
-            )}
-          </g>
-        </svg>
+        />
       </div>
     </div>
   );
