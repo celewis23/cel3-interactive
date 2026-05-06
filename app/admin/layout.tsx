@@ -469,8 +469,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     ? "flex items-center gap-3 px-4 py-3 text-sm text-[#111111] hover:bg-black/5 transition-colors"
     : "flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-white/5 transition-colors";
   const shellMutedClass = theme === "light" ? "text-black/45" : "text-white/35";
-  const mainClass = theme === "light"
-    ? "flex-1 p-4 pb-28 lg:p-8 max-w-6xl w-full mx-auto"
+  const isEmailInbox = pathname === "/admin/email";
+  const mainClass = isEmailInbox
+    ? "flex-1 overflow-hidden flex flex-col pb-14 lg:pb-0"
     : "flex-1 p-4 pb-28 lg:p-8 max-w-6xl w-full mx-auto";
   const bottomBarClass = theme === "light"
     ? "lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#f8f6f1]/95 backdrop-blur-md border-t border-black/8 flex items-stretch"

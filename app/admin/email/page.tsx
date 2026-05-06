@@ -3,8 +3,6 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { getStoredTokens } from "@/lib/gmail/client";
 import InboxClient from "@/components/admin/email/InboxClient";
-import SignatureEditor from "@/components/admin/email/SignatureEditor";
-import DisconnectButton from "./_components/DisconnectButton";
 
 export default async function EmailPage({
   searchParams,
@@ -135,73 +133,7 @@ export default async function EmailPage({
     );
   }
 
-  // Connected state
   const email = tokens.email ?? "";
 
-  return (
-    <div>
-      {/* Page header */}
-      <div className="flex items-start justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-white">Email</h1>
-          {email && (
-            <p className="text-sm text-white/40 mt-0.5 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-sky-400 inline-block" />
-              {email}
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/admin/email/compose"
-            className="bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors flex items-center gap-1.5"
-          >
-            <svg
-              width="15"
-              height="15"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"
-              />
-            </svg>
-            Compose
-          </Link>
-          <DisconnectButton />
-        </div>
-      </div>
-
-      {/* Connected success notice */}
-      {sp.connected === "1" && (
-        <div className="flex items-center gap-2 px-4 py-3 bg-sky-500/10 border border-sky-500/20 rounded-xl text-sky-200 text-sm mb-6">
-          <svg
-            width="16"
-            height="16"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          Gmail connected successfully!
-        </div>
-      )}
-
-      <InboxClient />
-
-      <div className="mt-8">
-        <SignatureEditor />
-      </div>
-    </div>
-  );
+  return <InboxClient email={email} connectedNotice={sp.connected === "1"} />;
 }
