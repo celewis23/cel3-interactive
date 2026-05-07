@@ -20,6 +20,7 @@ const RichTextEditor = dynamic(() => import("./RichTextEditor"), { ssr: false })
 
 type Label = "INBOX" | "STARRED" | "SNOOZED" | "SENT" | "DRAFTS" | "SPAM" | "TRASH";
 type MobileView = "list" | "thread" | "compose";
+type ComposeMode = "compact" | "full";
 
 interface FolderDef { key: Label; label: string }
 
@@ -32,6 +33,13 @@ const FOLDERS: FolderDef[] = [
   { key: "SPAM",    label: "Spam"    },
   { key: "TRASH",   label: "Trash"   },
 ];
+
+interface AttachedFile {
+  id: string;
+  name: string;
+  size: number;
+  file: File;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -68,14 +76,6 @@ function formatBytes(n: number): string {
   if (n < 1024) return `${n} B`;
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
   return `${(n / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function initials(from: string): string {
-  const name = extractName(from).trim();
-  if (!name) return "?";
-  const parts = name.split(/\s+/).filter(Boolean);
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
 }
 
 function attachmentUrl(messageId: string, att: GmailAttachment, inline = false): string {
@@ -143,10 +143,7 @@ function FolderIcon({ folder }: { folder: Label }) {
 // ─── ThreadRow ────────────────────────────────────────────────────────────────
 
 function ThreadRow({
-  thread,
-  label,
-  selected,
-  onClick,
+  thread, label, selected, onClick,
 }: {
   thread: GmailThreadSummary;
   label: Label;
@@ -219,7 +216,6 @@ function AttachmentChip({ messageId, att }: { messageId: string; att: GmailAttac
 
 function MessageCard({ message, defaultOpen }: { message: GmailMessageParsed; defaultOpen: boolean }) {
   const [collapsed, setCollapsed] = useState(!defaultOpen);
-
   return (
     <div className="overflow-hidden rounded-2xl border border-white/8 bg-[#090b10]">
       <button
@@ -251,7 +247,6 @@ function MessageCard({ message, defaultOpen }: { message: GmailMessageParsed; de
           </svg>
         </div>
       </button>
-
       {!collapsed && (
         <div className="px-5 pb-5 border-t border-white/5">
           {message.bodyHtml ? (
@@ -283,10 +278,7 @@ function MessageCard({ message, defaultOpen }: { message: GmailMessageParsed; de
 // ─── EmailView ────────────────────────────────────────────────────────────────
 
 function EmailView({
-  threadId,
-  data,
-  loading,
-  onBack,
+  threadId, data, loading, onBack,
 }: {
   threadId: string;
   data: { thread: GmailThreadDetail; link: GmailThreadLink | null } | null;
@@ -333,13 +325,11 @@ function EmailView({
     if (!plainText) return;
     setReplySending(true);
     setReplyError("");
-
     const messages = data.thread.messages;
     const lastMessage = messages[messages.length - 1];
     const fromAddress = lastMessage?.headers.from ?? "";
     const emailMatch = fromAddress.match(/<(.+?)>/) ?? fromAddress.match(/(\S+@\S+)/);
     const toAddress = emailMatch ? emailMatch[1] : fromAddress;
-
     try {
       const res = await fetch("/api/admin/email/reply", {
         method: "POST",
@@ -360,9 +350,7 @@ function EmailView({
         const d = await res.json().catch(() => ({}));
         throw new Error(d.error ?? `HTTP ${res.status}`);
       }
-      setReplyHtml("");
-      setReplyOpen(false);
-      setReplySuccess(true);
+      setReplyHtml(""); setReplyOpen(false); setReplySuccess(true);
     } catch (err: unknown) {
       setReplyError(err instanceof Error ? err.message : "Failed to send reply");
     } finally {
@@ -398,7 +386,6 @@ function EmailView({
           </button>
         </div>
       </div>
-
       <div className="flex-1 overflow-y-auto">
         {loading ? (
           <div className="flex items-center justify-center h-32">
@@ -414,9 +401,7 @@ function EmailView({
             {lastMessage && (
               <div className="text-xs text-white/35 space-y-0.5 mb-4 pb-4 border-b border-white/6">
                 <p><span className="text-white/55">From:</span> {lastMessage.headers.from}</p>
-                {lastMessage.headers.to && (
-                  <p><span className="text-white/55">To:</span> {lastMessage.headers.to}</p>
-                )}
+                {lastMessage.headers.to && <p><span className="text-white/55">To:</span> {lastMessage.headers.to}</p>}
                 <p><span className="text-white/55">Date:</span> {formatMessageDate(lastMessage.internalDate)}</p>
               </div>
             )}
@@ -434,8 +419,7 @@ function EmailView({
             {replyOpen && (
               <form onSubmit={sendReply} className="space-y-4 rounded-2xl border border-white/10 bg-[#090b10] p-5">
                 <p className="text-xs text-white/40">
-                  Replying to{" "}
-                  <span className="text-white/65">{extractEmail(lastMessage?.headers.from ?? "")}</span>
+                  Replying to <span className="text-white/65">{extractEmail(lastMessage?.headers.from ?? "")}</span>
                 </p>
                 <RichTextEditor
                   value={replyHtml || (signature ? `<p><br></p><p><br></p>${signature}` : "")}
@@ -505,11 +489,8 @@ function SettingsDropdown({ email, open }: { email: string; open: boolean }) {
 
   return (
     <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl border border-white/10 bg-[#0c0f16] shadow-2xl shadow-black/60 z-50 overflow-hidden">
-      {/* Google Workspace */}
       <div className="px-4 pt-4 pb-3.5 border-b border-white/8">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-white/25 mb-3">
-          Google Workspace
-        </p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-white/25 mb-3">Google Workspace</p>
         <div className="flex items-center gap-2.5 mb-3">
           <span className="w-2 h-2 rounded-full bg-sky-400 shrink-0" />
           <span className="text-xs text-white/70 truncate flex-1 min-w-0">{email}</span>
@@ -523,61 +504,23 @@ function SettingsDropdown({ email, open }: { email: string; open: boolean }) {
           {disconnecting ? "Disconnecting…" : "Disconnect Gmail account"}
         </button>
       </div>
-
-      {/* IMAP / cPanel */}
       <div className="px-4 pt-3.5 pb-4">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-white/25">
-            IMAP / cPanel Email
-          </p>
-          <span className="text-[10px] text-white/20 bg-white/5 px-1.5 py-0.5 rounded-md">
-            Coming soon
-          </span>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-white/25">IMAP / cPanel Email</p>
+          <span className="text-[10px] text-white/20 bg-white/5 px-1.5 py-0.5 rounded-md">Coming soon</span>
         </div>
         <div className="space-y-2 opacity-40 pointer-events-none select-none">
-          <input
-            type="text"
-            placeholder="mail.yourdomain.com"
-            value={imapHost}
-            onChange={(e) => setImapHost(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-1.5 text-xs text-white placeholder-white/20 outline-none"
-          />
+          <input type="text" placeholder="mail.yourdomain.com" value={imapHost} onChange={(e) => setImapHost(e.target.value)} className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-1.5 text-xs text-white placeholder-white/20 outline-none" />
           <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="Port (993)"
-              value={imapPort}
-              onChange={(e) => setImapPort(e.target.value)}
-              className="w-24 shrink-0 rounded-lg border border-white/10 bg-black/40 px-3 py-1.5 text-xs text-white placeholder-white/20 outline-none"
-            />
-            <input
-              type="text"
-              placeholder="Username"
-              value={imapUser}
-              onChange={(e) => setImapUser(e.target.value)}
-              className="flex-1 rounded-lg border border-white/10 bg-black/40 px-3 py-1.5 text-xs text-white placeholder-white/20 outline-none"
-            />
+            <input type="text" placeholder="Port (993)" value={imapPort} onChange={(e) => setImapPort(e.target.value)} className="w-24 shrink-0 rounded-lg border border-white/10 bg-black/40 px-3 py-1.5 text-xs text-white placeholder-white/20 outline-none" />
+            <input type="text" placeholder="Username" value={imapUser} onChange={(e) => setImapUser(e.target.value)} className="flex-1 rounded-lg border border-white/10 bg-black/40 px-3 py-1.5 text-xs text-white placeholder-white/20 outline-none" />
           </div>
-          <input
-            type="password"
-            placeholder="Password"
-            value={imapPass}
-            onChange={(e) => setImapPass(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-1.5 text-xs text-white placeholder-white/20 outline-none"
-          />
+          <input type="password" placeholder="Password" value={imapPass} onChange={(e) => setImapPass(e.target.value)} className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-1.5 text-xs text-white placeholder-white/20 outline-none" />
           <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={imapSsl}
-              onChange={(e) => setImapSsl(e.target.checked)}
-              className="rounded border-white/20 bg-black/40 accent-sky-500"
-            />
+            <input type="checkbox" checked={imapSsl} onChange={(e) => setImapSsl(e.target.checked)} className="rounded border-white/20 bg-black/40 accent-sky-500" />
             <span className="text-xs text-white/50">Use SSL/TLS</span>
           </label>
-          <button
-            disabled
-            className="w-full rounded-xl bg-sky-500/20 px-3 py-2 text-xs text-sky-200/40 cursor-not-allowed"
-          >
+          <button disabled className="w-full rounded-xl bg-sky-500/20 px-3 py-2 text-xs text-sky-200/40 cursor-not-allowed">
             Save IMAP Settings
           </button>
         </div>
@@ -590,19 +533,32 @@ function SettingsDropdown({ email, open }: { email: string; open: boolean }) {
 
 interface ComposePanelProps {
   fromEmail: string;
+  mode: ComposeMode;
+  onSwitchMode: (m: ComposeMode) => void;
   onClose: () => void;
   onSent: () => void;
+  // Lifted state
+  toEmails: string[]; setToEmails: (v: string[]) => void;
+  ccEmails: string[]; setCcEmails: (v: string[]) => void;
+  bccEmails: string[]; setBccEmails: (v: string[]) => void;
+  showCc: boolean; setShowCc: (v: boolean) => void;
+  showBcc: boolean; setShowBcc: (v: boolean) => void;
+  subject: string; setSubject: (v: string) => void;
+  html: string; setHtml: (v: string) => void;
+  attachedFiles: AttachedFile[]; setAttachedFiles: (v: AttachedFile[]) => void;
 }
 
-function ComposePanel({ fromEmail, onClose, onSent }: ComposePanelProps) {
-  const [toEmails, setToEmails] = useState<string[]>([]);
-  const [ccEmails, setCcEmails] = useState<string[]>([]);
-  const [bccEmails, setBccEmails] = useState<string[]>([]);
-  const [showCc, setShowCc] = useState(false);
-  const [showBcc, setShowBcc] = useState(false);
-  const [subject, setSubject] = useState("");
-  const [html, setHtml] = useState("");
-  const [attachedFiles, setAttachedFiles] = useState<{ id: string; name: string; size: number; file: File }[]>([]);
+function ComposePanel({
+  fromEmail, mode, onSwitchMode, onClose, onSent,
+  toEmails, setToEmails,
+  ccEmails, setCcEmails,
+  bccEmails, setBccEmails,
+  showCc, setShowCc,
+  showBcc, setShowBcc,
+  subject, setSubject,
+  html, setHtml,
+  attachedFiles, setAttachedFiles,
+}: ComposePanelProps) {
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
@@ -611,15 +567,6 @@ function ComposePanel({ fromEmail, onClose, onSent }: ComposePanelProps) {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recipientSearchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    fetch("/api/admin/email/signature")
-      .then((r) => r.ok ? r.json() : { html: "" })
-      .then(({ html: sig }: { html: string }) => {
-        if (sig) setHtml(`<p><br></p><p><br></p>${sig}`);
-      })
-      .catch(() => {});
-  }, []);
 
   function handleRecipientInputChange(value: string) {
     if (recipientSearchTimeout.current) clearTimeout(recipientSearchTimeout.current);
@@ -638,8 +585,7 @@ function ComposePanel({ fromEmail, onClose, onSent }: ComposePanelProps) {
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
     if (toEmails.length === 0 || !subject.trim() || !html.replace(/<[^>]+>/g, "").trim()) return;
-    setSending(true);
-    setError("");
+    setSending(true); setError("");
     try {
       const fd = new FormData();
       fd.append("to", toEmails.join(", "));
@@ -661,20 +607,34 @@ function ComposePanel({ fromEmail, onClose, onSent }: ComposePanelProps) {
     }
   }
 
-  function reset() {
-    setToEmails([]); setCcEmails([]); setBccEmails([]);
-    setShowCc(false); setShowBcc(false);
-    setSubject(""); setAttachedFiles([]);
-    setSending(false); setDone(false); setError("");
-    fetch("/api/admin/email/signature")
-      .then((r) => r.ok ? r.json() : { html: "" })
-      .then(({ html: sig }: { html: string }) => setHtml(sig ? `<p><br></p><p><br></p>${sig}` : ""))
-      .catch(() => setHtml(""));
-  }
-
   const isEmpty = !html.replace(/<[^>]*>/g, "").trim();
 
-  // ── Header (shared between done and form views) ──
+  // Mode toggle button shown in header
+  const modeToggle = (
+    <button
+      onClick={() => onSwitchMode(mode === "compact" ? "full" : "compact")}
+      className="hidden lg:flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/4 px-2.5 py-1.5 text-xs text-white/50 hover:text-white hover:border-white/20 hover:bg-white/8 transition-colors"
+      title={mode === "compact" ? "Expand composer — hides email list" : "Compact — show email list alongside"}
+    >
+      {mode === "compact" ? (
+        <>
+          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+          </svg>
+          Full view
+        </>
+      ) : (
+        <>
+          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 9L3.75 3.75M9 9H4.5m4.5 0V4.5m6 4.5l5.25-5.25M15 9h4.5M15 9V4.5m-10.5 15l5.25-5.25M4.5 19.5H9m0 0v-4.5m6 0l5.25 5.25M15 19.5h4.5m0 0v-4.5" />
+          </svg>
+          Show list
+        </>
+      )}
+    </button>
+  );
+
+  // Shared header
   const header = (
     <div className="flex items-center gap-2 px-4 h-11 border-b border-white/8 shrink-0">
       <button
@@ -691,18 +651,7 @@ function ComposePanel({ fromEmail, onClose, onSent }: ComposePanelProps) {
           <span className="text-xs text-white/30 ml-2 hidden sm:inline">Sending as {fromEmail}</span>
         )}
       </div>
-      <a
-        href="/admin/email/compose"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="hidden lg:flex items-center gap-1 text-[11px] text-white/25 hover:text-white/50 transition-colors"
-        title="Open full composer with Drive attachment support"
-      >
-        Full composer
-        <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-        </svg>
-      </a>
+      {modeToggle}
       <button
         onClick={onClose}
         className="hidden lg:flex w-8 h-8 items-center justify-center rounded-lg text-white/35 hover:text-white hover:bg-white/5 transition-colors"
@@ -734,7 +683,16 @@ function ComposePanel({ fromEmail, onClose, onSent }: ComposePanelProps) {
           </p>
           <div className="flex items-center gap-3">
             <button
-              onClick={reset}
+              onClick={() => {
+                setToEmails([]); setCcEmails([]); setBccEmails([]);
+                setShowCc(false); setShowBcc(false);
+                setSubject(""); setAttachedFiles([]);
+                setDone(false); setError("");
+                fetch("/api/admin/email/signature")
+                  .then(r => r.ok ? r.json() : { html: "" })
+                  .then(({ html: sig }: { html: string }) => setHtml(sig ? `<p><br></p><p><br></p>${sig}` : ""))
+                  .catch(() => setHtml(""));
+              }}
               className="bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors"
             >
               Compose another
@@ -751,12 +709,12 @@ function ComposePanel({ fromEmail, onClose, onSent }: ComposePanelProps) {
     );
   }
 
+  const editorMinHeight = mode === "full" ? "320px" : "180px";
+
   return (
     <div className="flex flex-col h-full">
       {header}
-
       <form onSubmit={handleSend} className="flex flex-col flex-1 min-h-0">
-        {/* Scrollable fields */}
         <div className="flex-1 overflow-y-auto">
           {/* To */}
           <div className="flex items-start gap-3 px-4 py-2.5 border-b border-white/6">
@@ -773,67 +731,34 @@ function ComposePanel({ fromEmail, onClose, onSent }: ComposePanelProps) {
               />
             </div>
             <div className="flex items-center gap-2 shrink-0 mt-2">
-              {!showCc && (
-                <button type="button" onClick={() => setShowCc(true)} className="text-[11px] text-white/30 hover:text-white/60 transition-colors">Cc</button>
-              )}
-              {!showBcc && (
-                <button type="button" onClick={() => setShowBcc(true)} className="text-[11px] text-white/30 hover:text-white/60 transition-colors">Bcc</button>
-              )}
+              {!showCc && <button type="button" onClick={() => setShowCc(true)} className="text-[11px] text-white/30 hover:text-white/60 transition-colors">Cc</button>}
+              {!showBcc && <button type="button" onClick={() => setShowBcc(true)} className="text-[11px] text-white/30 hover:text-white/60 transition-colors">Bcc</button>}
             </div>
           </div>
-
           {/* Cc */}
           {showCc && (
             <div className="flex items-start gap-3 px-4 py-2.5 border-b border-white/6">
               <span className="text-xs text-white/35 shrink-0 mt-2 w-6">Cc</span>
               <div className="flex-1 min-w-0">
-                <EmailTagInput
-                  emails={ccEmails}
-                  onChange={setCcEmails}
-                  placeholder="cc@example.com"
-                  suggestions={recipientSuggestions}
-                  loadingSuggestions={recipientSearchLoading}
-                  onInputChange={handleRecipientInputChange}
-                />
+                <EmailTagInput emails={ccEmails} onChange={setCcEmails} placeholder="cc@example.com" suggestions={recipientSuggestions} loadingSuggestions={recipientSearchLoading} onInputChange={handleRecipientInputChange} />
               </div>
-              <button
-                type="button"
-                onClick={() => { setShowCc(false); setCcEmails([]); }}
-                className="mt-2 shrink-0 text-white/25 hover:text-white/60 transition-colors"
-              >
-                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+              <button type="button" onClick={() => { setShowCc(false); setCcEmails([]); }} className="mt-2 shrink-0 text-white/25 hover:text-white/60 transition-colors">
+                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
           )}
-
           {/* Bcc */}
           {showBcc && (
             <div className="flex items-start gap-3 px-4 py-2.5 border-b border-white/6">
               <span className="text-xs text-white/35 shrink-0 mt-2 w-6">Bcc</span>
               <div className="flex-1 min-w-0">
-                <EmailTagInput
-                  emails={bccEmails}
-                  onChange={setBccEmails}
-                  placeholder="bcc@example.com"
-                  suggestions={recipientSuggestions}
-                  loadingSuggestions={recipientSearchLoading}
-                  onInputChange={handleRecipientInputChange}
-                />
+                <EmailTagInput emails={bccEmails} onChange={setBccEmails} placeholder="bcc@example.com" suggestions={recipientSuggestions} loadingSuggestions={recipientSearchLoading} onInputChange={handleRecipientInputChange} />
               </div>
-              <button
-                type="button"
-                onClick={() => { setShowBcc(false); setBccEmails([]); }}
-                className="mt-2 shrink-0 text-white/25 hover:text-white/60 transition-colors"
-              >
-                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+              <button type="button" onClick={() => { setShowBcc(false); setBccEmails([]); }} className="mt-2 shrink-0 text-white/25 hover:text-white/60 transition-colors">
+                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
           )}
-
           {/* Subject */}
           <div className="flex items-center gap-3 px-4 py-2.5 border-b border-white/6">
             <span className="text-xs text-white/35 shrink-0 w-6">Sub</span>
@@ -846,17 +771,15 @@ function ComposePanel({ fromEmail, onClose, onSent }: ComposePanelProps) {
               className="flex-1 bg-transparent text-sm text-white placeholder-white/18 outline-none"
             />
           </div>
-
           {/* Body */}
           <div className="px-4 pt-4 pb-2">
             <RichTextEditor
               value={html}
               onChange={setHtml}
               placeholder="Write your message…"
-              minHeight="180px"
+              minHeight={editorMinHeight}
             />
           </div>
-
           {/* Attached files */}
           {attachedFiles.length > 0 && (
             <div className="px-4 pb-3 flex flex-wrap gap-2">
@@ -867,21 +790,14 @@ function ComposePanel({ fromEmail, onClose, onSent }: ComposePanelProps) {
                   </svg>
                   <span className="text-xs text-white/65 truncate max-w-[120px]">{att.name}</span>
                   <span className="text-[11px] text-white/30">{formatBytes(att.size)}</span>
-                  <button
-                    type="button"
-                    onClick={() => setAttachedFiles((f) => f.filter((a) => a.id !== att.id))}
-                    className="text-white/25 hover:text-red-400 transition-colors"
-                  >
-                    <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                  <button type="button" onClick={() => setAttachedFiles(attachedFiles.filter((a) => a.id !== att.id))} className="text-white/25 hover:text-red-400 transition-colors">
+                    <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                   </button>
                 </div>
               ))}
             </div>
           )}
         </div>
-
         {/* Footer */}
         <div className="flex items-center gap-2 px-4 py-3 border-t border-white/8 shrink-0 flex-wrap">
           {error ? (
@@ -929,7 +845,6 @@ function ComposePanel({ fromEmail, onClose, onSent }: ComposePanelProps) {
             )}
           </button>
         </div>
-
         <input
           ref={fileInputRef}
           type="file"
@@ -939,11 +854,9 @@ function ComposePanel({ fromEmail, onClose, onSent }: ComposePanelProps) {
             if (e.target.files) {
               const files = Array.from(e.target.files).map((f) => ({
                 id: `${f.name}-${f.size}-${Date.now()}-${Math.random()}`,
-                name: f.name,
-                size: f.size,
-                file: f,
+                name: f.name, size: f.size, file: f,
               }));
-              setAttachedFiles((prev) => [...prev, ...files]);
+              setAttachedFiles([...attachedFiles, ...files]);
               e.target.value = "";
             }
           }}
@@ -961,6 +874,7 @@ interface Props {
 }
 
 export default function InboxClient({ email, connectedNotice }: Props) {
+  // Thread list state
   const [label, setLabel] = useState<Label>("INBOX");
   const [threads, setThreads] = useState<GmailThreadSummary[]>([]);
   const [nextPageToken, setNextPageToken] = useState<string | undefined>(undefined);
@@ -973,6 +887,7 @@ export default function InboxClient({ email, connectedNotice }: Props) {
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const threadsRef = useRef<GmailThreadSummary[]>([]);
 
+  // Selected thread state
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [threadData, setThreadData] = useState<{
     thread: GmailThreadDetail;
@@ -980,9 +895,11 @@ export default function InboxClient({ email, connectedNotice }: Props) {
   } | null>(null);
   const [loadingThread, setLoadingThread] = useState(false);
 
+  // Layout state
   const [navExpanded, setNavExpanded] = useState(true);
   const [mobileView, setMobileView] = useState<MobileView>("list");
-  const [composeOpen, setComposeOpen] = useState(false);
+
+  // Settings dropdown
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
 
@@ -995,6 +912,17 @@ export default function InboxClient({ email, connectedNotice }: Props) {
     if (settingsOpen) document.addEventListener("mousedown", handleOutside);
     return () => document.removeEventListener("mousedown", handleOutside);
   }, [settingsOpen]);
+
+  // ── Compose state — lifted so it persists across compact ↔ full mode switches ──
+  const [composeMode, setComposeMode] = useState<ComposeMode | null>(null);
+  const [composeToEmails, setComposeToEmails] = useState<string[]>([]);
+  const [composeCcEmails, setComposeCcEmails] = useState<string[]>([]);
+  const [composeBccEmails, setComposeBccEmails] = useState<string[]>([]);
+  const [composeShowCc, setComposeShowCc] = useState(false);
+  const [composeShowBcc, setComposeShowBcc] = useState(false);
+  const [composeSubject, setComposeSubject] = useState("");
+  const [composeHtml, setComposeHtml] = useState("");
+  const [composeAttachedFiles, setComposeAttachedFiles] = useState<AttachedFile[]>([]);
 
   useEffect(() => { threadsRef.current = threads; }, [threads]);
 
@@ -1010,7 +938,6 @@ export default function InboxClient({ email, connectedNotice }: Props) {
         throw new Error(data.error ?? `HTTP ${res.status}`);
       }
       const data: { threads: GmailThreadSummary[]; nextPageToken?: string } = await res.json();
-
       if (silent) {
         const current = threadsRef.current;
         const snap = (arr: GmailThreadSummary[]) =>
@@ -1033,10 +960,7 @@ export default function InboxClient({ email, connectedNotice }: Props) {
   }, []);
 
   useEffect(() => {
-    setPageTokenStack([]);
-    setCurrentToken(undefined);
-    setNextPageToken(undefined);
-    setNewCount(null);
+    setPageTokenStack([]); setCurrentToken(undefined); setNextPageToken(undefined); setNewCount(null);
     fetchThreads(label, undefined);
   }, [label, fetchThreads]);
 
@@ -1051,7 +975,7 @@ export default function InboxClient({ email, connectedNotice }: Props) {
 
   async function openThread(id: string) {
     setSelectedId(id);
-    setComposeOpen(false);
+    setComposeMode(null);
     setMobileView("thread");
     setThreadData(null);
     setLoadingThread(true);
@@ -1070,25 +994,38 @@ export default function InboxClient({ email, connectedNotice }: Props) {
   }
 
   function openCompose() {
-    setComposeOpen(true);
-    setSelectedId(null);
-    setThreadData(null);
+    // Reset all fields for a fresh compose
+    setComposeToEmails([]); setComposeCcEmails([]); setComposeBccEmails([]);
+    setComposeShowCc(false); setComposeShowBcc(false);
+    setComposeSubject(""); setComposeAttachedFiles([]);
+    setComposeHtml("");
+    setComposeMode("compact");
+    setSelectedId(null); setThreadData(null);
     setMobileView("compose");
+    // Load signature
+    fetch("/api/admin/email/signature")
+      .then(r => r.ok ? r.json() : { html: "" })
+      .then(({ html: sig }: { html: string }) => {
+        setComposeHtml(sig ? `<p><br></p><p><br></p>${sig}` : "");
+      })
+      .catch(() => {});
+  }
+
+  function switchComposeMode(m: ComposeMode) {
+    // Only changes the mode — all compose content persists
+    setComposeMode(m);
   }
 
   function closeCompose() {
-    setComposeOpen(false);
+    setComposeMode(null);
     setMobileView("list");
   }
 
   function switchLabel(lbl: Label) {
     if (lbl === label) return;
-    setLabel(lbl);
-    setSearch("");
-    setSelectedId(null);
-    setThreadData(null);
-    setComposeOpen(false);
-    setMobileView("list");
+    setLabel(lbl); setSearch("");
+    setSelectedId(null); setThreadData(null);
+    setComposeMode(null); setMobileView("list");
   }
 
   function handleNext() {
@@ -1108,9 +1045,7 @@ export default function InboxClient({ email, connectedNotice }: Props) {
   }
 
   function refresh() {
-    setNewCount(null);
-    setPageTokenStack([]);
-    setCurrentToken(undefined);
+    setNewCount(null); setPageTokenStack([]); setCurrentToken(undefined);
     fetchThreads(label, undefined);
   }
 
@@ -1124,9 +1059,21 @@ export default function InboxClient({ email, connectedNotice }: Props) {
 
   const unreadCount = threads.filter((t) => !t.isRead).length;
 
+  // Thread list is hidden on desktop only when compose is in "full" mode
+  const threadListClass = composeMode === "full"
+    ? "hidden"
+    : mobileView !== "list"
+      ? "hidden lg:flex lg:w-80 xl:w-96 lg:shrink-0"
+      : "flex flex-1 lg:flex-none lg:w-80 xl:w-96 lg:shrink-0";
+
+  // Right panel visible when compose is open OR thread is selected OR on desktop always
+  const rightPanelClass = mobileView === "list" && composeMode === null
+    ? "hidden lg:flex"
+    : "flex";
+
   return (
     <div className="flex flex-col h-full overflow-hidden bg-[#06080d]">
-      {/* ── Page header (hidden on mobile when thread/compose is open) ── */}
+      {/* ── Page header (hidden on mobile thread/compose) ── */}
       <div
         className={`flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-white/8 shrink-0 ${
           mobileView !== "list" ? "hidden lg:flex" : "flex"
@@ -1162,7 +1109,6 @@ export default function InboxClient({ email, connectedNotice }: Props) {
             </svg>
             Compose
           </button>
-          {/* Settings */}
           <div ref={settingsRef} className="relative">
             <button
               onClick={() => setSettingsOpen((v) => !v)}
@@ -1195,7 +1141,7 @@ export default function InboxClient({ email, connectedNotice }: Props) {
       {/* ── 3-panel area ── */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
 
-        {/* ── Folder nav (unified desktop + mobile, hidden in thread/compose mobile view) ── */}
+        {/* Folder nav */}
         <div
           className={`flex-col border-r border-white/8 bg-[#050709] shrink-0 transition-all duration-200 ${
             mobileView !== "list" ? "hidden lg:flex" : "flex"
@@ -1218,7 +1164,6 @@ export default function InboxClient({ email, connectedNotice }: Props) {
               </svg>
             </button>
           </div>
-
           <nav className="flex-1 overflow-y-auto py-2 px-1.5 space-y-0.5">
             {FOLDERS.map(({ key, label: folderLabel }) => {
               const active = label === key;
@@ -1228,20 +1173,14 @@ export default function InboxClient({ email, connectedNotice }: Props) {
                   onClick={() => switchLabel(key)}
                   className={`w-full flex items-center rounded-xl text-sm transition-colors ${
                     navExpanded ? "gap-2.5 px-2.5 py-2" : "justify-center py-2.5"
-                  } ${
-                    active ? "bg-sky-500/10 text-sky-400" : "text-white/45 hover:text-white hover:bg-white/5"
-                  }`}
+                  } ${active ? "bg-sky-500/10 text-sky-400" : "text-white/45 hover:text-white hover:bg-white/5"}`}
                 >
                   <FolderIcon folder={key} />
                   {navExpanded && (
                     <>
                       <span className="flex-1 text-left truncate">{folderLabel}</span>
                       {key === "INBOX" && unreadCount > 0 && (
-                        <span
-                          className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none ${
-                            active ? "bg-sky-400/20 text-sky-200" : "bg-sky-500 text-white"
-                          }`}
-                        >
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none ${active ? "bg-sky-400/20 text-sky-200" : "bg-sky-500 text-white"}`}>
                           {unreadCount > 99 ? "99+" : unreadCount}
                         </span>
                       )}
@@ -1253,15 +1192,8 @@ export default function InboxClient({ email, connectedNotice }: Props) {
           </nav>
         </div>
 
-        {/* ── Thread list ── */}
-        <div
-          className={`flex-col border-r border-white/8 bg-[#070a0f] min-w-0 ${
-            mobileView !== "list"
-              ? "hidden lg:flex lg:w-80 xl:w-96 lg:shrink-0"
-              : "flex flex-1 lg:flex-none lg:w-80 xl:w-96 lg:shrink-0"
-          }`}
-        >
-          {/* List header */}
+        {/* Thread list — hidden on desktop when compose is "full" */}
+        <div className={`flex-col border-r border-white/8 bg-[#070a0f] min-w-0 ${threadListClass}`}>
           <div className="flex items-center justify-between px-4 h-11 border-b border-white/8 shrink-0">
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-sm font-medium text-white truncate">
@@ -1270,14 +1202,9 @@ export default function InboxClient({ email, connectedNotice }: Props) {
               <span className="text-xs text-white/30 shrink-0">{filtered.length} threads</span>
             </div>
           </div>
-
-          {/* Search */}
           <div className="px-3 py-2.5 border-b border-white/8 shrink-0">
             <div className="relative">
-              <svg
-                width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
-                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/20"
-              >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/20">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m1.35-5.4a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z" />
               </svg>
               <input
@@ -1289,8 +1216,6 @@ export default function InboxClient({ email, connectedNotice }: Props) {
               />
             </div>
           </div>
-
-          {/* New email banner */}
           {newCount !== null && newCount > 0 && (
             <button
               onClick={refresh}
@@ -1302,8 +1227,6 @@ export default function InboxClient({ email, connectedNotice }: Props) {
               {newCount} new — tap to load
             </button>
           )}
-
-          {/* Thread list body */}
           <div className="flex-1 overflow-y-auto">
             {loading ? (
               <div className="space-y-px py-1">
@@ -1341,8 +1264,6 @@ export default function InboxClient({ email, connectedNotice }: Props) {
               ))
             )}
           </div>
-
-          {/* Pagination */}
           {!loading && !error && (
             <div className="flex items-center justify-between px-4 py-3 border-t border-white/8 shrink-0">
               <span className="text-[11px] text-white/22">{filtered.length} shown</span>
@@ -1366,17 +1287,23 @@ export default function InboxClient({ email, connectedNotice }: Props) {
           )}
         </div>
 
-        {/* ── Right panel: compose or email view ── */}
-        <div
-          className={`flex-1 flex flex-col min-w-0 bg-[#06080d] ${
-            mobileView === "list" ? "hidden lg:flex" : "flex"
-          }`}
-        >
-          {composeOpen ? (
+        {/* Right panel — compose or email view */}
+        <div className={`flex-1 flex flex-col min-w-0 bg-[#06080d] ${rightPanelClass}`}>
+          {composeMode ? (
             <ComposePanel
               fromEmail={email}
+              mode={composeMode}
+              onSwitchMode={switchComposeMode}
               onClose={closeCompose}
               onSent={closeCompose}
+              toEmails={composeToEmails} setToEmails={setComposeToEmails}
+              ccEmails={composeCcEmails} setCcEmails={setComposeCcEmails}
+              bccEmails={composeBccEmails} setBccEmails={setComposeBccEmails}
+              showCc={composeShowCc} setShowCc={setComposeShowCc}
+              showBcc={composeShowBcc} setShowBcc={setComposeShowBcc}
+              subject={composeSubject} setSubject={setComposeSubject}
+              html={composeHtml} setHtml={setComposeHtml}
+              attachedFiles={composeAttachedFiles} setAttachedFiles={setComposeAttachedFiles}
             />
           ) : selectedId ? (
             <EmailView
