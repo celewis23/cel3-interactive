@@ -531,6 +531,12 @@ function SettingsDropdown({ email, open }: { email: string; open: boolean }) {
 
 // ─── ComposePanel ─────────────────────────────────────────────────────────────
 
+interface DriveLink {
+  id: string;
+  url: string;
+  name: string;
+}
+
 interface ComposePanelProps {
   fromEmail: string;
   mode: ComposeMode;
@@ -564,8 +570,12 @@ function ComposePanel({
   const [error, setError] = useState("");
   const [recipientSuggestions, setRecipientSuggestions] = useState<EmailSuggestion[]>([]);
   const [recipientSearchLoading, setRecipientSearchLoading] = useState(false);
+  const [driveLinks, setDriveLinks] = useState<DriveLink[]>([]);
+  const [driveInputOpen, setDriveInputOpen] = useState(false);
+  const [driveInputValue, setDriveInputValue] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const driveInputRef = useRef<HTMLInputElement>(null);
   const recipientSearchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function handleRecipientInputChange(value: string) {
@@ -590,7 +600,14 @@ function ComposePanel({
       const fd = new FormData();
       fd.append("to", toEmails.join(", "));
       fd.append("subject", subject.trim());
-      fd.append("htmlBody", html);
+      let finalHtml = html;
+      if (driveLinks.length > 0) {
+        const linksHtml = driveLinks
+          .map((l) => `<p><a href="${l.url}" style="color:#38bdf8;">${l.name}</a></p>`)
+          .join("");
+        finalHtml = html + `<br><div style="margin-top:8px;">${linksHtml}</div>`;
+      }
+      fd.append("htmlBody", finalHtml);
       if (ccEmails.length > 0) fd.append("cc", ccEmails.join(", "));
       if (bccEmails.length > 0) fd.append("bcc", bccEmails.join(", "));
       for (const att of attachedFiles) fd.append("attachments", att.file);
@@ -605,6 +622,16 @@ function ComposePanel({
     } finally {
       setSending(false);
     }
+  }
+
+  function addDriveLink() {
+    const url = driveInputValue.trim();
+    if (!url) return;
+    const nameMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    const name = nameMatch ? `Google Drive file (${nameMatch[1].slice(0, 8)}…)` : "Google Drive file";
+    setDriveLinks((prev) => [...prev, { id: `${Date.now()}-${Math.random()}`, url, name }]);
+    setDriveInputValue("");
+    setDriveInputOpen(false);
   }
 
   const isEmpty = !html.replace(/<[^>]*>/g, "").trim();
@@ -686,7 +713,7 @@ function ComposePanel({
               onClick={() => {
                 setToEmails([]); setCcEmails([]); setBccEmails([]);
                 setShowCc(false); setShowBcc(false);
-                setSubject(""); setAttachedFiles([]);
+                setSubject(""); setAttachedFiles([]); setDriveLinks([]);
                 setDone(false); setError("");
                 fetch("/api/admin/email/signature")
                   .then(r => r.ok ? r.json() : { html: "" })
@@ -780,8 +807,9 @@ function ComposePanel({
               minHeight={editorMinHeight}
             />
           </div>
-          {/* Attached files */}
-          {attachedFiles.length > 0 && (
+
+          {/* Attached files + Drive links — inline below editor */}
+          {(attachedFiles.length > 0 || driveLinks.length > 0) && (
             <div className="px-4 pb-3 flex flex-wrap gap-2">
               {attachedFiles.map((att) => (
                 <div key={att.id} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-black px-3 py-1.5">
@@ -795,55 +823,131 @@ function ComposePanel({
                   </button>
                 </div>
               ))}
+              {driveLinks.map((link) => (
+                <div key={link.id} className="inline-flex items-center gap-2 rounded-xl border border-sky-400/20 bg-sky-400/8 px-3 py-1.5">
+                  {/* Google Drive icon */}
+                  <svg width="12" height="12" viewBox="0 0 87.3 78" className="shrink-0">
+                    <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H.6c0 1.55.4 3.1 1.2 4.5z" fill="#0066da" />
+                    <path d="M43.65 25L29.9 1.2C28.55 2 27.4 3.1 26.6 4.5L1.8 48.5c-.8 1.4-1.2 2.95-1.2 4.5h27.4z" fill="#00ac47" />
+                    <path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.9l5.85 11.6z" fill="#ea4335" />
+                    <path d="M43.65 25L57.4 1.2C56.05.4 54.5 0 52.9 0H34.4c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d" />
+                    <path d="M59.9 53H27.4L13.65 76.8c1.35.8 2.9 1.2 4.5 1.2h50c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc" />
+                    <path d="M73.4 26.5l-12.4-21.5c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25l16.25 28H86.5c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00" />
+                  </svg>
+                  <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-xs text-sky-300 truncate max-w-[160px] hover:text-sky-200 transition-colors">
+                    {link.name}
+                  </a>
+                  <button type="button" onClick={() => setDriveLinks(driveLinks.filter((d) => d.id !== link.id))} className="text-white/25 hover:text-red-400 transition-colors">
+                    <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                </div>
+              ))}
             </div>
           )}
-        </div>
-        {/* Footer */}
-        <div className="flex items-center gap-2 px-4 py-3 border-t border-white/8 shrink-0 flex-wrap">
-          {error ? (
-            <p className="text-xs text-red-400 flex-1 min-w-0 truncate">{error}</p>
-          ) : (
-            <div className="flex-1" />
+
+          {/* Drive link input (inline popover below Drive button) */}
+          {driveInputOpen && (
+            <div className="mx-4 mb-3 flex items-center gap-2 rounded-xl border border-sky-400/25 bg-sky-400/5 px-3 py-2">
+              <svg width="13" height="13" viewBox="0 0 87.3 78" className="shrink-0">
+                <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H.6c0 1.55.4 3.1 1.2 4.5z" fill="#0066da" />
+                <path d="M43.65 25L29.9 1.2C28.55 2 27.4 3.1 26.6 4.5L1.8 48.5c-.8 1.4-1.2 2.95-1.2 4.5h27.4z" fill="#00ac47" />
+                <path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.9l5.85 11.6z" fill="#ea4335" />
+                <path d="M43.65 25L57.4 1.2C56.05.4 54.5 0 52.9 0H34.4c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d" />
+                <path d="M59.9 53H27.4L13.65 76.8c1.35.8 2.9 1.2 4.5 1.2h50c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc" />
+                <path d="M73.4 26.5l-12.4-21.5c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25l16.25 28H86.5c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00" />
+              </svg>
+              <input
+                ref={driveInputRef}
+                type="url"
+                value={driveInputValue}
+                onChange={(e) => setDriveInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") { e.preventDefault(); addDriveLink(); }
+                  if (e.key === "Escape") { setDriveInputOpen(false); setDriveInputValue(""); }
+                }}
+                placeholder="Paste Google Drive link…"
+                className="flex-1 bg-transparent text-xs text-white placeholder-white/25 outline-none"
+                autoFocus
+              />
+              <button type="button" onClick={addDriveLink} className="text-[11px] text-sky-300 hover:text-sky-200 font-medium transition-colors shrink-0">
+                Add
+              </button>
+              <button type="button" onClick={() => { setDriveInputOpen(false); setDriveInputValue(""); }} className="text-white/25 hover:text-white/60 transition-colors">
+                <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
           )}
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            title="Attach file"
-            className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/10 text-white/50 hover:text-white hover:border-white/20 transition-colors"
-          >
-            <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-xl border border-white/10 bg-black px-3 py-1.5 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={sending || toEmails.length === 0 || !subject.trim() || isEmpty}
-            className="flex items-center gap-1.5 bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium px-4 py-1.5 rounded-xl transition-colors disabled:opacity-50"
-          >
-            {sending ? (
-              <>
-                <svg className="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                Sending…
-              </>
+
+          {/* Toolbar — sits right below compose box */}
+          <div className="flex items-center gap-2 px-4 py-3 border-t border-white/8 flex-wrap">
+            {/* Attach file */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              title="Attach file"
+              className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/10 text-white/50 hover:text-white hover:border-white/20 transition-colors"
+            >
+              <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+              </svg>
+            </button>
+            {/* Google Drive */}
+            <button
+              type="button"
+              onClick={() => { setDriveInputOpen((v) => !v); setDriveInputValue(""); }}
+              title="Attach Google Drive link"
+              className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-colors ${
+                driveInputOpen
+                  ? "border-sky-400/40 bg-sky-400/10 text-sky-300"
+                  : "border-white/10 text-white/50 hover:text-white hover:border-white/20"
+              }`}
+            >
+              <svg width="13" height="13" viewBox="0 0 87.3 78">
+                <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H.6c0 1.55.4 3.1 1.2 4.5z" fill="currentColor" opacity="0.9" />
+                <path d="M43.65 25L29.9 1.2C28.55 2 27.4 3.1 26.6 4.5L1.8 48.5c-.8 1.4-1.2 2.95-1.2 4.5h27.4z" fill="currentColor" opacity="0.75" />
+                <path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5H59.9l5.85 11.6z" fill="currentColor" opacity="0.6" />
+                <path d="M43.65 25L57.4 1.2C56.05.4 54.5 0 52.9 0H34.4c-1.6 0-3.15.45-4.5 1.2z" fill="currentColor" opacity="0.85" />
+                <path d="M59.9 53H27.4L13.65 76.8c1.35.8 2.9 1.2 4.5 1.2h50c1.6 0 3.15-.45 4.5-1.2z" fill="currentColor" opacity="0.95" />
+                <path d="M73.4 26.5l-12.4-21.5c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25l16.25 28H86.5c0-1.55-.4-3.1-1.2-4.5z" fill="currentColor" opacity="0.7" />
+              </svg>
+            </button>
+
+            {error ? (
+              <p className="text-xs text-red-400 flex-1 min-w-0 truncate">{error}</p>
             ) : (
-              <>
-                <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                </svg>
-                Send
-              </>
+              <div className="flex-1" />
             )}
-          </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-xl border border-white/10 bg-black px-3 py-1.5 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={sending || toEmails.length === 0 || !subject.trim() || isEmpty}
+              className="flex items-center gap-1.5 bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium px-4 py-1.5 rounded-xl transition-colors disabled:opacity-50"
+            >
+              {sending ? (
+                <>
+                  <svg className="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Sending…
+                </>
+              ) : (
+                <>
+                  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                  </svg>
+                  Send
+                </>
+              )}
+            </button>
+          </div>
         </div>
         <input
           ref={fileInputRef}
