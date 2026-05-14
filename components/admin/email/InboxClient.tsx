@@ -248,22 +248,22 @@ function MessageCard({ message, defaultOpen }: { message: GmailMessageParsed; de
         </div>
       </button>
       {!collapsed && (
-        <div className="px-5 pb-5 border-t border-white/5">
+        <div className="border-t border-white/5">
           {message.bodyHtml ? (
             <div
-              className="-mx-5 mt-4 bg-white px-5 py-4 overflow-x-auto text-gray-900 text-sm max-lg:px-4"
+              className="bg-white px-5 py-4 overflow-x-auto text-gray-900 text-sm max-lg:px-4"
               // eslint-disable-next-line react/no-danger
               dangerouslySetInnerHTML={{
                 __html: resolveCidReferences(message.bodyHtml, message.id, message.attachments),
               }}
             />
           ) : (
-            <pre className="mt-4 whitespace-pre-wrap text-sm text-white/75 font-sans leading-relaxed">
+            <pre className="bg-white px-5 py-4 whitespace-pre-wrap text-sm text-gray-900 font-sans leading-relaxed max-lg:px-4">
               {message.bodyText}
             </pre>
           )}
           {message.attachments.filter((a) => !a.inline).length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 px-5 py-4 max-lg:px-4">
               {message.attachments.filter((a) => !a.inline).map((att) => (
                 <AttachmentChip key={att.attachmentId} messageId={message.id} att={att} />
               ))}
@@ -396,67 +396,73 @@ function EmailView({
             <p className="text-sm text-white/30">Failed to load thread.</p>
           </div>
         ) : (
-          <div className="p-5 space-y-3">
-            <h1 className="text-lg font-semibold text-white leading-snug mb-1">{subject}</h1>
-            {lastMessage && (
-              <div className="text-xs text-white/35 space-y-0.5 mb-4 pb-4 border-b border-white/6">
-                <p><span className="text-white/55">From:</span> {lastMessage.headers.from}</p>
-                {lastMessage.headers.to && <p><span className="text-white/55">To:</span> {lastMessage.headers.to}</p>}
-                <p><span className="text-white/55">Date:</span> {formatMessageDate(lastMessage.internalDate)}</p>
-              </div>
-            )}
-            {messages.map((message, i) => (
-              <MessageCard key={message.id} message={message} defaultOpen={i === messages.length - 1} />
-            ))}
-            {replySuccess && (
-              <div className="flex items-center gap-2 rounded-2xl border border-sky-500/20 bg-sky-500/10 px-4 py-3 text-sm text-sky-200">
-                <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Reply sent!
-              </div>
-            )}
-            {replyOpen && (
-              <form onSubmit={sendReply} className="space-y-4 rounded-2xl border border-white/10 bg-[#090b10] p-5">
-                <p className="text-xs text-white/40">
-                  Replying to <span className="text-white/65">{extractEmail(lastMessage?.headers.from ?? "")}</span>
-                </p>
-                <RichTextEditor
-                  value={replyHtml || (signature ? `<p><br></p><p><br></p>${signature}` : "")}
-                  onChange={setReplyHtml}
-                  placeholder="Write your reply…"
-                  minHeight="180px"
-                />
-                {replyError && <p className="text-xs text-red-400">{replyError}</p>}
-                <div className="flex items-center gap-3">
-                  <button
-                    type="submit"
-                    disabled={replySending || !replyHtml.replace(/<[^>]+>/g, "").trim()}
-                    className="bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors disabled:opacity-50"
-                  >
-                    {replySending ? "Sending…" : "Send Reply"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setReplyOpen(false); setReplyHtml(""); setReplyError(""); }}
-                    className="rounded-xl border border-white/10 bg-black px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
-                  >
-                    Cancel
-                  </button>
+          <div className="space-y-3">
+            <div className="px-5 pt-5">
+              <h1 className="text-lg font-semibold text-white leading-snug mb-1">{subject}</h1>
+              {lastMessage && (
+                <div className="text-xs text-white/35 space-y-0.5 mb-4 pb-4 border-b border-white/6">
+                  <p><span className="text-white/55">From:</span> {lastMessage.headers.from}</p>
+                  {lastMessage.headers.to && <p><span className="text-white/55">To:</span> {lastMessage.headers.to}</p>}
+                  <p><span className="text-white/55">Date:</span> {formatMessageDate(lastMessage.internalDate)}</p>
                 </div>
-              </form>
-            )}
-            {!replyOpen && (
-              <button
-                onClick={() => setReplyOpen(true)}
-                className="flex items-center gap-2 rounded-xl border border-white/10 bg-black px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
-              >
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-                </svg>
-                Reply
-              </button>
-            )}
+              )}
+            </div>
+            <div className="space-y-3">
+              {messages.map((message, i) => (
+                <MessageCard key={message.id} message={message} defaultOpen={i === messages.length - 1} />
+              ))}
+            </div>
+            <div className="px-5 pb-5 space-y-3">
+              {replySuccess && (
+                <div className="flex items-center gap-2 rounded-2xl border border-sky-500/20 bg-sky-500/10 px-4 py-3 text-sm text-sky-200">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Reply sent!
+                </div>
+              )}
+              {replyOpen && (
+                <form onSubmit={sendReply} className="space-y-4 rounded-2xl border border-white/10 bg-[#090b10] p-5">
+                  <p className="text-xs text-white/40">
+                    Replying to <span className="text-white/65">{extractEmail(lastMessage?.headers.from ?? "")}</span>
+                  </p>
+                  <RichTextEditor
+                    value={replyHtml || (signature ? `<p><br></p><p><br></p>${signature}` : "")}
+                    onChange={setReplyHtml}
+                    placeholder="Write your reply…"
+                    minHeight="180px"
+                  />
+                  {replyError && <p className="text-xs text-red-400">{replyError}</p>}
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="submit"
+                      disabled={replySending || !replyHtml.replace(/<[^>]+>/g, "").trim()}
+                      className="bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors disabled:opacity-50"
+                    >
+                      {replySending ? "Sending…" : "Send Reply"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setReplyOpen(false); setReplyHtml(""); setReplyError(""); }}
+                      className="rounded-xl border border-white/10 bg-black px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
+              {!replyOpen && (
+                <button
+                  onClick={() => setReplyOpen(true)}
+                  className="flex items-center gap-2 rounded-xl border border-white/10 bg-black px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
+                >
+                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                  </svg>
+                  Reply
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>

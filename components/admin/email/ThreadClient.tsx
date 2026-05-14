@@ -173,10 +173,10 @@ function MessageCard({ message, index }: { message: GmailMessageParsed; index: n
 
       {/* Message body */}
       {!collapsed && (
-        <div className="px-5 pb-5 border-t border-white/5">
+        <div className="border-t border-white/5">
           {message.bodyHtml ? (
             <div
-              className="-mx-5 mt-4 bg-white px-5 py-4 overflow-x-auto text-gray-900 text-sm max-lg:px-4"
+              className="bg-white px-5 py-4 overflow-x-auto text-gray-900 text-sm max-lg:px-4"
               // eslint-disable-next-line react/no-danger
               dangerouslySetInnerHTML={{
                 __html: resolveCidReferences(
@@ -187,14 +187,14 @@ function MessageCard({ message, index }: { message: GmailMessageParsed; index: n
               }}
             />
           ) : (
-            <pre className="mt-4 whitespace-pre-wrap text-sm text-white/80 font-sans leading-relaxed">
+            <pre className="bg-white px-5 py-4 whitespace-pre-wrap text-sm text-gray-900 font-sans leading-relaxed max-lg:px-4">
               {message.bodyText}
             </pre>
           )}
 
           {/* Downloadable attachments (non-inline only) */}
           {message.attachments.filter((a) => !a.inline).length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 px-5 py-4 max-lg:px-4">
               {message.attachments
                 .filter((a) => !a.inline)
                 .map((att) => (
