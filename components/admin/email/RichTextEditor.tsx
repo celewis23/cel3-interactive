@@ -67,6 +67,7 @@ interface Props {
   placeholder?: string;
   minHeight?: string;
   editorHeight?: string;
+  unboxed?: boolean;
 }
 
 export default function RichTextEditor({
@@ -75,6 +76,7 @@ export default function RichTextEditor({
   placeholder = "Write your message…",
   minHeight = "240px",
   editorHeight = "420px",
+  unboxed = false,
 }: Props) {
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
@@ -185,9 +187,9 @@ export default function RichTextEditor({
   const isLink = editor.isActive("link");
 
   return (
-    <div className="rounded-xl border border-white/10 bg-[#090b10] transition-colors focus-within:border-sky-400/50">
+    <div className={unboxed ? "bg-[#090b10]" : "rounded-xl border border-white/10 bg-[#090b10] transition-colors focus-within:border-sky-400/50"}>
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-0.5 rounded-t-xl border-b border-white/8 bg-black px-2 py-1.5">
+      <div className={`flex flex-wrap items-center gap-0.5 border-b border-white/8 bg-black px-2 py-1.5 ${unboxed ? "" : "rounded-t-xl"}`}>
         {/* Text style */}
         <ToolbarBtn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title="Bold">
           <strong>B</strong>
@@ -407,7 +409,7 @@ export default function RichTextEditor({
       )}
 
       {/* Editor canvas — white bg like an email */}
-      <div className="relative overflow-hidden rounded-b-xl bg-white" style={{ height: editorHeight, minHeight }}>
+      <div className={`relative overflow-hidden bg-white ${unboxed ? "" : "rounded-b-xl"}`} style={{ height: editorHeight, minHeight }}>
         {editor.isEmpty && (
           <p className="absolute top-4 left-4 text-sm text-gray-400 pointer-events-none select-none">
             {placeholder}

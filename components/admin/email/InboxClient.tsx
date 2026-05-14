@@ -799,12 +799,13 @@ function ComposePanel({
             />
           </div>
           {/* Body */}
-          <div className="px-4 pt-4 pb-2">
+          <div className="pt-4 pb-2">
             <RichTextEditor
               value={html}
               onChange={setHtml}
               placeholder="Write your message…"
               minHeight={editorMinHeight}
+              unboxed
             />
           </div>
 

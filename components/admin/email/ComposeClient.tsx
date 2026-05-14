@@ -523,7 +523,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
   const isEmpty = !htmlBody.replace(/<[^>]*>/g, "").trim();
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-3xl space-y-4 rounded-2xl border border-white/10 bg-[#090b10] p-6">
+    <form onSubmit={handleSubmit} className="w-full space-y-4">
       {/* To */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
@@ -622,6 +622,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
           placeholder="Write your message…"
           minHeight="420px"
           editorHeight="clamp(420px, calc(100vh - 26rem), 640px)"
+          unboxed
         />
       </div>
 
