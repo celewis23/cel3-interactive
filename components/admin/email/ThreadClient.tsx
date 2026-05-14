@@ -128,7 +128,7 @@ function MessageCard({ message, index }: { message: GmailMessageParsed; index: n
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#090b10]">
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#090b10] max-lg:-mx-4 max-lg:rounded-none max-lg:border-x-0">
       {/* Message header */}
       <button
         onClick={() => setCollapsed((c) => !c)}
@@ -176,7 +176,7 @@ function MessageCard({ message, index }: { message: GmailMessageParsed; index: n
         <div className="px-5 pb-5 border-t border-white/5">
           {message.bodyHtml ? (
             <div
-              className="mt-4 bg-white rounded-xl p-4 overflow-x-auto text-gray-900 text-sm"
+              className="mt-4 bg-white rounded-xl p-4 overflow-x-auto text-gray-900 text-sm max-lg:-mx-5 max-lg:rounded-none max-lg:px-4"
               // eslint-disable-next-line react/no-danger
               dangerouslySetInnerHTML={{
                 __html: resolveCidReferences(

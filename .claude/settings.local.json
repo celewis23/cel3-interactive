@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "WebSearch"
+      "WebSearch",
+      "Bash(mkdir -p \"/mnt/c/Users/cel3m/Userscel3mbackofficeos/apps/web/app/api/inbox\" 2>/dev/null; echo \"done\")"
+    ],
+    "additionalDirectories": [
+      "\\mnt\\c\\Users\\cel3m\\Userscel3mbackofficeos\\apps\\web\\app\\api"
     ]
   }
 }

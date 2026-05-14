@@ -217,7 +217,7 @@ function AttachmentChip({ messageId, att }: { messageId: string; att: GmailAttac
 function MessageCard({ message, defaultOpen }: { message: GmailMessageParsed; defaultOpen: boolean }) {
   const [collapsed, setCollapsed] = useState(!defaultOpen);
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/8 bg-[#090b10]">
+    <div className="overflow-hidden rounded-2xl border border-white/8 bg-[#090b10] max-lg:-mx-5 max-lg:rounded-none max-lg:border-x-0">
       <button
         onClick={() => setCollapsed((c) => !c)}
         className="w-full flex items-start justify-between gap-4 px-5 py-4 hover:bg-white/[0.025] transition-colors text-left"
@@ -251,7 +251,7 @@ function MessageCard({ message, defaultOpen }: { message: GmailMessageParsed; de
         <div className="px-5 pb-5 border-t border-white/5">
           {message.bodyHtml ? (
             <div
-              className="mt-4 bg-white rounded-xl p-4 overflow-x-auto text-gray-900 text-sm"
+              className="mt-4 bg-white rounded-xl p-4 overflow-x-auto text-gray-900 text-sm max-lg:-mx-5 max-lg:rounded-none max-lg:px-4"
               // eslint-disable-next-line react/no-danger
               dangerouslySetInnerHTML={{
                 __html: resolveCidReferences(message.bodyHtml, message.id, message.attachments),
