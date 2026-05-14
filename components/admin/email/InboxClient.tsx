@@ -217,7 +217,7 @@ function AttachmentChip({ messageId, att }: { messageId: string; att: GmailAttac
 function MessageCard({ message, defaultOpen }: { message: GmailMessageParsed; defaultOpen: boolean }) {
   const [collapsed, setCollapsed] = useState(!defaultOpen);
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/8 bg-[#090b10] max-lg:-mx-5 max-lg:rounded-none max-lg:border-x-0">
+    <div className="overflow-hidden border-y border-white/8 bg-[#090b10] max-lg:-mx-5">
       <button
         onClick={() => setCollapsed((c) => !c)}
         className="w-full flex items-start justify-between gap-4 px-5 py-4 hover:bg-white/[0.025] transition-colors text-left"
@@ -251,7 +251,7 @@ function MessageCard({ message, defaultOpen }: { message: GmailMessageParsed; de
         <div className="px-5 pb-5 border-t border-white/5">
           {message.bodyHtml ? (
             <div
-              className="mt-4 bg-white rounded-xl p-4 overflow-x-auto text-gray-900 text-sm max-lg:-mx-5 max-lg:rounded-none max-lg:px-4"
+              className="-mx-5 mt-4 bg-white px-5 py-4 overflow-x-auto text-gray-900 text-sm max-lg:px-4"
               // eslint-disable-next-line react/no-danger
               dangerouslySetInnerHTML={{
                 __html: resolveCidReferences(message.bodyHtml, message.id, message.attachments),
@@ -396,7 +396,7 @@ function EmailView({
             <p className="text-sm text-white/30">Failed to load thread.</p>
           </div>
         ) : (
-          <div className="p-5 max-w-3xl space-y-3">
+          <div className="p-5 space-y-3">
             <h1 className="text-lg font-semibold text-white leading-snug mb-1">{subject}</h1>
             {lastMessage && (
               <div className="text-xs text-white/35 space-y-0.5 mb-4 pb-4 border-b border-white/6">
