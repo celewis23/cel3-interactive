@@ -1268,6 +1268,8 @@ export default function InboxClient({ email, connectedNotice }: Props) {
             )}
             <button
               onClick={() => setNavExpanded((v) => !v)}
+              aria-label={navExpanded ? "Collapse folder navigation" : "Expand folder navigation"}
+              title={navExpanded ? "Collapse folder navigation" : "Expand folder navigation"}
               className="w-8 h-8 flex items-center justify-center rounded-lg text-white/35 hover:text-white hover:bg-white/5 transition-colors"
             >
               <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -1282,6 +1284,8 @@ export default function InboxClient({ email, connectedNotice }: Props) {
                 <button
                   key={key}
                   onClick={() => switchLabel(key)}
+                  aria-label={folderLabel}
+                  title={navExpanded ? undefined : folderLabel}
                   className={`w-full flex items-center rounded-xl text-sm transition-colors ${
                     navExpanded ? "gap-2.5 px-2.5 py-2" : "justify-center py-2.5"
                   } ${active ? "bg-sky-500/10 text-sky-400" : "text-white/45 hover:text-white hover:bg-white/5"}`}
