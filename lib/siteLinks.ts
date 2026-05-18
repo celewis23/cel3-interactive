@@ -22,7 +22,7 @@ export const PILLAR_LINKS = [
     href: "/interactive-digital-experiences",
   },
   {
-    label: "AI-Enhanced Systems",
+    label: "Automation & Integrations",
     href: "/ai-enhanced-systems",
   },
 ];

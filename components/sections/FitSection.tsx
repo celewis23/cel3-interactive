@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 const SERVICE_OPTIONS = [
-  "Interactive Website",
+  "Business Website",
   "Web App / Dashboard",
-  "Brand + Motion System",
+  "CRM / Internal Tool",
   "E-commerce",
-  "AI / Automation",
+  "Automation / Integrations",
   "Sanity / CMS Build",
 ] as const;
 
@@ -37,7 +38,7 @@ export default function FitSection() {
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
   const [website, setWebsite] = useState("");
-  const [services, setServices] = useState<string[]>(["Interactive Website"]);
+  const [services, setServices] = useState<string[]>(["Business Website"]);
   const [message, setMessage] = useState("");
   const [timeline, setTimeline] = useState<TimelineValue>(TIMELINE_OPTIONS[0].value);
   const [budget, setBudget] = useState<BudgetOption>("5-10k");
@@ -102,7 +103,7 @@ export default function FitSection() {
         setEmail("");
         setCompany("");
         setWebsite("");
-        setServices(["Interactive Website"]);
+        setServices(["Business Website"]);
         setMessage("");
 
         // tiny premium haptic on mobile (optional)
@@ -195,7 +196,7 @@ export default function FitSection() {
                 </div>
 
                 <div className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                  Signal sent ✅
+                  Request sent
                 </div>
 
                 <p className="mt-3 text-white/70 max-w-xl">
@@ -217,19 +218,19 @@ export default function FitSection() {
                     Send another →
                   </button>
 
-                  <a
+                  <Link
                     href="/work"
                     className="rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-sm text-white hover:bg-white/15 transition-colors"
                   >
                     View Work →
-                  </a>
+                  </Link>
 
-                  <a
+                  <Link
                     href="/#top"
                     className="text-sm text-white/65 hover:text-white transition-colors"
                   >
                     Back to top
-                  </a>
+                  </Link>
                 </div>
 
                 <div className="mt-4 text-xs text-white/45">

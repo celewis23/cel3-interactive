@@ -43,7 +43,7 @@ export function Hero() {
                 transition={{ duration: 0.35, ease: "easeOut" }}
                 className="text-5xl md:text-6xl font-semibold tracking-tight text-white origin-left"
               >
-                Design That Responds.
+                Practical technology for real business problems.
               </motion.h1>
 
               <motion.p
@@ -54,8 +54,8 @@ export function Hero() {
                 transition={{ duration: 0.35, ease: "easeOut" }}
                 className="mt-6 text-base md:text-lg text-white/75 max-w-xl"
               >
-                We build interactive digital systems for businesses ready to invest
-                in forward-thinking technology.
+                We help businesses improve websites, workflows, dashboards, and internal tools
+                so teams can work with less friction and clearer information.
               </motion.p>
 
               <motion.p
@@ -63,7 +63,7 @@ export function Hero() {
                 transition={{ duration: 0.35, ease: "easeOut" }}
                 className="mt-6 text-sm text-white/55"
               >
-                Move. Scroll. Watch the system react.
+                Clear scope. Useful tools. Better day-to-day operations.
               </motion.p>
 
               <div className="mt-10 flex items-center gap-4">
@@ -82,7 +82,7 @@ export function Hero() {
                 </a>
               </div>
               <p className="mt-4 max-w-xl text-sm text-gray-300">
-                Pay $150, book your time, and get a clear systems roadmap tailored to your business.
+                Pay $150, book your time, and get a practical improvement roadmap for your business.
               </p>
 
             </div>
@@ -98,11 +98,11 @@ export function Hero() {
                 className="relative w-full max-w-[560px] rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur lg:ml-auto"
               >
                 <p className="text-xs tracking-[0.25em] uppercase text-white/50">
-                  System Signal
+                  Business Systems
                 </p>
 
                 <p className="mt-3 text-white/80">
-                  Interactive experiences. Platforms. Data interfaces. AI-enhanced systems.
+                  Websites. Portals. CRMs. Dashboards. Automation. Integrations.
                 </p>
 
                 {/* IMPORTANT: do NOT wrap in h-24, SystemSignalMini already controls its own height */}

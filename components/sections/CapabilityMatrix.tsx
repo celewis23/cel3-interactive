@@ -4,28 +4,28 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Section } from "../layout/Section";
 
-type CapKey = "experiences" | "platforms" | "data" | "ai";
+type CapKey = "experiences" | "platforms" | "data" | "automation";
 
 const CAPS: Record<CapKey, { title: string; desc: string; detail: string }> = {
   experiences: {
-    title: "Interactive Experiences",
-    desc: "Digital experiences that react to how users move, think, and engage.",
-    detail: "Explore a capability to see how the system adapts.",
+    title: "Business Websites",
+    desc: "Websites that explain your services clearly and help customers take the next step.",
+    detail: "Clear messaging, useful structure, and dependable implementation.",
   },
   platforms: {
     title: "Web Applications & Platforms",
-    desc: "Custom platforms and tools built for real-world use and scale.",
-    detail: "Interfaces designed for structure, performance, and clarity.",
+    desc: "Custom portals, booking tools, internal apps, and workflows built for daily use.",
+    detail: "Software shaped around how your business actually operates.",
   },
   data: {
-    title: "Data & Intelligent Interfaces",
-    desc: "Interfaces that transform data into clarity, action, and insight.",
-    detail: "Visual systems that respond instantly to user input.",
+    title: "CRMs & Dashboards",
+    desc: "Customer records, reporting views, and operational dashboards your team can trust.",
+    detail: "Cleaner information for owners, staff, sales, and operations.",
   },
-  ai: {
-    title: "AI-Enhanced Systems",
-    desc: "Smarter interactions powered by automation and intelligent logic.",
-    detail: "Capability-driven intelligence without gimmicks.",
+  automation: {
+    title: "Automation & Integrations",
+    desc: "Connect the tools you already use and reduce repetitive manual work.",
+    detail: "Practical automation with clear rules, oversight, and maintainable workflows.",
   },
 };
 
@@ -34,7 +34,7 @@ const CAP_LINKS: Record<CapKey, string> = {
   experiences: "/interactive-digital-experiences",
   platforms: "/custom-web-applications",
   data: "/custom-data-dashboards",
-  ai: "/ai-enhanced-systems",
+  automation: "/ai-enhanced-systems",
 };
 
 export function CapabilityMatrix() {
@@ -44,10 +44,10 @@ export function CapabilityMatrix() {
   const activeCap = useMemo(() => CAPS[active], [active]);
 
   const items: { key: CapKey; label: string }[] = [
-    { key: "experiences", label: "Interactive Experiences" },
+    { key: "experiences", label: "Business Websites" },
     { key: "platforms", label: "Web Applications & Platforms" },
-    { key: "data", label: "Data & Intelligent Interfaces" },
-    { key: "ai", label: "AI-Enhanced Systems" },
+    { key: "data", label: "CRMs & Dashboards" },
+    { key: "automation", label: "Automation & Integrations" },
   ];
 
   const handleNavigate = (key: CapKey) => {

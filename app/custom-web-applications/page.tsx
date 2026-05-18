@@ -4,15 +4,15 @@ import { Container } from "@/components/layout/Container";
 import PillarLinks from "@/components/sections/PillarLinks";
 
 export const metadata: Metadata = {
-  title: "Custom Web Applications & Interactive Platforms | CEL3 Interactive",
+  title: "Custom Web Applications & Business Platforms | CEL3 Interactive",
   description:
-    "We design and build custom web applications, interactive websites, dashboards, and internal systems for teams that need scalable, adaptive platforms.",
+    "We design and build custom web applications, portals, dashboards, and internal systems for businesses with workflows that off-the-shelf tools do not fit.",
 };
 
 const WHAT_WE_BUILD = [
   {
     title: "Custom web applications",
-    desc: "Purpose-built apps with real workflows, real states, and clean UX for daily use.",
+    desc: "Purpose-built apps with clear workflows, reliable states, and clean UX for daily use.",
   },
   {
     title: "Dashboards + admin panels",
@@ -32,7 +32,7 @@ const WHAT_WE_BUILD = [
   },
   {
     title: "E-commerce beyond templates",
-    desc: "When storefronts aren’t enough: catalogs, portals, pricing rules, automation, and more.",
+    desc: "When storefronts aren’t enough: catalogs, portals, pricing rules, integrations, and more.",
   },
 ] as const;
 
@@ -74,12 +74,13 @@ export default function CustomWebApplicationsPage() {
             </p>
 
             <h1 className="mt-4 text-4xl md:text-5xl font-semibold tracking-tight text-white">
-              Custom web applications and interactive platforms
+              Custom web applications and business platforms
             </h1>
 
             <p className="mt-5 text-base md:text-lg text-white/75">
-              CEL3 Interactive designs and builds custom web applications, interactive websites,
-              dashboards, and internal systems for teams who need more than templates.
+              CEL3 Interactive designs and builds custom web applications, portals,
+              dashboards, and internal systems for businesses that need tools shaped around
+              real workflows.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -111,11 +112,11 @@ export default function CustomWebApplicationsPage() {
                   What we build
                 </p>
                 <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                  Systems that feel clear, alive, and operational.
+                  Systems that feel clear, practical, and operational.
                 </h2>
                 <p className="mt-4 text-white/75 max-w-3xl">
                   We work with businesses that have outgrown static sites and off-the-shelf tools.
-                  Our projects are built when interaction, data flow, and system clarity matter.
+                  Our projects are built when workflow, data flow, and system clarity matter.
                 </p>
               </div>
             </div>
@@ -144,7 +145,7 @@ export default function CustomWebApplicationsPage() {
               </h2>
               <p className="mt-4 text-white/75">
                 Custom development becomes the right choice when your business requires systems
-                that adapt to context instead of forcing users into fixed flows.
+                that fit your workflow instead of forcing your team into fixed processes.
               </p>
             </div>
 

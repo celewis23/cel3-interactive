@@ -23,14 +23,14 @@ export default function InteractiveByDesign() {
       <div className="flex items-end justify-between gap-6">
         <div>
           <p className="text-xs tracking-[0.25em] uppercase text-white/55">
-            Interactive by design
+            Built around the work
           </p>
           <h2 className="mt-3 text-3xl md:text-4xl font-semibold tracking-tight">
-            Interfaces that feel alive
+            Tools that feel clear and useful
           </h2>
           <p className="mt-3 max-w-2xl text-white/70">
-            Not animation for animation’s sake. Systems that respond to intent, adapt to context,
-            and communicate state with clarity.
+            We focus on the practical details that make technology easier to use:
+            clear screens, reliable workflows, and information people can act on.
           </p>
         </div>
       </div>
@@ -48,11 +48,11 @@ export default function InteractiveByDesign() {
       <div className="relative z-40 mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         <InteractiveCard
           variant="respond"
-          eyebrow="Respond"
-          title="Interfaces that acknowledge intent"
-          desc="Hover, scroll, and input become signals. The system confirms awareness before asking for action."
-          footLeft="Intent"
-          footRight="Locked"
+          eyebrow="Clarify"
+          title="Screens that explain what matters"
+          desc="Users should know where they are, what changed, and what needs attention without digging through noise."
+          footLeft="Status"
+          footRight="Clear"
           isActive={active === "respond"}
           isDimmed={active !== null && active !== "respond"}
           onToggle={() => setActive((v) => (v === "respond" ? null : "respond"))}
@@ -60,11 +60,11 @@ export default function InteractiveByDesign() {
 
         <InteractiveCard
           variant="adapt"
-          eyebrow="Adapt"
-          title="Layouts that adapt in real time"
-          desc="Information reorganizes itself as priorities change — without breaking flow."
-          footLeft="Grid"
-          footRight="Reflow"
+          eyebrow="Organize"
+          title="Workflows that match the business"
+          desc="Forms, dashboards, and portals are structured around how your team actually works."
+          footLeft="Flow"
+          footRight="Aligned"
           isActive={active === "adapt"}
           isDimmed={active !== null && active !== "adapt"}
           onToggle={() => setActive((v) => (v === "adapt" ? null : "adapt"))}
@@ -72,9 +72,9 @@ export default function InteractiveByDesign() {
 
         <InteractiveCard
           variant="evolve"
-          eyebrow="Evolve"
-          title="Systems that surface state"
-          desc="Quiet signals and live metrics replace dashboards and guesswork."
+          eyebrow="Maintain"
+          title="Systems that are easier to run"
+          desc="Good tools reduce repeated admin, make handoffs easier, and keep important details visible."
           footLeft="Status"
           footRight="Stable"
           isActive={active === "evolve"}

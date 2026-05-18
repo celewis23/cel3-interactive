@@ -5,10 +5,6 @@ import { Logo } from "@/components/brand/Logo";
 import ClientYear from "@/components/ui/ClientYear";
 
 export default function Footer() {
-  // Server-safe (no hydration edge cases at year boundary).
-  // Update yearly, or swap to a tiny client component if you want it dynamic.
-  const year = 2026;
-
   return (
     <footer className="relative border-t border-white/10 bg-black/30">
       <Container>
@@ -21,8 +17,8 @@ export default function Footer() {
               </div>
 
               <p className="mt-3 text-sm text-white/65">
-                Interactive websites, web apps, and dashboards for teams ready to
-                invest in forward-thinking technology.
+                Practical websites, web apps, dashboards, and workflow tools for businesses
+                that need clearer digital operations.
               </p>
 
               <div className="mt-5 flex items-center gap-3 text-sm">

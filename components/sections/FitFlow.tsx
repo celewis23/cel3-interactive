@@ -22,9 +22,9 @@ export function FitFlow() {
           <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
               "Digital Product / Platform",
-              "Interactive Website",
+              "Business Website",
               "Internal Tool / Dashboard",
-              "AI-Enhanced System",
+              "Automation / Integrations",
               "Not Sure Yet",
             ].map((x) => (
               <button

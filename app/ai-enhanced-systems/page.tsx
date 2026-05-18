@@ -5,47 +5,47 @@ import SystemSignalBadge from "@/components/ui/SystemSignalBadge";
 import PillarLinks from "@/components/sections/PillarLinks";
 
 export const metadata: Metadata = {
-  title: "AI-Enhanced Systems | CEL3 Interactive",
+  title: "Automation & Integrations | CEL3 Interactive",
   description:
-    "Design and build intelligent systems that automate decisions, reduce manual work, and scale with your business.",
+    "Practical automation, integrations, and workflow tools that reduce manual work and help businesses operate with clearer information.",
 };
 
 const PAIN_POINTS = [
   {
-    title: "Manual decision bottlenecks",
-    desc: "Important work stalls because decisions live in someone’s head or require constant back-and-forth.",
+    title: "Manual work slows the team down",
+    desc: "Staff spend too much time copying information, following up, checking statuses, or rebuilding the same reports.",
   },
   {
-    title: "Automation that can’t adapt",
-    desc: "Rule-based workflows break when inputs change, edge cases appear, or volume increases.",
+    title: "Tools don’t talk to each other",
+    desc: "Customer details, payments, forms, email, files, and project updates live in separate places.",
   },
   {
-    title: "Knowledge trapped in silos",
-    desc: "Answers are buried in inboxes, docs, and chats — teams waste time searching instead of executing.",
+    title: "Processes depend on memory",
+    desc: "Important steps are handled differently depending on who is working, which creates missed handoffs and inconsistent service.",
   },
 ] as const;
 
 const DELIVERABLES = [
-  "AI-assisted intake + routing (with human oversight where needed)",
-  "Decision support layers that surface recommendations, not noise",
-  "Intelligent automation that adapts to inputs and outcomes",
-  "Knowledge systems (search, summarize, classify, tag, retrieve)",
-  "Guardrails, auditing, and role-based controls",
+  "Intake forms that route requests to the right place",
+  "Customer, billing, email, file, and CRM integrations",
+  "Approval workflows for tasks that still need human review",
+  "Status tracking, notifications, and handoff checklists",
+  "Role-based access, audit trails, and admin controls",
   "Integrations (APIs, CRMs, Stripe, email, forms, Zapier/Make)",
 ] as const;
 
 const FAQ = [
   {
-    q: "Is this just chatbots?",
-    a: "No. Chat interfaces can be part of it, but the real value is embedding intelligence into your workflows: routing, classification, decision support, and automation with guardrails.",
+    q: "Is this about replacing our team?",
+    a: "No. The goal is to remove avoidable admin, improve handoffs, and make important information easier to find. Your team still owns the judgment and customer relationship.",
   },
   {
-    q: "Do we need a lot of data for this to work?",
-    a: "Not always. Many wins come from structuring what you already have and using AI to interpret, summarize, and route. If your use case benefits from training or fine-tuning, we’ll recommend that only when it’s justified.",
+    q: "Can you work with our existing tools?",
+    a: "Yes. We usually start by reviewing the tools you already use, then connect or improve the parts that create the most friction.",
   },
   {
     q: "What’s the typical investment range?",
-    a: "Most AI-enhanced system builds start in the mid five-figures and scale based on complexity, integrations, permissions, and how much intelligence is embedded into core operations.",
+    a: "Most automation and integration projects start in the five-figure range and scale based on the number of systems, user roles, business rules, and approval requirements.",
   },
 ] as const;
 
@@ -58,18 +58,17 @@ export default function Page() {
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-xs tracking-[0.25em] uppercase text-white/55">
-                Pillar • AI-Enhanced Systems
+                Pillar • Automation & Integrations
               </p>
 
               <h1 className="mt-4 text-4xl md:text-5xl font-semibold tracking-tight text-white">
-                Embed intelligence into the systems your business already runs on.
+                Connect your tools and reduce the manual work between them.
               </h1>
 
               <p className="mt-5 text-base md:text-lg text-white/75 max-w-3xl">
-                We don’t bolt AI onto products for novelty. We build{" "}
-                <span className="text-white/90 font-medium">AI-enhanced workflows</span>{" "}
-                that reduce manual work, accelerate decisions, and improve consistency —
-                with guardrails and human control where it matters.
+                We build practical workflow automation and integrations that help teams
+                move information, track requests, and keep customer operations organized
+                without relying on scattered spreadsheets or repeated manual steps.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -88,7 +87,7 @@ export default function Page() {
                 </Link>
 
                 <span className="text-xs tracking-[0.22em] uppercase text-white/45">
-                  Intelligence without gimmicks
+                  Practical workflows • Human oversight
                 </span>
               </div>
             </div>
@@ -107,13 +106,13 @@ export default function Page() {
                 </p>
 
                 <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                  You don’t need “more AI.” You need a smarter operating system.
+                  You don’t need more tools. You need the right tools connected.
                 </h2>
 
                 <p className="mt-4 text-white/75">
-                  AI is useful when it makes your business faster, cleaner, and more consistent —
-                  not when it adds complexity. The goal is simple: reduce friction, improve
-                  decisions, and automate repeatable work with safeguards.
+                  Automation is useful when it saves time, reduces mistakes, and makes the
+                  next step clear. We focus on repeatable business processes with clear rules,
+                  review points, and maintainable implementation.
                 </p>
 
                 <div className="mt-6 space-y-4">
@@ -136,10 +135,10 @@ export default function Page() {
                   Best-fit scenarios
                 </div>
                 <ul className="mt-4 space-y-2 text-sm text-white/75">
-                  <li>• You want intake that routes work automatically (with approval controls)</li>
-                  <li>• You need faster internal decisions with consistent standards</li>
-                  <li>• You want searchable knowledge across docs, tickets, or conversations</li>
-                  <li>• You want automation that adapts instead of brittle “if/then” rules</li>
+                  <li>• You want intake requests routed consistently</li>
+                  <li>• You need customer, billing, file, or email data connected</li>
+                  <li>• You want fewer spreadsheet handoffs and status-check messages</li>
+                  <li>• You need approvals and oversight built into the process</li>
                 </ul>
               </div>
             </div>
@@ -151,7 +150,7 @@ export default function Page() {
                   What you get
                 </p>
                 <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                  Systems that think, adapt, and automate — responsibly.
+                  Workflows that save time without hiding the details.
                 </h2>
 
                 <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -171,10 +170,10 @@ export default function Page() {
                     Typical build flow
                   </div>
                   <ol className="mt-4 space-y-2 text-sm text-white/75">
-                    <li>1) Define where intelligence helps (and where it shouldn’t be used)</li>
-                    <li>2) Map inputs + outputs + guardrails (accuracy, approvals, logging)</li>
-                    <li>3) Ship a usable v1 (one workflow, one loop, real impact)</li>
-                    <li>4) Expand into deeper automation + knowledge + decision layers</li>
+                    <li>1) Identify the repetitive work and where errors happen</li>
+                    <li>2) Map inputs, outputs, approvals, and exceptions</li>
+                    <li>3) Ship one useful workflow with clear tracking</li>
+                    <li>4) Expand once the process is proven in real use</li>
                   </ol>
                 </div>
               </section>
@@ -205,11 +204,11 @@ export default function Page() {
                   Next step
                 </p>
                 <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                  If you want AI that actually improves operations, let’s scope it.
+                  If your tools are creating extra work, let’s scope the fix.
                 </h2>
                 <p className="mt-4 text-white/75">
                   Share your current tools, the workflows that are slowing you down, and what
-                  decisions you want to speed up. I’ll reply with a build plan, timeline, and what
+                  handoffs you want to improve. I’ll reply with a build plan, timeline, and what
                   we’d ship first.
                 </p>
 
@@ -221,7 +220,7 @@ export default function Page() {
                     Book an Assessment →
                   </Link>
                   <span className="text-xs tracking-[0.22em] uppercase text-white/45">
-                    Clear scope • Guardrails • Real outcomes
+                    Clear scope • Practical safeguards • Real operations
                   </span>
                 </div>
               </section>

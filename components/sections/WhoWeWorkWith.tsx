@@ -13,23 +13,22 @@ export function WhoWeWorkWith() {
       id="who"
       eyebrow="Fit"
       title="Who We Work With"
-      subtitle="Not every project is a fit. That’s intentional."
+      subtitle="The best projects start with a real business problem, not a trend."
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
         <div className="lg:col-span-6 text-white/70 space-y-4">
           <p className="text-white/85 font-medium">
-            We partner with revenue-generating teams.
+            We partner with businesses that need clearer, more useful technology.
           </p>
-          <p>We value long-term thinking over quick fixes.</p>
+          <p>We value clear priorities, practical scope, and maintainable solutions.</p>
           <p>
-            We work with clients who understand real investment creates real
-            results.
+            We work with clients who want websites, tools, and workflows that make daily operations easier.
           </p>
 
           <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5">
             <p className="text-white/85 font-medium">Alignment</p>
             <p className="mt-2 text-sm text-white/60">
-              This site is built for teams thinking beyond the next release.
+              This work is built for teams that want better systems, not louder promises.
             </p>
           </div>
         </div>
@@ -69,14 +68,14 @@ export function WhoWeWorkWith() {
                 <>
                   <p className="text-white/85 font-medium">Transactional</p>
                   <p className="mt-2 text-sm text-white/60">
-                    Short-term needs, minimal scope, limited investment.
+                    One-off fixes, unclear goals, or tools chosen before the problem is understood.
                   </p>
                 </>
               ) : (
                 <>
                   <p className="text-white/85 font-medium">Strategic</p>
                   <p className="mt-2 text-sm text-white/60">
-                    Long-term vision, thoughtful systems, meaningful investment.
+                    Clear business need, thoughtful scope, and a willingness to improve how work gets done.
                   </p>
                 </>
               )}

@@ -4,32 +4,32 @@ import { Container } from "@/components/layout/Container";
 import PillarLinks from "@/components/sections/PillarLinks";
 
 export const metadata: Metadata = {
-  title: "Interactive Digital Experiences | CEL3 Interactive",
+  title: "Business Websites & Digital Experiences | CEL3 Interactive",
   description:
-    "Interactive digital experiences that guide decisions, communicate state, and convert. Not gimmicks—signals that move users through the right next step.",
+    "Business websites and digital experiences that explain services clearly, support customer action, and are built to be maintained.",
 };
 
 const WHAT_THIS_IS = [
   {
     title: "Interaction as signal (not decoration)",
-    desc: "Micro-feedback, motion, and layout shifts are used to reduce uncertainty and guide the next action.",
+    desc: "Feedback, motion, and layout choices are used carefully to make the page easier to understand.",
   },
   {
-    title: "Clarity under complexity",
-    desc: "We design experiences that make dense information feel simple—especially in dashboards, portals, and workflows.",
+    title: "Clarity before flash",
+    desc: "We design pages that explain services, answer common questions, and help customers know what to do next.",
   },
   {
-    title: "Systems thinking, applied to UX",
-    desc: "The interface reflects the system: state, priority, progress, and constraints become readable at a glance.",
+    title: "Built to support the business",
+    desc: "The website connects to the real operation: forms, booking, content updates, customer records, and follow-up.",
   },
 ] as const;
 
 const DELIVERABLES = [
-  "Interactive marketing sites with conversion logic (not pages)",
+  "Business websites with clear service pages and calls to action",
   "Product-led landing experiences and launch flows",
   "Interactive storytelling modules (features, benefits, proof, next-step)",
   "Client portals and onboarding experiences that reduce support load",
-  "Brand motion systems (repeatable components + interaction rules)",
+  "Reusable page sections and content patterns your team can maintain",
   "High-signal UI patterns for dashboards and internal tools",
 ] as const;
 
@@ -37,7 +37,7 @@ const BEST_FIT = [
   "You want a premium feel without sacrificing speed or clarity",
   "Your site needs to behave more like a product than a brochure",
   "You’re launching something complex and need the story to land instantly",
-  "You want interaction that improves conversion and comprehension",
+  "You want the site to explain your services and support customer action",
   "You care about performance, accessibility, and long-term maintainability",
 ] as const;
 
@@ -52,7 +52,7 @@ const FAQ = [
   },
   {
     q: "What’s the typical investment?",
-    a: "It depends on scope and integration needs, but most interactive experience builds start in the five-figures and scale with complexity (CMS, personalization, experiments, and platform features).",
+    a: "It depends on scope and integration needs, but most business website builds start in the five-figure range and scale with content needs, CMS setup, forms, booking, and platform features.",
   },
 ] as const;
 
@@ -65,17 +65,17 @@ export default function Page() {
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
               <p className="text-xs tracking-[0.25em] uppercase text-white/55">
-                Pillar • Interactive Digital Experiences
+                Pillar • Business Websites & Digital Experiences
               </p>
 
               <h1 className="mt-4 text-4xl md:text-5xl font-semibold tracking-tight text-white">
-                Interaction that earns trust and moves people forward.
+                Websites that explain the business and help customers take action.
               </h1>
 
               <p className="mt-5 text-base md:text-lg text-white/75">
-                Not gimmicks. Not “cool effects.” Interactive digital experiences use feedback,
-                motion, and adaptive layout to communicate state, reduce uncertainty, and guide the
-                next right action.
+                Your website should make the business easier to understand and easier to contact.
+                We build clear service pages, useful customer flows, and digital experiences that
+                support the way your company actually works.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -103,10 +103,10 @@ export default function Page() {
             <div className="group relative w-full lg:w-[420px] rounded-2xl border border-white/10 bg-black/30 backdrop-blur p-5 overflow-hidden">
               <div className="flex items-center justify-between">
                 <div className="text-xs tracking-[0.25em] uppercase text-white/55">
-                  System Signal
+                  Website Focus
                 </div>
                 <div className="text-[10px] tracking-[0.22em] uppercase text-white/45">
-                  Interactive / Experience
+                  Clear / Useful
                 </div>
               </div>
 
@@ -141,8 +141,8 @@ export default function Page() {
                 </h2>
 
                 <p className="mt-4 text-white/75">
-                  Interactive digital experiences turn a website into a guided system: clear state,
-                  intentional feedback, and layouts that prioritize information as context changes.
+                  A good business website gives visitors the information they need, makes next
+                  steps obvious, and connects inquiries back to the team cleanly.
                 </p>
 
                 <div className="mt-6 space-y-4">
@@ -179,7 +179,7 @@ export default function Page() {
                   What you get
                 </p>
                 <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                  Deliverables built to convert and clarify.
+                  Deliverables built to clarify and support action.
                 </h2>
 
                 <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -208,8 +208,8 @@ export default function Page() {
                   <ol className="mt-4 space-y-2 text-sm text-white/75">
                     <li>1) Align on outcome, audience, and constraints</li>
                     <li>2) Design interaction rules and core flow</li>
-                    <li>3) Build reusable components + motion system</li>
-                    <li>4) Ship fast, then iterate based on signals</li>
+                    <li>3) Build reusable sections and the core customer flow</li>
+                    <li>4) Ship the site, then refine based on real questions and usage</li>
                   </ol>
 
                   {/* subtle interaction: small accent bar that brightens on hover */}
@@ -238,11 +238,11 @@ export default function Page() {
                   Next step
                 </p>
                 <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                  If your website needs to behave like a product, let’s scope it.
+                  If your website needs to work harder for the business, let’s scope it.
                 </h2>
                 <p className="mt-4 text-white/75">
                   Send your goals, audience, and constraints. I’ll reply with what we’d build first,
-                  how we’d measure success, and the fastest path to a high-signal v1.
+                  how we’d measure success, and the clearest path to a useful first version.
                 </p>
 
                 <div className="mt-7 flex flex-wrap items-center gap-4">

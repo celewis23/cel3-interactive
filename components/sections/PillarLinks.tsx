@@ -20,18 +20,18 @@ const PILLARS: Pillar[] = [
   {
     label: "Interactive Digital Experiences",
     href: "/interactive-digital-experiences",
-    desc: "Marketing and brand experiences that communicate state and intent.",
+    desc: "Business websites and customer experiences that make services easier to understand.",
   },
     {
-    label: "AI-Enhanced Systems",
+    label: "Automation & Integrations",
     href: "/ai-enhanced-systems",
-    desc: "Marketing and brand experiences that communicate state and intent.",
+    desc: "Practical workflow automation and connected tools for day-to-day operations.",
   },
 ];
 
 export default function PillarLinks({
   currentHref,
-  title = "Explore the system",
+  title = "Explore related services",
 }: {
   currentHref: string;
   title?: string;
@@ -43,13 +43,13 @@ export default function PillarLinks({
       <div className="flex items-end justify-between gap-6">
         <div>
           <p className="text-xs tracking-[0.25em] uppercase text-white/55">
-            Pillar cluster
+            Related capabilities
           </p>
           <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
             {title}
           </h2>
           <p className="mt-3 max-w-3xl text-sm text-white/70">
-            These pillars connect. If one matches your need, the others usually matter too.
+            Most business technology problems touch more than one area. These services often work together.
           </p>
         </div>
       </div>

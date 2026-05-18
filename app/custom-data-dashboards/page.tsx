@@ -5,9 +5,9 @@ import SystemSignalBadge from "@/components/ui/SystemSignalBadge";
 import PillarLinks from "@/components/sections/PillarLinks";
 
 export const metadata: Metadata = {
-  title: "Data & Intelligent Interfaces | CEL3 Interactive",
+  title: "Custom CRMs & Data Dashboards | CEL3 Interactive",
   description:
-    "Data-driven interfaces and dashboards that turn raw information into clarity, action, and insight — built for real workflows and decision-making.",
+    "Custom CRMs, dashboards, and reporting tools that organize business information and support better day-to-day decisions.",
 };
 
 const PAIN_POINTS = [
@@ -45,7 +45,7 @@ const FAQ = [
   },
   {
     q: "What’s the typical investment range?",
-    a: "Most data + intelligent interface builds start in the mid five-figures and scale based on the number of sources, the complexity of the model, and the level of interactivity, permissions, and automation.",
+    a: "Most CRM and dashboard builds start in the five-figure range and scale based on the number of sources, user roles, reporting needs, permissions, and workflow automation.",
   },
 ] as const;
 
@@ -58,7 +58,7 @@ export default function Page() {
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-xs tracking-[0.25em] uppercase text-white/55">
-                Pillar • Data & Intelligent Interfaces
+                Pillar • Custom CRMs & Dashboards
               </p>
 
               <h1 className="mt-4 text-4xl md:text-5xl font-semibold tracking-tight text-white">
@@ -89,7 +89,7 @@ export default function Page() {
                 </Link>
 
                 <span className="text-xs tracking-[0.22em] uppercase text-white/45">
-                  Interfaces built for speed + decisions
+                  Built for clear records + better decisions
                 </span>
               </div>
             </div>
@@ -112,10 +112,10 @@ export default function Page() {
                 </h2>
 
                 <p className="mt-4 text-white/75">
-                  A great interface doesn’t just display data — it{" "}
+                  A useful dashboard doesn’t just display data — it{" "}
                   <span className="text-white/90 font-medium">reduces ambiguity</span>.
                   The goal is clarity: what’s happening, why it’s happening, what’s stuck, and what
-                  should happen next.
+                  needs attention next.
                 </p>
 
                 <div className="mt-6 space-y-4">
@@ -176,7 +176,7 @@ export default function Page() {
                     <li>1) Map sources + definitions (what’s true, what’s noisy)</li>
                     <li>2) Design the interface model (views, drilldowns, decisions)</li>
                     <li>3) Build the v1 dashboard layer and ship a usable release</li>
-                    <li>4) Add segmentation, permissions, automation, and deeper insight</li>
+                    <li>4) Add segmentation, permissions, automation, and deeper reporting</li>
                   </ol>
                 </div>
               </section>
@@ -200,7 +200,7 @@ export default function Page() {
                 </div>
               </section>
 
-              <PillarLinks currentHref="/data-intelligent-interfaces" />
+              <PillarLinks currentHref="/custom-data-dashboards" />
 
               <section className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-6">
                 <p className="text-xs tracking-[0.25em] uppercase text-white/55">
