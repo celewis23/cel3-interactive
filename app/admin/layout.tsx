@@ -130,6 +130,15 @@ const NAV: NavItem[] = [
     ),
   },
   {
+    label: "Messages",
+    href: "/admin/messages",
+    icon: (
+      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3h5.25m-8.25 8.25h15A2.25 2.25 0 0021 17.25V6.75A2.25 2.25 0 0018.75 4.5H5.25A2.25 2.25 0 003 6.75v10.5A2.25 2.25 0 005.25 19.5Zm0 0-2.25 2.25" />
+      </svg>
+    ),
+  },
+  {
     label: "Contacts",
     href: "/admin/contacts",
     icon: (
@@ -331,7 +340,7 @@ const NAV_SECTION_DEFS = [
   },
   {
     title: "Communication",
-    hrefs: ["/admin/email", "/admin/chat", "/admin/meet"],
+    hrefs: ["/admin/email", "/admin/messages", "/admin/chat", "/admin/meet"],
   },
   {
     title: "Content",
@@ -366,6 +375,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadMessages, setUnreadMessages] = useState(0);
   const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [theme, setTheme] = useState<"dark" | "light">(() => {
@@ -413,6 +423,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
     fetchUnread();
     const id = setInterval(fetchUnread, 60_000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchUnreadMessages() {
+      try {
+        const res = await fetch("/api/messages/unread-count");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) setUnreadMessages(data.count ?? 0);
+      } catch { /* ignore */ }
+    }
+    fetchUnreadMessages();
+    const id = setInterval(fetchUnreadMessages, 30_000);
     return () => { cancelled = true; clearInterval(id); };
   }, []);
 
@@ -488,6 +513,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   function getNavBadgeCount(item: NavItem) {
     if (item.href === "/admin/email") return unreadCount;
+    if (item.href === "/admin/messages") return unreadMessages;
     if (item.href === "/admin/announcements") return unreadAnnouncements;
     return 0;
   }

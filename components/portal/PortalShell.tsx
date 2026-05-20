@@ -9,6 +9,7 @@ const NAV = [
   { label: "Getting Started", href: "/portal/onboarding" },
   { label: "Invoices", href: "/portal/invoices" },
   { label: "Projects", href: "/portal/projects" },
+  { label: "Messages", href: "/portal/messages" },
   { label: "Requests", href: "/portal/requests" },
   { label: "Files", href: "/portal/files" },
   { label: "Estimates", href: "/portal/estimates" },
@@ -32,6 +33,7 @@ export default function PortalShell({
   const pathname = usePathname();
   const router = useRouter();
   const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [unreadMessages, setUnreadMessages] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<number | null>(null);
@@ -70,6 +72,26 @@ export default function PortalShell({
     await fetch("/api/portal/auth/logout", { method: "POST" });
     router.push("/portal/auth/login");
   }
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadUnread() {
+      try {
+        const res = await fetch("/api/messages/unread-count", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) setUnreadMessages(data.count ?? 0);
+      } catch {
+        // ignore polling failures
+      }
+    }
+    void loadUnread();
+    const id = window.setInterval(loadUnread, 30_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, []);
 
   const initials = (user.name ?? user.company ?? user.email)
     .split(/\s+/)
@@ -144,7 +166,12 @@ export default function PortalShell({
                           : "text-white/50 hover:text-white hover:bg-white/5"
                     }`}
                   >
-                    {item.label}
+                    <span>{item.label}</span>
+                    {item.href === "/portal/messages" && unreadMessages > 0 && (
+                      <span className="ml-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-sky-500 px-1 text-[10px] font-bold text-black">
+                        {unreadMessages > 99 ? "99+" : unreadMessages}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -269,7 +296,12 @@ export default function PortalShell({
                       : "text-white/50 hover:text-white hover:bg-white/5"
                 }`}
               >
-                {item.label}
+                <span>{item.label}</span>
+                {item.href === "/portal/messages" && unreadMessages > 0 && (
+                  <span className="ml-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-sky-500 px-1 text-[10px] font-bold text-black">
+                    {unreadMessages > 99 ? "99+" : unreadMessages}
+                  </span>
+                )}
               </Link>
             );
           })}

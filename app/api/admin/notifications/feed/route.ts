@@ -7,7 +7,7 @@ import { listThreads } from "@/lib/gmail/api";
 
 type NotificationItem = {
   key: string;
-  kind: "email" | "form_submission" | "lead" | "booking" | "announcement";
+  kind: "email" | "form_submission" | "lead" | "booking" | "announcement" | "message";
   title: string;
   body: string;
   href: string;
@@ -137,6 +137,40 @@ export async function GET(req: NextRequest) {
         }
       } catch (err) {
         console.error("NOTIFICATIONS_FEED_LEADS_ERR:", err);
+      }
+    })());
+  }
+
+  if (canAccess(isOwner, permissions, "clients", "view")) {
+    jobs.push((async () => {
+      try {
+        const actorId = isOwner ? "admin:owner" : `admin:${staffId}`;
+        const messages = await sanityServer.fetch<Array<{
+          _id: string;
+          title: string;
+          body: string;
+          entityId: string;
+          createdAt: string;
+          linkUrl: string;
+        }>>(
+          `*[_type == "messagingNotification" && recipientActorId == $actorId && isRead != true] | order(createdAt desc)[0...8]{
+            _id, title, body, entityId, createdAt, linkUrl
+          }`,
+          { actorId }
+        );
+
+        for (const message of messages) {
+          notifications.push({
+            key: `message:${message._id}:${message.createdAt}`,
+            kind: "message",
+            title: message.title || "New client message",
+            body: truncate(message.body || "Open the conversation"),
+            href: message.linkUrl || `/admin/messages/${message.entityId}`,
+            timestamp: message.createdAt,
+          });
+        }
+      } catch (err) {
+        console.error("NOTIFICATIONS_FEED_MESSAGES_ERR:", err);
       }
     })());
   }
