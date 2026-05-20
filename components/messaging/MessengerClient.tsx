@@ -34,6 +34,14 @@ type Message = {
   pending?: boolean;
 };
 
+type PortalUser = {
+  _id: string;
+  email: string;
+  name: string | null;
+  company: string | null;
+  status: string;
+};
+
 const POLL_MS = 15_000;
 
 function formatTime(value: string) {
@@ -71,6 +79,9 @@ export default function MessengerClient({
   const [compose, setCompose] = useState("");
   const [newTitle, setNewTitle] = useState("");
   const [newBody, setNewBody] = useState("");
+  const [portalUsers, setPortalUsers] = useState<PortalUser[]>([]);
+  const [selectedPortalUserId, setSelectedPortalUserId] = useState("");
+  const [loadingPortalUsers, setLoadingPortalUsers] = useState(false);
   const [starting, setStarting] = useState(false);
   const [search, setSearch] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
@@ -118,6 +129,32 @@ export default function MessengerClient({
   useEffect(() => {
     void loadConversations();
   }, [loadConversations]);
+
+  useEffect(() => {
+    if (mode !== "admin") return;
+    let cancelled = false;
+    async function loadPortalUsers() {
+      setLoadingPortalUsers(true);
+      try {
+        const res = await fetch("/api/messages/portal-users", { cache: "no-store" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to load portal users");
+        if (!cancelled) {
+          const users: PortalUser[] = data.users ?? [];
+          setPortalUsers(users);
+          setSelectedPortalUserId((current) => current || users[0]?._id || "");
+        }
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load portal users");
+      } finally {
+        if (!cancelled) setLoadingPortalUsers(false);
+      }
+    }
+    void loadPortalUsers();
+    return () => {
+      cancelled = true;
+    };
+  }, [mode]);
 
   useEffect(() => {
     const next = initialConversationId || queryConversationId || "";
@@ -189,18 +226,29 @@ export default function MessengerClient({
     e.preventDefault();
     const body = newBody.trim();
     if (!body) return;
+    if (mode === "admin" && !selectedPortalUserId) {
+      setError("Choose a portal user before starting a conversation");
+      return;
+    }
     setStarting(true);
     setError("");
     try {
       const res = await fetch("/api/messages/conversations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: newTitle.trim(), body }),
+        body: JSON.stringify({
+          title: newTitle.trim(),
+          body,
+          portalUserId: mode === "admin" ? selectedPortalUserId : undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to start conversation");
       setNewTitle("");
       setNewBody("");
+      if (mode === "admin") {
+        setSelectedPortalUserId(portalUsers[0]?._id || "");
+      }
       await loadConversations(true);
       selectConversation(data.conversation._id);
     } catch (err) {
@@ -232,13 +280,39 @@ export default function MessengerClient({
         <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-300">{error}</div>
       )}
 
-      {mode === "portal" && (
+      {(mode === "portal" || mode === "admin") && (
         <form onSubmit={startConversation} className="rounded-2xl border border-white/8 bg-white/3 p-5">
           <div className="mb-4">
-            <h2 className="text-sm font-semibold text-white">Start a conversation</h2>
-            <p className="mt-1 text-xs text-white/35">Use this for questions, approvals, billing, project updates, or general support.</p>
+            <h2 className="text-sm font-semibold text-white">
+              {mode === "admin" ? "Start a client conversation" : "Start a conversation"}
+            </h2>
+            <p className="mt-1 text-xs text-white/35">
+              {mode === "admin"
+                ? "Choose a portal user and send the first message into their client portal."
+                : "Use this for questions, approvals, billing, project updates, or general support."}
+            </p>
           </div>
           <div className="grid gap-3">
+            {mode === "admin" && (
+              <select
+                value={selectedPortalUserId}
+                onChange={(event) => setSelectedPortalUserId(event.target.value)}
+                disabled={loadingPortalUsers || portalUsers.length === 0}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none transition-colors focus:border-sky-500/50 disabled:opacity-40 [color-scheme:dark]"
+              >
+                {loadingPortalUsers ? (
+                  <option value="">Loading portal users...</option>
+                ) : portalUsers.length === 0 ? (
+                  <option value="">No portal users available</option>
+                ) : (
+                  portalUsers.map((user) => (
+                    <option key={user._id} value={user._id}>
+                      {[user.name || user.email, user.company].filter(Boolean).join(" - ")}
+                    </option>
+                  ))
+                )}
+              </select>
+            )}
             <input
               value={newTitle}
               onChange={(event) => setNewTitle(event.target.value)}
@@ -251,13 +325,13 @@ export default function MessengerClient({
               onChange={(event) => setNewBody(event.target.value)}
               rows={3}
               maxLength={5000}
-              placeholder="Write your message to the CEL3 team..."
+              placeholder={mode === "admin" ? "Write your first message to this client..." : "Write your message to the CEL3 team..."}
               className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-white/25 focus:border-sky-500/50"
             />
             <div className="flex justify-end">
               <button
                 type="submit"
-                disabled={starting || !newBody.trim()}
+                disabled={starting || !newBody.trim() || (mode === "admin" && (!selectedPortalUserId || loadingPortalUsers))}
                 className="rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-sky-400 disabled:opacity-40"
               >
                 {starting ? "Sending..." : "Send message"}
@@ -400,4 +474,3 @@ export default function MessengerClient({
     </div>
   );
 }
-

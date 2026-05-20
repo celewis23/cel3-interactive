@@ -58,6 +58,16 @@ type ConversationRecord = ConversationSummary & {
   }>;
 };
 
+export type MessageablePortalUser = {
+  _id: string;
+  email: string;
+  name: string | null;
+  company: string | null;
+  stripeCustomerId: string | null;
+  pipelineContactId: string | null;
+  status: string;
+};
+
 function normalizeBody(body: unknown) {
   return String(body ?? "").replace(/\r\n/g, "\n").trim();
 }
@@ -184,6 +194,24 @@ export async function getConversation(actor: MessagingActor, conversationId: str
   };
 }
 
+export async function listMessageablePortalUsers(actor: MessagingActor, search?: string) {
+  if (actor.kind !== "admin") return [];
+
+  const query = search?.trim().toLowerCase();
+  const users = await sanityServer.fetch<MessageablePortalUser[]>(
+    `*[_type == "clientPortalUser" && status != "suspended"] | order(coalesce(company, name, email) asc){
+      _id, email, name, company, stripeCustomerId, pipelineContactId, status
+    }`
+  );
+
+  if (!query) return users;
+  return users.filter((user) =>
+    [user.name, user.company, user.email]
+      .filter(Boolean)
+      .some((value) => String(value).toLowerCase().includes(query))
+  );
+}
+
 export async function startConversation(actor: MessagingActor, input: { title?: unknown; body?: unknown }, req?: NextRequest) {
   if (actor.kind !== "client") throw new Error("Only portal users can start client conversations");
 
@@ -229,6 +257,101 @@ export async function startConversation(actor: MessagingActor, input: { title?: 
   }
 
   return { conversation, message };
+}
+
+export async function startAdminConversation(
+  actor: MessagingActor,
+  input: { title?: unknown; body?: unknown; portalUserId?: unknown },
+  req?: NextRequest
+) {
+  if (actor.kind !== "admin") return { error: "Only admin users can start client conversations", status: 403 };
+
+  const portalUserId = String(input.portalUserId ?? "").trim();
+  if (!portalUserId) return { error: "portalUserId is required", status: 400 };
+
+  const validation = validateMessageBody(input.body);
+  if (!validation.ok) return { error: validation.error, status: 400 };
+
+  const client = await sanityServer.fetch<MessageablePortalUser | null>(
+    `*[_type == "clientPortalUser" && _id == $id && status != "suspended"][0]{
+      _id, email, name, company, stripeCustomerId, pipelineContactId, status
+    }`,
+    { id: portalUserId }
+  );
+  if (!client) return { error: "Portal user not found", status: 404 };
+
+  const now = new Date().toISOString();
+  const clientName = client.name ?? client.company ?? client.email;
+  const title = String(input.title ?? "").trim().slice(0, 120) || `Message for ${clientName}`;
+  const clientActor: MessagingActor = {
+    kind: "client",
+    actorId: `portal:${client._id}`,
+    userId: client._id,
+    name: clientName,
+    email: client.email,
+    company: client.company,
+    stripeCustomerId: client.stripeCustomerId,
+    pipelineContactId: client.pipelineContactId,
+  };
+
+  const adminParticipant = {
+    ...makeParticipant(actor, now, "Admin"),
+    lastReadAt: now,
+  };
+  const clientParticipant = makeParticipant(clientActor, now, "Client");
+
+  const conversation = await sanityWriteClient.create({
+    _type: "messagingConversation",
+    title,
+    status: "open",
+    type: "ClientSupport",
+    clientId: client._id,
+    clientName,
+    clientEmail: client.email,
+    company: client.company,
+    stripeCustomerId: client.stripeCustomerId,
+    pipelineContactId: client.pipelineContactId,
+    createdByActorId: actor.actorId,
+    createdByUserId: actor.userId,
+    createdAt: now,
+    updatedAt: now,
+    lastMessageAt: now,
+    lastMessagePreview: validation.body.slice(0, 180),
+    lastSenderName: actor.name,
+    participants: [adminParticipant, clientParticipant],
+  });
+
+  const message = await createMessageDocument(conversation._id, actor, validation.body, now);
+  await notifyClientForAdminMessage({
+    _id: conversation._id,
+    title,
+    status: "open",
+    type: "ClientSupport",
+    clientId: client._id,
+    clientName,
+    clientEmail: client.email,
+    company: client.company,
+    createdAt: now,
+    updatedAt: now,
+    lastMessageAt: now,
+    lastMessagePreview: validation.body.slice(0, 180),
+    lastSenderName: actor.name,
+    unreadCount: 0,
+    participantCount: 2,
+    participants: [adminParticipant, clientParticipant],
+  }, actor, validation.body);
+
+  if (req) {
+    logAudit(req, {
+      action: "messaging.conversation_created",
+      resourceType: "messagingConversation",
+      resourceId: conversation._id,
+      resourceLabel: title,
+      description: `${actor.name} started a client conversation with ${clientName}`,
+    });
+  }
+
+  return { conversation, message, status: 201 };
 }
 
 async function createMessageDocument(conversationId: string, actor: MessagingActor, body: string, now = new Date().toISOString()) {
