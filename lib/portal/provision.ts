@@ -56,12 +56,13 @@ export async function ensureClientDriveFolderAccess(params: {
   if (!folderId || !email) return;
 
   try {
-    await shareFileWithUser({
-      fileId: folderId,
-      email,
-      role: "writer",
-      sendNotificationEmail: false,
-    });
+    // Share root folder — Google Drive propagates to all future children automatically
+    await shareFileWithUser({ fileId: folderId, email, role: "writer", sendNotificationEmail: false });
+    // Also explicitly share any existing subfolders so inherited access is immediate
+    const { files } = await listFiles({ folderId, foldersOnly: true, pageSize: 100 });
+    await Promise.allSettled(
+      files.map((f) => shareFileWithUser({ fileId: f.id, email, role: "writer", sendNotificationEmail: false }))
+    );
   } catch (err) {
     console.error("CLIENT_DRIVE_SHARE_ERR:", err);
   }
