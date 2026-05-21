@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sanityServer } from "@/lib/sanityServer";
 import { verifyPortalSessionToken, PORTAL_COOKIE } from "@/lib/portal/auth";
 import { listFiles, uploadFile } from "@/lib/google/drive";
+import { completeOnboardingStepForClient } from "@/lib/onboarding/autoComplete";
 
 export const runtime = "nodejs";
 
@@ -11,8 +12,16 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const user = await sanityServer.fetch<{ driveRootFolderId: string | null } | null>(
-      `*[_type == "clientPortalUser" && _id == $id][0]{ driveRootFolderId }`,
+    const user = await sanityServer.fetch<{
+      driveRootFolderId: string | null;
+      email: string;
+      name: string | null;
+      pipelineContactId: string | null;
+      stripeCustomerId: string | null;
+    } | null>(
+      `*[_type == "clientPortalUser" && _id == $id][0]{
+        driveRootFolderId, email, name, pipelineContactId, stripeCustomerId
+      }`,
       { id: session.userId }
     );
     if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -32,8 +41,16 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const user = await sanityServer.fetch<{ driveRootFolderId: string | null } | null>(
-      `*[_type == "clientPortalUser" && _id == $id][0]{ driveRootFolderId }`,
+    const user = await sanityServer.fetch<{
+      driveRootFolderId: string | null;
+      email: string;
+      name: string | null;
+      pipelineContactId: string | null;
+      stripeCustomerId: string | null;
+    } | null>(
+      `*[_type == "clientPortalUser" && _id == $id][0]{
+        driveRootFolderId, email, name, pipelineContactId, stripeCustomerId
+      }`,
       { id: session.userId }
     );
     if (!user?.driveRootFolderId) {
@@ -52,6 +69,14 @@ export async function POST(req: NextRequest) {
       mimeType: file.type || "application/octet-stream",
       data: buffer,
       parentId: user.driveRootFolderId,
+    });
+
+    await completeOnboardingStepForClient("request-file", {
+      portalUserId: session.userId,
+      pipelineContactId: user.pipelineContactId,
+      stripeCustomerId: user.stripeCustomerId,
+      clientEmail: user.email,
+      clientName: user.name,
     });
 
     return NextResponse.json(uploaded, { status: 201 });

@@ -53,13 +53,22 @@ interface Props {
 
 function buildActionUrl(
   actionType: string,
-  client: { name: string; email: string | null; company: string | null; pipelineContactId: string | null }
+  client: {
+    name: string;
+    email: string | null;
+    company: string | null;
+    pipelineContactId: string | null;
+    stripeCustomerId: string | null;
+    portalUserId: string | null;
+  }
 ): string {
   const params = new URLSearchParams();
   if (client.name) params.set("clientName", client.name);
   if (client.email) params.set("clientEmail", client.email);
   if (client.company) params.set("clientCompany", client.company);
   if (client.pipelineContactId) params.set("pipelineContactId", client.pipelineContactId);
+  if (client.stripeCustomerId) params.set("stripeCustomerId", client.stripeCustomerId);
+  if (client.portalUserId) params.set("portalUserId", client.portalUserId);
 
   switch (actionType) {
     case "send-contract":
@@ -67,13 +76,16 @@ function buildActionUrl(
     case "send-estimate":
       return `/admin/estimates/new?${params}`;
     case "schedule-call":
-      return `/admin/calendar`;
+      params.set("newEvent", "1");
+      params.set("eventTitle", `Kickoff call${client.name ? ` with ${client.name}` : ""}`);
+      return `/admin/calendar?${params}`;
     case "create-project":
       return `/admin/projects/new?${params}`;
     case "request-file":
       return `/admin/drive`;
     case "invite-portal":
-      return `/admin/portal-users`;
+      params.set("showForm", "1");
+      return `/admin/portal-users?${params}`;
     default:
       return "";
   }
@@ -204,6 +216,8 @@ export default function ChecklistDetail({ instance: initial }: Props) {
             email: instance.clientEmail,
             company: instance.clientCompany,
             pipelineContactId: instance.pipelineContactId,
+            stripeCustomerId: instance.stripeCustomerId,
+            portalUserId: instance.portalUserId,
           });
           const isUpdating = updating === step._key;
 

@@ -3,6 +3,7 @@ export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { listEvents, createEvent } from "@/lib/google/calendar";
+import { completeOnboardingStepForClient } from "@/lib/onboarding/autoComplete";
 
 export async function GET(req: NextRequest) {
   const authErr = await requirePermission(req, "calendar", "view");
@@ -30,8 +31,26 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { calendarId = "primary", ...params } = body;
+    const {
+      calendarId = "primary",
+      clientName,
+      clientEmail,
+      pipelineContactId,
+      stripeCustomerId,
+      portalUserId,
+      ...params
+    } = body;
     const event = await createEvent(calendarId, params);
+    const attendeeEmail = Array.isArray(params.attendees)
+      ? params.attendees.find((attendee: { email?: string }) => attendee.email)?.email
+      : null;
+    await completeOnboardingStepForClient("schedule-call", {
+      portalUserId: portalUserId ?? null,
+      pipelineContactId: pipelineContactId ?? null,
+      stripeCustomerId: stripeCustomerId ?? null,
+      clientEmail: clientEmail ?? attendeeEmail,
+      clientName: clientName ?? null,
+    });
     return NextResponse.json(event, { status: 201 });
   } catch (err) {
     console.error("CALENDAR_CREATE_EVENT_ERROR:", err);

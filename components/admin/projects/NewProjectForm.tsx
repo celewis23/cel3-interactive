@@ -1,11 +1,22 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function NewProjectForm() {
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", description: "", dueDate: "" });
+  const searchParams = useSearchParams();
+  const clientName = searchParams.get("clientName") ?? "";
+  const clientEmail = searchParams.get("clientEmail") ?? "";
+  const clientCompany = searchParams.get("clientCompany") ?? "";
+  const pipelineContactId = searchParams.get("pipelineContactId") ?? "";
+  const stripeCustomerId = searchParams.get("stripeCustomerId") ?? "";
+  const portalUserId = searchParams.get("portalUserId") ?? "";
+  const [form, setForm] = useState({
+    name: searchParams.get("projectName") ?? (clientName ? `${clientName} Project` : ""),
+    description: clientName ? `Project workspace for ${clientName}${clientCompany ? ` (${clientCompany})` : ""}.` : "",
+    dueDate: "",
+  });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -21,6 +32,12 @@ export default function NewProjectForm() {
           name: form.name,
           description: form.description,
           dueDate: form.dueDate || null,
+          clientName: clientName || null,
+          clientEmail: clientEmail || null,
+          clientCompany: clientCompany || null,
+          pipelineContactId: pipelineContactId || null,
+          stripeCustomerId: stripeCustomerId || null,
+          portalUserId: portalUserId || null,
         }),
       });
       const data = await res.json();

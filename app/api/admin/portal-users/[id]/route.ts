@@ -6,6 +6,7 @@ import { sanityWriteClient } from "@/lib/sanity.write";
 import { generateTemporaryPortalPassword } from "@/lib/portal/auth";
 import { sendEmail } from "@/lib/gmail/api";
 import { hashPassword } from "@/lib/admin/staffPassword";
+import { completeOnboardingStepForClient } from "@/lib/onboarding/autoComplete";
 
 export const runtime = "nodejs";
 
@@ -86,8 +87,14 @@ export async function POST(
   if (authErr) return authErr;
   const { id } = await params;
   try {
-    const user = await sanityServer.fetch<{ email: string; name: string | null; status: string | null } | null>(
-      `*[_type == "clientPortalUser" && _id == $id][0]{ email, name, status }`,
+    const user = await sanityServer.fetch<{
+      email: string;
+      name: string | null;
+      status: string | null;
+      pipelineContactId: string | null;
+      stripeCustomerId: string | null;
+    } | null>(
+      `*[_type == "clientPortalUser" && _id == $id][0]{ email, name, status, pipelineContactId, stripeCustomerId }`,
       { id }
     );
     if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -139,6 +146,14 @@ export async function POST(
     } catch (emailErr) {
       console.error("PORTAL_RESEND_EMAIL_ERR:", emailErr);
     }
+
+    await completeOnboardingStepForClient("invite-portal", {
+      portalUserId: id,
+      pipelineContactId: user.pipelineContactId,
+      stripeCustomerId: user.stripeCustomerId,
+      clientEmail: user.email,
+      clientName: user.name,
+    });
 
     return NextResponse.json({
       ok: true,

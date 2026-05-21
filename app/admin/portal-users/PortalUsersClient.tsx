@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 type PortalUser = {
   _id: string;
@@ -31,10 +32,17 @@ type InvitationResult = {
 };
 
 export default function PortalUsersClient({ initialUsers }: { initialUsers: PortalUser[] }) {
+  const searchParams = useSearchParams();
+  const shouldShowForm = searchParams.get("showForm") === "1";
   const [users, setUsers] = useState<PortalUser[]>(initialUsers);
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(shouldShowForm);
   const [form, setForm] = useState({
-    email: "", name: "", company: "", stripeCustomerId: "", pipelineContactId: "", driveRootFolderId: "",
+    email: searchParams.get("clientEmail") ?? "",
+    name: searchParams.get("clientName") ?? "",
+    company: searchParams.get("clientCompany") ?? "",
+    stripeCustomerId: searchParams.get("stripeCustomerId") ?? "",
+    pipelineContactId: searchParams.get("pipelineContactId") ?? "",
+    driveRootFolderId: "",
   });
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");

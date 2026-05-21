@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const CATEGORIES = ["service-agreement", "nda", "proposal", "scope", "retainer", "other"];
 
@@ -32,6 +32,7 @@ interface Props {
 
 export default function ContractForm({ templates }: Props) {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
@@ -40,6 +41,9 @@ export default function ContractForm({ templates }: Props) {
   const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [clientCompany, setClientCompany] = useState("");
+  const [pipelineContactId, setPipelineContactId] = useState("");
+  const [stripeCustomerId, setStripeCustomerId] = useState("");
+  const [portalUserId, setPortalUserId] = useState("");
   const [projectName, setProjectName] = useState("");
   const [category, setCategory] = useState("other");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
@@ -53,6 +57,16 @@ export default function ContractForm({ templates }: Props) {
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setClientName(searchParams.get("clientName") ?? "");
+    setClientEmail(searchParams.get("clientEmail") ?? "");
+    setClientCompany(searchParams.get("clientCompany") ?? "");
+    setPipelineContactId(searchParams.get("pipelineContactId") ?? "");
+    setStripeCustomerId(searchParams.get("stripeCustomerId") ?? "");
+    setPortalUserId(searchParams.get("portalUserId") ?? "");
+    setProjectName(searchParams.get("projectName") ?? "");
+  }, [searchParams]);
 
   useEffect(() => {
     if (!selectedTemplateId) {
@@ -90,6 +104,9 @@ export default function ContractForm({ templates }: Props) {
           clientName: clientName.trim(),
           clientEmail: clientEmail.trim() || null,
           clientCompany: clientCompany.trim() || null,
+          pipelineContactId: pipelineContactId || null,
+          stripeCustomerId: stripeCustomerId || null,
+          portalUserId: portalUserId || null,
           projectName: projectName.trim() || null,
           date,
           expiryDate,

@@ -4,6 +4,7 @@ import { sanityWriteClient } from "@/lib/sanity.write";
 import { sanityServer } from "@/lib/sanityServer";
 import { createEvent } from "@/lib/google/calendar";
 import { logAudit, AuditAction } from "@/lib/audit/log";
+import { completeOnboardingStepForClient } from "@/lib/onboarding/autoComplete";
 
 export const runtime = "nodejs";
 
@@ -50,6 +51,11 @@ export async function POST(req: NextRequest) {
     status: "active",
     dueDate,
     clientRef: body.clientRef ?? null,
+    clientName: body.clientName?.trim() ?? null,
+    clientEmail: body.clientEmail?.trim() ?? null,
+    pipelineContactId: body.pipelineContactId ?? null,
+    stripeCustomerId: body.stripeCustomerId ?? null,
+    portalUserId: body.portalUserId ?? null,
     columns: DEFAULT_COLUMNS,
     calendarEventId: null,
   });
@@ -60,6 +66,14 @@ export async function POST(req: NextRequest) {
     resourceId: created._id,
     resourceLabel: body.name.trim(),
     description: `Project "${body.name.trim()}" created`,
+  });
+
+  await completeOnboardingStepForClient("create-project", {
+    portalUserId: body.portalUserId ?? null,
+    pipelineContactId: body.pipelineContactId ?? null,
+    stripeCustomerId: body.stripeCustomerId ?? null,
+    clientEmail: body.clientEmail ?? null,
+    clientName: body.clientName ?? null,
   });
 
   // Best-effort: create a calendar event if a due date was provided

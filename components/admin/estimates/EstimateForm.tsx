@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 type LineItem = {
@@ -67,12 +67,15 @@ function in30Days() {
 
 export default function EstimateForm({ estimate, contacts }: Props) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const isEditing = !!estimate;
 
-  const [clientName, setClientName] = useState(estimate?.clientName ?? "");
-  const [clientEmail, setClientEmail] = useState(estimate?.clientEmail ?? "");
-  const [clientCompany, setClientCompany] = useState(estimate?.clientCompany ?? "");
-  const [pipelineContactId, setPipelineContactId] = useState(estimate?.pipelineContactId ?? "");
+  const [clientName, setClientName] = useState(estimate?.clientName ?? searchParams.get("clientName") ?? "");
+  const [clientEmail, setClientEmail] = useState(estimate?.clientEmail ?? searchParams.get("clientEmail") ?? "");
+  const [clientCompany, setClientCompany] = useState(estimate?.clientCompany ?? searchParams.get("clientCompany") ?? "");
+  const [pipelineContactId, setPipelineContactId] = useState(estimate?.pipelineContactId ?? searchParams.get("pipelineContactId") ?? "");
+  const [stripeCustomerId] = useState(searchParams.get("stripeCustomerId") ?? "");
+  const [portalUserId] = useState(searchParams.get("portalUserId") ?? "");
   const [date, setDate] = useState(estimate?.date ?? todayStr());
   const [expiryDate, setExpiryDate] = useState(estimate?.expiryDate ?? in30Days());
   const [status, setStatus] = useState(estimate?.status ?? "draft");
@@ -151,6 +154,8 @@ export default function EstimateForm({ estimate, contacts }: Props) {
     clientEmail: clientEmail || null,
     clientCompany: clientCompany || null,
     pipelineContactId: pipelineContactId || null,
+    stripeCustomerId: stripeCustomerId || null,
+    portalUserId: portalUserId || null,
     date,
     expiryDate,
     status,

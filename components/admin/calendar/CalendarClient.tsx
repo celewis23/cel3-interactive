@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { DateTime } from "luxon";
 
 type CalendarEvent = {
@@ -37,6 +38,12 @@ type NewEventForm = {
   description: string;
   calendarId: string;
   attendees: string;
+};
+
+type ContactOption = {
+  resourceName: string;
+  displayName: string | null;
+  emails: { value: string }[];
 };
 
 function getEventDate(event: CalendarEvent): string {
@@ -82,7 +89,10 @@ function buildEventDateTime(date: string, time: string): string {
 }
 
 export default function CalendarClient() {
+  const searchParams = useSearchParams();
   const [calendars, setCalendars] = useState<GoogleCalendar[]>([]);
+  const [contacts, setContacts] = useState<ContactOption[]>([]);
+  const [selectedContactEmail, setSelectedContactEmail] = useState("");
   const [selectedCalendarId, setSelectedCalendarId] = useState<string>("primary");
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -129,6 +139,31 @@ export default function CalendarClient() {
     }
     fetchCalendars();
   }, []);
+
+  useEffect(() => {
+    async function fetchContacts() {
+      try {
+        const res = await fetch("/api/admin/contacts");
+        if (!res.ok) return;
+        const data = await res.json();
+        setContacts((data.contacts ?? []).filter((contact: ContactOption) => contact.emails?.length));
+      } catch {
+        // Contacts are a convenience for attendees; manual email entry still works.
+      }
+    }
+    fetchContacts();
+  }, []);
+
+  useEffect(() => {
+    if (searchParams.get("newEvent") !== "1") return;
+    const clientEmail = searchParams.get("clientEmail") ?? "";
+    setShowNewEvent(true);
+    setNewEventForm((prev) => ({
+      ...prev,
+      summary: searchParams.get("eventTitle") ?? prev.summary,
+      attendees: clientEmail || prev.attendees,
+    }));
+  }, [searchParams]);
 
   // Load events for the current view month
   useEffect(() => {
@@ -220,6 +255,11 @@ export default function CalendarClient() {
           .map((e) => ({ email: e.trim() }))
           .filter((a) => a.email);
       }
+      body.clientName = searchParams.get("clientName") || undefined;
+      body.clientEmail = searchParams.get("clientEmail") || undefined;
+      body.pipelineContactId = searchParams.get("pipelineContactId") || undefined;
+      body.stripeCustomerId = searchParams.get("stripeCustomerId") || undefined;
+      body.portalUserId = searchParams.get("portalUserId") || undefined;
 
       const res = await fetch("/api/admin/calendar/events", {
         method: "POST",
@@ -240,6 +280,7 @@ export default function CalendarClient() {
         description: "",
         attendees: "",
       }));
+      setSelectedContactEmail("");
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -530,6 +571,39 @@ export default function CalendarClient() {
 
               <div>
                 <label className="text-xs text-white/40 uppercase tracking-wider block mb-1">Attendees (comma-separated emails)</label>
+                {contacts.length > 0 && (
+                  <select
+                    value={selectedContactEmail}
+                    onChange={(e) => {
+                      const email = e.target.value;
+                      setSelectedContactEmail(email);
+                      if (!email) return;
+                      setNewEventForm((prev) => {
+                        const existing = prev.attendees
+                          .split(",")
+                          .map((item) => item.trim().toLowerCase())
+                          .filter(Boolean);
+                        if (existing.includes(email.toLowerCase())) return prev;
+                        return {
+                          ...prev,
+                          attendees: [prev.attendees, email].filter(Boolean).join(", "),
+                        };
+                      });
+                    }}
+                    className="w-full mb-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-sky-500/50"
+                  >
+                    <option value="">Add from contacts</option>
+                    {contacts.map((contact) => {
+                      const email = contact.emails[0]?.value;
+                      if (!email) return null;
+                      return (
+                        <option key={`${contact.resourceName}-${email}`} value={email} style={{ backgroundColor: "#111" }}>
+                          {contact.displayName ? `${contact.displayName} - ${email}` : email}
+                        </option>
+                      );
+                    })}
+                  </select>
+                )}
                 <input
                   type="text"
                   value={newEventForm.attendees}

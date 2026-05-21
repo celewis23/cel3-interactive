@@ -4,6 +4,7 @@ import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sendEmail } from "@/lib/gmail/api";
 import { logAudit, AuditAction } from "@/lib/audit/log";
+import { completeOnboardingStepForClient } from "@/lib/onboarding/autoComplete";
 
 export const runtime = "nodejs";
 
@@ -36,6 +37,9 @@ export async function POST(req: NextRequest, { params }: Params) {
       notes: string | null;
       approvalToken: string;
       currency: string;
+      pipelineContactId: string | null;
+      stripeCustomerId: string | null;
+      portalUserId: string | null;
     }>(`*[_type == "estimate" && _id == $id][0]`, { id });
 
     if (!estimate) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -172,6 +176,7 @@ export async function POST(req: NextRequest, { params }: Params) {
         resourceLabel: estimate.number,
         description: `Estimate ${estimate.number} sent to ${estimate.clientEmail}`,
       });
+      await completeOnboardingStepForClient("send-estimate", estimate);
       return NextResponse.json({ sent: true, approvalLink });
     } else {
       return NextResponse.json({ sent: false, approvalLink, error: emailError });

@@ -4,6 +4,7 @@ import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sendEmail } from "@/lib/gmail/api";
 import { logAudit, AuditAction } from "@/lib/audit/log";
+import { completeOnboardingStepForClient } from "@/lib/onboarding/autoComplete";
 
 export const runtime = "nodejs";
 
@@ -26,9 +27,13 @@ export async function POST(req: NextRequest, { params }: Params) {
       clientCompany: string | null;
       templateName: string | null;
       signingToken: string;
+      pipelineContactId: string | null;
+      stripeCustomerId: string | null;
+      portalUserId: string | null;
     }>(`*[_type == "contract" && _id == $id][0]{
       _id, number, date, expiryDate, status, clientName, clientEmail,
-      clientCompany, templateName, signingToken
+      clientCompany, templateName, signingToken,
+      pipelineContactId, stripeCustomerId, portalUserId
     }`, { id });
 
     if (!contract) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -119,6 +124,7 @@ export async function POST(req: NextRequest, { params }: Params) {
         resourceLabel: contract.number,
         description: `Contract ${contract.number} sent to ${contract.clientEmail}`,
       });
+      await completeOnboardingStepForClient("send-contract", contract);
       return NextResponse.json({ sent: true, signingLink });
     } else {
       return NextResponse.json({ sent: false, signingLink, error: emailError });

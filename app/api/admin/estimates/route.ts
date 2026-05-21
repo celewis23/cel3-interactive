@@ -92,6 +92,7 @@ export async function POST(req: NextRequest) {
       clientCompany: body.clientCompany ?? null,
       pipelineContactId: body.pipelineContactId ?? null,
       stripeCustomerId: body.stripeCustomerId ?? null,
+      portalUserId: body.portalUserId ?? null,
       lineItems: lineItemsWithKeys,
       subtotal,
       taxRate,
