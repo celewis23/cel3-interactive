@@ -395,7 +395,7 @@ export default function MessengerClient({
         <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-300">{error}</div>
       )}
 
-      <div className="messenger-shell min-h-[620px] overflow-hidden rounded-2xl border border-white/8 bg-white/3">
+      <div className="messenger-shell relative isolate z-0 min-h-[620px] overflow-hidden rounded-2xl border border-white/8 bg-white/3">
         <aside className={`messenger-list ${selectedId ? "hidden" : "block"} border-white/8 md:block`}>
           <div className="border-b border-white/8 p-4">
             <div className="mb-3 flex items-center justify-between gap-3">
@@ -528,7 +528,7 @@ export default function MessengerClient({
                               showTimestamp(message._id);
                             }
                           }}
-                          className={`relative max-w-[min(680px,78%)] rounded-2xl border px-4 py-3 text-left shadow-sm outline-none transition-transform active:scale-[0.99] ${mine ? "rounded-br-sm border-sky-400/40 bg-sky-500 text-black" : "rounded-bl-sm border-black/5 bg-white text-[#111111]"}`}
+                          className={`relative z-0 max-w-[min(680px,78%)] rounded-2xl border px-4 py-3 text-left shadow-sm outline-none transition-transform active:scale-[0.99] ${mine ? "rounded-br-sm border-sky-400/40 bg-sky-500 text-black" : "rounded-bl-sm border-black/5 bg-white text-[#111111]"}`}
                           aria-label={`Message sent ${formatTime(message.createdAt)}`}
                         >
                           {visibleTimestampId === message._id && (

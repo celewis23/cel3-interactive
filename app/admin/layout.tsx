@@ -539,11 +539,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     ? "hidden lg:flex flex-col w-56 bg-[#f6f4ef] border-r border-black/8 flex-shrink-0"
     : "hidden lg:flex flex-col w-56 bg-[#0a0a0a] border-r border-white/8 flex-shrink-0";
   const desktopTopbarClass = theme === "light"
-    ? "hidden lg:flex items-center justify-between px-8 h-16 border-b border-black/8 bg-[#f8f6f1]/95 backdrop-blur-sm flex-shrink-0"
-    : "hidden lg:flex items-center justify-between px-8 h-16 border-b border-white/8 bg-[#0a0a0a]/95 backdrop-blur-sm flex-shrink-0";
+    ? "relative z-[2000] hidden lg:flex items-center justify-between px-8 h-16 border-b border-black/8 bg-[#f8f6f1]/95 backdrop-blur-sm flex-shrink-0"
+    : "relative z-[2000] hidden lg:flex items-center justify-between px-8 h-16 border-b border-white/8 bg-[#0a0a0a]/95 backdrop-blur-sm flex-shrink-0";
   const mobileHeaderClass = theme === "light"
-    ? "lg:hidden flex items-center justify-between px-5 py-3.5 border-b border-black/8 flex-shrink-0 bg-[#f8f6f1]"
-    : "lg:hidden flex items-center justify-between px-5 py-3.5 border-b border-white/8 flex-shrink-0 bg-[#0a0a0a]";
+    ? "relative z-[2000] lg:hidden flex items-center justify-between px-5 py-3.5 border-b border-black/8 flex-shrink-0 bg-[#f8f6f1]"
+    : "relative z-[2000] lg:hidden flex items-center justify-between px-5 py-3.5 border-b border-white/8 flex-shrink-0 bg-[#0a0a0a]";
   const iconButtonClass = theme === "light"
     ? "w-10 h-10 rounded-full border border-black/10 bg-white/70 text-[#111111] hover:bg-white transition-colors flex items-center justify-center"
     : "w-10 h-10 rounded-full border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors flex items-center justify-center";
