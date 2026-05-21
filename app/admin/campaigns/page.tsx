@@ -351,6 +351,8 @@ export default function CampaignsPage() {
   const [bulkEmails, setBulkEmails] = useState("");
   const [bulkMode, setBulkMode] = useState(false);
   const [subSaving, setSubSaving] = useState(false);
+  const [showContactPicker, setShowContactPicker] = useState(false);
+  const [contactSearch, setContactSearch] = useState("");
 
   // Group form
   const [groupName, setGroupName] = useState("");
@@ -379,10 +381,14 @@ export default function CampaignsPage() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  // Load portal users for group member picker
+  // Load portal users for contact picker + group member picker
   useEffect(() => {
-    if (tab === "groups") {
-      fetch("/api/admin/portal-users").then((r) => r.json()).then((d) => setPortalUsers(d.users ?? [])).catch(() => {});
+    if (tab === "groups" || tab === "subscribers") {
+      fetch("/api/admin/portal-users").then((r) => r.json()).then((d) => {
+        // portal-users route returns the array directly (not wrapped)
+        const arr = Array.isArray(d) ? d : (d.users ?? []);
+        setPortalUsers(arr);
+      }).catch(() => {});
     }
   }, [tab]);
 
@@ -406,6 +412,15 @@ export default function CampaignsPage() {
       await fetch("/api/admin/subscribers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: subEmail, name: subName || null }) });
       setSubEmail(""); setSubName("");
     }
+    setSubSaving(false);
+    const res = await fetch("/api/admin/subscribers");
+    const data = await res.json();
+    setSubscribers(data.subscribers ?? []);
+  }
+
+  async function addContactAsSubscriber(email: string, name: string | null) {
+    setSubSaving(true);
+    await fetch("/api/admin/subscribers", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, name }) });
     setSubSaving(false);
     const res = await fetch("/api/admin/subscribers");
     const data = await res.json();
@@ -567,6 +582,61 @@ export default function CampaignsPage() {
                     <button onClick={addSubscriber} disabled={subSaving || !subEmail.includes("@")} className={btnPrimary}>
                       {subSaving ? "Adding…" : "Add"}
                     </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Contact picker */}
+              <div className="border border-white/8 bg-white/3 rounded-2xl overflow-hidden">
+                <button
+                  onClick={() => { setShowContactPicker((v) => !v); setContactSearch(""); }}
+                  className="w-full flex items-center justify-between px-5 py-3 text-sm text-white/70 hover:text-white transition-colors"
+                >
+                  <span className="font-medium">Add from portal contacts</span>
+                  <span className="text-white/30 text-xs">{showContactPicker ? "▲ Hide" : `${portalUsers.filter((u) => !subscribers.some((s) => s.email === u.email)).length} available ▼`}</span>
+                </button>
+                {showContactPicker && (
+                  <div className="border-t border-white/8 px-4 pb-4 flex flex-col gap-2">
+                    <input
+                      value={contactSearch}
+                      onChange={(e) => setContactSearch(e.target.value)}
+                      placeholder="Search by name or email…"
+                      className="mt-3 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-sky-500/50 w-full"
+                      autoFocus
+                    />
+                    <div className="flex flex-col gap-1.5 max-h-52 overflow-y-auto mt-1">
+                      {portalUsers
+                        .filter((u) => {
+                          if (subscribers.some((s) => s.email === u.email)) return false;
+                          if (!contactSearch.trim()) return true;
+                          const q = contactSearch.toLowerCase();
+                          return u.email.toLowerCase().includes(q) || (u.name ?? "").toLowerCase().includes(q);
+                        })
+                        .map((u) => (
+                          <button
+                            key={u._id}
+                            onClick={() => addContactAsSubscriber(u.email, u.name ?? null)}
+                            disabled={subSaving}
+                            className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/8 transition-colors group text-left disabled:opacity-50"
+                          >
+                            <div>
+                              <p className="text-sm text-white">{u.email}</p>
+                              {u.name && <p className="text-xs text-white/40">{u.name}</p>}
+                            </div>
+                            <span className="text-xs text-sky-400 opacity-0 group-hover:opacity-100 transition-opacity">Add →</span>
+                          </button>
+                        ))}
+                      {portalUsers.filter((u) => {
+                        if (subscribers.some((s) => s.email === u.email)) return false;
+                        if (!contactSearch.trim()) return true;
+                        const q = contactSearch.toLowerCase();
+                        return u.email.toLowerCase().includes(q) || (u.name ?? "").toLowerCase().includes(q);
+                      }).length === 0 && (
+                        <p className="text-xs text-white/25 px-3 py-2">
+                          {contactSearch ? "No matching contacts." : "All portal contacts are already subscribed."}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
