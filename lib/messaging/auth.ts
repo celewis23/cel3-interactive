@@ -51,14 +51,14 @@ export async function getMessagingActor(req: NextRequest): Promise<MessagingActo
   const adminSession = adminToken ? verifySessionToken(adminToken) : null;
   if (adminSession?.step === "full") {
     if (!adminSession.staffId) {
-      const ownerProfile = await sanityServer.fetch<{ ownerProfileImageUrl?: string | null } | null>(
-        `*[_id == "siteSettings"][0]{ ownerProfileImageUrl }`
+      const ownerProfile = await sanityServer.fetch<{ ownerName?: string | null; ownerProfileImageUrl?: string | null } | null>(
+        `*[_id == "siteSettings"][0]{ ownerName, ownerProfileImageUrl }`
       ).catch(() => null);
       return {
         kind: "admin",
         actorId: "admin:owner",
         userId: null,
-        name: "Owner",
+        name: ownerProfile?.ownerName ?? "Owner",
         email: process.env.ADMIN_USERNAME ?? "owner",
         roleSlug: "owner",
         isOwner: true,

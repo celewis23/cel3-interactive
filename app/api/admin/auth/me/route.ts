@@ -15,13 +15,13 @@ export async function GET(req: NextRequest) {
 
   // Owner session (env-based credentials)
   if (!session.staffId) {
-    const settings = await sanityServer.fetch<{ ownerProfileImageUrl?: string | null } | null>(
-      `*[_type == "siteSettings"][0]{ ownerProfileImageUrl }`
+    const settings = await sanityServer.fetch<{ ownerName?: string | null; ownerProfileImageUrl?: string | null } | null>(
+      `*[_type == "siteSettings"][0]{ ownerName, ownerProfileImageUrl }`
     );
     return NextResponse.json({
       isOwner: true,
       staffId: null,
-      name: "Owner",
+      name: settings?.ownerName ?? "Owner",
       email: process.env.ADMIN_USERNAME ?? "owner",
       roleSlug: "owner",
       roleName: "Owner",

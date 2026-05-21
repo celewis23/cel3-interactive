@@ -406,8 +406,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     function handleProfileImageUpdated(event: Event) {
-      const detail = (event as CustomEvent<{ profileImageUrl?: string | null }>).detail;
-      setCurrentUser((current) => current ? { ...current, profileImageUrl: detail?.profileImageUrl ?? null } : current);
+      const detail = (event as CustomEvent<{ name?: string | null; profileImageUrl?: string | null }>).detail;
+      setCurrentUser((current) => current ? {
+        ...current,
+        name: detail?.name ?? current.name,
+        profileImageUrl: detail?.profileImageUrl ?? current.profileImageUrl,
+      } : current);
     }
     window.addEventListener("cel3-profile-image-updated", handleProfileImageUpdated);
     return () => window.removeEventListener("cel3-profile-image-updated", handleProfileImageUpdated);

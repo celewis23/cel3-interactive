@@ -10,7 +10,9 @@ type AdminProfile = {
 
 export default function AdminProfileSettings() {
   const [profile, setProfile] = useState<AdminProfile | null>(null);
+  const [name, setName] = useState("");
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -23,7 +25,10 @@ export default function AdminProfileSettings() {
         const res = await fetch("/api/admin/profile", { cache: "no-store" });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to load profile");
-        if (!cancelled) setProfile(data);
+        if (!cancelled) {
+          setProfile(data);
+          setName(data.name ?? "");
+        }
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load profile");
       } finally {
@@ -66,6 +71,40 @@ export default function AdminProfileSettings() {
     }
   }
 
+  async function handleNameSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    const nextName = name.replace(/\s+/g, " ").trim();
+    if (!nextName) {
+      setError("Name is required");
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const res = await fetch("/api/admin/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: nextName }),
+      });
+      const data = await res.json().catch(() => ({})) as { error?: string; name?: string };
+      if (!res.ok) throw new Error(data.error ?? "Failed to update profile");
+      const updatedName = data.name ?? nextName;
+      setProfile((current) => current ? { ...current, name: updatedName } : current);
+      setName(updatedName);
+      window.dispatchEvent(new CustomEvent("cel3-profile-image-updated", {
+        detail: { name: updatedName },
+      }));
+      setSuccess("Profile name updated.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update profile");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   const initial = (profile?.name || profile?.email || "A").trim().slice(0, 1).toUpperCase();
 
   return (
@@ -78,29 +117,50 @@ export default function AdminProfileSettings() {
       {loading ? (
         <div className="h-20 animate-pulse rounded-xl bg-white/5" />
       ) : (
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-sky-500/15 text-xl font-semibold text-white">
-            {profile?.profileImageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={profile.profileImageUrl} alt="" className="h-full w-full object-cover" />
-            ) : (
-              initial
-            )}
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-sky-500/15 text-xl font-semibold text-white">
+              {profile?.profileImageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profile.profileImageUrl} alt="" className="h-full w-full object-cover" />
+              ) : (
+                initial
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-white">{profile?.name ?? "Admin"}</p>
+              <p className="truncate text-xs text-white/35">{profile?.email}</p>
+            </div>
+            <label className="cursor-pointer rounded-xl border border-white/10 px-4 py-2 text-sm text-white/70 transition hover:border-white/20 hover:text-white">
+              {uploading ? "Uploading..." : "Upload image"}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                className="hidden"
+                disabled={uploading}
+                onChange={handleImageChange}
+              />
+            </label>
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-white">{profile?.name ?? "Admin"}</p>
-            <p className="truncate text-xs text-white/35">{profile?.email}</p>
-          </div>
-          <label className="cursor-pointer rounded-xl border border-white/10 px-4 py-2 text-sm text-white/70 transition hover:border-white/20 hover:text-white">
-            {uploading ? "Uploading..." : "Upload image"}
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-              className="hidden"
-              disabled={uploading}
-              onChange={handleImageChange}
-            />
-          </label>
+
+          <form onSubmit={handleNameSubmit} className="grid gap-3 sm:grid-cols-[1fr_auto]">
+            <div>
+              <label className="mb-1.5 block text-xs text-white/50">Display name</label>
+              <input
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                maxLength={80}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-white/20 focus:border-sky-500/50"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={saving || !name.trim() || name.trim() === profile?.name}
+              className="self-end rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-sky-400 disabled:opacity-50"
+            >
+              {saving ? "Saving..." : "Save name"}
+            </button>
+          </form>
         </div>
       )}
 
