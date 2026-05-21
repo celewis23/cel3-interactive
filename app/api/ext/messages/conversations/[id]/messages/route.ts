@@ -26,8 +26,7 @@ export async function POST(
     const result = await sendConversationMessage(
       actor,
       conversationId,
-      body.body ?? "",
-      []
+      body.body ?? ""
     );
 
     if ("error" in result) {
