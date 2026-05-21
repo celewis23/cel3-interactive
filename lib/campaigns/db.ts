@@ -108,14 +108,14 @@ function rowToGroup(r: Record<string, unknown>): CampaignGroup {
 // ─── Campaigns ────────────────────────────────────────────────────────────────
 
 export async function listCampaigns(): Promise<Campaign[]> {
-  const rows = await sql.query<Record<string, unknown>>(
+  const rows = await sql.query(
     `SELECT * FROM campaigns ORDER BY created_at DESC`
   );
   return rows.map(rowToCampaign);
 }
 
 export async function getCampaignById(id: string): Promise<Campaign | null> {
-  const rows = await sql.query<Record<string, unknown>>(
+  const rows = await sql.query(
     `SELECT * FROM campaigns WHERE id = $1 LIMIT 1`,
     [id]
   );
@@ -132,7 +132,7 @@ export async function createCampaign(input: {
   createdByAdminId?: string;
 }): Promise<Campaign> {
   const id = randomUUID();
-  const rows = await sql.query<Record<string, unknown>>(
+  const rows = await sql.query(
     `INSERT INTO campaigns (id, title, subject, body_html, status, target_type, group_id, scheduled_at, created_by_admin_id)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
      RETURNING *`,
@@ -170,7 +170,7 @@ export async function updateCampaign(
   if (input.status !== undefined) { fields.push(`status = $${i++}`); values.push(input.status); }
   if (fields.length === 0) return getCampaignById(id);
   values.push(id);
-  const rows = await sql.query<Record<string, unknown>>(
+  const rows = await sql.query(
     `UPDATE campaigns SET ${fields.join(", ")} WHERE id = $${i} RETURNING *`,
     values
   );
@@ -194,7 +194,7 @@ export async function markCampaignFailed(id: string): Promise<void> {
 
 // Fetch campaigns due to be sent (scheduled and overdue)
 export async function getDueCampaigns(): Promise<Campaign[]> {
-  const rows = await sql.query<Record<string, unknown>>(
+  const rows = await sql.query(
     `SELECT * FROM campaigns WHERE status = 'scheduled' AND scheduled_at <= now()`
   );
   return rows.map(rowToCampaign);
@@ -202,7 +202,7 @@ export async function getDueCampaigns(): Promise<Campaign[]> {
 
 // Recent sent campaigns for portal display
 export async function getRecentSentCampaigns(limit = 3): Promise<Campaign[]> {
-  const rows = await sql.query<Record<string, unknown>>(
+  const rows = await sql.query(
     `SELECT * FROM campaigns WHERE status = 'sent' ORDER BY sent_at DESC LIMIT $1`,
     [limit]
   );
@@ -220,7 +220,7 @@ export async function createCampaignSend(input: {
 }): Promise<CampaignSend> {
   const id = randomUUID();
   const trackToken = randomUUID().replace(/-/g, "");
-  const rows = await sql.query<Record<string, unknown>>(
+  const rows = await sql.query(
     `INSERT INTO campaign_sends (id, campaign_id, recipient_email, recipient_name, recipient_type, recipient_id, track_token)
      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
     [id, input.campaignId, input.recipientEmail, input.recipientName ?? null, input.recipientType, input.recipientId, trackToken]
@@ -244,7 +244,7 @@ function rowToSend(r: Record<string, unknown>): CampaignSend {
 }
 
 export async function getSendByTrackToken(token: string): Promise<CampaignSend | null> {
-  const rows = await sql.query<Record<string, unknown>>(
+  const rows = await sql.query(
     `SELECT * FROM campaign_sends WHERE track_token = $1 LIMIT 1`,
     [token]
   );
@@ -297,7 +297,7 @@ export async function unsubscribeByTrackToken(trackToken: string): Promise<{ typ
 }
 
 export async function listCampaignSends(campaignId: string): Promise<CampaignSend[]> {
-  const rows = await sql.query<Record<string, unknown>>(
+  const rows = await sql.query(
     `SELECT * FROM campaign_sends WHERE campaign_id = $1 ORDER BY sent_at DESC`,
     [campaignId]
   );
@@ -307,14 +307,14 @@ export async function listCampaignSends(campaignId: string): Promise<CampaignSen
 // ─── Subscribers ──────────────────────────────────────────────────────────────
 
 export async function listSubscribers(): Promise<Subscriber[]> {
-  const rows = await sql.query<Record<string, unknown>>(
+  const rows = await sql.query(
     `SELECT * FROM newsletter_subscribers ORDER BY created_at DESC`
   );
   return rows.map(rowToSubscriber);
 }
 
 export async function listActiveSubscribers(): Promise<Subscriber[]> {
-  const rows = await sql.query<Record<string, unknown>>(
+  const rows = await sql.query(
     `SELECT * FROM newsletter_subscribers WHERE status = 'active' ORDER BY email`
   );
   return rows.map(rowToSubscriber);
@@ -323,7 +323,7 @@ export async function listActiveSubscribers(): Promise<Subscriber[]> {
 export async function createSubscriber(email: string, name?: string | null): Promise<Subscriber> {
   const id = randomUUID();
   const unsubToken = randomUUID().replace(/-/g, "");
-  const rows = await sql.query<Record<string, unknown>>(
+  const rows = await sql.query(
     `INSERT INTO newsletter_subscribers (id, email, name, unsubscribe_token)
      VALUES ($1, $2, $3, $4)
      ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name
@@ -347,7 +347,7 @@ export async function deleteSubscriber(id: string): Promise<void> {
 // ─── Groups ───────────────────────────────────────────────────────────────────
 
 export async function listGroups(): Promise<CampaignGroup[]> {
-  const rows = await sql.query<Record<string, unknown>>(
+  const rows = await sql.query(
     `SELECT g.*, COUNT(m.member_id) AS member_count
      FROM campaign_groups g
      LEFT JOIN campaign_group_members m ON m.group_id = g.id
@@ -357,7 +357,7 @@ export async function listGroups(): Promise<CampaignGroup[]> {
 }
 
 export async function getGroupById(id: string): Promise<CampaignGroup | null> {
-  const rows = await sql.query<Record<string, unknown>>(
+  const rows = await sql.query(
     `SELECT g.*, COUNT(m.member_id) AS member_count
      FROM campaign_groups g
      LEFT JOIN campaign_group_members m ON m.group_id = g.id
@@ -369,7 +369,7 @@ export async function getGroupById(id: string): Promise<CampaignGroup | null> {
 
 export async function createGroup(name: string, description?: string | null): Promise<CampaignGroup> {
   const id = randomUUID();
-  const rows = await sql.query<Record<string, unknown>>(
+  const rows = await sql.query(
     `INSERT INTO campaign_groups (id, name, description) VALUES ($1, $2, $3) RETURNING *`,
     [id, name, description ?? null]
   );
@@ -388,7 +388,7 @@ export async function deleteGroup(id: string): Promise<void> {
 }
 
 export async function listGroupMembers(groupId: string): Promise<GroupMember[]> {
-  const rows = await sql.query<Record<string, unknown>>(
+  const rows = await sql.query(
     `SELECT * FROM campaign_group_members WHERE group_id = $1`,
     [groupId]
   );
