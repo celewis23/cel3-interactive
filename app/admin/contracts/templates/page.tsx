@@ -1,20 +1,10 @@
-import { sanityServer } from "@/lib/sanityServer";
 import Link from "next/link";
+import { listContractTemplatesByCreatedAt } from "@/lib/contracts/defaultTemplates";
 
 export const dynamic = "force-dynamic";
 
 export default async function ContractTemplatesPage() {
-  const templates = await sanityServer.fetch(
-    `*[_type == "contractTemplate"] | order(_createdAt desc) {
-      _id, name, category, variables, _createdAt
-    }`
-  ) as Array<{
-    _id: string;
-    name: string;
-    category: string;
-    variables: string[];
-    _createdAt: string;
-  }>;
+  const templates = await listContractTemplatesByCreatedAt();
 
   return (
     <div className="space-y-6">

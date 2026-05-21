@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
-import { sanityServer } from "@/lib/sanityServer";
+import { listContractTemplatesByCreatedAt } from "@/lib/contracts/defaultTemplates";
 import { sanityWriteClient } from "@/lib/sanity.write";
 
 export const runtime = "nodejs";
@@ -9,11 +9,7 @@ export async function GET(req: NextRequest) {
   const authErr = await requirePermission(req, "contracts", "view");
   if (authErr) return authErr;
   try {
-    const templates = await sanityServer.fetch(
-      `*[_type == "contractTemplate"] | order(_createdAt desc) {
-        _id, name, category, variables, _createdAt
-      }`
-    );
+    const templates = await listContractTemplatesByCreatedAt();
     return NextResponse.json(templates);
   } catch (err) {
     console.error("CONTRACT_TEMPLATES_GET_ERR:", err);

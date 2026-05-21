@@ -1,12 +1,10 @@
-import { sanityServer } from "@/lib/sanityServer";
 import ContractForm from "@/components/admin/contracts/ContractForm";
+import { ensureDefaultContractTemplates } from "@/lib/contracts/defaultTemplates";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewContractPage() {
-  const templates = await sanityServer.fetch(
-    `*[_type == "contractTemplate"] | order(name asc) { _id, name, category, body, variables }`
-  );
+  const templates = await ensureDefaultContractTemplates();
 
   return (
     <div className="space-y-6 max-w-3xl">
