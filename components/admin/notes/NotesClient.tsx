@@ -43,19 +43,27 @@ type Page = {
   _updatedAt: string;
 };
 
-type NoteBlockType = "text" | "checklist" | "image" | "file" | "link" | "drawing" | "ai";
+type NoteBlockType = "text" | "checklist" | "image" | "link" | "audio" | "video" | "file" | "drawing" | "ai";
+type ChecklistItem = { id: string; text: string; checked: boolean };
+type TextBlockContent = { text: string };
+type ChecklistBlockContent = { items: ChecklistItem[] };
+type LinkBlockContent = { url: string; title?: string; description?: string; image?: string; siteName?: string };
+type MediaBlockContent = { src: string; title?: string; caption?: string; duration?: number | null; poster?: string; mimeType?: string; size?: number; name?: string };
 
 type NoteBlock = {
   id: string;
   pageId: string;
   type: NoteBlockType;
   content: string;
+  contentJson?: string | null;
   x: number;
   y: number;
   width: number;
   height: number;
   zIndex: number;
   metadata: Record<string, unknown>;
+  metadataJson?: string | null;
+  locked?: boolean;
   createdAt: string;
   updatedAt: string;
   createdBy?: string | null;
@@ -76,6 +84,7 @@ type Attachment = {
   id: string;
   name: string;
   mimeType: string;
+  size?: number;
   dataUrl?: string;
   url?: string;
   extractedHtml?: string;
@@ -134,26 +143,112 @@ function parseJson<T>(value: string | null | undefined, fallback: T): T {
   }
 }
 
+function contentOf<T>(block: NoteBlock, fallback: T): T {
+  return parseJson<T>(block.contentJson, fallback);
+}
+
+function metadataOf(block: NoteBlock): Record<string, unknown> {
+  return { ...parseJson<Record<string, unknown>>(block.metadataJson, {}), ...(block.metadata ?? {}) };
+}
+
+function textFromBlock(block: NoteBlock) {
+  return contentOf<TextBlockContent>(block, { text: block.content ?? "" }).text ?? "";
+}
+
+function checklistFromBlock(block: NoteBlock): ChecklistItem[] {
+  const parsed = contentOf<ChecklistBlockContent>(block, { items: [] });
+  if (parsed.items?.length) return parsed.items;
+  const lines = (block.content || "").split("\n").map((line) => line.trim()).filter(Boolean);
+  return lines.length
+    ? lines.map((line) => ({
+        id: uid("check"),
+        checked: /^\[[xX]\]/.test(line),
+        text: line.replace(/^\[[ xX]\]\s*/, ""),
+      }))
+    : [{ id: uid("check"), text: "", checked: false }];
+}
+
+function linkFromBlock(block: NoteBlock): LinkBlockContent {
+  const metadata = metadataOf(block);
+  return contentOf<LinkBlockContent>(block, {
+    url: String(metadata.url || block.content || ""),
+    title: block.content || String(metadata.url || ""),
+    description: "",
+    image: String(metadata.image || ""),
+    siteName: String(metadata.siteName || ""),
+  });
+}
+
+function mediaFromBlock(block: NoteBlock): MediaBlockContent {
+  const metadata = metadataOf(block);
+  return contentOf<MediaBlockContent>(block, {
+    src: String(metadata.dataUrl || metadata.url || ""),
+    title: block.content || String(metadata.name || ""),
+    caption: String(metadata.caption || ""),
+    poster: String(metadata.poster || ""),
+    duration: typeof metadata.duration === "number" ? metadata.duration : null,
+    mimeType: String(metadata.mimeType || ""),
+    size: typeof metadata.size === "number" ? metadata.size : undefined,
+    name: String(metadata.name || block.content || ""),
+  });
+}
+
+function blockContentText(block: NoteBlock) {
+  if (block.type === "text" || block.type === "ai") return textFromBlock(block);
+  if (block.type === "checklist") return checklistFromBlock(block).map((item) => item.text).filter(Boolean).join("\n");
+  if (block.type === "link") {
+    const link = linkFromBlock(block);
+    return [link.title, link.url, link.description].filter(Boolean).join(" ");
+  }
+  if (block.type === "image" || block.type === "audio" || block.type === "video" || block.type === "file") {
+    const media = mediaFromBlock(block);
+    return [media.title, media.caption, media.name].filter(Boolean).join(" ");
+  }
+  return block.content || "";
+}
+
+function normalizeBlock(block: NoteBlock, pageId: string): NoteBlock {
+  const metadata = metadataOf(block);
+  let contentJson = block.contentJson ?? null;
+  if (!contentJson) {
+    if (block.type === "text" || block.type === "ai") contentJson = JSON.stringify({ text: block.content ?? "" } satisfies TextBlockContent);
+    if (block.type === "checklist") contentJson = JSON.stringify({ items: checklistFromBlock(block) } satisfies ChecklistBlockContent);
+    if (block.type === "link") contentJson = JSON.stringify(linkFromBlock(block));
+    if (block.type === "image" || block.type === "audio" || block.type === "video" || block.type === "file") contentJson = JSON.stringify(mediaFromBlock(block));
+  }
+  return {
+    ...block,
+    pageId,
+    content: block.content ?? blockContentText(block),
+    contentJson,
+    metadata,
+    metadataJson: block.metadataJson ?? JSON.stringify(metadata),
+    locked: Boolean(block.locked),
+  };
+}
+
 function blocksForPage(page: Page | null): NoteBlock[] {
   if (!page) return [];
   const parsed = parseJson<NoteBlock[]>(page.blocksJson, []);
-  if (parsed.length) return parsed.map((block) => ({ ...block, pageId: page._id }));
+  if (parsed.length) return parsed.map((block) => normalizeBlock(block, page._id));
   if (page.content?.trim()) {
     const now = page._createdAt || new Date().toISOString();
-    return [{
+    return [normalizeBlock({
       id: `legacy_text_${page._id}`,
       pageId: page._id,
       type: "text",
       content: page.content,
+      contentJson: JSON.stringify({ text: page.content } satisfies TextBlockContent),
       x: 96,
       y: 96,
       width: 520,
-      height: 280,
+      height: 120,
       zIndex: 10,
       metadata: { migratedFrom: "adminNote.content" },
+      metadataJson: JSON.stringify({ migratedFrom: "adminNote.content" }),
       createdAt: now,
       updatedAt: page._updatedAt || now,
-    }];
+    }, page._id)];
   }
   return [];
 }
@@ -161,7 +256,7 @@ function blocksForPage(page: Page | null): NoteBlock[] {
 function pageTextFromBlocks(blocks: NoteBlock[]) {
   return blocks
     .filter((block) => ["text", "checklist", "link", "ai"].includes(block.type))
-    .map((block) => block.content.trim())
+    .map((block) => blockContentText(block).trim())
     .filter(Boolean)
     .join("\n\n");
 }
@@ -211,19 +306,22 @@ async function processFile(file: File): Promise<Attachment> {
   const id = uid("file");
   const { name, type: mimeType } = file;
   if (mimeType.startsWith("image/")) {
-    return { id, name, mimeType, dataUrl: await fileToDataUrl(file), x: 0, y: 0, width: 440, height: 320, displayMode: "inline" };
+    return { id, name, mimeType, size: file.size, dataUrl: await fileToDataUrl(file), x: 0, y: 0, width: 440, height: 320, displayMode: "inline" };
+  }
+  if (mimeType.startsWith("audio/")) {
+    return { id, name, mimeType, size: file.size, dataUrl: await fileToDataUrl(file), x: 0, y: 0, width: 420, height: 148, displayMode: "inline" };
   }
   if (mimeType.startsWith("video/")) {
-    return { id, name, mimeType, dataUrl: await fileToDataUrl(file), x: 0, y: 0, width: 520, height: 300, displayMode: "inline" };
+    return { id, name, mimeType, size: file.size, dataUrl: await fileToDataUrl(file), x: 0, y: 0, width: 520, height: 300, displayMode: "inline" };
   }
   if (mimeType === "application/pdf") {
-    return { id, name, mimeType, dataUrl: await fileToDataUrl(file), x: 0, y: 0, width: 640, height: 820, displayMode: "inline" };
+    return { id, name, mimeType, size: file.size, dataUrl: await fileToDataUrl(file), x: 0, y: 0, width: 640, height: 820, displayMode: "inline" };
   }
   if (mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || name.endsWith(".docx")) {
     const arrayBuffer = await file.arrayBuffer();
     const mammoth = await import("mammoth");
     const result = await mammoth.convertToHtml({ arrayBuffer });
-    return { id, name, mimeType, extractedHtml: result.value, x: 0, y: 0, width: 640, height: 420, displayMode: "inline" };
+    return { id, name, mimeType, size: file.size, extractedHtml: result.value, x: 0, y: 0, width: 640, height: 420, displayMode: "inline" };
   }
   if (
     mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
@@ -236,19 +334,21 @@ async function processFile(file: File): Promise<Attachment> {
     const wb = XLSX.read(arrayBuffer, { type: "array" });
     const firstSheet = wb.SheetNames[0];
     const html = XLSX.utils.sheet_to_html(wb.Sheets[firstSheet]);
-    return { id, name, mimeType, extractedHtml: html, x: 0, y: 0, width: 720, height: 420, displayMode: "inline" };
+    return { id, name, mimeType, size: file.size, extractedHtml: html, x: 0, y: 0, width: 720, height: 420, displayMode: "inline" };
   }
   if (mimeType === "text/csv" || name.endsWith(".csv")) {
     const text = await file.text();
     const rows = text.trim().split("\n").map((row) => row.split(",").map((cell) => cell.replace(/^"|"$/g, "")));
     const html = `<table>${rows.map((row, i) => `<tr>${row.map((cell) => i === 0 ? `<th>${cell}</th>` : `<td>${cell}</td>`).join("")}</tr>`).join("")}</table>`;
-    return { id, name, mimeType, extractedHtml: html, x: 0, y: 0, width: 640, height: 320, displayMode: "inline" };
+    return { id, name, mimeType, size: file.size, extractedHtml: html, x: 0, y: 0, width: 640, height: 320, displayMode: "inline" };
   }
-  return { id, name, mimeType: mimeType || "application/octet-stream", dataUrl: await fileToDataUrl(file), x: 0, y: 0, width: 360, height: 110, displayMode: "file" };
+  return { id, name, mimeType: mimeType || "application/octet-stream", size: file.size, dataUrl: await fileToDataUrl(file), x: 0, y: 0, width: 360, height: 110, displayMode: "file" };
 }
 
 function openBlockFile(block: NoteBlock) {
-  const src = String(block.metadata.dataUrl || block.metadata.url || "");
+  const media = mediaFromBlock(block);
+  const metadata = metadataOf(block);
+  const src = media.src || String(metadata.dataUrl || metadata.url || "");
   if (!src) return;
   if (src.startsWith("data:")) {
     const [header, data] = src.split(",");
@@ -266,25 +366,40 @@ function openBlockFile(block: NoteBlock) {
 
 function fileBlockFromAttachment(pageId: string, attachment: Attachment, x: number, y: number, zIndex: number): NoteBlock {
   const isImage = attachment.mimeType.startsWith("image/");
+  const isAudio = attachment.mimeType.startsWith("audio/");
+  const isVideo = attachment.mimeType.startsWith("video/");
+  const type: NoteBlockType = isImage ? "image" : isAudio ? "audio" : isVideo ? "video" : "file";
   const now = new Date().toISOString();
+  const metadata = {
+    name: attachment.name,
+    mimeType: attachment.mimeType,
+    size: attachment.size,
+    dataUrl: attachment.dataUrl,
+    url: attachment.url,
+    extractedHtml: attachment.extractedHtml,
+    displayMode: attachment.displayMode,
+  };
+  const contentJson: MediaBlockContent = {
+    src: attachment.dataUrl || attachment.url || "",
+    title: attachment.name,
+    caption: "",
+    mimeType: attachment.mimeType,
+    size: attachment.size,
+    name: attachment.name,
+  };
   return {
-    id: uid(isImage ? "image" : "file"),
+    id: uid(type),
     pageId,
-    type: isImage ? "image" : "file",
+    type,
     content: attachment.name,
+    contentJson: JSON.stringify(contentJson),
     x,
     y,
     width: attachment.width,
     height: attachment.displayMode === "file" ? 116 : attachment.height,
     zIndex,
-    metadata: {
-      name: attachment.name,
-      mimeType: attachment.mimeType,
-      dataUrl: attachment.dataUrl,
-      url: attachment.url,
-      extractedHtml: attachment.extractedHtml,
-      displayMode: attachment.displayMode,
-    },
+    metadata,
+    metadataJson: JSON.stringify(metadata),
     createdAt: now,
     updatedAt: now,
   };
@@ -301,18 +416,25 @@ function FileTypeIcon({ mimeType, size = 14 }: { mimeType: string; size?: number
 }
 
 function SelectionMenu({
+  locked,
   onDuplicate,
   onDelete,
   onBringForward,
   onSendBack,
+  onToggleLock,
 }: {
+  locked: boolean;
   onDuplicate: () => void;
   onDelete: () => void;
   onBringForward: () => void;
   onSendBack: () => void;
+  onToggleLock: () => void;
 }) {
   return (
-    <div className="absolute -top-10 right-0 z-30 flex items-center gap-1 rounded-xl border border-white/12 bg-[#0b0f14]/95 p-1 shadow-2xl backdrop-blur-xl">
+    <div className="flex items-center gap-1">
+      <IconButton label={locked ? "Unlock" : "Lock"} onClick={onToggleLock}>
+        {locked ? <><path d="M7 11V8a5 5 0 0 1 9.5-2.2" /><rect x="5" y="11" width="14" height="10" rx="2" /></> : <><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></>}
+      </IconButton>
       <IconButton label="Duplicate" onClick={onDuplicate}>
         <path d="M8 8h10v10H8zM5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
       </IconButton>
@@ -370,158 +492,481 @@ function IconButton({
 function NoteBlockView({
   block,
   selected,
+  autoFocus,
   onSelect,
   onChange,
   onDelete,
   onDuplicate,
   onLayer,
+  onToggleLock,
+  onConvert,
   onDragStart,
   onDrag,
   onResizeStart,
   onResize,
+  onFocusConsumed,
 }: {
   block: NoteBlock;
   selected: boolean;
+  autoFocus: boolean;
   onSelect: () => void;
   onChange: (updates: Partial<NoteBlock>) => void;
   onDelete: () => void;
   onDuplicate: () => void;
   onLayer: (direction: "front" | "back") => void;
+  onToggleLock: () => void;
+  onConvert: (type: NoteBlockType) => void;
   onDragStart: (e: React.PointerEvent, block: NoteBlock) => void;
   onDrag: (e: React.PointerEvent) => void;
   onResizeStart: (e: React.PointerEvent, block: NoteBlock) => void;
   onResize: (e: React.PointerEvent) => void;
+  onFocusConsumed: () => void;
 }) {
-  const commonClass = selected
-    ? "border-sky-300/65 shadow-[0_18px_60px_rgba(14,165,233,0.16)]"
-    : "border-white/10 shadow-[0_14px_50px_rgba(0,0,0,0.25)] hover:border-white/18";
-  const mimeType = String(block.metadata.mimeType || "");
-  const dataUrl = String(block.metadata.dataUrl || "");
-  const url = String(block.metadata.url || "");
-  const extractedHtml = String(block.metadata.extractedHtml || "");
+  return (
+    <CanvasBlockFrame
+      block={block}
+      selected={selected}
+      onSelect={onSelect}
+      onDuplicate={onDuplicate}
+      onDelete={onDelete}
+      onLayer={onLayer}
+      onToggleLock={onToggleLock}
+      onDragStart={onDragStart}
+      onDrag={onDrag}
+      onResizeStart={onResizeStart}
+      onResize={onResize}
+    >
+      {(block.type === "text" || block.type === "ai") && (
+        <TextBlockEditor
+          block={block}
+          autoFocus={autoFocus}
+          accent={block.type === "ai"}
+          onChange={onChange}
+          onDelete={onDelete}
+          onConvert={onConvert}
+          onFocusConsumed={onFocusConsumed}
+        />
+      )}
 
+      {block.type === "checklist" && (
+        <ChecklistBlockEditor block={block} autoFocus={autoFocus} onChange={onChange} onFocusConsumed={onFocusConsumed} />
+      )}
+
+      {block.type === "link" && (
+        <LinkBlockEditor block={block} selected={selected} onChange={onChange} />
+      )}
+
+      {block.type === "image" && (
+        <ImageBlock block={block} onChange={onChange} />
+      )}
+
+      {block.type === "file" && (
+        <FileBlock block={block} />
+      )}
+
+      {block.type === "audio" && (
+        <AudioBlock block={block} onChange={onChange} />
+      )}
+
+      {block.type === "video" && (
+        <VideoBlock block={block} onChange={onChange} />
+      )}
+
+      {block.type === "drawing" && (
+        <div className="flex h-full items-center justify-center rounded-xl border border-dashed border-sky-300/20 bg-sky-500/5 p-4 text-sm text-sky-100/60">
+          Drawing layer is managed by the floating Ink toolbar.
+        </div>
+      )}
+    </CanvasBlockFrame>
+  );
+}
+
+function CanvasBlockFrame({
+  block,
+  selected,
+  onSelect,
+  onDuplicate,
+  onDelete,
+  onLayer,
+  onToggleLock,
+  onDragStart,
+  onDrag,
+  onResizeStart,
+  onResize,
+  children,
+}: {
+  block: NoteBlock;
+  selected: boolean;
+  onSelect: () => void;
+  onDuplicate: () => void;
+  onDelete: () => void;
+  onLayer: (direction: "front" | "back") => void;
+  onToggleLock: () => void;
+  onDragStart: (e: React.PointerEvent, block: NoteBlock) => void;
+  onDrag: (e: React.PointerEvent) => void;
+  onResizeStart: (e: React.PointerEvent, block: NoteBlock) => void;
+  onResize: (e: React.PointerEvent) => void;
+  children: React.ReactNode;
+}) {
+  const cardLike = ["link", "image", "audio", "video", "file", "ai", "drawing"].includes(block.type);
+  const frameClass = selected
+    ? "border-sky-300/65 shadow-[0_18px_60px_rgba(14,165,233,0.16)]"
+    : "border-transparent hover:border-white/24 focus-within:border-sky-300/55";
   return (
     <div
-      className={`absolute rounded-xl border bg-[#0b0f14]/92 backdrop-blur-md transition-[border-color,box-shadow] ${commonClass}`}
-      style={{ left: block.x, top: block.y, width: block.width, height: block.height, zIndex: block.zIndex }}
+      tabIndex={0}
+      className={`group absolute rounded-xl border transition-[border-color,box-shadow,background-color] ${frameClass} ${cardLike ? "bg-white/[0.78] shadow-[0_16px_48px_rgba(15,23,42,0.12)]" : "bg-transparent"}`}
+      style={{ left: block.x, top: block.y, width: block.width, minHeight: block.height, zIndex: block.zIndex }}
       onPointerDown={(e) => {
         e.stopPropagation();
         onSelect();
       }}
     >
-      {selected && (
+      <div className={`absolute -left-2 -top-2 z-30 flex items-center gap-1 rounded-xl border border-slate-900/10 bg-slate-950/90 p-1 text-white shadow-xl backdrop-blur transition-opacity ${selected ? "opacity-100" : "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"}`}>
+        <button
+          type="button"
+          className={`flex h-7 w-7 items-center justify-center rounded-lg ${block.locked ? "cursor-not-allowed text-white/25" : "cursor-move text-white/55 hover:bg-white/10 hover:text-white"}`}
+          title={block.locked ? "Locked" : "Drag block"}
+          aria-label={block.locked ? "Block locked" : "Drag block"}
+          onPointerDown={(e) => {
+            if (block.locked) return;
+            onDragStart(e, block);
+          }}
+          onPointerMove={onDrag}
+          onPointerUp={(e) => e.currentTarget.releasePointerCapture(e.pointerId)}
+        >
+          <BlockIcon type={block.type} />
+        </button>
         <SelectionMenu
+          locked={Boolean(block.locked)}
           onDuplicate={onDuplicate}
           onDelete={onDelete}
           onBringForward={() => onLayer("front")}
           onSendBack={() => onLayer("back")}
+          onToggleLock={onToggleLock}
         />
-      )}
-      <div
-        className="flex h-8 cursor-move select-none items-center gap-2 rounded-t-xl border-b border-white/8 bg-white/[0.035] px-2 text-[11px] text-white/42"
-        onPointerDown={(e) => onDragStart(e, block)}
-        onPointerMove={onDrag}
-        onPointerUp={(e) => e.currentTarget.releasePointerCapture(e.pointerId)}
-      >
-        <BlockIcon type={block.type} />
-        <span className="truncate">{block.type === "ai" ? "AI output" : block.type}</span>
-        <span className="ml-auto font-mono text-[10px] text-white/22">{block.zIndex}</span>
       </div>
 
-      {block.type === "text" && (
-        <textarea
-          value={block.content}
-          onChange={(e) => onChange({ content: e.target.value, updatedAt: new Date().toISOString() })}
-          placeholder="Start typing..."
-          className="h-[calc(100%-2rem)] w-full resize-none rounded-b-xl bg-transparent p-3 text-sm leading-relaxed text-white/84 outline-none placeholder:text-white/18"
+      <div className="h-full min-h-[inherit] overflow-visible rounded-xl">
+        {children}
+      </div>
+
+      {!block.locked && (
+        <div
+          className={`absolute -bottom-1.5 -right-1.5 h-5 w-5 cursor-se-resize rounded-md border border-slate-900/10 bg-slate-950/80 shadow-lg transition-opacity ${selected ? "opacity-100" : "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"}`}
+          title="Resize block"
+          aria-label="Resize block"
+          role="button"
+          tabIndex={-1}
+          style={{ backgroundImage: "linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.34) 50%)" }}
+          onPointerDown={(e) => onResizeStart(e, block)}
+          onPointerMove={onResize}
+          onPointerUp={(e) => e.currentTarget.releasePointerCapture(e.pointerId)}
         />
       )}
+    </div>
+  );
+}
 
-      {block.type === "checklist" && (
-        <div className="h-[calc(100%-2rem)] overflow-auto p-3">
-          <textarea
-            value={block.content}
-            onChange={(e) => onChange({ content: e.target.value, updatedAt: new Date().toISOString() })}
-            placeholder={"One task per line\n[ ] Draft proposal\n[x] Send recap"}
-            className="min-h-full w-full resize-none bg-transparent text-sm leading-7 text-white/84 outline-none placeholder:text-white/18"
-          />
-        </div>
-      )}
+function TextBlockEditor({
+  block,
+  autoFocus,
+  accent,
+  onChange,
+  onDelete,
+  onConvert,
+  onFocusConsumed,
+}: {
+  block: NoteBlock;
+  autoFocus: boolean;
+  accent?: boolean;
+  onChange: (updates: Partial<NoteBlock>) => void;
+  onDelete: () => void;
+  onConvert: (type: NoteBlockType) => void;
+  onFocusConsumed: () => void;
+}) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  const value = textFromBlock(block);
 
-      {block.type === "link" && (
-        <div className="flex h-[calc(100%-2rem)] flex-col justify-center gap-2 p-4">
+  const resize = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = "auto";
+    const nextHeight = Math.max(42, Math.min(720, el.scrollHeight + 8));
+    el.style.height = `${nextHeight}px`;
+    if (Math.abs(nextHeight - block.height) > 8) {
+      onChange({ height: nextHeight });
+    }
+  }, [block.height, onChange]);
+
+  useEffect(() => {
+    resize();
+  }, [resize, value]);
+
+  useEffect(() => {
+    if (!autoFocus) return;
+    requestAnimationFrame(() => {
+      ref.current?.focus();
+      ref.current?.setSelectionRange(ref.current.value.length, ref.current.value.length);
+      onFocusConsumed();
+    });
+  }, [autoFocus, onFocusConsumed]);
+
+  function updateValue(next: string) {
+    onChange({
+      content: next,
+      contentJson: JSON.stringify({ text: next } satisfies TextBlockContent),
+      height: Math.max(block.height, ref.current ? ref.current.scrollHeight + 8 : block.height),
+    });
+  }
+
+  function maybeConvert(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key !== "Enter") return;
+    const command = value.trim().toLowerCase();
+    const commandMap: Record<string, NoteBlockType> = {
+      "/checklist": "checklist",
+      "/link": "link",
+      "/image": "image",
+      "/audio": "audio",
+      "/video": "video",
+      "/file": "file",
+    };
+    const nextType = commandMap[command];
+    if (!nextType) return;
+    e.preventDefault();
+    onConvert(nextType);
+  }
+
+  return (
+    <textarea
+      ref={ref}
+      value={value}
+      onChange={(e) => updateValue(e.target.value)}
+      onKeyDown={maybeConvert}
+      onBlur={() => {
+        if (!value.trim()) onDelete();
+      }}
+      placeholder="Start typing..."
+      className={`block min-h-[42px] w-full resize-none overflow-hidden rounded-xl border-0 bg-transparent px-2 py-1.5 text-[15px] leading-relaxed outline-none placeholder:text-slate-400/45 ${accent ? "text-sky-950" : "text-slate-950"}`}
+      style={{ background: "transparent" }}
+    />
+  );
+}
+
+function ChecklistBlockEditor({
+  block,
+  autoFocus,
+  onChange,
+  onFocusConsumed,
+}: {
+  block: NoteBlock;
+  autoFocus: boolean;
+  onChange: (updates: Partial<NoteBlock>) => void;
+  onFocusConsumed: () => void;
+}) {
+  const [focusId, setFocusId] = useState<string | null>(autoFocus ? checklistFromBlock(block)[0]?.id ?? null : null);
+  const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const items = checklistFromBlock(block);
+
+  useEffect(() => {
+    if (!focusId) return;
+    requestAnimationFrame(() => {
+      inputRefs.current[focusId]?.focus();
+      onFocusConsumed();
+    });
+  }, [focusId, onFocusConsumed]);
+
+  function persist(next: ChecklistItem[]) {
+    const normalized = next.length ? next : [{ id: uid("check"), text: "", checked: false }];
+    onChange({
+      content: normalized.map((item) => `${item.checked ? "[x]" : "[ ]"} ${item.text}`).join("\n"),
+      contentJson: JSON.stringify({ items: normalized } satisfies ChecklistBlockContent),
+      height: Math.max(76, normalized.length * 34 + 24),
+    });
+  }
+
+  function updateItem(id: string, patch: Partial<ChecklistItem>) {
+    persist(items.map((item) => item.id === id ? { ...item, ...patch } : item));
+  }
+
+  function onItemKeyDown(e: React.KeyboardEvent<HTMLInputElement>, item: ChecklistItem, index: number) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const nextItem = { id: uid("check"), text: "", checked: false };
+      const next = [...items.slice(0, index + 1), nextItem, ...items.slice(index + 1)];
+      setFocusId(nextItem.id);
+      persist(next);
+    }
+    if (e.key === "Backspace" && !item.text && items.length > 1) {
+      e.preventDefault();
+      const previous = items[Math.max(0, index - 1)];
+      setFocusId(previous?.id ?? null);
+      persist(items.filter((entry) => entry.id !== item.id));
+    }
+  }
+
+  return (
+    <div className="min-h-[76px] rounded-xl bg-transparent px-2 py-2">
+      {items.map((item, index) => (
+        <div key={item.id} className="flex items-center gap-2 py-1">
           <input
-            value={String(block.metadata.url || "")}
-            onChange={(e) => onChange({ metadata: { ...block.metadata, url: e.target.value }, updatedAt: new Date().toISOString() })}
+            type="checkbox"
+            checked={item.checked}
+            onChange={(e) => updateItem(item.id, { checked: e.target.checked })}
+            className="h-4 w-4 rounded border-slate-400 text-sky-500"
+          />
+          <input
+            ref={(node) => { inputRefs.current[item.id] = node; }}
+            value={item.text}
+            onChange={(e) => updateItem(item.id, { text: e.target.value })}
+            onKeyDown={(e) => onItemKeyDown(e, item, index)}
+            placeholder="Checklist item"
+            className={`min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-slate-400/45 ${item.checked ? "text-slate-500 line-through opacity-65" : "text-slate-950"}`}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function LinkBlockEditor({ block, selected, onChange }: { block: NoteBlock; selected: boolean; onChange: (updates: Partial<NoteBlock>) => void }) {
+  const [urlDraft, setUrlDraft] = useState(linkFromBlock(block).url || "");
+  const [loading, setLoading] = useState(false);
+  const link = linkFromBlock(block);
+
+  async function fetchPreview() {
+    const url = urlDraft.trim();
+    if (!url) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/notes/link-preview?url=${encodeURIComponent(url)}`);
+      const preview = await res.json() as LinkBlockContent;
+      const next = { url, title: preview.title || url, description: preview.description || "", image: preview.image || "", siteName: preview.siteName || "" };
+      onChange({ content: next.title || url, contentJson: JSON.stringify(next), metadata: { ...metadataOf(block), url }, metadataJson: JSON.stringify({ ...metadataOf(block), url }) });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="flex h-full min-h-[132px] flex-col overflow-hidden rounded-xl bg-white/80 text-slate-900 shadow-[inset_0_0_0_1px_rgba(15,23,42,0.06)]">
+      {(selected || !link.url) && (
+        <div className="flex gap-2 border-b border-slate-900/8 p-2">
+          <input
+            value={urlDraft}
+            onChange={(e) => setUrlDraft(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") void fetchPreview(); }}
             placeholder="https://..."
-            className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-sky-200 outline-none placeholder:text-white/20"
+            className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 outline-none"
           />
-          <textarea
-            value={block.content}
-            onChange={(e) => onChange({ content: e.target.value, updatedAt: new Date().toISOString() })}
-            placeholder="Bookmark notes"
-            className="flex-1 resize-none bg-transparent text-sm text-white/76 outline-none placeholder:text-white/18"
-          />
-          {String(block.metadata.url || "") && (
-            <a href={String(block.metadata.url)} target="_blank" rel="noreferrer" className="text-xs text-sky-300 hover:text-sky-200">
-              Open bookmark
-            </a>
-          )}
+          <button type="button" onClick={fetchPreview} className="rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50" disabled={loading}>
+            {loading ? "Loading" : "Preview"}
+          </button>
         </div>
       )}
+      <a href={link.url || "#"} target="_blank" rel="noreferrer" className="flex min-h-0 flex-1 gap-3 p-3 hover:bg-slate-50">
+        {link.image && (
+          // Link previews are external metadata; use a plain img to avoid remote image config churn.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={link.image} alt="" className="h-20 w-24 shrink-0 rounded-lg object-cover" />
+        )}
+        <span className="min-w-0">
+          <span className="block truncate text-sm font-semibold text-slate-950">{link.title || link.url || "Link preview"}</span>
+          {link.description && <span className="mt-1 line-clamp-3 block text-xs leading-relaxed text-slate-600">{link.description}</span>}
+          <span className="mt-2 block truncate text-[11px] text-sky-700">{link.siteName || link.url}</span>
+        </span>
+      </a>
+    </div>
+  );
+}
 
-      {block.type === "image" && (
-        <div className="h-[calc(100%-2rem)] overflow-hidden rounded-b-xl bg-black/30">
-          {/* User-supplied data URLs and private file URLs are not suitable for next/image. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={dataUrl || url} alt={block.content || "Note image"} className="h-full w-full object-contain" draggable={false} />
-        </div>
-      )}
-
-      {block.type === "file" && (
-        <div className="h-[calc(100%-2rem)] overflow-auto p-3">
-          {extractedHtml ? (
-            <div
-              className="notes-doc-content text-xs text-white/72"
-              // Admin-only file preview generated from the user's uploaded document.
-              dangerouslySetInnerHTML={{ __html: extractedHtml }}
-            />
-          ) : (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                openBlockFile(block);
-              }}
-              className="flex w-full items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] p-3 text-left transition-colors hover:bg-white/8"
-            >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/8 text-sky-300">
-                <FileTypeIcon mimeType={mimeType} size={20} />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium text-white/78">{block.content || "Attachment"}</span>
-                <span className="mt-0.5 block truncate text-[11px] text-white/35">{mimeType || "File attachment"}</span>
-              </span>
-            </button>
-          )}
-        </div>
-      )}
-
-      {block.type === "ai" && (
-        <textarea
-          value={block.content}
-          onChange={(e) => onChange({ content: e.target.value, updatedAt: new Date().toISOString() })}
-          className="h-[calc(100%-2rem)] w-full resize-none rounded-b-xl bg-sky-500/[0.045] p-3 text-sm leading-relaxed text-sky-50/86 outline-none"
-        />
-      )}
-
-      <div
-        className="absolute bottom-0 right-0 h-6 w-6 cursor-se-resize rounded-br-xl"
-        style={{ background: "linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.16) 50%)" }}
-        onPointerDown={(e) => onResizeStart(e, block)}
-        onPointerMove={onResize}
-        onPointerUp={(e) => e.currentTarget.releasePointerCapture(e.pointerId)}
+function ImageBlock({ block, onChange }: { block: NoteBlock; onChange: (updates: Partial<NoteBlock>) => void }) {
+  const media = mediaFromBlock(block);
+  return (
+    <div className="flex h-full min-h-[160px] flex-col overflow-hidden rounded-xl bg-slate-950/5">
+      <div className="min-h-0 flex-1">
+        {/* User-supplied data URLs and private file URLs are not suitable for next/image. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={media.src} alt={media.title || "Note image"} className="h-full w-full object-contain" draggable={false} />
+      </div>
+      <input
+        value={media.caption || ""}
+        onChange={(e) => onChange({ contentJson: JSON.stringify({ ...media, caption: e.target.value }), content: [media.title, e.target.value].filter(Boolean).join(" ") })}
+        placeholder="Caption"
+        className="border-t border-slate-900/8 bg-white/75 px-3 py-2 text-xs text-slate-700 outline-none placeholder:text-slate-400"
       />
+    </div>
+  );
+}
+
+function AudioBlock({ block, onChange }: { block: NoteBlock; onChange: (updates: Partial<NoteBlock>) => void }) {
+  const media = mediaFromBlock(block);
+  return (
+    <div className="flex h-full min-h-[132px] flex-col justify-center gap-3 rounded-xl bg-white/82 p-4 text-slate-900 shadow-[inset_0_0_0_1px_rgba(15,23,42,0.06)]">
+      <input
+        value={media.title || ""}
+        onChange={(e) => onChange({ content: e.target.value, contentJson: JSON.stringify({ ...media, title: e.target.value }) })}
+        placeholder="Audio title"
+        className="bg-transparent text-sm font-semibold outline-none placeholder:text-slate-400"
+      />
+      <audio controls src={media.src} className="w-full" />
+      <input
+        value={media.caption || ""}
+        onChange={(e) => onChange({ contentJson: JSON.stringify({ ...media, caption: e.target.value }) })}
+        placeholder="Caption"
+        className="bg-transparent text-xs text-slate-600 outline-none placeholder:text-slate-400"
+      />
+    </div>
+  );
+}
+
+function VideoBlock({ block, onChange }: { block: NoteBlock; onChange: (updates: Partial<NoteBlock>) => void }) {
+  const media = mediaFromBlock(block);
+  return (
+    <div className="flex h-full min-h-[220px] flex-col overflow-hidden rounded-xl bg-slate-950">
+      <video controls src={media.src} poster={media.poster || undefined} className="min-h-0 flex-1 object-contain" />
+      <input
+        value={media.caption || ""}
+        onChange={(e) => onChange({ contentJson: JSON.stringify({ ...media, caption: e.target.value }), content: [media.title, e.target.value].filter(Boolean).join(" ") })}
+        placeholder="Caption"
+        className="border-t border-white/10 bg-black px-3 py-2 text-xs text-white/78 outline-none placeholder:text-white/28"
+      />
+    </div>
+  );
+}
+
+function FileBlock({ block }: { block: NoteBlock }) {
+  const metadata = metadataOf(block);
+  const media = mediaFromBlock(block);
+  const mimeType = media.mimeType || String(metadata.mimeType || "");
+  const extractedHtml = String(metadata.extractedHtml || "");
+  const sizeLabel = typeof media.size === "number" ? `${Math.max(1, Math.round(media.size / 1024))} KB` : "";
+  return (
+    <div className="h-full min-h-[110px] overflow-auto rounded-xl bg-white/82 p-3 text-slate-900 shadow-[inset_0_0_0_1px_rgba(15,23,42,0.06)]">
+      {extractedHtml ? (
+        <div
+          className="notes-doc-content text-xs"
+          // Admin-only file preview generated from the user's uploaded document.
+          dangerouslySetInnerHTML={{ __html: extractedHtml }}
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            openBlockFile(block);
+          }}
+          className="flex w-full items-center gap-3 rounded-xl border border-slate-900/8 bg-white/70 p-3 text-left transition-colors hover:bg-white"
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-500/10 text-sky-700">
+            <FileTypeIcon mimeType={mimeType} size={20} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-medium text-slate-950">{media.name || media.title || block.content || "Attachment"}</span>
+            <span className="mt-0.5 block truncate text-[11px] text-slate-500">{[mimeType || "File attachment", sizeLabel].filter(Boolean).join(" - ")}</span>
+          </span>
+        </button>
+      )}
     </div>
   );
 }
@@ -531,6 +976,8 @@ function BlockIcon({ type }: { type: NoteBlockType }) {
     text: <><path d="M4 6h16M9 6v12M15 6v12M7 18h10" /></>,
     checklist: <><path d="m4 7 2 2 4-4M12 8h8M4 15l2 2 4-4M12 16h8" /></>,
     image: <><rect x="3" y="4" width="18" height="16" rx="2" /><path d="m6 17 4-5 3 4 2-3 3 4" /><circle cx="8" cy="8" r="1" /></>,
+    audio: <><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></>,
+    video: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m10 9 5 3-5 3Z" /></>,
     file: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></>,
     link: <><path d="M10 13a5 5 0 0 0 7.54.54l2-2a5 5 0 0 0-7.07-7.07l-1.14 1.14" /><path d="M14 11a5 5 0 0 0-7.54-.54l-2 2a5 5 0 0 0 7.07 7.07l1.14-1.14" /></>,
     drawing: <><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></>,
@@ -1087,6 +1534,7 @@ export default function NotesClient() {
   const [filterMode, setFilterMode] = useState<"all" | "favorites" | "recent" | "tags">("all");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [focusBlockId, setFocusBlockId] = useState<string | null>(null);
   const [drawingActive, setDrawingActive] = useState(false);
   const [saving, setSaving] = useState(false);
   const [processingFile, setProcessingFile] = useState(false);
@@ -1212,33 +1660,84 @@ export default function NotesClient() {
 
   function updateBlocks(next: NoteBlock[], debounce = true) {
     if (!selectedPage) return;
-    patchPage({ blocksJson: JSON.stringify(next), content: pageTextFromBlocks(next) }, debounce);
+    const normalized = next.map((block) => normalizeBlock(block, selectedPage._id));
+    patchPage({ blocksJson: JSON.stringify(normalized), content: pageTextFromBlocks(normalized) }, debounce);
+  }
+
+  function defaultBlockPayload(type: NoteBlockType, content = "", metadata: Record<string, unknown> = {}) {
+    if (type === "checklist") {
+      const items = [{ id: uid("check"), text: content || "", checked: false }];
+      return { content: content || "", contentJson: JSON.stringify({ items } satisfies ChecklistBlockContent), metadata, metadataJson: JSON.stringify(metadata) };
+    }
+    if (type === "link") {
+      const link = {
+        url: String(metadata.url || content || ""),
+        title: String(metadata.title || content || metadata.url || ""),
+        description: String(metadata.description || ""),
+        image: String(metadata.image || ""),
+        siteName: String(metadata.siteName || ""),
+      };
+      return { content: link.title || link.url, contentJson: JSON.stringify(link), metadata: { ...metadata, url: link.url }, metadataJson: JSON.stringify({ ...metadata, url: link.url }) };
+    }
+    if (type === "image" || type === "audio" || type === "video" || type === "file") {
+      const media = { src: String(metadata.dataUrl || metadata.url || ""), title: content || String(metadata.name || ""), caption: "", mimeType: String(metadata.mimeType || ""), name: String(metadata.name || content || ""), size: typeof metadata.size === "number" ? metadata.size : undefined };
+      return { content: media.title || media.name || "", contentJson: JSON.stringify(media), metadata, metadataJson: JSON.stringify(metadata) };
+    }
+    return { content, contentJson: JSON.stringify({ text: content } satisfies TextBlockContent), metadata, metadataJson: JSON.stringify(metadata) };
   }
 
   function addBlock(type: NoteBlockType, x = 120, y = 120, metadata: Record<string, unknown> = {}, content = "") {
-    if (!selectedPage) return;
+    if (!selectedPage) return null;
     const now = new Date().toISOString();
     const maxZ = Math.max(10, ...blocks.map((block) => block.zIndex));
+    const payload = defaultBlockPayload(type, content, metadata);
     const nextBlock: NoteBlock = {
       id: uid(type),
       pageId: selectedPage._id,
       type,
-      content: content || (type === "checklist" ? "[ ] New item" : type === "link" ? "Bookmark" : ""),
+      content: payload.content,
+      contentJson: payload.contentJson,
       x,
       y,
-      width: type === "image" ? 460 : type === "file" ? 420 : 420,
-      height: type === "image" ? 320 : type === "file" ? 132 : 220,
+      width: type === "text" ? 260 : type === "image" ? 460 : type === "video" ? 520 : type === "file" || type === "audio" ? 420 : type === "link" ? 360 : 320,
+      height: type === "text" ? 46 : type === "checklist" ? 76 : type === "image" ? 320 : type === "video" ? 300 : type === "file" ? 132 : type === "audio" ? 148 : type === "link" ? 156 : 180,
       zIndex: maxZ + 1,
-      metadata,
+      metadata: payload.metadata,
+      metadataJson: payload.metadataJson,
       createdAt: now,
       updatedAt: now,
     };
     setSelectedBlockId(nextBlock.id);
+    setFocusBlockId(nextBlock.id);
     updateBlocks([...blocks, nextBlock], false);
+    return nextBlock.id;
   }
 
   function updateBlock(id: string, updates: Partial<NoteBlock>, debounce = true) {
-    updateBlocks(blocks.map((block) => block.id === id ? { ...block, ...updates, updatedAt: new Date().toISOString() } : block), debounce);
+    updateBlocks(
+      blocks.map((block) =>
+        block.id === id
+          ? normalizeBlock({ ...block, ...updates, updatedAt: new Date().toISOString() }, block.pageId)
+          : block
+      ),
+      debounce
+    );
+  }
+
+  function convertBlock(block: NoteBlock, type: NoteBlockType) {
+    const text = blockContentText(block).replace(/^\/\w+/, "").trim();
+    const payload = defaultBlockPayload(type, text, metadataOf(block));
+    updateBlock(block.id, {
+      type,
+      content: payload.content,
+      contentJson: payload.contentJson,
+      metadata: payload.metadata,
+      metadataJson: payload.metadataJson,
+      width: type === "checklist" ? Math.max(block.width, 320) : type === "link" ? Math.max(block.width, 360) : block.width,
+      height: type === "checklist" ? 76 : type === "link" ? 156 : block.height,
+    }, false);
+    setSelectedBlockId(block.id);
+    setFocusBlockId(block.id);
   }
 
   function duplicateBlock(block: NoteBlock) {
@@ -1313,13 +1812,23 @@ export default function NotesClient() {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       const target = e.target as HTMLElement | null;
-      const editing = target?.tagName === "TEXTAREA" || target?.tagName === "INPUT";
+      const editing = target?.tagName === "TEXTAREA" || target?.tagName === "INPUT" || Boolean(target?.closest("[contenteditable='true']"));
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "n") {
         e.preventDefault();
         void createPage();
       }
-      if (!editing && e.key === "Delete" && selectedBlockId) {
+      if (!editing && (e.key === "Delete" || e.key === "Backspace") && selectedBlockId) {
+        e.preventDefault();
         deleteBlock(selectedBlockId);
+      }
+      if (!editing && e.key === "Escape") {
+        setSelectedBlockId(null);
+        setFocusBlockId(null);
+      }
+      if (!editing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d" && selectedBlockId) {
+        e.preventDefault();
+        const block = blocks.find((item) => item.id === selectedBlockId);
+        if (block) duplicateBlock(block);
       }
       if (!editing && e.key.toLowerCase() === "t") addBlock("text", 120, 120);
       if (!editing && e.key.toLowerCase() === "c") addBlock("checklist", 140, 140);
@@ -1426,10 +1935,21 @@ export default function NotesClient() {
     }
   }
 
-  function createLinkBlock() {
+  async function previewForUrl(url: string): Promise<LinkBlockContent> {
+    try {
+      const res = await fetch(`/api/admin/notes/link-preview?url=${encodeURIComponent(url)}`);
+      if (!res.ok) throw new Error("Preview failed");
+      return await res.json() as LinkBlockContent;
+    } catch {
+      return { url, title: url, description: "", image: "", siteName: "" };
+    }
+  }
+
+  async function createLinkBlock() {
     const url = window.prompt("Bookmark URL");
     if (!url) return;
-    addBlock("link", 150, 150, { url }, url);
+    const preview = await previewForUrl(url.trim());
+    addBlock("link", 150, 150, preview as unknown as Record<string, unknown>, preview.title || preview.url);
   }
 
   async function runAi(action: "summarize" | "tasks" | "cleanup" | "proposal" | "email" | "organize") {
@@ -1725,9 +2245,11 @@ export default function NotesClient() {
             <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-white/8 bg-black/12 px-4 py-2">
               <button type="button" onClick={() => addBlock("text", 120, 120)} className="rounded-xl bg-white/8 px-3 py-2 text-xs text-white/62 hover:bg-white/12">Text</button>
               <button type="button" onClick={() => addBlock("checklist", 140, 140)} className="rounded-xl bg-white/8 px-3 py-2 text-xs text-white/62 hover:bg-white/12">Checklist</button>
-              <button type="button" onClick={createLinkBlock} className="rounded-xl bg-white/8 px-3 py-2 text-xs text-white/62 hover:bg-white/12">Link</button>
+              <button type="button" onClick={() => void createLinkBlock()} className="rounded-xl bg-white/8 px-3 py-2 text-xs text-white/62 hover:bg-white/12">Link</button>
+              <button type="button" onClick={() => addBlock("audio", 160, 160, { url: window.prompt("Audio file URL") || "" }, "Audio")} className="rounded-xl bg-white/8 px-3 py-2 text-xs text-white/62 hover:bg-white/12">Audio URL</button>
+              <button type="button" onClick={() => addBlock("video", 160, 160, { url: window.prompt("Video file URL") || "" }, "Video")} className="rounded-xl bg-white/8 px-3 py-2 text-xs text-white/62 hover:bg-white/12">Video URL</button>
               <button type="button" onClick={() => fileInputRef.current?.click()} className="rounded-xl bg-white/8 px-3 py-2 text-xs text-white/62 hover:bg-white/12">{processingFile ? "Processing..." : "Image/File"}</button>
-              <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileInput} accept="image/*,video/*,application/pdf,.docx,.xlsx,.xls,.csv,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,*/*" />
+              <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileInput} accept="image/*,audio/*,video/*,application/pdf,.docx,.xlsx,.xls,.csv,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,*/*" />
               <div className="h-6 w-px bg-white/10" />
               {payload?.aiAvailable ? (
                 <div className="flex flex-wrap items-center gap-1">
@@ -1757,7 +2279,6 @@ export default function NotesClient() {
                     if (e.target !== e.currentTarget) return;
                     const rect = e.currentTarget.getBoundingClientRect();
                     addBlock("text", e.clientX - rect.left, e.clientY - rect.top);
-                    setSelectedBlockId(null);
                   }}
                 >
                   {blocks.length === 0 && (canvasData.strokes?.length ?? 0) === 0 && (
@@ -1773,15 +2294,19 @@ export default function NotesClient() {
                       key={block.id}
                       block={block}
                       selected={block.id === selectedBlockId}
+                      autoFocus={block.id === focusBlockId}
                       onSelect={() => setSelectedBlockId(block.id)}
                       onChange={(updates) => updateBlock(block.id, updates)}
                       onDelete={() => deleteBlock(block.id)}
                       onDuplicate={() => duplicateBlock(block)}
                       onLayer={(direction) => layerBlock(block, direction)}
+                      onToggleLock={() => updateBlock(block.id, { locked: !block.locked }, false)}
+                      onConvert={(type) => convertBlock(block, type)}
                       onDragStart={startDrag}
                       onDrag={dragBlock}
                       onResizeStart={startResize}
                       onResize={resizeBlock}
+                      onFocusConsumed={() => setFocusBlockId(null)}
                     />
                   ))}
                   <DrawingLayer
