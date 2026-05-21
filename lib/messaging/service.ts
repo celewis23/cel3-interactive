@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
+import { sql } from "@/lib/postgres";
 import { sanityServer } from "@/lib/sanityServer";
-import { sanityWriteClient } from "@/lib/sanity.write";
 import { sendPushNotificationToAudience } from "@/lib/notifications/push";
 import { MessagingActor } from "@/lib/messaging/auth";
 import { logAudit } from "@/lib/audit/log";
@@ -77,21 +77,28 @@ export type MessageAttachment = {
   createdAt: string;
 };
 
+type ParticipantRecord = {
+  _key: string;
+  actorId: string;
+  userId: string | null;
+  participantKind: "admin" | "client";
+  roleInConversation: string;
+  displayName: string;
+  email: string | null;
+  joinedAt: string;
+  lastReadMessageId: string | null;
+  lastReadAt: string | null;
+  isMuted: boolean;
+  isArchived: boolean;
+};
+
 type ConversationRecord = ConversationSummary & {
-  participants: Array<{
-    _key: string;
-    actorId: string;
-    userId: string | null;
-    participantKind: "admin" | "client";
-    roleInConversation: string;
-    displayName: string;
-    email: string | null;
-    joinedAt: string;
-    lastReadMessageId: string | null;
-    lastReadAt: string | null;
-    isMuted: boolean;
-    isArchived: boolean;
-  }>;
+  stripeCustomerId?: string | null;
+  pipelineContactId?: string | null;
+  driveFolderId?: string | null;
+  createdByActorId?: string;
+  createdByUserId?: string | null;
+  participants: ParticipantRecord[];
 };
 
 export type MessageablePortalUser = {
@@ -112,6 +119,96 @@ export type MessageAttachmentInput = {
   size: number;
   data: Buffer;
 };
+
+type ConversationRow = {
+  id: string;
+  title: string | null;
+  status: string;
+  type: string;
+  client_id: string | null;
+  client_name: string | null;
+  client_email: string | null;
+  client_profile_image_url: string | null;
+  company: string | null;
+  stripe_customer_id: string | null;
+  pipeline_contact_id: string | null;
+  drive_folder_id: string | null;
+  created_by_actor_id: string;
+  created_by_user_id: string | null;
+  created_at: string | Date;
+  updated_at: string | Date;
+  last_message_at: string | Date;
+  last_message_preview: string | null;
+  last_sender_name: string | null;
+};
+
+type ParticipantRow = {
+  id: string;
+  conversation_id: string;
+  actor_id: string;
+  user_id: string | null;
+  participant_kind: "admin" | "client";
+  role_in_conversation: string;
+  display_name: string;
+  email: string | null;
+  joined_at: string | Date;
+  last_read_message_id: string | null;
+  last_read_at: string | Date | null;
+  is_muted: boolean;
+  is_archived: boolean;
+};
+
+type MessageRow = {
+  id: string;
+  conversation_id: string;
+  sender_actor_id: string;
+  sender_user_id: string | null;
+  sender_kind: "admin" | "client" | "system";
+  sender_name: string;
+  sender_email: string | null;
+  sender_avatar_url: string | null;
+  body: string;
+  message_type: string;
+  created_at: string | Date;
+  updated_at: string | Date | null;
+  deleted_at: string | Date | null;
+};
+
+type AttachmentRow = {
+  id: string;
+  message_id: string;
+  conversation_id: string;
+  drive_file_id: string;
+  file_name: string;
+  file_url: string | null;
+  web_view_link: string | null;
+  web_content_link: string | null;
+  thumbnail_link: string | null;
+  content_type: string;
+  size_bytes: number | string | null;
+  uploaded_by_actor_id: string;
+  uploaded_by_user_id: string | null;
+  created_at: string | Date;
+};
+
+type NotificationRow = {
+  id: string;
+  type: string;
+  title: string;
+  body: string;
+  entity_type: string;
+  entity_id: string;
+  is_read: boolean;
+  created_at: string | Date;
+  link_url: string;
+};
+
+function toIso(value: string | Date | null | undefined) {
+  if (!value) return null;
+  if (value instanceof Date) return value.toISOString();
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? String(value) : date.toISOString();
+}
 
 function normalizeBody(body: unknown) {
   return String(body ?? "").replace(/\r\n/g, "\n").trim();
@@ -155,20 +252,7 @@ async function getOrCreateDriveFolderByName(name: string, parentId?: string | nu
   return createFolder(normalized, parentId ?? undefined);
 }
 
-function guessAssetFileType(mime: string) {
-  if (mime.startsWith("image/")) return "image";
-  if (mime.startsWith("audio/")) return "audio";
-  if (mime.startsWith("video/")) return "video";
-  if (mime === "application/pdf") return "pdf";
-  if (mime.includes("zip")) return "zip";
-  if (mime.includes("word") || mime.includes("document")) return "doc";
-  if (mime.includes("sheet") || mime.includes("excel") || mime === "text/csv") return "spreadsheet";
-  if (mime.includes("presentation") || mime.includes("powerpoint")) return "presentation";
-  if (mime.startsWith("text/")) return "text";
-  return "other";
-}
-
-function makeParticipant(actor: MessagingActor, now: string, roleInConversation?: string) {
+function makeParticipant(actor: MessagingActor, now: string, roleInConversation?: string): ParticipantRecord {
   return {
     _key: randomUUID(),
     actorId: actor.actorId,
@@ -185,17 +269,155 @@ function makeParticipant(actor: MessagingActor, now: string, roleInConversation?
   };
 }
 
-async function fetchConversation(conversationId: string) {
-  return sanityServer.fetch<ConversationRecord | null>(
-    `*[_type == "messagingConversation" && _id == $id][0]{
-      _id, title, status, type, clientId, clientName, clientEmail, clientProfileImageUrl, company,
-      createdAt, updatedAt, lastMessageAt, lastMessagePreview, lastSenderName,
-      "unreadCount": 0,
-      "participantCount": count(participants),
-      participants
-    }`,
-    { id: conversationId }
+function mapParticipant(row: ParticipantRow): ParticipantRecord {
+  return {
+    _key: row.id,
+    actorId: row.actor_id,
+    userId: row.user_id,
+    participantKind: row.participant_kind,
+    roleInConversation: row.role_in_conversation,
+    displayName: row.display_name,
+    email: row.email,
+    joinedAt: toIso(row.joined_at) ?? new Date().toISOString(),
+    lastReadMessageId: row.last_read_message_id,
+    lastReadAt: toIso(row.last_read_at),
+    isMuted: row.is_muted,
+    isArchived: row.is_archived,
+  };
+}
+
+function mapConversation(row: ConversationRow, participants: ParticipantRecord[] = []): ConversationRecord {
+  return {
+    _id: row.id,
+    title: row.title,
+    status: row.status,
+    type: row.type,
+    clientId: row.client_id,
+    clientName: row.client_name,
+    clientEmail: row.client_email,
+    clientProfileImageUrl: row.client_profile_image_url,
+    company: row.company,
+    stripeCustomerId: row.stripe_customer_id,
+    pipelineContactId: row.pipeline_contact_id,
+    driveFolderId: row.drive_folder_id,
+    createdByActorId: row.created_by_actor_id,
+    createdByUserId: row.created_by_user_id,
+    createdAt: toIso(row.created_at) ?? new Date().toISOString(),
+    updatedAt: toIso(row.updated_at) ?? new Date().toISOString(),
+    lastMessageAt: toIso(row.last_message_at) ?? new Date().toISOString(),
+    lastMessagePreview: row.last_message_preview,
+    lastSenderName: row.last_sender_name,
+    unreadCount: 0,
+    participantCount: participants.length,
+    participants,
+  };
+}
+
+function mapAttachment(row: AttachmentRow): MessageAttachment {
+  return {
+    _key: row.id,
+    driveFileId: row.drive_file_id,
+    fileName: row.file_name,
+    fileUrl: row.file_url,
+    webViewLink: row.web_view_link,
+    webContentLink: row.web_content_link,
+    thumbnailLink: row.thumbnail_link,
+    contentType: row.content_type,
+    size: row.size_bytes === null ? null : Number(row.size_bytes),
+    uploadedByActorId: row.uploaded_by_actor_id,
+    uploadedByUserId: row.uploaded_by_user_id,
+    createdAt: toIso(row.created_at) ?? new Date().toISOString(),
+  };
+}
+
+function mapMessage(row: MessageRow, attachments: MessageAttachment[] = []): MessageRecord {
+  return {
+    _id: row.id,
+    conversationId: row.conversation_id,
+    senderActorId: row.sender_actor_id,
+    senderUserId: row.sender_user_id,
+    senderKind: row.sender_kind,
+    senderName: row.sender_name,
+    senderEmail: row.sender_email,
+    senderAvatarUrl: row.sender_avatar_url,
+    body: row.body,
+    messageType: row.message_type,
+    createdAt: toIso(row.created_at) ?? new Date().toISOString(),
+    updatedAt: toIso(row.updated_at),
+    deletedAt: toIso(row.deleted_at),
+    attachments,
+  };
+}
+
+function mapNotification(row: NotificationRow) {
+  return {
+    _id: row.id,
+    type: row.type,
+    title: row.title,
+    body: row.body,
+    entityType: row.entity_type,
+    entityId: row.entity_id,
+    isRead: row.is_read,
+    createdAt: toIso(row.created_at) ?? new Date().toISOString(),
+    linkUrl: row.link_url,
+  };
+}
+
+async function fetchParticipants(conversationIds: string[]) {
+  if (conversationIds.length === 0) return new Map<string, ParticipantRecord[]>();
+  const rows = await sql.query<ParticipantRow>(
+    `SELECT * FROM messaging_conversation_participants WHERE conversation_id = ANY($1::text[]) ORDER BY joined_at ASC`,
+    [conversationIds]
   );
+  const byConversation = new Map<string, ParticipantRecord[]>();
+  for (const row of rows) {
+    const current = byConversation.get(row.conversation_id) ?? [];
+    current.push(mapParticipant(row));
+    byConversation.set(row.conversation_id, current);
+  }
+  return byConversation;
+}
+
+async function fetchAttachments(messageIds: string[]) {
+  if (messageIds.length === 0) return new Map<string, MessageAttachment[]>();
+  const rows = await sql.query<AttachmentRow>(
+    `SELECT * FROM messaging_message_attachments WHERE message_id = ANY($1::text[]) ORDER BY created_at ASC`,
+    [messageIds]
+  );
+  const byMessage = new Map<string, MessageAttachment[]>();
+  for (const row of rows) {
+    const current = byMessage.get(row.message_id) ?? [];
+    current.push(mapAttachment(row));
+    byMessage.set(row.message_id, current);
+  }
+  return byMessage;
+}
+
+async function fetchMessagesForConversations(conversationIds: string[]) {
+  if (conversationIds.length === 0) return new Map<string, MessageRecord[]>();
+  const rows = await sql.query<MessageRow>(
+    `SELECT * FROM messaging_messages WHERE conversation_id = ANY($1::text[]) AND deleted_at IS NULL ORDER BY created_at ASC`,
+    [conversationIds]
+  );
+  const attachments = await fetchAttachments(rows.map((row) => row.id));
+  const byConversation = new Map<string, MessageRecord[]>();
+  for (const row of rows) {
+    const current = byConversation.get(row.conversation_id) ?? [];
+    current.push(mapMessage(row, attachments.get(row.id) ?? []));
+    byConversation.set(row.conversation_id, current);
+  }
+  return byConversation;
+}
+
+async function fetchConversation(conversationId: string) {
+  const rows = await sql.query<ConversationRow>(
+    `SELECT * FROM messaging_conversations WHERE id = $1 LIMIT 1`,
+    [conversationId]
+  );
+  const row = rows[0];
+  if (!row) return null;
+  const participants = await fetchParticipants([conversationId]);
+  return mapConversation(row, participants.get(conversationId) ?? []);
 }
 
 async function fetchClientProfileImages(clientIds: Array<string | null>) {
@@ -280,52 +502,67 @@ function unreadCountFor(actor: MessagingActor, conversation: ConversationRecord,
   }).length;
 }
 
-export async function listConversations(actor: MessagingActor, search?: string): Promise<ConversationSummary[]> {
-  const filter = actor.kind === "admin"
-    ? `_type == "messagingConversation"`
-    : `_type == "messagingConversation" && (clientId == $clientId || $actorId in participants[].actorId)`;
+async function insertParticipant(conversationId: string, participant: ParticipantRecord) {
+  await sql.query(
+    `INSERT INTO messaging_conversation_participants (
+      id, conversation_id, actor_id, user_id, participant_kind, role_in_conversation,
+      display_name, email, joined_at, last_read_message_id, last_read_at, is_muted, is_archived
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+    ON CONFLICT (conversation_id, actor_id) DO NOTHING`,
+    [
+      participant._key,
+      conversationId,
+      participant.actorId,
+      participant.userId,
+      participant.participantKind,
+      participant.roleInConversation,
+      participant.displayName,
+      participant.email,
+      participant.joinedAt,
+      participant.lastReadMessageId,
+      participant.lastReadAt,
+      participant.isMuted,
+      participant.isArchived,
+    ]
+  );
+}
 
-  const conversations = await sanityServer.fetch<ConversationRecord[]>(
-    `*[${filter}] | order(lastMessageAt desc, updatedAt desc)[0...100]{
-      _id, title, status, type, clientId, clientName, clientEmail, clientProfileImageUrl, company,
-      createdAt, updatedAt, lastMessageAt, lastMessagePreview, lastSenderName,
-      "unreadCount": 0,
-      "participantCount": count(participants),
-      participants
-    }`,
-    { clientId: actor.kind === "client" ? actor.userId : null, actorId: actor.actorId }
+export async function listConversations(actor: MessagingActor, search?: string): Promise<ConversationSummary[]> {
+  const params: unknown[] = [];
+  const where: string[] = [];
+
+  if (actor.kind !== "admin") {
+    params.push(actor.userId, actor.actorId);
+    where.push(`(client_id = $1 OR EXISTS (
+      SELECT 1 FROM messaging_conversation_participants p
+      WHERE p.conversation_id = messaging_conversations.id AND p.actor_id = $2
+    ))`);
+  }
+
+  const query = search?.trim();
+  if (query) {
+    params.push(`%${query}%`);
+    const index = params.length;
+    where.push(`(title ILIKE $${index} OR client_name ILIKE $${index} OR client_email ILIKE $${index} OR company ILIKE $${index} OR last_message_preview ILIKE $${index})`);
+  }
+
+  const rows = await sql.query<ConversationRow>(
+    `SELECT * FROM messaging_conversations
+     ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
+     ORDER BY last_message_at DESC, updated_at DESC
+     LIMIT 100`,
+    params
   );
 
-  const query = search?.trim().toLowerCase();
-  const filtered = query
-    ? conversations.filter((item) =>
-        [item.title, item.clientName, item.clientEmail, item.company, item.lastMessagePreview]
-          .filter(Boolean)
-          .some((value) => String(value).toLowerCase().includes(query))
-      )
-    : conversations;
+  const participantsByConversation = await fetchParticipants(rows.map((row) => row.id));
+  const conversations = rows.map((row) => mapConversation(row, participantsByConversation.get(row.id) ?? []));
+  const messageGroups = await fetchMessagesForConversations(conversations.map((conversation) => conversation._id));
+  const clientProfileImages = await fetchClientProfileImages(conversations.map((item) => item.clientId));
 
-  const messageGroups = filtered.length
-    ? await sanityServer.fetch<Array<{ conversationId: string; messages: MessageRecord[] }>>(
-        `*[_type == "messagingConversation" && _id in $ids]{
-          _id,
-          "conversationId": _id,
-          "messages": *[_type == "messagingMessage" && conversationId == ^._id && deletedAt == null] | order(createdAt asc){
-            _id, conversationId, senderActorId, senderUserId, senderKind, senderName, senderEmail,
-            senderAvatarUrl, body, messageType, createdAt, updatedAt, deletedAt,
-            "attachments": coalesce(attachments, [])
-          }
-        }`,
-        { ids: filtered.map((item) => item._id) }
-      )
-    : [];
-
-  const byId = new Map(messageGroups.map((group) => [group.conversationId, group.messages]));
-  const clientProfileImages = await fetchClientProfileImages(filtered.map((item) => item.clientId));
-  return filtered.map((conversation) => ({
+  return conversations.map((conversation) => ({
     ...conversation,
     clientProfileImageUrl: resolveClientProfileImage(conversation, clientProfileImages),
-    unreadCount: unreadCountFor(actor, conversation, byId.get(conversation._id) ?? []),
+    unreadCount: unreadCountFor(actor, conversation, messageGroups.get(conversation._id) ?? []),
   }));
 }
 
@@ -333,15 +570,8 @@ export async function getConversation(actor: MessagingActor, conversationId: str
   const conversation = await fetchConversation(conversationId);
   if (!actorCanAccessConversation(actor, conversation)) return null;
 
-  const messages = await sanityServer.fetch<MessageRecord[]>(
-    `*[_type == "messagingMessage" && conversationId == $conversationId && deletedAt == null] | order(createdAt asc){
-      _id, conversationId, senderActorId, senderUserId, senderKind, senderName, senderEmail,
-      senderAvatarUrl, body, messageType, createdAt, updatedAt, deletedAt,
-      "attachments": coalesce(attachments, [])
-    }`,
-    { conversationId }
-  );
-
+  const messageGroups = await fetchMessagesForConversations([conversationId]);
+  const messages = messageGroups.get(conversationId) ?? [];
   const hydratedMessages = await hydrateMessageAvatars(messages);
   const clientProfileImages = await fetchClientProfileImages([conversation!.clientId]);
 
@@ -373,6 +603,83 @@ export async function listMessageablePortalUsers(actor: MessagingActor, search?:
   );
 }
 
+async function createMessageDocument(
+  conversationId: string,
+  actor: MessagingActor,
+  body: string,
+  now = new Date().toISOString(),
+  attachments: MessageAttachment[] = []
+) {
+  const id = randomUUID();
+  const messageType = attachments.length > 0 && !body ? "Attachment" : "Text";
+  await sql.query(
+    `INSERT INTO messaging_messages (
+      id, conversation_id, sender_actor_id, sender_user_id, sender_kind,
+      sender_name, sender_email, sender_avatar_url, body, message_type,
+      metadata, created_at, updated_at, deleted_at
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
+    [
+      id,
+      conversationId,
+      actor.actorId,
+      actor.userId,
+      actor.kind,
+      actor.name,
+      actor.email,
+      actor.avatarUrl,
+      body,
+      messageType,
+      null,
+      now,
+      null,
+      null,
+    ]
+  );
+
+  for (const attachment of attachments) {
+    await sql.query(
+      `INSERT INTO messaging_message_attachments (
+        id, message_id, conversation_id, drive_file_id, file_name, file_url,
+        web_view_link, web_content_link, thumbnail_link, content_type, size_bytes,
+        uploaded_by_actor_id, uploaded_by_user_id, created_at
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
+      [
+        attachment._key,
+        id,
+        conversationId,
+        attachment.driveFileId,
+        attachment.fileName,
+        attachment.fileUrl,
+        attachment.webViewLink,
+        attachment.webContentLink,
+        attachment.thumbnailLink,
+        attachment.contentType,
+        attachment.size,
+        attachment.uploadedByActorId,
+        attachment.uploadedByUserId,
+        attachment.createdAt,
+      ]
+    );
+  }
+
+  return {
+    _id: id,
+    conversationId,
+    senderActorId: actor.actorId,
+    senderUserId: actor.userId,
+    senderKind: actor.kind,
+    senderName: actor.name,
+    senderEmail: actor.email,
+    senderAvatarUrl: actor.avatarUrl,
+    body,
+    messageType,
+    createdAt: now,
+    updatedAt: null,
+    deletedAt: null,
+    attachments,
+  } satisfies MessageRecord;
+}
+
 export async function startConversation(actor: MessagingActor, input: { title?: unknown; body?: unknown }, req?: NextRequest) {
   if (actor.kind !== "client") throw new Error("Only portal users can start client conversations");
 
@@ -381,44 +688,72 @@ export async function startConversation(actor: MessagingActor, input: { title?: 
 
   const now = new Date().toISOString();
   const title = String(input.title ?? "").trim().slice(0, 120) || "Client message";
+  const conversationId = randomUUID();
   const clientParticipant = makeParticipant(actor, now, "Client");
 
-  const conversation = await sanityWriteClient.create({
-    _type: "messagingConversation",
-    title,
-    status: "open",
-    type: "ClientSupport",
-    clientId: actor.userId,
-    clientName: actor.name,
-    clientEmail: actor.email,
-    clientProfileImageUrl: actor.avatarUrl,
-    company: actor.company,
-    stripeCustomerId: actor.stripeCustomerId,
-    pipelineContactId: actor.pipelineContactId,
-    createdByActorId: actor.actorId,
-    createdByUserId: actor.userId,
-    createdAt: now,
-    updatedAt: now,
-    lastMessageAt: now,
-    lastMessagePreview: validation.body.slice(0, 180),
-    lastSenderName: actor.name,
-    participants: [clientParticipant],
-  });
+  await sql.query(
+    `INSERT INTO messaging_conversations (
+      id, title, status, type, client_id, client_name, client_email, client_profile_image_url,
+      company, stripe_customer_id, pipeline_contact_id, created_by_actor_id, created_by_user_id,
+      created_at, updated_at, last_message_at, last_message_preview, last_sender_name
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)`,
+    [
+      conversationId,
+      title,
+      "open",
+      "ClientSupport",
+      actor.userId,
+      actor.name,
+      actor.email,
+      actor.avatarUrl,
+      actor.company,
+      actor.stripeCustomerId,
+      actor.pipelineContactId,
+      actor.actorId,
+      actor.userId,
+      now,
+      now,
+      now,
+      validation.body.slice(0, 180),
+      actor.name,
+    ]
+  );
+  await insertParticipant(conversationId, clientParticipant);
 
-  const message = await createMessageDocument(conversation._id, actor, validation.body, now);
-  await notifyAdminsForClientMessage(conversation._id, title, actor, validation.body);
+  const message = await createMessageDocument(conversationId, actor, validation.body, now);
+  await notifyAdminsForClientMessage(conversationId, title, actor, validation.body);
 
   if (req) {
     logAudit(req, {
       action: "messaging.conversation_created",
       resourceType: "messagingConversation",
-      resourceId: conversation._id,
+      resourceId: conversationId,
       resourceLabel: title,
       description: `${actor.name} started a client conversation`,
     }, { userId: actor.userId, userName: actor.name, userEmail: actor.email, isOwner: false });
   }
 
-  return { conversation, message };
+  return {
+    conversation: {
+      _id: conversationId,
+      title,
+      status: "open",
+      type: "ClientSupport",
+      clientId: actor.userId,
+      clientName: actor.name,
+      clientEmail: actor.email,
+      clientProfileImageUrl: actor.avatarUrl,
+      company: actor.company,
+      createdAt: now,
+      updatedAt: now,
+      lastMessageAt: now,
+      lastMessagePreview: validation.body.slice(0, 180),
+      lastSenderName: actor.name,
+      unreadCount: 0,
+      participantCount: 1,
+    },
+    message,
+  };
 }
 
 export async function startAdminConversation(
@@ -443,6 +778,7 @@ export async function startAdminConversation(
   if (!client) return { error: "Portal user not found", status: 404 };
 
   const now = new Date().toISOString();
+  const conversationId = randomUUID();
   const clientName = client.name ?? client.company ?? client.email;
   const title = String(input.title ?? "").trim().slice(0, 120) || `Message for ${clientName}`;
   const clientActor: MessagingActor = {
@@ -463,31 +799,39 @@ export async function startAdminConversation(
   };
   const clientParticipant = makeParticipant(clientActor, now, "Client");
 
-  const conversation = await sanityWriteClient.create({
-    _type: "messagingConversation",
-    title,
-    status: "open",
-    type: "ClientSupport",
-    clientId: client._id,
-    clientName,
-    clientEmail: client.email,
-    clientProfileImageUrl: client.profileImageUrl ?? null,
-    company: client.company,
-    stripeCustomerId: client.stripeCustomerId,
-    pipelineContactId: client.pipelineContactId,
-    createdByActorId: actor.actorId,
-    createdByUserId: actor.userId,
-    createdAt: now,
-    updatedAt: now,
-    lastMessageAt: now,
-    lastMessagePreview: validation.body.slice(0, 180),
-    lastSenderName: actor.name,
-    participants: [adminParticipant, clientParticipant],
-  });
+  await sql.query(
+    `INSERT INTO messaging_conversations (
+      id, title, status, type, client_id, client_name, client_email, client_profile_image_url,
+      company, stripe_customer_id, pipeline_contact_id, created_by_actor_id, created_by_user_id,
+      created_at, updated_at, last_message_at, last_message_preview, last_sender_name
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)`,
+    [
+      conversationId,
+      title,
+      "open",
+      "ClientSupport",
+      client._id,
+      clientName,
+      client.email,
+      client.profileImageUrl ?? null,
+      client.company,
+      client.stripeCustomerId,
+      client.pipelineContactId,
+      actor.actorId,
+      actor.userId,
+      now,
+      now,
+      now,
+      validation.body.slice(0, 180),
+      actor.name,
+    ]
+  );
+  await insertParticipant(conversationId, adminParticipant);
+  await insertParticipant(conversationId, clientParticipant);
 
-  const message = await createMessageDocument(conversation._id, actor, validation.body, now);
-  await notifyClientForAdminMessage({
-    _id: conversation._id,
+  const message = await createMessageDocument(conversationId, actor, validation.body, now);
+  const conversation = {
+    _id: conversationId,
     title,
     status: "open",
     type: "ClientSupport",
@@ -504,13 +848,14 @@ export async function startAdminConversation(
     unreadCount: 0,
     participantCount: 2,
     participants: [adminParticipant, clientParticipant],
-  }, actor, validation.body);
+  } satisfies ConversationRecord;
+  await notifyClientForAdminMessage(conversation, actor, validation.body);
 
   if (req) {
     logAudit(req, {
       action: "messaging.conversation_created",
       resourceType: "messagingConversation",
-      resourceId: conversation._id,
+      resourceId: conversationId,
       resourceLabel: title,
       description: `${actor.name} started a client conversation with ${clientName}`,
     });
@@ -554,7 +899,7 @@ async function uploadConversationAttachments(
       parentId: conversationFolder.id,
     });
 
-    const attachment: MessageAttachment = {
+    attachments.push({
       _key: uploaded.id || randomUUID(),
       driveFileId: uploaded.id,
       fileName: uploaded.name || file.fileName,
@@ -567,64 +912,15 @@ async function uploadConversationAttachments(
       uploadedByActorId: actor.actorId,
       uploadedByUserId: actor.userId,
       createdAt: now,
-    };
-
-    attachments.push(attachment);
-
-    await sanityWriteClient.create({
-      _type: "assetItem",
-      name: attachment.fileName,
-      fileUrl: attachment.fileUrl,
-      fileType: guessAssetFileType(attachment.contentType),
-      mimeType: attachment.contentType,
-      sizeBytes: attachment.size,
-      folderId: null,
-      tags: ["messaging"],
-      linkedEntityType: "messagingConversation",
-      linkedEntityId: conversation._id,
-      uploadedBy: actor.userId,
-      isPublic: false,
-      publicToken: null,
-      publicExpiresAt: null,
-      sourceRef: {
-        source: "googleDrive",
-        driveFileId: attachment.driveFileId,
-        driveFolderId: conversationFolder.id,
-        conversationId: conversation._id,
-      },
-      sanityAssetId: null,
-      createdAt: now,
     });
   }
 
-  await sanityWriteClient.patch(conversation._id).set({ driveFolderId: conversationFolder.id }).commit();
-  return { attachments };
-}
+  await sql.query(
+    `UPDATE messaging_conversations SET drive_folder_id = $1, updated_at = $2 WHERE id = $3`,
+    [conversationFolder.id, now, conversation._id]
+  );
 
-async function createMessageDocument(
-  conversationId: string,
-  actor: MessagingActor,
-  body: string,
-  now = new Date().toISOString(),
-  attachments: MessageAttachment[] = []
-) {
-  return sanityWriteClient.create({
-    _type: "messagingMessage",
-    conversationId,
-    senderActorId: actor.actorId,
-    senderUserId: actor.userId,
-    senderKind: actor.kind,
-    senderName: actor.name,
-    senderEmail: actor.email,
-    senderAvatarUrl: actor.avatarUrl,
-    body,
-    messageType: attachments.length > 0 && !body ? "Attachment" : "Text",
-    attachments,
-    metadata: null,
-    createdAt: now,
-    updatedAt: null,
-    deletedAt: null,
-  });
+  return { attachments };
 }
 
 export async function sendConversationMessage(
@@ -650,18 +946,16 @@ export async function sendConversationMessage(
   const preview = validation.body || (attachments.length === 1 ? `Sent ${attachments[0].fileName}` : `Sent ${attachments.length} attachments`);
   const message = await createMessageDocument(conversationId, actor, validation.body, now, attachments);
 
-  const patches: Record<string, unknown> = {
-    updatedAt: now,
-    lastMessageAt: now,
-    lastMessagePreview: preview.slice(0, 180),
-    lastSenderName: actor.name,
-  };
-  if (actor.kind === "client") patches.clientProfileImageUrl = actor.avatarUrl ?? null;
+  await sql.query(
+    `UPDATE messaging_conversations
+     SET updated_at = $1, last_message_at = $1, last_message_preview = $2, last_sender_name = $3,
+         client_profile_image_url = CASE WHEN $4::boolean THEN $5 ELSE client_profile_image_url END
+     WHERE id = $6`,
+    [now, preview.slice(0, 180), actor.name, actor.kind === "client", actor.avatarUrl, conversationId]
+  );
 
   const hasParticipant = conversation!.participants?.some((participant) => participant.actorId === actor.actorId);
-  const patch = sanityWriteClient.patch(conversationId).set(patches);
-  if (!hasParticipant) patch.append("participants", [makeParticipant(actor, now)]);
-  await patch.commit();
+  if (!hasParticipant) await insertParticipant(conversationId, makeParticipant(actor, now));
 
   if (actor.kind === "client") {
     await notifyAdminsForClientMessage(conversationId, conversation!.title ?? "Client message", actor, preview);
@@ -686,29 +980,27 @@ export async function markConversationRead(actor: MessagingActor, conversationId
   const conversation = await fetchConversation(conversationId);
   if (!actorCanAccessConversation(actor, conversation)) return { error: "Conversation not found", status: 404 };
 
-  const latest = await sanityServer.fetch<{ _id: string; createdAt: string } | null>(
-    `*[_type == "messagingMessage" && conversationId == $conversationId && deletedAt == null] | order(createdAt desc)[0]{
-      _id, createdAt
-    }`,
-    { conversationId }
+  const latestRows = await sql.query<{ id: string; created_at: string | Date }>(
+    `SELECT id, created_at FROM messaging_messages WHERE conversation_id = $1 AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 1`,
+    [conversationId]
   );
-
+  const latest = latestRows[0] ?? null;
   const now = new Date().toISOString();
   const participant = conversation!.participants?.find((item) => item.actorId === actor.actorId);
+
   if (participant?._key) {
-    await sanityWriteClient
-      .patch(conversationId)
-      .set({
-        [`participants[_key=="${participant._key}"].lastReadAt`]: now,
-        [`participants[_key=="${participant._key}"].lastReadMessageId`]: latest?._id ?? null,
-      })
-      .commit();
+    await sql.query(
+      `UPDATE messaging_conversation_participants
+       SET last_read_at = $1, last_read_message_id = $2
+       WHERE id = $3`,
+      [now, latest?.id ?? null, participant._key]
+    );
   } else {
-    await sanityWriteClient.patch(conversationId).append("participants", [{
+    await insertParticipant(conversationId, {
       ...makeParticipant(actor, now),
       lastReadAt: now,
-      lastReadMessageId: latest?._id ?? null,
-    }]).commit();
+      lastReadMessageId: latest?.id ?? null,
+    });
   }
 
   await markNotificationsRead(actor, conversationId);
@@ -721,30 +1013,79 @@ export async function getUnreadCount(actor: MessagingActor) {
 }
 
 export async function listNotifications(actor: MessagingActor) {
-  return sanityServer.fetch(
-    `*[_type == "messagingNotification" && recipientActorId == $actorId] | order(createdAt desc)[0...50]{
-      _id, type, title, body, entityType, entityId, isRead, createdAt, linkUrl
-    }`,
-    { actorId: actor.actorId }
+  const rows = await sql.query<NotificationRow>(
+    `SELECT id, type, title, body, entity_type, entity_id, is_read, created_at, link_url
+     FROM messaging_notifications
+     WHERE recipient_actor_id = $1
+     ORDER BY created_at DESC
+     LIMIT 50`,
+    [actor.actorId]
   );
+  return rows.map(mapNotification);
+}
+
+export async function listUnreadMessageNotifications(actorId: string, limit = 8) {
+  const rows = await sql.query<NotificationRow>(
+    `SELECT id, type, title, body, entity_type, entity_id, is_read, created_at, link_url
+     FROM messaging_notifications
+     WHERE recipient_actor_id = $1 AND is_read = false
+     ORDER BY created_at DESC
+     LIMIT $2`,
+    [actorId, limit]
+  );
+  return rows.map(mapNotification);
 }
 
 export async function markNotificationRead(actor: MessagingActor, notificationId: string) {
-  const notification = await sanityServer.fetch<{ _id: string } | null>(
-    `*[_type == "messagingNotification" && _id == $id && recipientActorId == $actorId][0]{ _id }`,
-    { id: notificationId, actorId: actor.actorId }
+  const rows = await sql.query<{ id: string }>(
+    `UPDATE messaging_notifications
+     SET is_read = true, read_at = $1
+     WHERE id = $2 AND recipient_actor_id = $3
+     RETURNING id`,
+    [new Date().toISOString(), notificationId, actor.actorId]
   );
-  if (!notification) return { error: "Notification not found", status: 404 };
-  await sanityWriteClient.patch(notificationId).set({ isRead: true, readAt: new Date().toISOString() }).commit();
+  if (!rows[0]) return { error: "Notification not found", status: 404 };
   return { ok: true };
 }
 
 async function markNotificationsRead(actor: MessagingActor, conversationId: string) {
-  const ids = await sanityServer.fetch<string[]>(
-    `*[_type == "messagingNotification" && recipientActorId == $actorId && entityId == $conversationId && isRead != true]._id`,
-    { actorId: actor.actorId, conversationId }
+  await sql.query(
+    `UPDATE messaging_notifications
+     SET is_read = true, read_at = $1
+     WHERE recipient_actor_id = $2 AND entity_id = $3 AND is_read = false`,
+    [new Date().toISOString(), actor.actorId, conversationId]
   );
-  await Promise.all(ids.map((id) => sanityWriteClient.patch(id).set({ isRead: true, readAt: new Date().toISOString() }).commit()));
+}
+
+async function createNotification(params: {
+  recipientActorId: string;
+  recipientUserId: string | null;
+  recipientKind: "admin" | "client";
+  title: string;
+  body: string;
+  entityId: string;
+  linkUrl: string;
+}) {
+  await sql.query(
+    `INSERT INTO messaging_notifications (
+      id, recipient_actor_id, recipient_user_id, recipient_kind, type, title,
+      body, entity_type, entity_id, is_read, created_at, link_url
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
+    [
+      randomUUID(),
+      params.recipientActorId,
+      params.recipientUserId,
+      params.recipientKind,
+      "NewMessage",
+      params.title,
+      params.body.slice(0, 180),
+      "Conversation",
+      params.entityId,
+      false,
+      new Date().toISOString(),
+      params.linkUrl,
+    ]
+  );
 }
 
 async function notifyAdminsForClientMessage(conversationId: string, title: string, actor: Extract<MessagingActor, { kind: "client" }>, body: string) {
@@ -764,18 +1105,13 @@ async function notifyAdminsForClientMessage(conversationId: string, title: strin
   ];
 
   await Promise.all(recipients.map((recipient) =>
-    sanityWriteClient.create({
-      _type: "messagingNotification",
+    createNotification({
       recipientActorId: recipient.actorId,
       recipientUserId: recipient.userId,
       recipientKind: "admin",
-      type: "NewMessage",
       title: `New message from ${actor.name}`,
-      body: body.slice(0, 180),
-      entityType: "Conversation",
+      body,
       entityId: conversationId,
-      isRead: false,
-      createdAt: now,
       linkUrl: `/admin/messages/${conversationId}`,
     })
   ));
@@ -793,18 +1129,13 @@ async function notifyAdminsForClientMessage(conversationId: string, title: strin
 
 async function notifyClientForAdminMessage(conversation: ConversationRecord, actor: Extract<MessagingActor, { kind: "admin" }>, body: string) {
   if (!conversation.clientId) return;
-  await sanityWriteClient.create({
-    _type: "messagingNotification",
+  await createNotification({
     recipientActorId: `portal:${conversation.clientId}`,
     recipientUserId: conversation.clientId,
     recipientKind: "client",
-    type: "NewMessage",
     title: `New reply from ${actor.name}`,
-    body: body.slice(0, 180),
-    entityType: "Conversation",
+    body,
     entityId: conversation._id,
-    isRead: false,
-    createdAt: new Date().toISOString(),
     linkUrl: `/portal/messages?conversation=${conversation._id}`,
   });
 }

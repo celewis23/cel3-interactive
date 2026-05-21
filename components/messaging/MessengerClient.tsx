@@ -60,6 +60,28 @@ type PortalUser = {
 
 const POLL_MS = 15_000;
 
+async function readApiJson<T>(res: Response, fallbackMessage: string): Promise<T> {
+  const text = await res.text();
+  let data: unknown = {};
+
+  if (text.trim()) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error(res.ok ? fallbackMessage : `${fallbackMessage} (${res.status})`);
+    }
+  }
+
+  if (!res.ok) {
+    const error = typeof data === "object" && data && "error" in data
+      ? String((data as { error?: unknown }).error ?? "")
+      : "";
+    throw new Error(error || `${fallbackMessage} (${res.status})`);
+  }
+
+  return data as T;
+}
+
 function formatTime(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
@@ -156,8 +178,7 @@ export default function MessengerClient({
       const params = new URLSearchParams();
       if (search.trim()) params.set("q", search.trim());
       const res = await fetch(`/api/messages/conversations${params.toString() ? `?${params}` : ""}`, { cache: "no-store" });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to load conversations");
+      const data = await readApiJson<{ conversations?: Conversation[] }>(res, "Failed to load conversations");
       const items: Conversation[] = data.conversations ?? [];
       setConversations(items);
     } catch (err) {
@@ -172,8 +193,7 @@ export default function MessengerClient({
     if (!silent) setLoadingThread(true);
     try {
       const res = await fetch(`/api/messages/conversations/${conversationId}`, { cache: "no-store" });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to load conversation");
+      const data = await readApiJson<{ conversation: Conversation; messages?: Message[] }>(res, "Failed to load conversation");
       setMessages(data.messages ?? []);
       setConversations((prev) => prev.map((item) => item._id === conversationId ? data.conversation : item));
       await fetch(`/api/messages/conversations/${conversationId}/read`, { method: "POST" }).catch(() => {});
@@ -195,8 +215,7 @@ export default function MessengerClient({
       setLoadingPortalUsers(true);
       try {
         const res = await fetch("/api/messages/portal-users", { cache: "no-store" });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Failed to load portal users");
+        const data = await readApiJson<{ users?: PortalUser[] }>(res, "Failed to load portal users");
         if (!cancelled) {
           const users: PortalUser[] = data.users ?? [];
           setPortalUsers(users);
@@ -321,8 +340,7 @@ export default function MessengerClient({
       }
 
       const res = await fetch(`/api/messages/conversations/${selectedId}/messages`, init);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to send message");
+      const data = await readApiJson<{ message: Message }>(res, "Failed to send message");
       setMessages((prev) => prev.map((item) => item._id === optimistic._id ? data.message : item));
       void loadConversations(true);
     } catch (err) {
@@ -355,8 +373,7 @@ export default function MessengerClient({
           portalUserId: mode === "admin" ? selectedPortalUserId : undefined,
         }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to start conversation");
+      const data = await readApiJson<{ conversation: Conversation }>(res, "Failed to start conversation");
       setNewTitle("");
       setNewBody("");
       setShowNewConversation(false);

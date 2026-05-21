@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
 import { sanityServer } from "@/lib/sanityServer";
 import { listThreads } from "@/lib/gmail/api";
+import { listUnreadMessageNotifications } from "@/lib/messaging/service";
 
 type NotificationItem = {
   key: string;
@@ -145,19 +146,7 @@ export async function GET(req: NextRequest) {
     jobs.push((async () => {
       try {
         const actorId = isOwner ? "admin:owner" : `admin:${staffId}`;
-        const messages = await sanityServer.fetch<Array<{
-          _id: string;
-          title: string;
-          body: string;
-          entityId: string;
-          createdAt: string;
-          linkUrl: string;
-        }>>(
-          `*[_type == "messagingNotification" && recipientActorId == $actorId && isRead != true] | order(createdAt desc)[0...8]{
-            _id, title, body, entityId, createdAt, linkUrl
-          }`,
-          { actorId }
-        );
+        const messages = await listUnreadMessageNotifications(actorId, 8);
 
         for (const message of messages) {
           notifications.push({
