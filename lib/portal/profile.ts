@@ -20,6 +20,7 @@ type PortalUserRecord = {
   managementUsername?: string | null;
   managementPasswordEncrypted?: string | null;
   managementPasswordIv?: string | null;
+  profileImageUrl?: string | null;
   stripeCustomerId: string | null;
   pipelineContactId: string | null;
   driveRootFolderId: string | null;
@@ -65,6 +66,7 @@ export type PortalProfile = {
   managementUrl: string | null;
   managementUsername: string | null;
   hasManagementPassword: boolean;
+  profileImageUrl: string | null;
 };
 
 export type PortalProfileUpdate = {
@@ -86,7 +88,7 @@ async function getPortalUserById(userId: string) {
   return sanityServer.fetch<PortalUserRecord | null>(
     `*[_type == "clientPortalUser" && _id == $id && status != "suspended"][0]{
       _id, email, name, company, phone, addressLine1, addressCity, addressState, addressPostalCode, addressCountry,
-      siteUrl, managementUrl, managementUsername, managementPasswordEncrypted, managementPasswordIv,
+      siteUrl, managementUrl, managementUsername, managementPasswordEncrypted, managementPasswordIv, profileImageUrl,
       stripeCustomerId, pipelineContactId, driveRootFolderId, status, mustChangePassword
     }`,
     { id: userId }
@@ -154,6 +156,7 @@ export async function getPortalProfile(userId: string): Promise<PortalProfile | 
       pipelineContact?.managementPasswordEncrypted
       || portalUser.managementPasswordEncrypted
     ),
+    profileImageUrl: portalUser.profileImageUrl ?? null,
   };
 }
 

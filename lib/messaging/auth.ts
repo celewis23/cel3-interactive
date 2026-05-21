@@ -12,6 +12,7 @@ export type MessagingActor =
       email: string;
       roleSlug: string;
       isOwner: boolean;
+      avatarUrl: string | null;
     }
   | {
       kind: "client";
@@ -22,6 +23,7 @@ export type MessagingActor =
       company: string | null;
       stripeCustomerId: string | null;
       pipelineContactId: string | null;
+      avatarUrl: string | null;
     };
 
 type StaffRecord = {
@@ -30,6 +32,7 @@ type StaffRecord = {
   email: string;
   status: string;
   roleSlug: string;
+  profileImageUrl?: string | null;
 };
 
 type PortalRecord = {
@@ -39,6 +42,7 @@ type PortalRecord = {
   company: string | null;
   stripeCustomerId: string | null;
   pipelineContactId: string | null;
+  profileImageUrl?: string | null;
   status: string;
 };
 
@@ -47,6 +51,9 @@ export async function getMessagingActor(req: NextRequest): Promise<MessagingActo
   const adminSession = adminToken ? verifySessionToken(adminToken) : null;
   if (adminSession?.step === "full") {
     if (!adminSession.staffId) {
+      const ownerProfile = await sanityServer.fetch<{ ownerProfileImageUrl?: string | null } | null>(
+        `*[_id == "siteSettings"][0]{ ownerProfileImageUrl }`
+      ).catch(() => null);
       return {
         kind: "admin",
         actorId: "admin:owner",
@@ -55,11 +62,12 @@ export async function getMessagingActor(req: NextRequest): Promise<MessagingActo
         email: process.env.ADMIN_USERNAME ?? "owner",
         roleSlug: "owner",
         isOwner: true,
+        avatarUrl: ownerProfile?.ownerProfileImageUrl ?? null,
       };
     }
 
     const staff = await sanityServer.fetch<StaffRecord | null>(
-      `*[_type == "staffMember" && _id == $id][0]{ _id, name, email, status, roleSlug }`,
+      `*[_type == "staffMember" && _id == $id][0]{ _id, name, email, status, roleSlug, profileImageUrl }`,
       { id: adminSession.staffId }
     );
     if (!staff || staff.status !== "active") return null;
@@ -72,6 +80,7 @@ export async function getMessagingActor(req: NextRequest): Promise<MessagingActo
       email: staff.email,
       roleSlug: staff.roleSlug,
       isOwner: false,
+      avatarUrl: staff.profileImageUrl ?? null,
     };
   }
 
@@ -81,7 +90,7 @@ export async function getMessagingActor(req: NextRequest): Promise<MessagingActo
 
   const user = await sanityServer.fetch<PortalRecord | null>(
     `*[_type == "clientPortalUser" && _id == $id && status != "suspended"][0]{
-      _id, email, name, company, stripeCustomerId, pipelineContactId, status
+      _id, email, name, company, stripeCustomerId, pipelineContactId, profileImageUrl, status
     }`,
     { id: portalSession.userId }
   );
@@ -96,6 +105,6 @@ export async function getMessagingActor(req: NextRequest): Promise<MessagingActo
     company: user.company,
     stripeCustomerId: user.stripeCustomerId,
     pipelineContactId: user.pipelineContactId,
+    avatarUrl: user.profileImageUrl ?? null,
   };
 }
-

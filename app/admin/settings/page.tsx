@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminProfileSettings from "@/components/admin/AdminProfileSettings";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -10,6 +11,8 @@ export default function AdminSettingsPage() {
         <h1 className="text-2xl font-semibold text-white">Settings</h1>
         <p className="text-sm text-white/40 mt-1">Core workspace controls for your backoffice.</p>
       </div>
+
+      <AdminProfileSettings />
 
       <div className="grid gap-4 md:grid-cols-2">
         <Link

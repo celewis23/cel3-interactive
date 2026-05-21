@@ -52,6 +52,7 @@ export type MessageRecord = {
   senderKind: "admin" | "client" | "system";
   senderName: string;
   senderEmail: string | null;
+  senderAvatarUrl: string | null;
   body: string;
   messageType: string;
   createdAt: string;
@@ -97,6 +98,7 @@ export type MessageablePortalUser = {
   email: string;
   name: string | null;
   company: string | null;
+  profileImageUrl: string | null;
   stripeCustomerId: string | null;
   pipelineContactId: string | null;
   driveRootFolderId: string | null;
@@ -243,7 +245,7 @@ export async function listConversations(actor: MessagingActor, search?: string):
           "conversationId": _id,
           "messages": *[_type == "messagingMessage" && conversationId == ^._id && deletedAt == null] | order(createdAt asc){
             _id, conversationId, senderActorId, senderUserId, senderKind, senderName, senderEmail,
-            body, messageType, createdAt, updatedAt, deletedAt,
+            senderAvatarUrl, body, messageType, createdAt, updatedAt, deletedAt,
             "attachments": coalesce(attachments, [])
           }
         }`,
@@ -265,7 +267,7 @@ export async function getConversation(actor: MessagingActor, conversationId: str
   const messages = await sanityServer.fetch<MessageRecord[]>(
     `*[_type == "messagingMessage" && conversationId == $conversationId && deletedAt == null] | order(createdAt asc){
       _id, conversationId, senderActorId, senderUserId, senderKind, senderName, senderEmail,
-      body, messageType, createdAt, updatedAt, deletedAt,
+      senderAvatarUrl, body, messageType, createdAt, updatedAt, deletedAt,
       "attachments": coalesce(attachments, [])
     }`,
     { conversationId }
@@ -286,7 +288,7 @@ export async function listMessageablePortalUsers(actor: MessagingActor, search?:
   const query = search?.trim().toLowerCase();
   const users = await sanityServer.fetch<MessageablePortalUser[]>(
     `*[_type == "clientPortalUser" && status != "suspended"] | order(coalesce(company, name, email) asc){
-      _id, email, name, company, stripeCustomerId, pipelineContactId, driveRootFolderId, status
+      _id, email, name, company, profileImageUrl, stripeCustomerId, pipelineContactId, driveRootFolderId, status
     }`
   );
 
@@ -360,7 +362,7 @@ export async function startAdminConversation(
 
   const client = await sanityServer.fetch<MessageablePortalUser | null>(
     `*[_type == "clientPortalUser" && _id == $id && status != "suspended"][0]{
-      _id, email, name, company, stripeCustomerId, pipelineContactId, driveRootFolderId, status
+      _id, email, name, company, profileImageUrl, stripeCustomerId, pipelineContactId, driveRootFolderId, status
     }`,
     { id: portalUserId }
   );
@@ -378,6 +380,7 @@ export async function startAdminConversation(
     company: client.company,
     stripeCustomerId: client.stripeCustomerId,
     pipelineContactId: client.pipelineContactId,
+    avatarUrl: client.profileImageUrl ?? null,
   };
 
   const adminParticipant = {
@@ -537,6 +540,7 @@ async function createMessageDocument(
     senderKind: actor.kind,
     senderName: actor.name,
     senderEmail: actor.email,
+    senderAvatarUrl: actor.avatarUrl,
     body,
     messageType: attachments.length > 0 && !body ? "Attachment" : "Text",
     attachments,

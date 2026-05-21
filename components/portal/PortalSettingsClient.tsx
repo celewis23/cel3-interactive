@@ -16,6 +16,7 @@ type PortalProfile = {
   managementUrl: string | null;
   managementUsername: string | null;
   hasManagementPassword: boolean;
+  profileImageUrl: string | null;
 };
 
 export default function PortalSettingsClient({ initialProfile }: { initialProfile: PortalProfile }) {
@@ -34,6 +35,8 @@ export default function PortalSettingsClient({ initialProfile }: { initialProfil
     managementPassword: "",
   });
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [profileImageUrl, setProfileImageUrl] = useState(initialProfile.profileImageUrl);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -81,6 +84,35 @@ export default function PortalSettingsClient({ initialProfile }: { initialProfil
     }
   }
 
+  async function handleProfileImageChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    setUploadingImage(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const formData = new FormData();
+      formData.set("file", file);
+      const res = await fetch("/api/portal/profile-picture", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json().catch(() => ({})) as { error?: string; profileImageUrl?: string };
+      if (!res.ok) throw new Error(data.error ?? "Failed to upload profile picture");
+      setProfileImageUrl(data.profileImageUrl ?? null);
+      setSuccess("Your profile picture has been updated.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to upload profile picture");
+    } finally {
+      setUploadingImage(false);
+    }
+  }
+
+  const initial = (form.displayName || form.email || "U").trim().slice(0, 1).toUpperCase();
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -89,6 +121,31 @@ export default function PortalSettingsClient({ initialProfile }: { initialProfil
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white/3 border border-white/8 rounded-2xl p-5 space-y-5">
+        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-white/8 bg-white/4 px-4 py-3">
+          <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-sky-500/15 text-xl font-semibold text-white">
+            {profileImageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={profileImageUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              initial
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-white">Profile picture</p>
+            <p className="mt-1 text-xs text-white/40">Shown in your client portal and message conversations.</p>
+          </div>
+          <label className="cursor-pointer rounded-xl border border-white/10 px-4 py-2 text-sm text-white/70 transition hover:border-white/20 hover:text-white">
+            {uploadingImage ? "Uploading..." : "Upload image"}
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+              className="hidden"
+              disabled={uploadingImage}
+              onChange={handleProfileImageChange}
+            />
+          </label>
+        </div>
+
         {initialProfile.company && (
           <div className="rounded-xl bg-white/4 border border-white/8 px-4 py-3">
             <p className="text-xs text-white/35 mb-1">Business</p>

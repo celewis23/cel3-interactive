@@ -40,6 +40,7 @@ type Message = {
   senderKind: "admin" | "client" | "system";
   senderName: string;
   senderEmail: string | null;
+  senderAvatarUrl: string | null;
   body: string;
   createdAt: string;
   deletedAt: string | null;
@@ -52,6 +53,7 @@ type PortalUser = {
   email: string;
   name: string | null;
   company: string | null;
+  profileImageUrl: string | null;
   status: string;
 };
 
@@ -80,6 +82,24 @@ function conversationLabel(conversation: Conversation) {
 
 function fileLabel(file: File) {
   return `${file.name}${file.size ? ` (${formatFileSize(file.size)})` : ""}`;
+}
+
+function senderInitial(name: string, email?: string | null) {
+  const source = name?.trim() || email?.trim() || "U";
+  return source.slice(0, 1).toUpperCase();
+}
+
+function Avatar({ name, email, imageUrl, mine }: { name: string; email?: string | null; imageUrl?: string | null; mine: boolean }) {
+  return (
+    <div className={`flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border text-xs font-semibold shadow-sm ${mine ? "border-sky-400/40 bg-sky-500/20 text-sky-100" : "border-white/15 bg-white/10 text-white/75"}`}>
+      {imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+      ) : (
+        senderInitial(name, email)
+      )}
+    </div>
+  );
 }
 
 export default function MessengerClient({
@@ -244,6 +264,7 @@ export default function MessengerClient({
       senderKind: mode === "admin" ? "admin" : "client",
       senderName: "You",
       senderEmail: null,
+      senderAvatarUrl: null,
       body,
       createdAt: new Date().toISOString(),
       deletedAt: null,
@@ -456,14 +477,22 @@ export default function MessengerClient({
                   messages.map((message) => {
                     const mine = mode === "admin" ? message.senderKind === "admin" : message.senderKind === "client";
                     return (
-                      <div key={message._id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                        <div className={`max-w-[min(680px,85%)] rounded-2xl border px-4 py-3 ${mine ? "border-sky-500/20 bg-sky-500/15" : "border-white/8 bg-black/20"}`}>
+                      <div key={message._id} className={`flex items-end gap-2 ${mine ? "flex-row-reverse" : "flex-row"}`}>
+                        <Avatar
+                          name={mine ? "You" : message.senderName}
+                          email={message.senderEmail}
+                          imageUrl={message.senderAvatarUrl}
+                          mine={mine}
+                        />
+                        <div className={`relative max-w-[min(680px,78%)] rounded-2xl border px-4 py-3 shadow-sm ${mine ? "rounded-br-sm border-sky-400/40 bg-sky-500 text-black" : "rounded-bl-sm border-black/5 bg-white text-[#111111]"}`}>
+                          <span className={`absolute bottom-0 h-4 w-4 ${mine ? "-right-1 bg-sky-500" : "-left-1 bg-white"} rotate-45`} aria-hidden="true" />
+                          <div className="relative z-10">
                           <div className="mb-1 flex flex-wrap items-center gap-2">
-                            <span className="text-xs font-semibold text-white/75">{mine ? "You" : message.senderName}</span>
-                            <span className="text-[11px] text-white/30">{formatTime(message.createdAt)}</span>
-                            {message.pending && <span className="text-[11px] text-sky-300">Sending</span>}
+                            <span className={`text-xs font-semibold ${mine ? "text-black/75" : "text-black/70"}`}>{mine ? "You" : message.senderName}</span>
+                            <span className={`text-[11px] ${mine ? "text-black/50" : "text-black/45"}`}>{formatTime(message.createdAt)}</span>
+                            {message.pending && <span className="text-[11px] text-black/55">Sending</span>}
                           </div>
-                          {message.body && <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-white/75">{message.body}</p>}
+                          {message.body && <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[#111111]">{message.body}</p>}
                           {message.attachments && message.attachments.length > 0 && (
                             <div className="mt-3 grid gap-2">
                               {message.attachments.map((attachment) => {
@@ -474,23 +503,24 @@ export default function MessengerClient({
                                     href={href}
                                     target={href === "#" ? undefined : "_blank"}
                                     rel="noreferrer"
-                                    className="flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-2 text-left transition hover:border-sky-500/40"
+                                    className="flex items-center gap-3 rounded-xl border border-black/10 bg-black/[0.04] p-2 text-left transition hover:border-sky-500/40"
                                   >
                                     {attachment.thumbnailLink ? (
                                       // eslint-disable-next-line @next/next/no-img-element
                                       <img src={attachment.thumbnailLink} alt="" className="h-11 w-11 rounded-lg object-cover" />
                                     ) : (
-                                      <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/8 text-xs text-white/55">FILE</span>
+                                      <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-black/5 text-xs text-black/50">FILE</span>
                                     )}
                                     <span className="min-w-0 flex-1">
-                                      <span className="block truncate text-xs font-semibold text-white/80">{attachment.fileName}</span>
-                                      <span className="block text-[11px] text-white/35">{formatFileSize(attachment.size)}</span>
+                                      <span className="block truncate text-xs font-semibold text-black/75">{attachment.fileName}</span>
+                                      <span className="block text-[11px] text-black/45">{formatFileSize(attachment.size)}</span>
                                     </span>
                                   </a>
                                 );
                               })}
                             </div>
                           )}
+                          </div>
                         </div>
                       </div>
                     );
@@ -619,7 +649,12 @@ export default function MessengerClient({
                             className={`mb-2 flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${active ? "border-sky-500/45 bg-sky-500/10" : "border-white/8 bg-black/15 hover:border-white/20"}`}
                           >
                             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/8 text-xs font-semibold text-white/70">
-                              {(user.name || user.email).slice(0, 1).toUpperCase()}
+                              {user.profileImageUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={user.profileImageUrl} alt="" className="h-full w-full rounded-full object-cover" />
+                              ) : (
+                                (user.name || user.email).slice(0, 1).toUpperCase()
+                              )}
                             </span>
                             <span className="min-w-0">
                               <span className="block truncate text-sm font-medium text-white">{user.name || user.email}</span>
