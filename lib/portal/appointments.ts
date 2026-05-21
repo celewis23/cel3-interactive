@@ -1,4 +1,23 @@
 import { listCalendars, listEvents, type CalendarEvent } from "@/lib/google/calendar";
+import { sanityServer } from "@/lib/sanityServer";
+
+export type PortalAppointmentResponseStatus = "accepted" | "declined" | "suggested_new_time";
+
+export type PortalAppointmentResponse = {
+  _id: string;
+  eventId: string;
+  calendarId: string;
+  portalEmail: string;
+  status: PortalAppointmentResponseStatus;
+  note: string | null;
+  suggestedStart: string | null;
+  suggestedEnd: string | null;
+  respondedAt: string;
+};
+
+export type PortalAppointment = CalendarEvent & {
+  clientResponse: PortalAppointmentResponse | null;
+};
 
 function eventMatchesEmail(event: CalendarEvent, email: string) {
   const normalized = email.trim().toLowerCase();
@@ -46,4 +65,23 @@ export async function listPortalAppointments(email: string) {
     });
 
   return events.filter((event) => eventMatchesEmail(event, email));
+}
+
+export async function listPortalAppointmentsWithResponses(email: string): Promise<PortalAppointment[]> {
+  const events = await listPortalAppointments(email);
+  if (events.length === 0) return [];
+
+  const eventKeys = events.map((event) => `${event.calendarId}:${event.id}`);
+  const responses = await sanityServer.fetch<PortalAppointmentResponse[]>(
+    `*[_type == "portalAppointmentResponse" && portalEmail == $email && eventKey in $eventKeys] | order(respondedAt desc) {
+      _id, eventId, calendarId, portalEmail, status, note, suggestedStart, suggestedEnd, respondedAt
+    }`,
+    { email: email.trim().toLowerCase(), eventKeys }
+  );
+
+  const responseByKey = new Map(responses.map((response) => [`${response.calendarId}:${response.eventId}`, response]));
+  return events.map((event) => ({
+    ...event,
+    clientResponse: responseByKey.get(`${event.calendarId}:${event.id}`) ?? null,
+  }));
 }
