@@ -5,8 +5,26 @@ import { sanityWriteClient } from "@/lib/sanity.write";
 import { sendPushNotificationToAudience } from "@/lib/notifications/push";
 import { MessagingActor } from "@/lib/messaging/auth";
 import { logAudit } from "@/lib/audit/log";
+import { createFolder, listFiles, uploadFile } from "@/lib/google/drive";
 
 const MAX_MESSAGE_LENGTH = 5000;
+const MAX_ATTACHMENT_BYTES = 50 * 1024 * 1024;
+const MAX_ATTACHMENTS_PER_MESSAGE = 8;
+
+const ALLOWED_ATTACHMENT_TYPES = new Set([
+  "image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml", "image/avif",
+  "audio/mpeg", "audio/mp3", "audio/wav", "audio/x-wav", "audio/mp4", "audio/aac", "audio/ogg", "audio/webm", "audio/x-m4a",
+  "video/mp4", "video/webm", "video/quicktime",
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "application/zip", "application/x-zip-compressed",
+  "text/plain", "text/csv",
+]);
 
 export type ConversationSummary = {
   _id: string;
@@ -39,6 +57,22 @@ export type MessageRecord = {
   createdAt: string;
   updatedAt: string | null;
   deletedAt: string | null;
+  attachments: MessageAttachment[];
+};
+
+export type MessageAttachment = {
+  _key: string;
+  driveFileId: string;
+  fileName: string;
+  fileUrl: string | null;
+  webViewLink: string | null;
+  webContentLink: string | null;
+  thumbnailLink: string | null;
+  contentType: string;
+  size: number | null;
+  uploadedByActorId: string;
+  uploadedByUserId: string | null;
+  createdAt: string;
 };
 
 type ConversationRecord = ConversationSummary & {
@@ -65,20 +99,70 @@ export type MessageablePortalUser = {
   company: string | null;
   stripeCustomerId: string | null;
   pipelineContactId: string | null;
+  driveRootFolderId: string | null;
   status: string;
+};
+
+export type MessageAttachmentInput = {
+  fileName: string;
+  contentType: string;
+  size: number;
+  data: Buffer;
 };
 
 function normalizeBody(body: unknown) {
   return String(body ?? "").replace(/\r\n/g, "\n").trim();
 }
 
-export function validateMessageBody(body: unknown) {
+export function validateMessageBody(body: unknown, opts?: { allowEmpty?: boolean }) {
   const value = normalizeBody(body);
-  if (!value) return { ok: false as const, error: "Message body is required" };
+  if (!value && !opts?.allowEmpty) return { ok: false as const, error: "Message body is required" };
   if (value.length > MAX_MESSAGE_LENGTH) {
     return { ok: false as const, error: `Message body must be ${MAX_MESSAGE_LENGTH} characters or less` };
   }
   return { ok: true as const, body: value };
+}
+
+function validateAttachments(attachments: MessageAttachmentInput[]) {
+  if (attachments.length > MAX_ATTACHMENTS_PER_MESSAGE) {
+    return { ok: false as const, error: `Attach ${MAX_ATTACHMENTS_PER_MESSAGE} files or fewer per message` };
+  }
+
+  for (const attachment of attachments) {
+    if (!attachment.fileName || attachment.size <= 0) return { ok: false as const, error: "Attached files cannot be empty" };
+    if (attachment.size > MAX_ATTACHMENT_BYTES) return { ok: false as const, error: `${attachment.fileName} is too large. Max file size is 50 MB` };
+    if (!ALLOWED_ATTACHMENT_TYPES.has(attachment.contentType)) {
+      return { ok: false as const, error: `File type not allowed: ${attachment.contentType || "unknown"}` };
+    }
+  }
+
+  return { ok: true as const };
+}
+
+function sanitizeDriveFolderName(input: string) {
+  const cleaned = input.replace(/[<>:"/\\|?*\u0000-\u001F]/g, " ").replace(/\s+/g, " ").trim();
+  return cleaned || "Conversation";
+}
+
+async function getOrCreateDriveFolderByName(name: string, parentId?: string | null) {
+  const normalized = sanitizeDriveFolderName(name);
+  const { files } = await listFiles({ folderId: parentId ?? undefined, foldersOnly: true, pageSize: 200 });
+  const existing = files.find((file) => file.isFolder && file.name.trim().toLowerCase() === normalized.toLowerCase());
+  if (existing) return existing;
+  return createFolder(normalized, parentId ?? undefined);
+}
+
+function guessAssetFileType(mime: string) {
+  if (mime.startsWith("image/")) return "image";
+  if (mime.startsWith("audio/")) return "audio";
+  if (mime.startsWith("video/")) return "video";
+  if (mime === "application/pdf") return "pdf";
+  if (mime.includes("zip")) return "zip";
+  if (mime.includes("word") || mime.includes("document")) return "doc";
+  if (mime.includes("sheet") || mime.includes("excel") || mime === "text/csv") return "spreadsheet";
+  if (mime.includes("presentation") || mime.includes("powerpoint")) return "presentation";
+  if (mime.startsWith("text/")) return "text";
+  return "other";
 }
 
 function makeParticipant(actor: MessagingActor, now: string, roleInConversation?: string) {
@@ -159,7 +243,8 @@ export async function listConversations(actor: MessagingActor, search?: string):
           "conversationId": _id,
           "messages": *[_type == "messagingMessage" && conversationId == ^._id && deletedAt == null] | order(createdAt asc){
             _id, conversationId, senderActorId, senderUserId, senderKind, senderName, senderEmail,
-            body, messageType, createdAt, updatedAt, deletedAt
+            body, messageType, createdAt, updatedAt, deletedAt,
+            "attachments": coalesce(attachments, [])
           }
         }`,
         { ids: filtered.map((item) => item._id) }
@@ -180,7 +265,8 @@ export async function getConversation(actor: MessagingActor, conversationId: str
   const messages = await sanityServer.fetch<MessageRecord[]>(
     `*[_type == "messagingMessage" && conversationId == $conversationId && deletedAt == null] | order(createdAt asc){
       _id, conversationId, senderActorId, senderUserId, senderKind, senderName, senderEmail,
-      body, messageType, createdAt, updatedAt, deletedAt
+      body, messageType, createdAt, updatedAt, deletedAt,
+      "attachments": coalesce(attachments, [])
     }`,
     { conversationId }
   );
@@ -200,7 +286,7 @@ export async function listMessageablePortalUsers(actor: MessagingActor, search?:
   const query = search?.trim().toLowerCase();
   const users = await sanityServer.fetch<MessageablePortalUser[]>(
     `*[_type == "clientPortalUser" && status != "suspended"] | order(coalesce(company, name, email) asc){
-      _id, email, name, company, stripeCustomerId, pipelineContactId, status
+      _id, email, name, company, stripeCustomerId, pipelineContactId, driveRootFolderId, status
     }`
   );
 
@@ -274,7 +360,7 @@ export async function startAdminConversation(
 
   const client = await sanityServer.fetch<MessageablePortalUser | null>(
     `*[_type == "clientPortalUser" && _id == $id && status != "suspended"][0]{
-      _id, email, name, company, stripeCustomerId, pipelineContactId, status
+      _id, email, name, company, stripeCustomerId, pipelineContactId, driveRootFolderId, status
     }`,
     { id: portalUserId }
   );
@@ -354,7 +440,95 @@ export async function startAdminConversation(
   return { conversation, message, status: 201 };
 }
 
-async function createMessageDocument(conversationId: string, actor: MessagingActor, body: string, now = new Date().toISOString()) {
+async function uploadConversationAttachments(
+  conversation: ConversationRecord,
+  actor: MessagingActor,
+  files: MessageAttachmentInput[],
+  now: string
+): Promise<{ attachments?: MessageAttachment[]; error?: string; status?: number }> {
+  if (files.length === 0) return { attachments: [] };
+
+  const validation = validateAttachments(files);
+  if (!validation.ok) return { error: validation.error, status: 400 };
+
+  if (!conversation.clientId) return { error: "Conversation is not linked to a client account", status: 422 };
+
+  const client = await sanityServer.fetch<{ _id: string; driveRootFolderId: string | null } | null>(
+    `*[_type == "clientPortalUser" && _id == $id][0]{ _id, driveRootFolderId }`,
+    { id: conversation.clientId }
+  );
+
+  if (!client?.driveRootFolderId) {
+    return { error: "No Drive folder configured for this client", status: 422 };
+  }
+
+  const messagesFolder = await getOrCreateDriveFolderByName("Messages", client.driveRootFolderId);
+  const folderLabel = conversation.title || conversation.clientName || conversation.clientEmail || conversation._id;
+  const conversationFolder = await getOrCreateDriveFolderByName(folderLabel, messagesFolder.id);
+
+  const attachments: MessageAttachment[] = [];
+  for (const file of files) {
+    const uploaded = await uploadFile({
+      name: file.fileName,
+      mimeType: file.contentType,
+      data: file.data,
+      parentId: conversationFolder.id,
+    });
+
+    const attachment: MessageAttachment = {
+      _key: uploaded.id || randomUUID(),
+      driveFileId: uploaded.id,
+      fileName: uploaded.name || file.fileName,
+      fileUrl: uploaded.webViewLink ?? uploaded.webContentLink ?? null,
+      webViewLink: uploaded.webViewLink ?? null,
+      webContentLink: uploaded.webContentLink ?? null,
+      thumbnailLink: uploaded.thumbnailLink ?? null,
+      contentType: uploaded.mimeType || file.contentType,
+      size: uploaded.size ?? file.size ?? null,
+      uploadedByActorId: actor.actorId,
+      uploadedByUserId: actor.userId,
+      createdAt: now,
+    };
+
+    attachments.push(attachment);
+
+    await sanityWriteClient.create({
+      _type: "assetItem",
+      name: attachment.fileName,
+      fileUrl: attachment.fileUrl,
+      fileType: guessAssetFileType(attachment.contentType),
+      mimeType: attachment.contentType,
+      sizeBytes: attachment.size,
+      folderId: null,
+      tags: ["messaging"],
+      linkedEntityType: "messagingConversation",
+      linkedEntityId: conversation._id,
+      uploadedBy: actor.userId,
+      isPublic: false,
+      publicToken: null,
+      publicExpiresAt: null,
+      sourceRef: {
+        source: "googleDrive",
+        driveFileId: attachment.driveFileId,
+        driveFolderId: conversationFolder.id,
+        conversationId: conversation._id,
+      },
+      sanityAssetId: null,
+      createdAt: now,
+    });
+  }
+
+  await sanityWriteClient.patch(conversation._id).set({ driveFolderId: conversationFolder.id }).commit();
+  return { attachments };
+}
+
+async function createMessageDocument(
+  conversationId: string,
+  actor: MessagingActor,
+  body: string,
+  now = new Date().toISOString(),
+  attachments: MessageAttachment[] = []
+) {
   return sanityWriteClient.create({
     _type: "messagingMessage",
     conversationId,
@@ -364,7 +538,8 @@ async function createMessageDocument(conversationId: string, actor: MessagingAct
     senderName: actor.name,
     senderEmail: actor.email,
     body,
-    messageType: "Text",
+    messageType: attachments.length > 0 && !body ? "Attachment" : "Text",
+    attachments,
     metadata: null,
     createdAt: now,
     updatedAt: null,
@@ -372,22 +547,33 @@ async function createMessageDocument(conversationId: string, actor: MessagingAct
   });
 }
 
-export async function sendConversationMessage(actor: MessagingActor, conversationId: string, bodyInput: unknown, req?: NextRequest) {
-  const validation = validateMessageBody(bodyInput);
-  if (!validation.ok) return { error: validation.error, status: 400 };
-
+export async function sendConversationMessage(
+  actor: MessagingActor,
+  conversationId: string,
+  bodyInput: unknown,
+  req?: NextRequest,
+  attachmentInputs: MessageAttachmentInput[] = []
+) {
   const conversation = await fetchConversation(conversationId);
   if (!actorCanAccessConversation(actor, conversation)) {
     return { error: "Conversation not found", status: 404 };
   }
 
   const now = new Date().toISOString();
-  const message = await createMessageDocument(conversationId, actor, validation.body, now);
+  const uploadResult = await uploadConversationAttachments(conversation!, actor, attachmentInputs, now);
+  if (uploadResult.error) return { error: uploadResult.error, status: uploadResult.status ?? 400 };
+
+  const attachments = uploadResult.attachments ?? [];
+  const validation = validateMessageBody(bodyInput, { allowEmpty: attachments.length > 0 });
+  if (!validation.ok) return { error: validation.error, status: 400 };
+
+  const preview = validation.body || (attachments.length === 1 ? `Sent ${attachments[0].fileName}` : `Sent ${attachments.length} attachments`);
+  const message = await createMessageDocument(conversationId, actor, validation.body, now, attachments);
 
   const patches: Record<string, unknown> = {
     updatedAt: now,
     lastMessageAt: now,
-    lastMessagePreview: validation.body.slice(0, 180),
+    lastMessagePreview: preview.slice(0, 180),
     lastSenderName: actor.name,
   };
 
@@ -397,9 +583,9 @@ export async function sendConversationMessage(actor: MessagingActor, conversatio
   await patch.commit();
 
   if (actor.kind === "client") {
-    await notifyAdminsForClientMessage(conversationId, conversation!.title ?? "Client message", actor, validation.body);
+    await notifyAdminsForClientMessage(conversationId, conversation!.title ?? "Client message", actor, preview);
   } else {
-    await notifyClientForAdminMessage(conversation!, actor, validation.body);
+    await notifyClientForAdminMessage(conversation!, actor, preview);
   }
 
   if (req) {
