@@ -3,6 +3,7 @@ import { listInvoices } from "@/lib/stripe/billing";
 import { sanityServer } from "@/lib/sanityServer";
 import { listPortalAppointmentsWithResponses } from "@/lib/portal/appointments";
 import { getUnreadCount } from "@/lib/messaging/service";
+import { getRecentSentCampaigns } from "@/lib/campaigns/db";
 import type { MessagingActor } from "@/lib/messaging/auth";
 import Link from "next/link";
 
@@ -59,7 +60,7 @@ export default async function PortalDashboard() {
 
   const refs = [user.stripeCustomerId, user.pipelineContactId].filter(Boolean) as string[];
 
-  const [invoiceData, projects, estimates, siteAccess, allAppointments, unsignedContracts, unreadMessages] =
+  const [invoiceData, projects, estimates, siteAccess, allAppointments, recentCampaigns, unsignedContracts, unreadMessages] =
     await Promise.all([
       user.stripeCustomerId
         ? listInvoices({ customerId: user.stripeCustomerId, status: "open", limit: 50 }).catch(() => ({ invoices: [] }))
@@ -89,6 +90,7 @@ export default async function PortalDashboard() {
             .catch(() => null)
         : Promise.resolve(null),
       listPortalAppointmentsWithResponses(user.email).catch(() => []),
+      getRecentSentCampaigns(3).catch(() => []),
       sanityServer
         .fetch<Array<{ _id: string; number: string; signingToken: string; templateName: string | null }>>(
           `*[_type == "contract" && status in ["sent","viewed"] && (
@@ -151,6 +153,35 @@ export default async function PortalDashboard() {
 
   return (
     <div className="flex flex-col gap-8 pb-4">
+      {/* ── What's New ───────────────────────────────────── */}
+      {recentCampaigns.length > 0 && (
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">What&rsquo;s New from CEL3 Interactive</h2>
+          </div>
+          <div className="flex flex-col gap-2">
+            {recentCampaigns.map((c) => (
+              <Link
+                key={c.id}
+                href={`/portal/campaigns/${c.id}`}
+                className="flex items-center justify-between bg-gradient-to-r from-sky-500/5 to-transparent border border-sky-500/15 rounded-xl px-4 py-3.5 hover:border-sky-500/30 transition-colors group"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-2 h-2 rounded-full bg-sky-400 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-white truncate">{c.subject}</p>
+                    <p className="text-xs text-white/35 mt-0.5">
+                      {c.sentAt ? new Date(c.sentAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs text-sky-400/70 group-hover:text-sky-400 transition-colors flex-shrink-0 ml-3">Read →</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* ── Hero ─────────────────────────────────────────── */}
       <div>
         <h1 className="text-3xl font-bold text-white">
