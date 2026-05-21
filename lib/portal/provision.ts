@@ -2,6 +2,7 @@ import {
   createFolder,
   listFiles,
   normalizeDriveId,
+  shareFileWithUser,
   uploadFile,
 } from "@/lib/google/drive";
 import { getCustomer } from "@/lib/stripe/billing";
@@ -46,6 +47,26 @@ export async function getOrCreateDriveFolderByName(name: string, parentId?: stri
   return createFolder(normalized, parentId);
 }
 
+export async function ensureClientDriveFolderAccess(params: {
+  folderId?: string | null;
+  email?: string | null;
+}) {
+  const folderId = normalizeDriveId(params.folderId);
+  const email = params.email?.trim().toLowerCase();
+  if (!folderId || !email) return;
+
+  try {
+    await shareFileWithUser({
+      fileId: folderId,
+      email,
+      role: "writer",
+      sendNotificationEmail: false,
+    });
+  } catch (err) {
+    console.error("CLIENT_DRIVE_SHARE_ERR:", err);
+  }
+}
+
 async function resolveClientsFolderParentId() {
   const explicitClientsFolderId = normalizeDriveId(
     process.env.GOOGLE_DRIVE_CLIENTS_FOLDER_ID?.trim()
@@ -68,6 +89,18 @@ function getPortalFolderBaseName(input: { company?: string | null; name?: string
   return sanitizeFolderName(candidate);
 }
 
+export async function getOrCreatePortalClientRootFolder(input: {
+  company?: string | null;
+  name?: string | null;
+  email?: string | null;
+}) {
+  const folderName = getPortalFolderBaseName(input);
+  const clientsFolderParentId = await resolveClientsFolderParentId();
+  const rootFolder = await getOrCreateDriveFolderByName(folderName, clientsFolderParentId);
+  await getOrCreateDriveFolderByName("Requests", rootFolder.id).catch(() => null);
+  return rootFolder;
+}
+
 export async function ensurePortalAccessForStripeCustomer(customerId: string): Promise<PortalUserRecord> {
   const customer = await getCustomer(customerId);
   if (!customer) {
@@ -82,10 +115,8 @@ export async function ensurePortalAccessForStripeCustomer(customerId: string): P
 
   const company = pipelineContact.company ?? customer.description ?? null;
   const name = customer.name ?? pipelineContact.name ?? customer.email;
-  const folderName = getPortalFolderBaseName({ company, name, email: customer.email });
-  const clientsFolderParentId = await resolveClientsFolderParentId();
-  const rootFolder = await getOrCreateDriveFolderByName(folderName, clientsFolderParentId);
-  await getOrCreateDriveFolderByName("Requests", rootFolder.id).catch(() => null);
+  const rootFolder = await getOrCreatePortalClientRootFolder({ company, name, email: customer.email });
+  await ensureClientDriveFolderAccess({ folderId: rootFolder.id, email: customer.email });
 
   const existing = await sanityServer.fetch<PortalUserRecord | null>(
     `*[_type == "clientPortalUser" && (stripeCustomerId == $stripeCustomerId || email == $email)][0]{

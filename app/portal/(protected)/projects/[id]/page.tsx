@@ -1,4 +1,5 @@
 import { getPortalUser } from "@/lib/portal/getPortalUser";
+import { getPortalProjectQueryParams, PORTAL_PROJECT_ACCESS_FILTER } from "@/lib/portal/projectAccess";
 import { sanityServer } from "@/lib/sanityServer";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -13,7 +14,7 @@ export default async function PortalProjectDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const [user, { id }] = await Promise.all([getPortalUser(), params]);
-  const refs = [user.stripeCustomerId, user.pipelineContactId].filter(Boolean) as string[];
+  const queryParams = getPortalProjectQueryParams(user);
 
   const project = await sanityServer
     .fetch<{
@@ -24,10 +25,10 @@ export default async function PortalProjectDetailPage({
       dueDate: string | null;
       columns: Array<{ id: string; name: string; taskIds: string[] }>;
     } | null>(
-      `*[_type == "pmProject" && _id == $projectId && clientRef in $refs][0]{
+      `*[_type == "pmProject" && _id == $projectId && ${PORTAL_PROJECT_ACCESS_FILTER}][0]{
         _id, name, status, description, dueDate, columns
       }`,
-      { projectId: id, refs: refs.length > 0 ? refs : ["__none__"] }
+      { projectId: id, ...queryParams }
     )
     .catch(() => null);
 

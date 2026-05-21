@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { normalizeDriveId } from "@/lib/google/drive";
+import { ensureClientDriveFolderAccess } from "@/lib/portal/provision";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { generateTemporaryPortalPassword } from "@/lib/portal/auth";
@@ -50,6 +51,14 @@ export async function PATCH(
       patch[field] = body[field] ?? null;
     }
     const updated = await sanityWriteClient.patch(id).set(patch).commit();
+    const updatedUser = updated as {
+      email?: string | null;
+      driveRootFolderId?: string | null;
+    };
+    await ensureClientDriveFolderAccess({
+      folderId: updatedUser.driveRootFolderId,
+      email: updatedUser.email,
+    });
     return NextResponse.json(updated);
   } catch (err) {
     console.error("ADMIN_PORTAL_USER_PATCH_ERR:", err);
@@ -93,8 +102,11 @@ export async function POST(
       status: string | null;
       pipelineContactId: string | null;
       stripeCustomerId: string | null;
+      driveRootFolderId: string | null;
     } | null>(
-      `*[_type == "clientPortalUser" && _id == $id][0]{ email, name, status, pipelineContactId, stripeCustomerId }`,
+      `*[_type == "clientPortalUser" && _id == $id][0]{
+        email, name, status, pipelineContactId, stripeCustomerId, driveRootFolderId
+      }`,
       { id }
     );
     if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -114,6 +126,7 @@ export async function POST(
       invitationSentAt,
       status: "invited",
     }).commit();
+    await ensureClientDriveFolderAccess({ folderId: user.driveRootFolderId, email: user.email });
 
     let emailSent = false;
     try {

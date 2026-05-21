@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { normalizeDriveId } from "@/lib/google/drive";
+import { ensureClientDriveFolderAccess, getOrCreatePortalClientRootFolder } from "@/lib/portal/provision";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 
@@ -47,7 +48,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const driveRootFolderId = normalizeDriveId(body.driveRootFolderId) || null;
+    let driveRootFolderId = normalizeDriveId(body.driveRootFolderId) || null;
+    if (!driveRootFolderId) {
+      const folder = await getOrCreatePortalClientRootFolder({
+        company: body.company,
+        name: body.name,
+        email,
+      });
+      driveRootFolderId = folder.id;
+    }
+    await ensureClientDriveFolderAccess({ folderId: driveRootFolderId, email });
 
     const user = await sanityWriteClient.create({
       _type: "clientPortalUser",

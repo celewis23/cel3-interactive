@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sanityServer } from "@/lib/sanityServer";
 import { verifyPortalSessionToken, PORTAL_COOKIE } from "@/lib/portal/auth";
+import { getPortalProjectQueryParams, PORTAL_PROJECT_ACCESS_FILTER } from "@/lib/portal/projectAccess";
 
 export const runtime = "nodejs";
 
@@ -17,18 +18,19 @@ export async function GET(
     const user = await sanityServer.fetch<{
       stripeCustomerId: string | null;
       pipelineContactId: string | null;
+      email: string;
     } | null>(
-      `*[_type == "clientPortalUser" && _id == $id][0]{ stripeCustomerId, pipelineContactId }`,
+      `*[_type == "clientPortalUser" && _id == $id][0]{ email, stripeCustomerId, pipelineContactId }`,
       { id: session.userId }
     );
     if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    const refs = [user.stripeCustomerId, user.pipelineContactId].filter(Boolean) as string[];
+    const queryParams = getPortalProjectQueryParams({ ...user, _id: session.userId });
 
     // Enforce ownership — project must reference this client
     const project = await sanityServer.fetch(
-      `*[_type == "pmProject" && _id == $projectId && clientRef in $refs][0]`,
-      { projectId: id, refs: refs.length > 0 ? refs : ["__none__"] }
+      `*[_type == "pmProject" && _id == $projectId && ${PORTAL_PROJECT_ACCESS_FILTER}][0]`,
+      { projectId: id, ...queryParams }
     );
     if (!project) return NextResponse.json({ error: "Not found" }, { status: 404 });
 

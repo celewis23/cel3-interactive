@@ -153,6 +153,39 @@ export async function createFolder(
   return mapFile(res.data);
 }
 
+export async function shareFileWithUser(params: {
+  fileId: string;
+  email: string;
+  role?: "reader" | "commenter" | "writer";
+  sendNotificationEmail?: boolean;
+}): Promise<void> {
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new Error("Not authenticated with Google");
+
+  const fileId = normalizeDriveId(params.fileId) ?? params.fileId;
+  const email = params.email.trim().toLowerCase();
+  if (!fileId || !email) return;
+
+  const drive = google.drive({ version: "v3", auth: auth.oauth2Client });
+  try {
+    await drive.permissions.create({
+      fileId,
+      sendNotificationEmail: params.sendNotificationEmail ?? false,
+      requestBody: {
+        type: "user",
+        role: params.role ?? "writer",
+        emailAddress: email,
+      },
+      fields: "id",
+      ...ALL_DRIVE_MUTATION_OPTIONS,
+    });
+  } catch (err) {
+    const code = typeof err === "object" && err && "code" in err ? (err as { code?: number }).code : undefined;
+    if (code === 409) return;
+    throw err;
+  }
+}
+
 export async function deleteFile(fileId: string): Promise<void> {
   const auth = await getAuthenticatedClient();
   if (!auth) throw new Error("Not authenticated with Google");

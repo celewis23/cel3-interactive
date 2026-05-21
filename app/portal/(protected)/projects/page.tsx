@@ -1,4 +1,5 @@
 import { getPortalUser } from "@/lib/portal/getPortalUser";
+import { getPortalProjectQueryParams, PORTAL_PROJECT_ACCESS_FILTER } from "@/lib/portal/projectAccess";
 import { sanityServer } from "@/lib/sanityServer";
 import Link from "next/link";
 
@@ -7,7 +8,7 @@ export const runtime = "nodejs";
 
 export default async function PortalProjectsPage() {
   const user = await getPortalUser();
-  const refs = [user.stripeCustomerId, user.pipelineContactId].filter(Boolean) as string[];
+  const queryParams = getPortalProjectQueryParams(user);
 
   const projects: Array<{
     _id: string;
@@ -17,16 +18,14 @@ export default async function PortalProjectsPage() {
     columns: Array<{ id: string; name: string; taskIds: string[] }>;
     _createdAt: string;
   }> =
-    refs.length > 0
-      ? await sanityServer
-          .fetch(
-            `*[_type == "pmProject" && clientRef in $refs] | order(_createdAt desc) {
-              _id, name, status, dueDate, columns, _createdAt
-            }`,
-            { refs }
-          )
-          .catch(() => [])
-      : [];
+    await sanityServer
+      .fetch(
+        `*[_type == "pmProject" && ${PORTAL_PROJECT_ACCESS_FILTER}] | order(_createdAt desc) {
+          _id, name, status, dueDate, columns, _createdAt
+        }`,
+        queryParams
+      )
+      .catch(() => []);
 
   const tasks: Array<{ _id: string; projectId: string; columnId: string }> =
     projects.length > 0

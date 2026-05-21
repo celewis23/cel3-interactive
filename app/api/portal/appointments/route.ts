@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyPortalSessionToken, PORTAL_COOKIE } from "@/lib/portal/auth";
-import { listEvents } from "@/lib/google/calendar";
+import { listPortalAppointments } from "@/lib/portal/appointments";
 
 export const runtime = "nodejs";
 
@@ -10,15 +10,7 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const now = new Date().toISOString();
-    const nextMonth = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-
-    const { events } = await listEvents({
-      timeMin: now,
-      timeMax: nextMonth,
-      maxResults: 20,
-      q: session.email,
-    }).catch(() => ({ events: [] }));
+    const events = await listPortalAppointments(session.email);
 
     return NextResponse.json(
       events.map((e) => ({
