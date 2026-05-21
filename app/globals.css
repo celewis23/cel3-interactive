@@ -69,6 +69,21 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+@media (min-width: 768px) {
+  .messenger-shell {
+    display: grid;
+    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  }
+
+  .messenger-list {
+    border-right: 1px solid rgb(255 255 255 / 0.08);
+  }
+
+  .messenger-thread {
+    min-width: 0;
+  }
+}
+
 [data-admin-theme="light"] .admin-shell {
   color: #111111;
 }

@@ -347,8 +347,8 @@ export default function MessengerClient({
         </form>
       )}
 
-      <div className="min-h-[620px] overflow-hidden rounded-2xl border border-white/8 bg-white/3 md:grid md:grid-cols-[340px,minmax(0,1fr)]">
-        <aside className={`${selectedId ? "hidden" : "block"} md:block border-white/8 md:border-r`}>
+      <div className="messenger-shell min-h-[620px] overflow-hidden rounded-2xl border border-white/8 bg-white/3">
+        <aside className={`messenger-list ${selectedId ? "hidden" : "block"} border-white/8 md:block`}>
           <div className="border-b border-white/8 p-4">
             <input
               value={search}
@@ -398,7 +398,7 @@ export default function MessengerClient({
           </div>
         </aside>
 
-        <section className={`${selectedId ? "flex" : "hidden"} min-h-[620px] flex-col md:flex`}>
+        <section className={`messenger-thread ${selectedId ? "flex" : "hidden"} min-h-[620px] flex-col md:flex`}>
           <div className="flex items-center justify-between gap-3 border-b border-white/8 px-5 py-4">
             <div className="flex min-w-0 items-center gap-3">
               <button
