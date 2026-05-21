@@ -56,7 +56,7 @@ export default async function ContractPrintPage({
         `}</style>
       </head>
       <body>
-        <button className="print-btn no-print" onClick={() => window.print()}>
+        <button type="button" className="print-btn no-print" id="print-contract-button">
           Print / Save PDF
         </button>
 
@@ -118,7 +118,7 @@ export default async function ContractPrintPage({
 
         <script
           dangerouslySetInnerHTML={{
-            __html: `document.querySelector('.print-btn')?.addEventListener('click', () => window.print());`,
+            __html: `document.getElementById('print-contract-button')?.addEventListener('click', () => window.print());`,
           }}
         />
       </body>

@@ -183,7 +183,7 @@ export default function ContractDetailPage() {
           </div>
 
           {/* Contract body preview */}
-          <div className="bg-white rounded-xl p-6 overflow-auto max-h-[500px]">
+          <div className="contract-document rounded-xl p-6 overflow-auto max-h-[500px]">
             <div
               className="prose prose-gray max-w-none text-sm"
               dangerouslySetInnerHTML={{ __html: contract.body }}

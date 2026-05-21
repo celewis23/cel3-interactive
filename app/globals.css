@@ -223,6 +223,29 @@ body {
   color-scheme: light;
 }
 
+[data-admin-theme="dark"] .admin-shell .contract-document {
+  background-color: #050505;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  color: #f3f4f6;
+}
+
+[data-admin-theme="dark"] .admin-shell .contract-document :where(h1, h2, h3, h4, p, li, strong, span, div) {
+  color: #f3f4f6;
+}
+
+[data-admin-theme="dark"] .admin-shell .contract-document :where(a) {
+  color: rgb(56 189 248);
+}
+
+[data-admin-theme="light"] .admin-shell .contract-document {
+  background-color: #ffffff;
+  color: #111111;
+}
+
+[data-admin-theme="light"] .admin-shell .contract-document :where(h1, h2, h3, h4, p, li, strong, span, div) {
+  color: #111111;
+}
+
 [data-portal-theme="light"] .portal-shell {
   color: #111111;
 }
