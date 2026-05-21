@@ -622,7 +622,7 @@ function CanvasBlockFrame({
         onSelect();
       }}
     >
-      <div className={`absolute -left-2 -top-2 z-30 flex items-center gap-1 rounded-xl border border-slate-900/10 bg-slate-950/90 p-1 text-white shadow-xl backdrop-blur transition-opacity ${selected ? "opacity-100" : "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"}`}>
+      <div className={`absolute -left-2 bottom-full mb-1 z-30 flex items-center gap-1 rounded-xl border border-slate-900/10 bg-slate-950/90 p-1 text-white shadow-xl backdrop-blur transition-opacity ${selected ? "opacity-100" : "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"}`}>
         <button
           type="button"
           className={`flex h-7 w-7 items-center justify-center rounded-lg ${block.locked ? "cursor-not-allowed text-white/25" : "cursor-move text-white/55 hover:bg-white/10 hover:text-white"}`}
@@ -2012,7 +2012,8 @@ export default function NotesClient() {
         .notes-doc-content td, .notes-doc-content p, .notes-doc-content li { color: rgba(255,255,255,0.68); }
       `}</style>
 
-      <aside className={`hidden shrink-0 flex-col overflow-hidden border-r border-white/8 bg-white/[0.025] transition-[width] duration-300 md:flex ${workspacesCollapsed ? "w-12" : "w-72"}`}>
+      <div className={`relative hidden shrink-0 flex-col transition-[width] duration-300 md:flex ${workspacesCollapsed ? "w-12" : "w-72"}`}>
+      <aside className="flex h-full w-full flex-col overflow-hidden border-r border-white/8 bg-white/[0.025]">
         {workspacesCollapsed ? (
           <button
             type="button"
@@ -2034,7 +2035,6 @@ export default function NotesClient() {
               className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/72 outline-none placeholder:text-white/22"
             />
             <button type="button" onClick={createWorkspace} className="h-9 w-9 rounded-xl bg-sky-500 text-white shadow-[0_12px_30px_rgba(14,165,233,0.25)]">+</button>
-            <button type="button" onClick={() => setWorkspacesCollapsed(true)} className="h-9 rounded-xl bg-white/8 px-2 text-xs text-white/45 hover:bg-white/12 hover:text-white/72" aria-label="Collapse workspaces panel">Collapse</button>
           </div>
         </div>
 
@@ -2089,8 +2089,24 @@ export default function NotesClient() {
         </>
         )}
       </aside>
+      <button
+        type="button"
+        onClick={() => setWorkspacesCollapsed(!workspacesCollapsed)}
+        className="absolute right-0 top-1/2 z-20 flex h-5 w-5 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border border-white/15 bg-[#0d1520] text-white/50 shadow-lg transition-colors hover:border-sky-400/40 hover:text-sky-300"
+        aria-label={workspacesCollapsed ? "Expand workspaces panel" : "Collapse workspaces panel"}
+      >
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+          {workspacesCollapsed ? (
+            <path d="M3.5 2L6.5 5L3.5 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          ) : (
+            <path d="M6.5 2L3.5 5L6.5 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          )}
+        </svg>
+      </button>
+      </div>
 
-      <aside className={`hidden shrink-0 flex-col overflow-hidden border-r border-white/8 bg-black/18 transition-[width] duration-300 lg:flex ${pagesCollapsed ? "w-12" : "w-80"}`}>
+      <div className={`relative hidden shrink-0 flex-col transition-[width] duration-300 lg:flex ${pagesCollapsed ? "w-12" : "w-80"}`}>
+      <aside className="flex h-full w-full flex-col overflow-hidden border-r border-white/8 bg-black/18">
         {pagesCollapsed ? (
           <button
             type="button"
@@ -2110,7 +2126,6 @@ export default function NotesClient() {
             </div>
             <div className="flex shrink-0 items-center gap-2">
               <button type="button" onClick={() => createPage()} className="rounded-xl bg-sky-500 px-3 py-2 text-xs font-semibold text-white">New Page</button>
-              <button type="button" onClick={() => setPagesCollapsed(true)} className="rounded-xl bg-white/8 px-2 py-2 text-xs text-white/45 hover:bg-white/12 hover:text-white/72" aria-label="Collapse pages panel">Collapse</button>
             </div>
           </div>
           <div className="mt-3 grid grid-cols-4 gap-1 rounded-xl border border-white/8 bg-white/[0.035] p-1">
@@ -2174,6 +2189,21 @@ export default function NotesClient() {
         </>
         )}
       </aside>
+      <button
+        type="button"
+        onClick={() => setPagesCollapsed(!pagesCollapsed)}
+        className="absolute right-0 top-1/2 z-20 flex h-5 w-5 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border border-white/15 bg-[#0d1520] text-white/50 shadow-lg transition-colors hover:border-sky-400/40 hover:text-sky-300"
+        aria-label={pagesCollapsed ? "Expand pages panel" : "Collapse pages panel"}
+      >
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+          {pagesCollapsed ? (
+            <path d="M3.5 2L6.5 5L3.5 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          ) : (
+            <path d="M6.5 2L3.5 5L6.5 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          )}
+        </svg>
+      </button>
+      </div>
 
       <main className="flex min-w-0 flex-1 flex-col bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.12),transparent_32%),linear-gradient(180deg,#071018,#05070a)]">
         <div className="flex shrink-0 flex-col gap-2 border-b border-white/8 bg-black/35 p-3 lg:hidden">
