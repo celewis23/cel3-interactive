@@ -22,9 +22,10 @@ export default async function ProtectedPortalLayout({ children }: { children: Re
     managementUrl: string | null;
     pipelineContactId: string | null;
     mustChangePassword: boolean | null;
+    profileImageUrl: string | null;
   } | null>(
     `*[_type == "clientPortalUser" && _id == $id && status != "suspended"][0]{
-      _id, email, name, company, siteUrl, managementUrl, pipelineContactId, mustChangePassword
+      _id, email, name, company, siteUrl, managementUrl, pipelineContactId, mustChangePassword, profileImageUrl
     }`,
     { id: session.userId }
   );

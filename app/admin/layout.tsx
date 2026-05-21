@@ -11,6 +11,7 @@ interface CurrentUser {
   email: string;
   roleName: string;
   isOwner: boolean;
+  profileImageUrl: string | null;
 }
 
 interface NavItem {
@@ -384,16 +385,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   });
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const closeTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/auth/me")
       .then((r) => r.ok ? r.json() : null)
       .then((d) => {
         if (d) {
-          setCurrentUser({ name: d.name, email: d.email, roleName: d.roleName, isOwner: d.isOwner });
+          setCurrentUser({
+            name: d.name,
+            email: d.email,
+            roleName: d.roleName,
+            isOwner: d.isOwner,
+            profileImageUrl: d.profileImageUrl ?? null,
+          });
         }
       })
       .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    function handleProfileImageUpdated(event: Event) {
+      const detail = (event as CustomEvent<{ profileImageUrl?: string | null }>).detail;
+      setCurrentUser((current) => current ? { ...current, profileImageUrl: detail?.profileImageUrl ?? null } : current);
+    }
+    window.addEventListener("cel3-profile-image-updated", handleProfileImageUpdated);
+    return () => window.removeEventListener("cel3-profile-image-updated", handleProfileImageUpdated);
   }, []);
 
   useEffect(() => {
@@ -409,6 +426,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current !== null) {
+        window.clearTimeout(closeTimerRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -472,6 +497,37 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join("") || "A";
+
+  function openMenu() {
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+    setMenuOpen(true);
+  }
+
+  function closeMenuSoon() {
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+    }
+    closeTimerRef.current = window.setTimeout(() => {
+      setMenuOpen(false);
+      closeTimerRef.current = null;
+    }, 320);
+  }
+
+  function profileAvatar(className: string, textClassName = "text-sm") {
+    return (
+      <span className={`${className} flex items-center justify-center overflow-hidden rounded-full bg-sky-500/15 text-sky-400 font-semibold ${textClassName}`}>
+        {currentUser?.profileImageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={currentUser.profileImageUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          initials
+        )}
+      </span>
+    );
+  }
   const shellClass = theme === "light"
     ? "min-h-screen bg-[#f1efea] text-[#111111] flex"
     : "min-h-screen bg-black text-white flex";
@@ -488,8 +544,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     ? "w-10 h-10 rounded-full border border-black/10 bg-white/70 text-[#111111] hover:bg-white transition-colors flex items-center justify-center"
     : "w-10 h-10 rounded-full border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors flex items-center justify-center";
   const menuClass = theme === "light"
-    ? "absolute right-0 top-full mt-3 w-80 rounded-2xl border border-black/10 bg-white/95 shadow-[0_24px_80px_rgba(0,0,0,0.12)] backdrop-blur-xl overflow-hidden"
-    : "absolute right-0 top-full mt-3 w-80 rounded-2xl border border-white/10 bg-[#101010]/95 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl overflow-hidden";
+    ? "absolute right-0 top-full z-[1000] mt-3 w-80 rounded-2xl border border-black/10 bg-white/95 shadow-[0_24px_80px_rgba(0,0,0,0.12)] backdrop-blur-xl overflow-hidden"
+    : "absolute right-0 top-full z-[1000] mt-3 w-80 rounded-2xl border border-white/10 bg-[#101010]/95 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl overflow-hidden";
   const accountRowClass = theme === "light"
     ? "flex items-center gap-3 px-4 py-3 text-sm text-[#111111] hover:bg-black/5 transition-colors"
     : "flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-white/5 transition-colors";
@@ -581,9 +637,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className={`px-3 py-4 ${theme === "light" ? "border-t border-black/8" : "border-t border-white/8"}`}>
           {/* Current user identity */}
           {currentUser && (
-            <div className="px-3 py-2 mb-2">
-              <div className={`text-xs font-medium truncate ${theme === "light" ? "text-black/75" : "text-white/70"}`}>{currentUser.name}</div>
-              <div className={`text-[10px] mt-0.5 truncate ${theme === "light" ? "text-black/40" : "text-white/30"}`}>{currentUser.email}</div>
+            <div className="mb-2 flex items-center gap-2 px-3 py-2">
+              {profileAvatar("h-8 w-8", "text-xs")}
+              <div className="min-w-0">
+                <div className={`text-xs font-medium truncate ${theme === "light" ? "text-black/75" : "text-white/70"}`}>{currentUser.name}</div>
+                <div className={`text-[10px] mt-0.5 truncate ${theme === "light" ? "text-black/40" : "text-white/30"}`}>{currentUser.email}</div>
+              </div>
             </div>
           )}
           <button
@@ -666,9 +725,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* User + actions footer */}
         <div className={`flex-shrink-0 px-4 py-3 pb-8 ${theme === "light" ? "border-t border-black/8" : "border-t border-white/8"}`}>
           {currentUser && (
-            <div className="px-4 py-2 mb-1">
-              <div className={`text-sm font-medium ${theme === "light" ? "text-[#111111]" : "text-white"}`}>{currentUser.name}</div>
-              <div className={`text-xs mt-0.5 ${theme === "light" ? "text-black/40" : "text-white/40"}`}>{currentUser.email}</div>
+            <div className="mb-1 flex items-center gap-3 px-4 py-2">
+              {profileAvatar("h-10 w-10", "text-sm")}
+              <div className="min-w-0">
+                <div className={`text-sm font-medium truncate ${theme === "light" ? "text-[#111111]" : "text-white"}`}>{currentUser.name}</div>
+                <div className={`text-xs mt-0.5 truncate ${theme === "light" ? "text-black/40" : "text-white/40"}`}>{currentUser.email}</div>
+              </div>
             </div>
           )}
           <button
@@ -734,8 +796,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div
               ref={menuRef}
               className="relative"
-              onMouseEnter={() => setMenuOpen(true)}
-              onMouseLeave={() => setMenuOpen(false)}
+              onMouseEnter={openMenu}
+              onMouseLeave={closeMenuSoon}
             >
               <button
                 type="button"
@@ -743,17 +805,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 className={`${iconButtonClass} overflow-hidden`}
                 aria-label="Open account menu"
               >
-                <span className="w-full h-full flex items-center justify-center rounded-full bg-sky-500/15 text-sky-400 font-semibold text-sm">
-                  {initials}
-                </span>
+                {profileAvatar("w-full h-full")}
               </button>
               {menuOpen && (
-                <div className={menuClass}>
+                <div className={menuClass} onMouseEnter={openMenu} onMouseLeave={closeMenuSoon}>
                   <div className={`px-4 py-4 border-b ${theme === "light" ? "border-black/8" : "border-white/8"}`}>
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-2xl bg-sky-500/15 text-sky-400 font-semibold flex items-center justify-center">
-                        {initials}
-                      </div>
+                      {profileAvatar("w-11 h-11", "text-base")}
                       <div className="min-w-0">
                         <p className={`text-sm font-semibold truncate ${theme === "light" ? "text-[#111111]" : "text-white"}`}>
                           {currentUser?.name ?? "Admin Account"}
@@ -826,9 +884,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               className={iconButtonClass}
               aria-label="Open more menu"
             >
-              <span className="w-full h-full flex items-center justify-center rounded-full bg-sky-500/15 text-sky-400 font-semibold text-xs">
-                {initials}
-              </span>
+              {profileAvatar("w-full h-full", "text-xs")}
             </button>
           </div>
         </div>

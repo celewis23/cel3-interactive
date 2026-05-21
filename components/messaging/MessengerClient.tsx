@@ -13,6 +13,7 @@ type Conversation = {
   type: string;
   clientName: string | null;
   clientEmail: string | null;
+  clientProfileImageUrl: string | null;
   company: string | null;
   lastMessageAt: string;
   lastMessagePreview: string | null;
@@ -89,9 +90,10 @@ function senderInitial(name: string, email?: string | null) {
   return source.slice(0, 1).toUpperCase();
 }
 
-function Avatar({ name, email, imageUrl, mine }: { name: string; email?: string | null; imageUrl?: string | null; mine: boolean }) {
+function Avatar({ name, email, imageUrl, mine, size = "md" }: { name: string; email?: string | null; imageUrl?: string | null; mine: boolean; size?: "sm" | "md" }) {
+  const sizeClass = size === "sm" ? "h-10 w-10" : "h-9 w-9";
   return (
-    <div className={`flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border text-xs font-semibold shadow-sm ${mine ? "border-sky-400/40 bg-sky-500/20 text-sky-100" : "border-white/15 bg-white/10 text-white/75"}`}>
+    <div className={`flex ${sizeClass} shrink-0 items-center justify-center overflow-hidden rounded-full border text-xs font-semibold shadow-sm ${mine ? "border-sky-400/40 bg-sky-500/20 text-sky-100" : "border-white/15 bg-white/10 text-white/75"}`}>
       {imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={imageUrl} alt="" className="h-full w-full object-cover" />
@@ -130,8 +132,10 @@ export default function MessengerClient({
   const [starting, setStarting] = useState(false);
   const [search, setSearch] = useState("");
   const [showNewConversation, setShowNewConversation] = useState(false);
+  const [visibleTimestampId, setVisibleTimestampId] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const timestampTimerRef = useRef<number | null>(null);
 
   const selected = useMemo(
     () => conversations.find((item) => item._id === selectedId) ?? null,
@@ -232,6 +236,16 @@ export default function MessengerClient({
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages.length, selectedId]);
 
+  useEffect(() => {
+    setVisibleTimestampId("");
+  }, [selectedId]);
+
+  useEffect(() => {
+    return () => {
+      if (timestampTimerRef.current) window.clearTimeout(timestampTimerRef.current);
+    };
+  }, []);
+
   function selectConversation(id: string) {
     setSelectedId(id);
     if (mode === "admin") router.push(`/admin/messages/${id}`);
@@ -249,6 +263,15 @@ export default function MessengerClient({
     if (!files) return;
     setAttachments((current) => [...current, ...Array.from(files)].slice(0, 8));
     if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  function showTimestamp(messageId: string) {
+    if (timestampTimerRef.current) window.clearTimeout(timestampTimerRef.current);
+    setVisibleTimestampId(messageId);
+    timestampTimerRef.current = window.setTimeout(() => {
+      setVisibleTimestampId((current) => current === messageId ? "" : current);
+      timestampTimerRef.current = null;
+    }, 2400);
   }
 
   async function sendMessage() {
@@ -411,21 +434,32 @@ export default function MessengerClient({
                     onClick={() => selectConversation(conversation._id)}
                     className={`w-full border-b border-white/5 px-4 py-3 text-left transition-colors ${active ? "bg-sky-500/10" : "hover:bg-white/5"}`}
                   >
-                    <div className="flex items-center gap-2">
-                      <span className="min-w-0 flex-1 truncate text-sm font-medium text-white">{conversationLabel(conversation)}</span>
-                      {conversation.unreadCount > 0 && (
-                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-sky-500 px-1.5 text-[11px] font-bold text-black">
-                          {conversation.unreadCount > 99 ? "99+" : conversation.unreadCount}
-                        </span>
-                      )}
+                    <div className="flex items-start gap-3">
+                      <Avatar
+                        name={conversation.clientName || conversation.company || conversation.clientEmail || conversationLabel(conversation)}
+                        email={conversation.clientEmail}
+                        imageUrl={conversation.clientProfileImageUrl}
+                        mine={false}
+                        size="sm"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="min-w-0 flex-1 truncate text-sm font-medium text-white">{conversationLabel(conversation)}</span>
+                          {conversation.unreadCount > 0 && (
+                            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-sky-500 px-1.5 text-[11px] font-bold text-black">
+                              {conversation.unreadCount > 99 ? "99+" : conversation.unreadCount}
+                            </span>
+                          )}
+                        </div>
+                        <div className="mt-1 flex items-center gap-2 text-xs text-white/30">
+                          <span className="truncate">{conversation.clientEmail || conversation.company || conversation.type}</span>
+                          <span className="shrink-0">{formatTime(conversation.lastMessageAt)}</span>
+                        </div>
+                        {conversation.lastMessagePreview && (
+                          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-white/45">{conversation.lastMessagePreview}</p>
+                        )}
+                      </div>
                     </div>
-                    <div className="mt-1 flex items-center gap-2 text-xs text-white/30">
-                      <span className="truncate">{conversation.clientEmail || conversation.company || conversation.type}</span>
-                      <span className="shrink-0">{formatTime(conversation.lastMessageAt)}</span>
-                    </div>
-                    {conversation.lastMessagePreview && (
-                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-white/45">{conversation.lastMessagePreview}</p>
-                    )}
                   </button>
                 );
               })
@@ -484,14 +518,26 @@ export default function MessengerClient({
                           imageUrl={message.senderAvatarUrl}
                           mine={mine}
                         />
-                        <div className={`relative max-w-[min(680px,78%)] rounded-2xl border px-4 py-3 shadow-sm ${mine ? "rounded-br-sm border-sky-400/40 bg-sky-500 text-black" : "rounded-bl-sm border-black/5 bg-white text-[#111111]"}`}>
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => showTimestamp(message._id)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              showTimestamp(message._id);
+                            }
+                          }}
+                          className={`relative max-w-[min(680px,78%)] rounded-2xl border px-4 py-3 text-left shadow-sm outline-none transition-transform active:scale-[0.99] ${mine ? "rounded-br-sm border-sky-400/40 bg-sky-500 text-black" : "rounded-bl-sm border-black/5 bg-white text-[#111111]"}`}
+                          aria-label={`Message sent ${formatTime(message.createdAt)}`}
+                        >
+                          {visibleTimestampId === message._id && (
+                            <span className={`absolute -top-8 z-20 whitespace-nowrap rounded-full border border-black/10 bg-white px-3 py-1 text-[11px] font-medium text-black/65 shadow-lg ${mine ? "right-0" : "left-0"}`}>
+                              {message.pending ? "Sending..." : formatTime(message.createdAt)}
+                            </span>
+                          )}
                           <span className={`absolute bottom-0 h-4 w-4 ${mine ? "-right-1 bg-sky-500" : "-left-1 bg-white"} rotate-45`} aria-hidden="true" />
                           <div className="relative z-10">
-                          <div className="mb-1 flex flex-wrap items-center gap-2">
-                            <span className={`text-xs font-semibold ${mine ? "text-black/75" : "text-black/70"}`}>{mine ? "You" : message.senderName}</span>
-                            <span className={`text-[11px] ${mine ? "text-black/50" : "text-black/45"}`}>{formatTime(message.createdAt)}</span>
-                            {message.pending && <span className="text-[11px] text-black/55">Sending</span>}
-                          </div>
                           {message.body && <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[#111111]">{message.body}</p>}
                           {message.attachments && message.attachments.length > 0 && (
                             <div className="mt-3 grid gap-2">

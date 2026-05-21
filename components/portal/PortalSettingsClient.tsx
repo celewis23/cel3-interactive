@@ -103,6 +103,9 @@ export default function PortalSettingsClient({ initialProfile }: { initialProfil
       const data = await res.json().catch(() => ({})) as { error?: string; profileImageUrl?: string };
       if (!res.ok) throw new Error(data.error ?? "Failed to upload profile picture");
       setProfileImageUrl(data.profileImageUrl ?? null);
+      window.dispatchEvent(new CustomEvent("cel3-profile-image-updated", {
+        detail: { profileImageUrl: data.profileImageUrl ?? null },
+      }));
       setSuccess("Your profile picture has been updated.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to upload profile picture");

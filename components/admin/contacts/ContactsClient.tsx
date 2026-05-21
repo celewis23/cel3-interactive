@@ -34,12 +34,17 @@ type LinkedPipelineContact = {
   managementUsername: string | null;
 };
 
-function AvatarCircle({ name, index }: { name: string | null; index: number }) {
+function AvatarCircle({ name, photoUrl, index }: { name: string | null; photoUrl?: string | null; index: number }) {
   const initial = name ? name.charAt(0).toUpperCase() : "?";
   const color = AVATAR_COLORS[index % AVATAR_COLORS.length];
   return (
-    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 ${color}`}>
-      {initial}
+    <div className={`w-9 h-9 overflow-hidden rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 ${color}`}>
+      {photoUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={photoUrl} alt="" className="h-full w-full object-cover" />
+      ) : (
+        initial
+      )}
     </div>
   );
 }
@@ -140,10 +145,6 @@ function ContactForm({
   stripeCustomerId = null,
 }: ContactFormProps) {
   const [form, setForm] = useState<ContactFormData>(initialData ?? emptyFormData());
-
-  useEffect(() => {
-    setForm(initialData ?? emptyFormData());
-  }, [initialData]);
 
   function setField<K extends keyof ContactFormData>(key: K, value: ContactFormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -511,6 +512,7 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
         </div>
         <div className="flex-1 overflow-y-auto p-5">
           <ContactForm
+            key={linkedContact?._id ?? contact.resourceName}
             initialData={linkedContact ? pipelineContactToFormData(linkedContact) : contactToFormData(contact)}
             onSubmit={handleUpdate}
             onCancel={() => setEditing(false)}
@@ -564,7 +566,7 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
       </div>
       <div className="flex-1 overflow-y-auto p-5">
         <div className="flex items-center gap-4 mb-5">
-          <AvatarCircle name={contact.displayName} index={0} />
+          <AvatarCircle name={contact.displayName} photoUrl={contact.photoUrl} index={0} />
           <div>
             <p className="text-lg font-semibold text-white">
               {contact.displayName ?? "Unknown"}
@@ -866,7 +868,7 @@ export default function ContactsClient() {
                   onClick={() => setSelected(contact)}
                   className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/3 ${selected?.resourceName === contact.resourceName ? "bg-sky-500/5" : ""}`}
                 >
-                  <AvatarCircle name={contact.displayName} index={index} />
+                  <AvatarCircle name={contact.displayName} photoUrl={contact.photoUrl} index={index} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-white truncate">
                       {contact.displayName ?? "Unknown"}
@@ -927,6 +929,7 @@ export default function ContactsClient() {
               </button>
             </div>
             <ContactForm
+              key="new-contact"
               onSubmit={handleCreate}
               onCancel={() => setShowNewModal(false)}
               submitLabel="Create"

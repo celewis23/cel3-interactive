@@ -34,6 +34,7 @@ export type ConversationSummary = {
   clientId: string | null;
   clientName: string | null;
   clientEmail: string | null;
+  clientProfileImageUrl: string | null;
   company: string | null;
   createdAt: string;
   updatedAt: string;
@@ -187,7 +188,7 @@ function makeParticipant(actor: MessagingActor, now: string, roleInConversation?
 async function fetchConversation(conversationId: string) {
   return sanityServer.fetch<ConversationRecord | null>(
     `*[_type == "messagingConversation" && _id == $id][0]{
-      _id, title, status, type, clientId, clientName, clientEmail, company,
+      _id, title, status, type, clientId, clientName, clientEmail, clientProfileImageUrl, company,
       createdAt, updatedAt, lastMessageAt, lastMessagePreview, lastSenderName,
       "unreadCount": 0,
       "participantCount": count(participants),
@@ -195,6 +196,72 @@ async function fetchConversation(conversationId: string) {
     }`,
     { id: conversationId }
   );
+}
+
+async function fetchClientProfileImages(clientIds: Array<string | null>) {
+  const ids = [...new Set(clientIds.filter((id): id is string => Boolean(id)))];
+  if (ids.length === 0) return new Map<string, string | null>();
+
+  const users = await sanityServer.fetch<Array<{ _id: string; profileImageUrl: string | null }>>(
+    `*[_type == "clientPortalUser" && _id in $ids]{ _id, profileImageUrl }`,
+    { ids }
+  );
+  return new Map(users.map((user) => [user._id, user.profileImageUrl ?? null]));
+}
+
+async function hydrateMessageAvatars(messages: MessageRecord[]) {
+  const portalIds = new Set<string>();
+  const staffIds = new Set<string>();
+  let needsOwner = false;
+
+  for (const message of messages) {
+    if (message.senderActorId.startsWith("portal:")) {
+      portalIds.add(message.senderActorId.replace("portal:", ""));
+    } else if (message.senderActorId === "admin:owner") {
+      needsOwner = true;
+    } else if (message.senderActorId.startsWith("admin:")) {
+      staffIds.add(message.senderActorId.replace("admin:", ""));
+    }
+  }
+
+  const [portalUsers, staffUsers, ownerSettings] = await Promise.all([
+    portalIds.size
+      ? sanityServer.fetch<Array<{ _id: string; profileImageUrl: string | null }>>(
+          `*[_type == "clientPortalUser" && _id in $ids]{ _id, profileImageUrl }`,
+          { ids: Array.from(portalIds) }
+        )
+      : Promise.resolve([]),
+    staffIds.size
+      ? sanityServer.fetch<Array<{ _id: string; profileImageUrl: string | null }>>(
+          `*[_type == "staffMember" && _id in $ids]{ _id, profileImageUrl }`,
+          { ids: Array.from(staffIds) }
+        )
+      : Promise.resolve([]),
+    needsOwner
+      ? sanityServer.fetch<{ ownerProfileImageUrl?: string | null } | null>(
+          `*[_type == "siteSettings"][0]{ ownerProfileImageUrl }`
+        )
+      : Promise.resolve(null),
+  ]);
+
+  const currentAvatars = new Map<string, string | null>();
+  for (const user of portalUsers) currentAvatars.set(`portal:${user._id}`, user.profileImageUrl ?? null);
+  for (const user of staffUsers) currentAvatars.set(`admin:${user._id}`, user.profileImageUrl ?? null);
+  if (needsOwner) currentAvatars.set("admin:owner", ownerSettings?.ownerProfileImageUrl ?? null);
+
+  return messages.map((message) => ({
+    ...message,
+    senderAvatarUrl: currentAvatars.has(message.senderActorId)
+      ? currentAvatars.get(message.senderActorId) ?? null
+      : message.senderAvatarUrl ?? null,
+  }));
+}
+
+function resolveClientProfileImage(conversation: ConversationSummary, currentImages: Map<string, string | null>) {
+  if (conversation.clientId && currentImages.has(conversation.clientId)) {
+    return currentImages.get(conversation.clientId) ?? null;
+  }
+  return conversation.clientProfileImageUrl ?? null;
 }
 
 function actorCanAccessConversation(actor: MessagingActor, conversation: ConversationRecord | null) {
@@ -220,7 +287,7 @@ export async function listConversations(actor: MessagingActor, search?: string):
 
   const conversations = await sanityServer.fetch<ConversationRecord[]>(
     `*[${filter}] | order(lastMessageAt desc, updatedAt desc)[0...100]{
-      _id, title, status, type, clientId, clientName, clientEmail, company,
+      _id, title, status, type, clientId, clientName, clientEmail, clientProfileImageUrl, company,
       createdAt, updatedAt, lastMessageAt, lastMessagePreview, lastSenderName,
       "unreadCount": 0,
       "participantCount": count(participants),
@@ -254,8 +321,10 @@ export async function listConversations(actor: MessagingActor, search?: string):
     : [];
 
   const byId = new Map(messageGroups.map((group) => [group.conversationId, group.messages]));
+  const clientProfileImages = await fetchClientProfileImages(filtered.map((item) => item.clientId));
   return filtered.map((conversation) => ({
     ...conversation,
+    clientProfileImageUrl: resolveClientProfileImage(conversation, clientProfileImages),
     unreadCount: unreadCountFor(actor, conversation, byId.get(conversation._id) ?? []),
   }));
 }
@@ -273,12 +342,16 @@ export async function getConversation(actor: MessagingActor, conversationId: str
     { conversationId }
   );
 
+  const hydratedMessages = await hydrateMessageAvatars(messages);
+  const clientProfileImages = await fetchClientProfileImages([conversation!.clientId]);
+
   return {
     conversation: {
       ...conversation!,
-      unreadCount: unreadCountFor(actor, conversation!, messages),
+      clientProfileImageUrl: resolveClientProfileImage(conversation!, clientProfileImages),
+      unreadCount: unreadCountFor(actor, conversation!, hydratedMessages),
     },
-    messages,
+    messages: hydratedMessages,
   };
 }
 
@@ -318,6 +391,7 @@ export async function startConversation(actor: MessagingActor, input: { title?: 
     clientId: actor.userId,
     clientName: actor.name,
     clientEmail: actor.email,
+    clientProfileImageUrl: actor.avatarUrl,
     company: actor.company,
     stripeCustomerId: actor.stripeCustomerId,
     pipelineContactId: actor.pipelineContactId,
@@ -397,6 +471,7 @@ export async function startAdminConversation(
     clientId: client._id,
     clientName,
     clientEmail: client.email,
+    clientProfileImageUrl: client.profileImageUrl ?? null,
     company: client.company,
     stripeCustomerId: client.stripeCustomerId,
     pipelineContactId: client.pipelineContactId,
@@ -419,6 +494,7 @@ export async function startAdminConversation(
     clientId: client._id,
     clientName,
     clientEmail: client.email,
+    clientProfileImageUrl: client.profileImageUrl ?? null,
     company: client.company,
     createdAt: now,
     updatedAt: now,
@@ -580,6 +656,7 @@ export async function sendConversationMessage(
     lastMessagePreview: preview.slice(0, 180),
     lastSenderName: actor.name,
   };
+  if (actor.kind === "client") patches.clientProfileImageUrl = actor.avatarUrl ?? null;
 
   const hasParticipant = conversation!.participants?.some((participant) => participant.actorId === actor.actorId);
   const patch = sanityWriteClient.patch(conversationId).set(patches);

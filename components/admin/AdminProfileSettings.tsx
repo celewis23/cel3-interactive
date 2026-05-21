@@ -55,6 +55,9 @@ export default function AdminProfileSettings() {
       const data = await res.json().catch(() => ({})) as { error?: string; profileImageUrl?: string };
       if (!res.ok) throw new Error(data.error ?? "Failed to upload profile picture");
       setProfile((current) => current ? { ...current, profileImageUrl: data.profileImageUrl ?? null } : current);
+      window.dispatchEvent(new CustomEvent("cel3-profile-image-updated", {
+        detail: { profileImageUrl: data.profileImageUrl ?? null },
+      }));
       setSuccess("Profile picture updated.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to upload profile picture");

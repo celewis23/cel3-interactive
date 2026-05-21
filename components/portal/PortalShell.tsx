@@ -27,23 +27,21 @@ export default function PortalShell({
     email: string;
     siteUrl?: string | null;
     managementUrl?: string | null;
+    profileImageUrl?: string | null;
   };
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    if (typeof window === "undefined") return "dark";
+    return window.localStorage.getItem("cel3-portal-theme") === "light" ? "light" : "dark";
+  });
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [profileImageUrl, setProfileImageUrl] = useState(user.profileImageUrl ?? null);
   const menuRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem("cel3-portal-theme");
-    const nextTheme = stored === "light" ? "light" : "dark";
-    setTheme(nextTheme);
-    document.documentElement.setAttribute("data-portal-theme", nextTheme);
-  }, []);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-portal-theme", theme);
@@ -66,6 +64,15 @@ export default function PortalShell({
         window.clearTimeout(closeTimerRef.current);
       }
     };
+  }, []);
+
+  useEffect(() => {
+    function handleProfileImageUpdated(event: Event) {
+      const detail = (event as CustomEvent<{ profileImageUrl?: string | null }>).detail;
+      setProfileImageUrl(detail?.profileImageUrl ?? null);
+    }
+    window.addEventListener("cel3-profile-image-updated", handleProfileImageUpdated);
+    return () => window.removeEventListener("cel3-profile-image-updated", handleProfileImageUpdated);
   }, []);
 
   async function handleLogout() {
@@ -100,6 +107,19 @@ export default function PortalShell({
     .map((part) => part[0]?.toUpperCase())
     .join("") || "U";
 
+  function profileAvatar(className: string, textClassName = "text-sm") {
+    return (
+      <span className={`${className} flex items-center justify-center overflow-hidden rounded-full bg-sky-500/15 text-sky-400 font-semibold ${textClassName}`}>
+        {profileImageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={profileImageUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          initials
+        )}
+      </span>
+    );
+  }
+
   const shellClass = theme === "light"
     ? "portal-theme-light min-h-screen bg-[#f3f2ee] text-[#111111] flex flex-col"
     : "portal-theme-dark min-h-screen bg-[#0d0d0d] text-white flex flex-col";
@@ -114,8 +134,8 @@ export default function PortalShell({
     ? "w-10 h-10 rounded-full border border-black/10 bg-white/70 text-[#111111] hover:bg-white transition-colors flex items-center justify-center"
     : "w-10 h-10 rounded-full border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors flex items-center justify-center";
   const menuClass = theme === "light"
-    ? "absolute right-0 top-full mt-3 w-72 rounded-2xl border border-black/10 bg-white/95 shadow-[0_24px_80px_rgba(0,0,0,0.12)] backdrop-blur-xl overflow-hidden"
-    : "absolute right-0 top-full mt-3 w-72 rounded-2xl border border-white/10 bg-[#101010]/95 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl overflow-hidden";
+    ? "absolute right-0 top-full z-[1000] mt-3 w-72 rounded-2xl border border-black/10 bg-white/95 shadow-[0_24px_80px_rgba(0,0,0,0.12)] backdrop-blur-xl overflow-hidden"
+    : "absolute right-0 top-full z-[1000] mt-3 w-72 rounded-2xl border border-white/10 bg-[#101010]/95 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl overflow-hidden";
   const rowClass = theme === "light"
     ? "flex items-center gap-3 px-4 py-3 text-sm text-[#111111] hover:bg-black/5 transition-colors"
     : "flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-white/5 transition-colors";
@@ -206,18 +226,14 @@ export default function PortalShell({
                 className={`${iconButtonClass} overflow-hidden`}
                 aria-label="Open account menu"
               >
-                <span className="w-full h-full flex items-center justify-center rounded-full bg-sky-500/15 text-sky-400 font-semibold text-sm">
-                  {initials}
-                </span>
+                {profileAvatar("w-full h-full")}
               </button>
 
               {menuOpen && (
                 <div className={menuClass} onMouseEnter={openMenu} onMouseLeave={closeMenuSoon}>
                   <div className={`px-4 py-4 border-b ${theme === "light" ? "border-black/8" : "border-white/8"}`}>
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-2xl bg-sky-500/15 text-sky-400 font-semibold flex items-center justify-center">
-                        {initials}
-                      </div>
+                      {profileAvatar("w-11 h-11", "text-base")}
                       <div className="min-w-0">
                         <p className={`text-sm font-semibold truncate ${theme === "light" ? "text-[#111111]" : "text-white"}`}>
                           {user.name ?? user.company ?? "Portal Account"}

@@ -262,7 +262,7 @@ export async function searchContacts(query: string): Promise<Contact[]> {
   const token = await getAccessToken();
   const params = new URLSearchParams({
     query,
-    readMask: "names,emailAddresses,phoneNumbers,organizations",
+    readMask: "names,emailAddresses,phoneNumbers,organizations,photos",
   });
   const res = await fetch(
     `${PEOPLE_BASE}/people:searchContacts?${params.toString()}`,

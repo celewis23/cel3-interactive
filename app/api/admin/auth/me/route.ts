@@ -15,6 +15,9 @@ export async function GET(req: NextRequest) {
 
   // Owner session (env-based credentials)
   if (!session.staffId) {
+    const settings = await sanityServer.fetch<{ ownerProfileImageUrl?: string | null } | null>(
+      `*[_type == "siteSettings"][0]{ ownerProfileImageUrl }`
+    );
     return NextResponse.json({
       isOwner: true,
       staffId: null,
@@ -22,7 +25,7 @@ export async function GET(req: NextRequest) {
       email: process.env.ADMIN_USERNAME ?? "owner",
       roleSlug: "owner",
       roleName: "Owner",
-      profileImageUrl: null,
+      profileImageUrl: settings?.ownerProfileImageUrl ?? null,
       permissions: null, // null = full access
     });
   }
