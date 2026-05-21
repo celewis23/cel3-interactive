@@ -361,6 +361,7 @@ export default function CampaignsPage() {
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [groupMembers, setGroupMembers] = useState<GroupMember[]>([]);
   const [portalUsers, setPortalUsers] = useState<{ _id: string; email: string; name: string | null }[]>([]);
+  const [pipelineContacts, setPipelineContacts] = useState<{ _id: string; name: string; email: string | null; company: string | null }[]>([]);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -381,13 +382,14 @@ export default function CampaignsPage() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  // Load portal users for contact picker + group member picker
+  // Load portal users + pipeline contacts for contact picker / group member picker
   useEffect(() => {
     if (tab === "groups" || tab === "subscribers") {
       fetch("/api/admin/portal-users").then((r) => r.json()).then((d) => {
-        // portal-users route returns the array directly (not wrapped)
-        const arr = Array.isArray(d) ? d : (d.users ?? []);
-        setPortalUsers(arr);
+        setPortalUsers(Array.isArray(d) ? d : (d.users ?? []));
+      }).catch(() => {});
+      fetch("/api/admin/pipeline/contacts").then((r) => r.json()).then((d) => {
+        setPipelineContacts(Array.isArray(d) ? d : []);
       }).catch(() => {});
     }
   }, [tab]);
@@ -587,59 +589,69 @@ export default function CampaignsPage() {
               </div>
 
               {/* Contact picker */}
-              <div className="border border-white/8 bg-white/3 rounded-2xl overflow-hidden">
-                <button
-                  onClick={() => { setShowContactPicker((v) => !v); setContactSearch(""); }}
-                  className="w-full flex items-center justify-between px-5 py-3 text-sm text-white/70 hover:text-white transition-colors"
-                >
-                  <span className="font-medium">Add from portal contacts</span>
-                  <span className="text-white/30 text-xs">{showContactPicker ? "▲ Hide" : `${portalUsers.filter((u) => !subscribers.some((s) => s.email === u.email)).length} available ▼`}</span>
-                </button>
-                {showContactPicker && (
-                  <div className="border-t border-white/8 px-4 pb-4 flex flex-col gap-2">
-                    <input
-                      value={contactSearch}
-                      onChange={(e) => setContactSearch(e.target.value)}
-                      placeholder="Search by name or email…"
-                      className="mt-3 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-sky-500/50 w-full"
-                      autoFocus
-                    />
-                    <div className="flex flex-col gap-1.5 max-h-52 overflow-y-auto mt-1">
-                      {portalUsers
-                        .filter((u) => {
-                          if (subscribers.some((s) => s.email === u.email)) return false;
-                          if (!contactSearch.trim()) return true;
-                          const q = contactSearch.toLowerCase();
-                          return u.email.toLowerCase().includes(q) || (u.name ?? "").toLowerCase().includes(q);
-                        })
-                        .map((u) => (
-                          <button
-                            key={u._id}
-                            onClick={() => addContactAsSubscriber(u.email, u.name ?? null)}
-                            disabled={subSaving}
-                            className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/8 transition-colors group text-left disabled:opacity-50"
-                          >
-                            <div>
-                              <p className="text-sm text-white">{u.email}</p>
-                              {u.name && <p className="text-xs text-white/40">{u.name}</p>}
-                            </div>
-                            <span className="text-xs text-sky-400 opacity-0 group-hover:opacity-100 transition-opacity">Add →</span>
-                          </button>
-                        ))}
-                      {portalUsers.filter((u) => {
-                        if (subscribers.some((s) => s.email === u.email)) return false;
-                        if (!contactSearch.trim()) return true;
-                        const q = contactSearch.toLowerCase();
-                        return u.email.toLowerCase().includes(q) || (u.name ?? "").toLowerCase().includes(q);
-                      }).length === 0 && (
-                        <p className="text-xs text-white/25 px-3 py-2">
-                          {contactSearch ? "No matching contacts." : "All portal contacts are already subscribed."}
-                        </p>
-                      )}
-                    </div>
+              {(() => {
+                // Merge portal users + pipeline contacts, dedupe by email
+                const seen = new Set<string>();
+                const merged: { id: string; email: string; name: string | null; label: string }[] = [];
+                for (const u of portalUsers) {
+                  const e = u.email.toLowerCase();
+                  if (!seen.has(e)) { seen.add(e); merged.push({ id: u._id, email: u.email, name: u.name, label: "portal" }); }
+                }
+                for (const c of pipelineContacts) {
+                  if (!c.email) continue;
+                  const e = c.email.toLowerCase();
+                  if (!seen.has(e)) { seen.add(e); merged.push({ id: c._id, email: c.email, name: c.name, label: "contact" }); }
+                }
+                const available = merged.filter((c) => !subscribers.some((s) => s.email.toLowerCase() === c.email.toLowerCase()));
+                const filtered = available.filter((c) => {
+                  if (!contactSearch.trim()) return true;
+                  const q = contactSearch.toLowerCase();
+                  return c.email.toLowerCase().includes(q) || (c.name ?? "").toLowerCase().includes(q);
+                });
+                return (
+                  <div className="border border-white/8 bg-white/3 rounded-2xl overflow-hidden">
+                    <button
+                      onClick={() => { setShowContactPicker((v) => !v); setContactSearch(""); }}
+                      className="w-full flex items-center justify-between px-5 py-3 text-sm text-white/70 hover:text-white transition-colors"
+                    >
+                      <span className="font-medium">Add from contacts</span>
+                      <span className="text-white/30 text-xs">{showContactPicker ? "▲ Hide" : `${available.length} available ▼`}</span>
+                    </button>
+                    {showContactPicker && (
+                      <div className="border-t border-white/8 px-4 pb-4 flex flex-col gap-2">
+                        <input
+                          value={contactSearch}
+                          onChange={(e) => setContactSearch(e.target.value)}
+                          placeholder="Search by name or email…"
+                          className="mt-3 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-sky-500/50 w-full"
+                          autoFocus
+                        />
+                        <div className="flex flex-col gap-1 max-h-56 overflow-y-auto mt-1">
+                          {filtered.map((c) => (
+                            <button
+                              key={c.id}
+                              onClick={() => addContactAsSubscriber(c.email, c.name)}
+                              disabled={subSaving}
+                              className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/8 transition-colors group text-left disabled:opacity-50"
+                            >
+                              <div>
+                                <p className="text-sm text-white">{c.email}</p>
+                                <p className="text-xs text-white/40">{c.name ?? ""}{c.name ? " · " : ""}<span className={c.label === "portal" ? "text-sky-400/60" : "text-violet-400/60"}>{c.label === "portal" ? "portal user" : "contact"}</span></p>
+                              </div>
+                              <span className="text-xs text-sky-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-3">Add →</span>
+                            </button>
+                          ))}
+                          {filtered.length === 0 && (
+                            <p className="text-xs text-white/25 px-3 py-2">
+                              {contactSearch ? "No matching contacts." : "All contacts are already subscribed."}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                );
+              })()}
 
               {/* List */}
               <div className="flex flex-col gap-2">
