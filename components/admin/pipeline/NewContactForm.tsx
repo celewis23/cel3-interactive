@@ -30,6 +30,7 @@ export default function NewContactForm() {
     estimatedValue: "",
     stage: initialStage,
     createStripeCustomer: false,
+    enablePortalAccess: false,
     siteUrl: "",
     managementUrl: "",
     managementUsername: "",
@@ -75,6 +76,12 @@ export default function NewContactForm() {
       }
 
       const contact = await res.json();
+
+      // Provision portal access in the background if requested
+      if (form.enablePortalAccess && contact._id && form.email.trim()) {
+        await fetch(`/api/admin/pipeline/contacts/${contact._id}/portal`, { method: "POST" }).catch(() => {});
+      }
+
       router.push(`/admin/pipeline/contacts/${contact._id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
@@ -256,6 +263,24 @@ export default function NewContactForm() {
           <span className="block text-xs text-white/35 mt-1">
             Turn this client into a Stripe customer immediately so invoices and payments stay connected.
           </span>
+        </span>
+      </label>
+
+      <label className="flex items-start gap-3 p-4 rounded-xl bg-white/3 border border-white/8">
+        <input
+          type="checkbox"
+          checked={form.enablePortalAccess}
+          onChange={(e) => setForm({ ...form, enablePortalAccess: e.target.checked })}
+          className="mt-0.5 w-4 h-4 rounded accent-sky-400"
+        />
+        <span>
+          <span className="block text-sm text-white">Enable client portal access</span>
+          <span className="block text-xs text-white/35 mt-1">
+            Creates a portal account and Google Drive folder automatically. You can send the login invitation from the contact page.
+          </span>
+          {form.enablePortalAccess && !form.email.trim() && (
+            <span className="block text-xs text-amber-400/80 mt-1.5">An email address is required to enable portal access.</span>
+          )}
         </span>
       </label>
 

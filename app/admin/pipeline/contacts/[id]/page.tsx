@@ -45,6 +45,19 @@ type PipelineActivity = {
   author: string;
 };
 
+type PortalUser = {
+  _id: string;
+  email: string;
+  name: string | null;
+  company: string | null;
+  status: string;
+  driveRootFolderId: string | null;
+  stripeCustomerId: string | null;
+  pipelineContactId: string | null;
+  invitationSentAt: string | null;
+  lastLoginAt: string | null;
+};
+
 const DEFAULT_STAGES: Stage[] = [
   { id: "new-lead", name: "New Lead" },
   { id: "contacted", name: "Contacted" },
@@ -66,7 +79,7 @@ export default async function ContactDetailPage({
 
   const { id } = await params;
 
-  const [contact, configRaw, activity] = await Promise.all([
+  const [contact, configRaw, activity, portalUser] = await Promise.all([
     sanityServer.fetch<PipelineContact | null>(
       `*[_type == "pipelineContact" && _id == $id][0] {
         _id, _type, _createdAt,
@@ -86,6 +99,13 @@ export default async function ContactDetailPage({
       }`,
       { id }
     ),
+    sanityServer.fetch<PortalUser | null>(
+      `*[_type == "clientPortalUser" && pipelineContactId == $id][0]{
+        _id, email, name, company, status, driveRootFolderId,
+        stripeCustomerId, pipelineContactId, invitationSentAt, lastLoginAt
+      }`,
+      { id }
+    ),
   ]);
 
   if (!contact) notFound();
@@ -97,6 +117,7 @@ export default async function ContactDetailPage({
       contact={contact}
       stages={stages}
       initialActivity={activity}
+      initialPortalUser={portalUser ?? null}
     />
   );
 }

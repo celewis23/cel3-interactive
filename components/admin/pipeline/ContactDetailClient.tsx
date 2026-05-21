@@ -5,6 +5,19 @@ import Link from "next/link";
 
 type Stage = { id: string; name: string };
 
+type PortalUser = {
+  _id: string;
+  email: string;
+  name: string | null;
+  company: string | null;
+  status: string;
+  driveRootFolderId: string | null;
+  stripeCustomerId: string | null;
+  pipelineContactId: string | null;
+  invitationSentAt: string | null;
+  lastLoginAt: string | null;
+};
+
 type PipelineContact = {
   _id: string;
   _type: string;
@@ -104,10 +117,12 @@ export default function ContactDetailClient({
   contact: initialContact,
   stages,
   initialActivity,
+  initialPortalUser,
 }: {
   contact: PipelineContact;
   stages: Stage[];
   initialActivity: PipelineActivity[];
+  initialPortalUser: PortalUser | null;
 }) {
   const router = useRouter();
   const [contact, setContact] = useState<PipelineContact>(initialContact);
@@ -150,6 +165,15 @@ export default function ContactDetailClient({
   const [driveUrl, setDriveUrl] = useState(initialContact.driveFileUrl ?? "");
   const [driveFileName, setDriveFileName] = useState(initialContact.driveFileName ?? "");
   const [linkingDrive, setLinkingDrive] = useState(false);
+
+  // Portal access
+  const [portalUser, setPortalUser] = useState<PortalUser | null>(initialPortalUser);
+  const [portalName, setPortalName] = useState(initialPortalUser?.name ?? "");
+  const [portalCompany, setPortalCompany] = useState(initialPortalUser?.company ?? "");
+  const [portalProvisioning, setPortalProvisioning] = useState(false);
+  const [portalSaving, setPortalSaving] = useState(false);
+  const [portalInviting, setPortalInviting] = useState(false);
+  const [portalInviteResult, setPortalInviteResult] = useState<{ loginEmail: string; temporaryPassword: string } | null>(null);
 
   // Load Gmail threads
   useEffect(() => {
@@ -321,6 +345,66 @@ export default function ContactDetailClient({
       setContact({ ...contact, driveFileUrl: null, driveFileName: null });
       setDriveUrl("");
       setDriveFileName("");
+    }
+  }
+
+  async function handleEnablePortal() {
+    setPortalProvisioning(true);
+    try {
+      const res = await fetch(`/api/admin/pipeline/contacts/${contact._id}/portal`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setPortalUser(data.portalUser);
+        setPortalName(data.portalUser?.name ?? "");
+        setPortalCompany(data.portalUser?.company ?? "");
+      }
+    } finally {
+      setPortalProvisioning(false);
+    }
+  }
+
+  async function handleSuspendPortal() {
+    if (!confirm("Suspend portal access? The client will no longer be able to log in.")) return;
+    await fetch(`/api/admin/pipeline/contacts/${contact._id}/portal`, { method: "DELETE" });
+    setPortalUser((prev) => prev ? { ...prev, status: "suspended" } : prev);
+  }
+
+  async function handleRestorePortal() {
+    const res = await fetch(`/api/admin/pipeline/contacts/${contact._id}/portal`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "ready" }),
+    });
+    const data = await res.json();
+    if (res.ok) setPortalUser(data.portalUser);
+  }
+
+  async function handleSavePortal() {
+    setPortalSaving(true);
+    try {
+      const res = await fetch(`/api/admin/pipeline/contacts/${contact._id}/portal`, {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: portalName || null, company: portalCompany || null }),
+      });
+      const data = await res.json();
+      if (res.ok) setPortalUser(data.portalUser);
+    } finally {
+      setPortalSaving(false);
+    }
+  }
+
+  async function handleSendInvite() {
+    if (!portalUser) return;
+    setPortalInviting(true);
+    setPortalInviteResult(null);
+    try {
+      const res = await fetch(`/api/admin/portal-users/${portalUser._id}`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setPortalUser((prev) => prev ? { ...prev, status: "invited", invitationSentAt: data.invitationSentAt } : prev);
+        setPortalInviteResult({ loginEmail: data.loginEmail, temporaryPassword: data.temporaryPassword });
+      }
+    } finally {
+      setPortalInviting(false);
     }
   }
 
@@ -631,8 +715,149 @@ export default function ContactDetailClient({
         </div>
       </div>
 
-      {/* Right column — activity, gmail, follow-up */}
+      {/* Right column — portal, activity, gmail, follow-up */}
       <div className="w-full lg:w-96 flex-shrink-0 space-y-6">
+
+        {/* Portal Access card */}
+        <div className="bg-white/3 border border-white/8 rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-white/60 uppercase tracking-widest">Portal Access</h3>
+            {portalUser && portalUser.status !== "suspended" && (
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                portalUser.status === "active" ? "bg-emerald-500/15 text-emerald-300" :
+                portalUser.status === "invited" ? "bg-sky-500/15 text-sky-300" :
+                "bg-white/8 text-white/50"
+              }`}>
+                {portalUser.status}
+              </span>
+            )}
+            {portalUser?.status === "suspended" && (
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-red-500/15 text-red-300">suspended</span>
+            )}
+          </div>
+
+          {!portalUser ? (
+            <div className="space-y-3">
+              <p className="text-xs text-white/40 leading-relaxed">
+                Grant this contact a client portal login. A Drive folder will be created and an invitation can be sent.
+              </p>
+              {!contact.email && (
+                <p className="text-xs text-amber-400/70">Add an email address to this contact first.</p>
+              )}
+              <button
+                onClick={handleEnablePortal}
+                disabled={portalProvisioning || !contact.email}
+                className="w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:opacity-40 text-black font-semibold text-sm transition-colors"
+              >
+                {portalProvisioning ? "Setting up…" : "Enable Portal Access"}
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Email (read-only) */}
+              <div>
+                <label className="block text-xs text-white/40 mb-1">Login email</label>
+                <p className="text-sm text-white/70">{portalUser.email}</p>
+              </div>
+
+              {/* Editable name + company */}
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs text-white/40 mb-1">Display name</label>
+                  <input
+                    value={portalName}
+                    onChange={(e) => setPortalName(e.target.value)}
+                    placeholder={contact.name}
+                    className="w-full px-2.5 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs outline-none focus:border-sky-500/50 transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-white/40 mb-1">Company</label>
+                  <input
+                    value={portalCompany}
+                    onChange={(e) => setPortalCompany(e.target.value)}
+                    placeholder={contact.company ?? ""}
+                    className="w-full px-2.5 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs outline-none focus:border-sky-500/50 transition-colors"
+                  />
+                </div>
+              </div>
+              {(portalName !== (portalUser.name ?? "") || portalCompany !== (portalUser.company ?? "")) && (
+                <button
+                  onClick={handleSavePortal}
+                  disabled={portalSaving}
+                  className="w-full py-2 rounded-xl bg-white/8 hover:bg-white/14 text-white text-sm font-medium transition-colors disabled:opacity-40"
+                >
+                  {portalSaving ? "Saving…" : "Save Portal Details"}
+                </button>
+              )}
+
+              {/* Drive folder */}
+              {portalUser.driveRootFolderId && (
+                <a
+                  href={`https://drive.google.com/drive/folders/${portalUser.driveRootFolderId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-xs text-sky-400 hover:text-sky-300 transition-colors"
+                >
+                  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+                  </svg>
+                  Open client Drive folder
+                </a>
+              )}
+
+              {/* Last login */}
+              {portalUser.lastLoginAt && (
+                <p className="text-xs text-white/30">
+                  Last login: {new Date(portalUser.lastLoginAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                </p>
+              )}
+
+              {/* Invite result */}
+              {portalInviteResult && (
+                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 space-y-1">
+                  <p className="text-xs text-emerald-300 font-semibold">Invitation sent!</p>
+                  <p className="text-xs text-white/50">Email: {portalInviteResult.loginEmail}</p>
+                  <p className="text-xs text-white/50">Temp password: <span className="font-mono text-white/70">{portalInviteResult.temporaryPassword}</span></p>
+                </div>
+              )}
+
+              {/* Invite / suspend buttons */}
+              <div className="flex flex-col gap-2 pt-2 border-t border-white/8">
+                {portalUser.status !== "suspended" ? (
+                  <>
+                    <button
+                      onClick={handleSendInvite}
+                      disabled={portalInviting}
+                      className="w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:opacity-40 text-black font-semibold text-sm transition-colors"
+                    >
+                      {portalInviting ? "Sending…" : portalUser.invitationSentAt ? "Resend Invitation" : "Send Invitation"}
+                    </button>
+                    {portalUser.invitationSentAt && (
+                      <p className="text-[10px] text-white/30 text-center">
+                        Last sent {new Date(portalUser.invitationSentAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      </p>
+                    )}
+                    <button
+                      onClick={handleSuspendPortal}
+                      className="text-xs text-red-400/50 hover:text-red-400 transition-colors text-center mt-1"
+                    >
+                      Suspend access
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={handleRestorePortal}
+                    className="w-full py-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 font-semibold text-sm transition-colors"
+                  >
+                    Restore Access
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Activity log */}
         <div className="bg-white/3 border border-white/8 rounded-2xl p-5">
           <h3 className="text-sm font-semibold text-white/60 uppercase tracking-widest mb-4">Activity</h3>
