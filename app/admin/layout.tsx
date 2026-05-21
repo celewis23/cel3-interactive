@@ -555,7 +555,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     : "flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-white/5 transition-colors";
   const shellMutedClass = theme === "light" ? "text-black/45" : "text-white/35";
   const isEmailInbox = pathname === "/admin/email";
-  const mainClass = isEmailInbox
+  const isFullBleedWorkspace = isEmailInbox || pathname === "/admin/notes";
+  const mainClass = isFullBleedWorkspace
     ? "flex-1 overflow-hidden flex flex-col pb-14 lg:pb-0"
     : "flex-1 p-4 pb-28 lg:p-8 max-w-6xl w-full mx-auto";
   const bottomBarClass = theme === "light"

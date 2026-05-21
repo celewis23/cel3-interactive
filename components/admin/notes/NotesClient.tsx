@@ -1,19 +1,64 @@
 "use client";
 
-import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getStroke } from "perfect-freehand";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+type Workspace = {
+  _id: string;
+  title: string;
+  order?: number;
+  isFavorite?: boolean;
+  _createdAt?: string;
+  _updatedAt?: string;
+};
 
-type Note = {
+type Section = {
+  _id: string;
+  title: string;
+  workspaceId: string;
+  order?: number;
+  color?: string | null;
+};
+
+type LinkedRecord = { type: "client" | "project" | "task" | "invoice" | "ticket"; id: string; label?: string };
+type LinkOption = { _id: string; label: string; email?: string; status?: string; projectId?: string };
+
+type Page = {
   _id: string;
   title: string;
   content: string | null;
   canvasData: string | null;
+  blocksJson: string | null;
   color: string | null;
   isPinned: boolean;
+  isFavorite: boolean;
+  workspaceId: string;
+  sectionId: string;
+  parentPageId: string | null;
+  order: number;
+  tags: string[];
+  metadataJson: string | null;
+  linkedRecords: LinkedRecord[];
   _createdAt: string;
   _updatedAt: string;
+};
+
+type NoteBlockType = "text" | "checklist" | "image" | "file" | "link" | "drawing" | "ai";
+
+type NoteBlock = {
+  id: string;
+  pageId: string;
+  type: NoteBlockType;
+  content: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  zIndex: number;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+  createdBy?: string | null;
 };
 
 type Stroke = {
@@ -22,6 +67,7 @@ type Stroke = {
   color: string;
   size: number;
   isEraser: boolean;
+  highlighter?: boolean;
 };
 
 type AttachmentDisplayMode = "inline" | "file";
@@ -30,9 +76,9 @@ type Attachment = {
   id: string;
   name: string;
   mimeType: string;
-  dataUrl?: string;        // base64 for local files
-  url?: string;            // for URL-based attachments
-  extractedHtml?: string;  // docx / xlsx rendered to HTML
+  dataUrl?: string;
+  url?: string;
+  extractedHtml?: string;
   x: number;
   y: number;
   width: number;
@@ -42,416 +88,32 @@ type Attachment = {
 
 type CanvasData = { strokes: Stroke[]; attachments?: Attachment[] };
 
-// ─── Canvas stroke renderer ───────────────────────────────────────────────────
-//
-// Draws a single perfect-freehand stroke onto a 2D canvas context.
-// Eraser strokes use `destination-out` compositing so they punch through ink
-// to reveal the transparent canvas background (and the CSS dot-grid behind it).
-//
-
-function drawStrokeToCanvas(
-  ctx: CanvasRenderingContext2D,
-  points: number[][],
-  size: number,
-  color: string,
-  isEraser: boolean
-) {
-  const outline = getStroke(points, { size, thinning: 0.5, smoothing: 0.5, streamline: 0.5, simulatePressure: true });
-  if (outline.length < 2) return;
-  ctx.save();
-  if (isEraser) {
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.fillStyle = "rgba(0,0,0,1)";
-  } else {
-    ctx.globalCompositeOperation = "source-over";
-    ctx.fillStyle = color;
-  }
-  ctx.beginPath();
-  ctx.moveTo(outline[0][0], outline[0][1]);
-  for (let i = 1; i < outline.length; i++) ctx.lineTo(outline[i][0], outline[i][1]);
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
-}
-
-// ─── Attachment file-processing utilities ────────────────────────────────────
-
-function fileToDataUrl(file: File): Promise<string> {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result as string);
-    r.onerror = rej;
-    r.readAsDataURL(file);
-  });
-}
-
-async function processFile(
-  file: File,
-  containerW: number,
-  containerH: number
-): Promise<Attachment> {
-  const id = Math.random().toString(36).slice(2);
-  const { name, type: mimeType } = file;
-  const cx = Math.max(20, (containerW - 400) / 2);
-  const cy = Math.max(20, (containerH - 320) / 2);
-
-  if (mimeType.startsWith("image/")) {
-    return { id, name, mimeType, dataUrl: await fileToDataUrl(file), x: cx, y: cy, width: 400, height: 300, displayMode: "inline" };
-  }
-  if (mimeType.startsWith("video/")) {
-    return { id, name, mimeType, dataUrl: await fileToDataUrl(file), x: cx, y: cy, width: 480, height: 270, displayMode: "inline" };
-  }
-  if (mimeType === "application/pdf") {
-    return { id, name, mimeType, dataUrl: await fileToDataUrl(file), x: cx, y: cy, width: 620, height: 820, displayMode: "inline" };
-  }
-  // DOCX
-  if (mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || name.endsWith(".docx")) {
-    const arrayBuffer = await file.arrayBuffer();
-    const mammoth = await import("mammoth");
-    const result = await mammoth.convertToHtml({ arrayBuffer });
-    return { id, name, mimeType, extractedHtml: result.value, x: cx, y: cy, width: 640, height: 520, displayMode: "inline" };
-  }
-  // XLSX / XLS
-  if (
-    mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
-    mimeType === "application/vnd.ms-excel" ||
-    name.endsWith(".xlsx") || name.endsWith(".xls")
-  ) {
-    const arrayBuffer = await file.arrayBuffer();
-    const XLSX = await import("xlsx");
-    const wb = XLSX.read(arrayBuffer, { type: "array" });
-    const firstSheet = wb.SheetNames[0];
-    const html = XLSX.utils.sheet_to_html(wb.Sheets[firstSheet]);
-    return { id, name, mimeType, extractedHtml: html, x: cx, y: cy, width: 720, height: 420, displayMode: "inline" };
-  }
-  // CSV
-  if (mimeType === "text/csv" || name.endsWith(".csv")) {
-    const text = await file.text();
-    const rows = text.trim().split("\n").map((r) => r.split(",").map((c) => c.replace(/^"|"$/g, "")));
-    const html = `<table>${rows.map((r, i) => `<tr>${r.map((c) => i === 0 ? `<th>${c}</th>` : `<td>${c}</td>`).join("")}</tr>`).join("")}</table>`;
-    return { id, name, mimeType, extractedHtml: html, x: cx, y: cy, width: 640, height: 320, displayMode: "inline" };
-  }
-  // Everything else — file chip
-  return { id, name, mimeType, dataUrl: await fileToDataUrl(file), x: cx, y: cy, width: 300, height: 72, displayMode: "file" };
-}
-
-function processUrl(rawUrl: string): Attachment {
-  const id = Math.random().toString(36).slice(2);
-  const name = rawUrl.split("/").pop()?.split("?")[0] ?? rawUrl;
-  const ext = name.split(".").pop()?.toLowerCase() ?? "";
-  const isImage = ["jpg","jpeg","png","gif","webp","svg","avif","bmp"].includes(ext);
-  const isVideo = ["mp4","webm","mov","avi","mkv"].includes(ext);
-  const mimeType = isImage ? `image/${ext === "jpg" ? "jpeg" : ext}` : isVideo ? `video/${ext}` : "text/html";
-  return {
-    id, name, mimeType, url: rawUrl,
-    x: 60, y: 60,
-    width: isVideo ? 480 : 400,
-    height: isVideo ? 270 : 300,
-    displayMode: "inline",
+type NotesPayload = {
+  workspaces: Workspace[];
+  sections: Section[];
+  pages: Page[];
+  defaults: { workspaceId: string; sectionId: string };
+  aiAvailable: boolean;
+  linkOptions: {
+    clients: LinkOption[];
+    projects: LinkOption[];
+    tasks: LinkOption[];
+    invoices: LinkOption[];
+    tickets: LinkOption[];
   };
-}
+};
 
-function openAttachment(att: Attachment) {
-  const src = att.dataUrl ?? att.url;
-  if (!src) return;
-  if (att.dataUrl) {
-    const [header, data] = att.dataUrl.split(",");
-    const mime = header.split(":")[1]?.split(";")[0] ?? "application/octet-stream";
-    const bytes = atob(data);
-    const arr = new Uint8Array(bytes.length);
-    for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
-    const blob = new Blob([arr], { type: mime });
-    const blobUrl = URL.createObjectURL(blob);
-    window.open(blobUrl, "_blank", "noopener,noreferrer");
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 10_000);
-  } else {
-    window.open(src, "_blank", "noopener,noreferrer");
-  }
-}
-
-// ─── Attachment helper components ─────────────────────────────────────────────
-
-function FileTypeIcon({ mimeType, size = 14 }: { mimeType: string; size?: number }) {
-  const s = { width: size, height: size };
-  if (mimeType.startsWith("image/"))
-    return <svg {...s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-sky-400"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>;
-  if (mimeType.startsWith("video/"))
-    return <svg {...s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-purple-400"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>;
-  if (mimeType === "application/pdf")
-    return <svg {...s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-red-400"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>;
-  if (mimeType.includes("spreadsheet") || mimeType.includes("excel") || mimeType === "text/csv")
-    return <svg {...s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-green-400"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>;
-  if (mimeType.includes("word") || mimeType.includes("document"))
-    return <svg {...s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-blue-400"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>;
-  return <svg {...s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-white/40"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>;
-}
-
-function InlineContent({ att }: { att: Attachment }) {
-  const src = att.dataUrl ?? att.url;
-  if (att.extractedHtml)
-    return (
-      // Content comes from user's own files (mammoth/xlsx); internal admin tool only
-      <div
-        className="w-full h-full overflow-auto p-3 text-white/80 text-xs leading-relaxed notes-doc-content"
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: att.extractedHtml }}
-      />
-    );
-  if (att.mimeType.startsWith("image/"))
-    return <img src={src} alt={att.name} className="w-full h-full object-contain" draggable={false} />;
-  if (att.mimeType.startsWith("video/"))
-    return <video src={src} controls className="w-full h-full bg-black" />;
-  if (att.mimeType === "application/pdf" && src)
-    return <iframe src={src} className="w-full h-full border-0" title={att.name} />;
-  return <FileChipDisplay att={att} />;
-}
-
-function FileChipDisplay({ att }: { att: Attachment }) {
-  return (
-    <div className="flex items-center gap-3 p-3 h-full">
-      <div className="w-10 h-10 rounded-lg bg-white/6 flex items-center justify-center shrink-0">
-        <FileTypeIcon mimeType={att.mimeType} size={20} />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-xs font-medium text-white/80 truncate">{att.name}</p>
-        <p className="text-[10px] text-white/35 mt-0.5">{att.mimeType || "Unknown type"}</p>
-      </div>
-      <button
-        onClick={(e) => { e.stopPropagation(); openAttachment(att); }}
-        className="shrink-0 px-3 py-1.5 rounded-lg bg-white/8 hover:bg-white/15 text-xs text-white/60 hover:text-white transition-colors"
-      >
-        Open
-      </button>
-    </div>
-  );
-}
-
-function AttachmentWidget({
-  att, isSelected, onSelect, onUpdate, onDelete,
-}: {
-  att: Attachment;
-  isSelected: boolean;
-  onSelect: () => void;
-  onUpdate: (u: Partial<Attachment>) => void;
-  onDelete: () => void;
-}) {
-  const dragRef = useRef<{ mx: number; my: number; ox: number; oy: number } | null>(null);
-  const resizeRef = useRef<{ mx: number; my: number; ow: number; oh: number } | null>(null);
-
-  function onBarPointerDown(e: React.PointerEvent) {
-    e.stopPropagation();
-    onSelect();
-    dragRef.current = { mx: e.clientX, my: e.clientY, ox: att.x, oy: att.y };
-    (e.currentTarget as Element).setPointerCapture(e.pointerId);
-  }
-  function onBarPointerMove(e: React.PointerEvent) {
-    if (!dragRef.current) return;
-    onUpdate({
-      x: Math.max(0, dragRef.current.ox + e.clientX - dragRef.current.mx),
-      y: Math.max(0, dragRef.current.oy + e.clientY - dragRef.current.my),
-    });
-  }
-  function onBarPointerUp() { dragRef.current = null; }
-
-  function onResizePointerDown(e: React.PointerEvent) {
-    e.stopPropagation();
-    resizeRef.current = { mx: e.clientX, my: e.clientY, ow: att.width, oh: att.height };
-    (e.currentTarget as Element).setPointerCapture(e.pointerId);
-  }
-  function onResizePointerMove(e: React.PointerEvent) {
-    if (!resizeRef.current) return;
-    onUpdate({
-      width: Math.max(120, resizeRef.current.ow + e.clientX - resizeRef.current.mx),
-      height: Math.max(56, resizeRef.current.oh + e.clientY - resizeRef.current.my),
-    });
-  }
-  function onResizePointerUp() { resizeRef.current = null; }
-
-  const isFile = att.displayMode === "file";
-
-  return (
-    <div
-      className={`absolute flex flex-col rounded-lg overflow-hidden shadow-xl border transition-[border-color] ${
-        isSelected ? "border-sky-400/50 shadow-sky-500/10" : "border-white/10 shadow-black/50"
-      }`}
-      style={{ left: att.x, top: att.y, width: att.width, height: isFile ? 72 : att.height }}
-      onPointerDown={(e) => { e.stopPropagation(); onSelect(); }}
-    >
-      {/* ── Title / drag bar ── */}
-      <div
-        className="flex items-center gap-1.5 px-2 h-7 bg-[#1a1a1a]/95 border-b border-white/8 cursor-move select-none shrink-0"
-        onPointerDown={onBarPointerDown}
-        onPointerMove={onBarPointerMove}
-        onPointerUp={onBarPointerUp}
-      >
-        <FileTypeIcon mimeType={att.mimeType} size={11} />
-        <span className="text-[10px] text-white/45 truncate flex-1 min-w-0">{att.name}</span>
-        <div className="flex items-center gap-0.5 shrink-0">
-          {/* Toggle inline ↔ file chip */}
-          <button
-            className="p-0.5 rounded text-white/25 hover:text-white/60 hover:bg-white/8 transition-colors"
-            title={isFile ? "Show inline" : "Show as file"}
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => { e.stopPropagation(); onUpdate({ displayMode: isFile ? "inline" : "file" }); }}
-          >
-            {isFile
-              ? <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M3 16v3a2 2 0 002 2h3M16 21h3a2 2 0 002-2v-3" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              : <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 3v3a2 2 0 01-2 2H3M21 8h-3a2 2 0 01-2-2V3M3 16h3a2 2 0 012 2v3M16 21v-3a2 2 0 012-2h3" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            }
-          </button>
-          {/* Open with OS */}
-          <button
-            className="p-0.5 rounded text-white/25 hover:text-white/60 hover:bg-white/8 transition-colors"
-            title="Open"
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => { e.stopPropagation(); openAttachment(att); }}
-          >
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          </button>
-          {/* Remove */}
-          <button
-            className="p-0.5 rounded text-white/25 hover:text-red-400 hover:bg-red-500/8 transition-colors"
-            title="Remove attachment"
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => { e.stopPropagation(); onDelete(); }}
-          >
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" strokeLinecap="round"/></svg>
-          </button>
-        </div>
-      </div>
-
-      {/* ── Content ── */}
-      {!isFile && (
-        <div className="flex-1 overflow-hidden bg-[#111] relative">
-          <InlineContent att={att} />
-        </div>
-      )}
-      {isFile && (
-        <div className="bg-[#111]" style={{ height: 72 - 28 }}>
-          <FileChipDisplay att={att} />
-        </div>
-      )}
-
-      {/* ── Resize handle (bottom-right corner) ── */}
-      {!isFile && (
-        <div
-          className="absolute bottom-0 right-0 w-5 h-5 cursor-se-resize z-10"
-          style={{ background: "linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.12) 50%)" }}
-          onPointerDown={onResizePointerDown}
-          onPointerMove={onResizePointerMove}
-          onPointerUp={onResizePointerUp}
-        />
-      )}
-    </div>
-  );
-}
-
-// ─── Foldable / dual-screen layout hook ──────────────────────────────────────
-//
-// Detects whether the app is spanned across two screens (Surface Duo, Galaxy Z
-// Fold, etc.) using the CSS `vertical-viewport-segments` media feature and the
-// legacy `window.getWindowSegments()` API shipped on Surface Duo.
-//
-// Returns:
-//   isSpanned      – true when two side-by-side viewport segments are detected
-//   leftScreenWidth – pixel width of the left segment (viewport origin → hinge)
-//                     null if the exact position cannot be determined
-//
-type FoldState = { isSpanned: boolean; leftScreenWidth: number | null };
-
-function useFoldableLayout(): FoldState {
-  const [state, setState] = useState<FoldState>({ isSpanned: false, leftScreenWidth: null });
-
-  useEffect(() => {
-    function detect() {
-      // Vertical fold = two columns side by side (Surface Duo portrait, Z Fold landscape)
-      const mq = window.matchMedia("(vertical-viewport-segments: 2)");
-      if (!mq.matches) {
-        setState({ isSpanned: false, leftScreenWidth: null });
-        return;
-      }
-
-      let leftWidth: number | null = null;
-
-      // Method 1 – legacy Surface Duo API (still present on Duo 1 / Duo 2)
-      const getSegs = (window as unknown as Record<string, unknown>).getWindowSegments as
-        (() => DOMRect[]) | undefined;
-      if (typeof getSegs === "function") {
-        const segs = getSegs();
-        if (segs.length >= 2) leftWidth = segs[0].right;
-      }
-
-      // Method 2 – probe element with CSS env() variable
-      // env(viewport-segment-right, 0, 0) = right edge of the first segment
-      if (leftWidth === null) {
-        const probe = document.createElement("div");
-        probe.setAttribute(
-          "style",
-          "position:fixed;top:-9999px;left:0;width:env(viewport-segment-right,0,0);height:1px;pointer-events:none;visibility:hidden;"
-        );
-        document.body.appendChild(probe);
-        const w = parseFloat(getComputedStyle(probe).width);
-        document.body.removeChild(probe);
-        if (w > 0 && w < window.innerWidth * 0.95) leftWidth = w;
-      }
-
-      setState({ isSpanned: true, leftScreenWidth: leftWidth });
-    }
-
-    detect();
-    const mq = window.matchMedia("(vertical-viewport-segments: 2)");
-    mq.addEventListener("change", detect);
-    window.addEventListener("resize", detect);
-    return () => {
-      mq.removeEventListener("change", detect);
-      window.removeEventListener("resize", detect);
-    };
-  }, []);
-
-  return state;
-}
-
-// ─── Pen eraser detection ─────────────────────────────────────────────────────
-//
-// The Surface Pen (and many other digitizers) has two ends:
-//   • Tip  – the writing nib
-//   • Tail – the flat eraser end
-//
-// The W3C Pointer Events spec encodes the eraser end as:
-//   e.button  === 5  on pointerdown  (the "eraser" button index)
-//   e.buttons  & 32  on any event    (bit 5 of the buttons bitmask)
-//
-// OneNote uses exactly this mechanism.  We auto-detect it per-stroke so the
-// user never needs to manually toggle the toolbar tool when using a stylus.
-//
-function isPenEraser(e: React.PointerEvent): boolean {
-  if (e.pointerType !== "pen") return false;
-  return (e.buttons & 32) !== 0 || e.button === 5;
-}
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const NOTE_COLORS = [
-  { label: "None",   value: null,      dot: "bg-white/10 border border-white/20" },
-  { label: "Amber",  value: "#f59e0b", dot: "bg-amber-500" },
-  { label: "Blue",   value: "#3b82f6", dot: "bg-blue-500" },
-  { label: "Green",  value: "#22c55e", dot: "bg-green-500" },
-  { label: "Pink",   value: "#ec4899", dot: "bg-pink-500" },
-  { label: "Purple", value: "#a855f7", dot: "bg-purple-500" },
-  { label: "Red",    value: "#ef4444", dot: "bg-red-500" },
-];
-
-const PEN_COLORS = [
-  "#ffffff", "#94a3b8", "#1e293b",
-  "#3b82f6", "#22c55e", "#ef4444",
-  "#f59e0b", "#a855f7", "#ec4899",
-];
-
+const PEN_COLORS = ["#ffffff", "#94a3b8", "#111827", "#38bdf8", "#22c55e", "#f43f5e", "#f59e0b", "#8b5cf6"];
 const PEN_SIZES = [2, 4, 8, 14, 22];
+const CANVAS_WIDTH = 2200;
+const CANVAS_HEIGHT = 1500;
 
-// ─── Relative time ────────────────────────────────────────────────────────────
+function uid(prefix = "id") {
+  return `${prefix}_${Math.random().toString(36).slice(2)}_${Date.now().toString(36)}`;
+}
 
-function relativeTime(iso: string): string {
+function relativeTime(iso?: string): string {
+  if (!iso) return "now";
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60_000);
   if (mins < 1) return "just now";
@@ -463,201 +125,523 @@ function relativeTime(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-// ─── Drawing Canvas ───────────────────────────────────────────────────────────
+function parseJson<T>(value: string | null | undefined, fallback: T): T {
+  if (!value) return fallback;
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return fallback;
+  }
+}
 
-function DrawingCanvas({
-  initialData,
+function blocksForPage(page: Page | null): NoteBlock[] {
+  if (!page) return [];
+  const parsed = parseJson<NoteBlock[]>(page.blocksJson, []);
+  if (parsed.length) return parsed.map((block) => ({ ...block, pageId: page._id }));
+  if (page.content?.trim()) {
+    const now = page._createdAt || new Date().toISOString();
+    return [{
+      id: `legacy_text_${page._id}`,
+      pageId: page._id,
+      type: "text",
+      content: page.content,
+      x: 96,
+      y: 96,
+      width: 520,
+      height: 280,
+      zIndex: 10,
+      metadata: { migratedFrom: "adminNote.content" },
+      createdAt: now,
+      updatedAt: page._updatedAt || now,
+    }];
+  }
+  return [];
+}
+
+function pageTextFromBlocks(blocks: NoteBlock[]) {
+  return blocks
+    .filter((block) => ["text", "checklist", "link", "ai"].includes(block.type))
+    .map((block) => block.content.trim())
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+function drawStrokeToCanvas(
+  ctx: CanvasRenderingContext2D,
+  points: number[][],
+  size: number,
+  color: string,
+  isEraser: boolean,
+  highlighter = false
+) {
+  const outline = getStroke(points, { size, thinning: 0.5, smoothing: 0.5, streamline: 0.5, simulatePressure: true });
+  if (outline.length < 2) return;
+  ctx.save();
+  if (isEraser) {
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.fillStyle = "rgba(0,0,0,1)";
+  } else {
+    ctx.globalCompositeOperation = highlighter ? "multiply" : "source-over";
+    ctx.globalAlpha = highlighter ? 0.34 : 1;
+    ctx.fillStyle = color;
+  }
+  ctx.beginPath();
+  ctx.moveTo(outline[0][0], outline[0][1]);
+  for (let i = 1; i < outline.length; i += 1) ctx.lineTo(outline[i][0], outline[i][1]);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function isPenEraser(e: React.PointerEvent): boolean {
+  if (e.pointerType !== "pen") return false;
+  return (e.buttons & 32) !== 0 || e.button === 5;
+}
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function processFile(file: File): Promise<Attachment> {
+  const id = uid("file");
+  const { name, type: mimeType } = file;
+  if (mimeType.startsWith("image/")) {
+    return { id, name, mimeType, dataUrl: await fileToDataUrl(file), x: 0, y: 0, width: 440, height: 320, displayMode: "inline" };
+  }
+  if (mimeType.startsWith("video/")) {
+    return { id, name, mimeType, dataUrl: await fileToDataUrl(file), x: 0, y: 0, width: 520, height: 300, displayMode: "inline" };
+  }
+  if (mimeType === "application/pdf") {
+    return { id, name, mimeType, dataUrl: await fileToDataUrl(file), x: 0, y: 0, width: 640, height: 820, displayMode: "inline" };
+  }
+  if (mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || name.endsWith(".docx")) {
+    const arrayBuffer = await file.arrayBuffer();
+    const mammoth = await import("mammoth");
+    const result = await mammoth.convertToHtml({ arrayBuffer });
+    return { id, name, mimeType, extractedHtml: result.value, x: 0, y: 0, width: 640, height: 420, displayMode: "inline" };
+  }
+  if (
+    mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+    mimeType === "application/vnd.ms-excel" ||
+    name.endsWith(".xlsx") ||
+    name.endsWith(".xls")
+  ) {
+    const arrayBuffer = await file.arrayBuffer();
+    const XLSX = await import("xlsx");
+    const wb = XLSX.read(arrayBuffer, { type: "array" });
+    const firstSheet = wb.SheetNames[0];
+    const html = XLSX.utils.sheet_to_html(wb.Sheets[firstSheet]);
+    return { id, name, mimeType, extractedHtml: html, x: 0, y: 0, width: 720, height: 420, displayMode: "inline" };
+  }
+  if (mimeType === "text/csv" || name.endsWith(".csv")) {
+    const text = await file.text();
+    const rows = text.trim().split("\n").map((row) => row.split(",").map((cell) => cell.replace(/^"|"$/g, "")));
+    const html = `<table>${rows.map((row, i) => `<tr>${row.map((cell) => i === 0 ? `<th>${cell}</th>` : `<td>${cell}</td>`).join("")}</tr>`).join("")}</table>`;
+    return { id, name, mimeType, extractedHtml: html, x: 0, y: 0, width: 640, height: 320, displayMode: "inline" };
+  }
+  return { id, name, mimeType: mimeType || "application/octet-stream", dataUrl: await fileToDataUrl(file), x: 0, y: 0, width: 360, height: 110, displayMode: "file" };
+}
+
+function openBlockFile(block: NoteBlock) {
+  const src = String(block.metadata.dataUrl || block.metadata.url || "");
+  if (!src) return;
+  if (src.startsWith("data:")) {
+    const [header, data] = src.split(",");
+    const mime = header.split(":")[1]?.split(";")[0] || "application/octet-stream";
+    const bytes = atob(data);
+    const arr = new Uint8Array(bytes.length);
+    for (let i = 0; i < bytes.length; i += 1) arr[i] = bytes.charCodeAt(i);
+    const blobUrl = URL.createObjectURL(new Blob([arr], { type: mime }));
+    window.open(blobUrl, "_blank", "noopener,noreferrer");
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 10_000);
+  } else {
+    window.open(src, "_blank", "noopener,noreferrer");
+  }
+}
+
+function fileBlockFromAttachment(pageId: string, attachment: Attachment, x: number, y: number, zIndex: number): NoteBlock {
+  const isImage = attachment.mimeType.startsWith("image/");
+  const now = new Date().toISOString();
+  return {
+    id: uid(isImage ? "image" : "file"),
+    pageId,
+    type: isImage ? "image" : "file",
+    content: attachment.name,
+    x,
+    y,
+    width: attachment.width,
+    height: attachment.displayMode === "file" ? 116 : attachment.height,
+    zIndex,
+    metadata: {
+      name: attachment.name,
+      mimeType: attachment.mimeType,
+      dataUrl: attachment.dataUrl,
+      url: attachment.url,
+      extractedHtml: attachment.extractedHtml,
+      displayMode: attachment.displayMode,
+    },
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+function FileTypeIcon({ mimeType, size = 14 }: { mimeType: string; size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <path d="M14 2v6h6" />
+      {mimeType.startsWith("image/") ? <path d="m8 17 2.5-3 2 2.4 2.5-3.4 2 4" /> : <path d="M8 13h8M8 17h6" />}
+    </svg>
+  );
+}
+
+function SelectionMenu({
+  onDuplicate,
+  onDelete,
+  onBringForward,
+  onSendBack,
+}: {
+  onDuplicate: () => void;
+  onDelete: () => void;
+  onBringForward: () => void;
+  onSendBack: () => void;
+}) {
+  return (
+    <div className="absolute -top-10 right-0 z-30 flex items-center gap-1 rounded-xl border border-white/12 bg-[#0b0f14]/95 p-1 shadow-2xl backdrop-blur-xl">
+      <IconButton label="Duplicate" onClick={onDuplicate}>
+        <path d="M8 8h10v10H8zM5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+      </IconButton>
+      <IconButton label="Bring forward" onClick={onBringForward}>
+        <path d="M12 19V5M5 12l7-7 7 7" />
+      </IconButton>
+      <IconButton label="Send back" onClick={onSendBack}>
+        <path d="M12 5v14M19 12l-7 7-7-7" />
+      </IconButton>
+      <IconButton label="Delete" tone="danger" onClick={onDelete}>
+        <path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" />
+      </IconButton>
+    </div>
+  );
+}
+
+function IconButton({
+  label,
+  onClick,
+  tone = "normal",
+  disabled = false,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  tone?: "normal" | "danger" | "active";
+  disabled?: boolean;
+  children: React.ReactNode;
+}) {
+  const toneClass =
+    tone === "danger"
+      ? "text-red-300 hover:bg-red-500/12"
+      : tone === "active"
+        ? "bg-sky-500/15 text-sky-200"
+        : "text-white/55 hover:bg-white/10 hover:text-white";
+  return (
+    <button
+      type="button"
+      title={label}
+      aria-label={label}
+      disabled={disabled}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors disabled:cursor-not-allowed disabled:opacity-30 ${toneClass}`}
+    >
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        {children}
+      </svg>
+    </button>
+  );
+}
+
+function NoteBlockView({
+  block,
+  selected,
+  onSelect,
+  onChange,
+  onDelete,
+  onDuplicate,
+  onLayer,
+  onDragStart,
+  onDrag,
+  onResizeStart,
+  onResize,
+}: {
+  block: NoteBlock;
+  selected: boolean;
+  onSelect: () => void;
+  onChange: (updates: Partial<NoteBlock>) => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  onLayer: (direction: "front" | "back") => void;
+  onDragStart: (e: React.PointerEvent, block: NoteBlock) => void;
+  onDrag: (e: React.PointerEvent) => void;
+  onResizeStart: (e: React.PointerEvent, block: NoteBlock) => void;
+  onResize: (e: React.PointerEvent) => void;
+}) {
+  const commonClass = selected
+    ? "border-sky-300/65 shadow-[0_18px_60px_rgba(14,165,233,0.16)]"
+    : "border-white/10 shadow-[0_14px_50px_rgba(0,0,0,0.25)] hover:border-white/18";
+  const mimeType = String(block.metadata.mimeType || "");
+  const dataUrl = String(block.metadata.dataUrl || "");
+  const url = String(block.metadata.url || "");
+  const extractedHtml = String(block.metadata.extractedHtml || "");
+
+  return (
+    <div
+      className={`absolute rounded-xl border bg-[#0b0f14]/92 backdrop-blur-md transition-[border-color,box-shadow] ${commonClass}`}
+      style={{ left: block.x, top: block.y, width: block.width, height: block.height, zIndex: block.zIndex }}
+      onPointerDown={(e) => {
+        e.stopPropagation();
+        onSelect();
+      }}
+    >
+      {selected && (
+        <SelectionMenu
+          onDuplicate={onDuplicate}
+          onDelete={onDelete}
+          onBringForward={() => onLayer("front")}
+          onSendBack={() => onLayer("back")}
+        />
+      )}
+      <div
+        className="flex h-8 cursor-move select-none items-center gap-2 rounded-t-xl border-b border-white/8 bg-white/[0.035] px-2 text-[11px] text-white/42"
+        onPointerDown={(e) => onDragStart(e, block)}
+        onPointerMove={onDrag}
+        onPointerUp={(e) => e.currentTarget.releasePointerCapture(e.pointerId)}
+      >
+        <BlockIcon type={block.type} />
+        <span className="truncate">{block.type === "ai" ? "AI output" : block.type}</span>
+        <span className="ml-auto font-mono text-[10px] text-white/22">{block.zIndex}</span>
+      </div>
+
+      {block.type === "text" && (
+        <textarea
+          value={block.content}
+          onChange={(e) => onChange({ content: e.target.value, updatedAt: new Date().toISOString() })}
+          placeholder="Start typing..."
+          className="h-[calc(100%-2rem)] w-full resize-none rounded-b-xl bg-transparent p-3 text-sm leading-relaxed text-white/84 outline-none placeholder:text-white/18"
+        />
+      )}
+
+      {block.type === "checklist" && (
+        <div className="h-[calc(100%-2rem)] overflow-auto p-3">
+          <textarea
+            value={block.content}
+            onChange={(e) => onChange({ content: e.target.value, updatedAt: new Date().toISOString() })}
+            placeholder={"One task per line\n[ ] Draft proposal\n[x] Send recap"}
+            className="min-h-full w-full resize-none bg-transparent text-sm leading-7 text-white/84 outline-none placeholder:text-white/18"
+          />
+        </div>
+      )}
+
+      {block.type === "link" && (
+        <div className="flex h-[calc(100%-2rem)] flex-col justify-center gap-2 p-4">
+          <input
+            value={String(block.metadata.url || "")}
+            onChange={(e) => onChange({ metadata: { ...block.metadata, url: e.target.value }, updatedAt: new Date().toISOString() })}
+            placeholder="https://..."
+            className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-sky-200 outline-none placeholder:text-white/20"
+          />
+          <textarea
+            value={block.content}
+            onChange={(e) => onChange({ content: e.target.value, updatedAt: new Date().toISOString() })}
+            placeholder="Bookmark notes"
+            className="flex-1 resize-none bg-transparent text-sm text-white/76 outline-none placeholder:text-white/18"
+          />
+          {String(block.metadata.url || "") && (
+            <a href={String(block.metadata.url)} target="_blank" rel="noreferrer" className="text-xs text-sky-300 hover:text-sky-200">
+              Open bookmark
+            </a>
+          )}
+        </div>
+      )}
+
+      {block.type === "image" && (
+        <div className="h-[calc(100%-2rem)] overflow-hidden rounded-b-xl bg-black/30">
+          {/* User-supplied data URLs and private file URLs are not suitable for next/image. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={dataUrl || url} alt={block.content || "Note image"} className="h-full w-full object-contain" draggable={false} />
+        </div>
+      )}
+
+      {block.type === "file" && (
+        <div className="h-[calc(100%-2rem)] overflow-auto p-3">
+          {extractedHtml ? (
+            <div
+              className="notes-doc-content text-xs text-white/72"
+              // Admin-only file preview generated from the user's uploaded document.
+              dangerouslySetInnerHTML={{ __html: extractedHtml }}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                openBlockFile(block);
+              }}
+              className="flex w-full items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] p-3 text-left transition-colors hover:bg-white/8"
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/8 text-sky-300">
+                <FileTypeIcon mimeType={mimeType} size={20} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium text-white/78">{block.content || "Attachment"}</span>
+                <span className="mt-0.5 block truncate text-[11px] text-white/35">{mimeType || "File attachment"}</span>
+              </span>
+            </button>
+          )}
+        </div>
+      )}
+
+      {block.type === "ai" && (
+        <textarea
+          value={block.content}
+          onChange={(e) => onChange({ content: e.target.value, updatedAt: new Date().toISOString() })}
+          className="h-[calc(100%-2rem)] w-full resize-none rounded-b-xl bg-sky-500/[0.045] p-3 text-sm leading-relaxed text-sky-50/86 outline-none"
+        />
+      )}
+
+      <div
+        className="absolute bottom-0 right-0 h-6 w-6 cursor-se-resize rounded-br-xl"
+        style={{ background: "linear-gradient(135deg, transparent 50%, rgba(255,255,255,0.16) 50%)" }}
+        onPointerDown={(e) => onResizeStart(e, block)}
+        onPointerMove={onResize}
+        onPointerUp={(e) => e.currentTarget.releasePointerCapture(e.pointerId)}
+      />
+    </div>
+  );
+}
+
+function BlockIcon({ type }: { type: NoteBlockType }) {
+  const paths: Record<NoteBlockType, React.ReactNode> = {
+    text: <><path d="M4 6h16M9 6v12M15 6v12M7 18h10" /></>,
+    checklist: <><path d="m4 7 2 2 4-4M12 8h8M4 15l2 2 4-4M12 16h8" /></>,
+    image: <><rect x="3" y="4" width="18" height="16" rx="2" /><path d="m6 17 4-5 3 4 2-3 3 4" /><circle cx="8" cy="8" r="1" /></>,
+    file: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></>,
+    link: <><path d="M10 13a5 5 0 0 0 7.54.54l2-2a5 5 0 0 0-7.07-7.07l-1.14 1.14" /><path d="M14 11a5 5 0 0 0-7.54-.54l-2 2a5 5 0 0 0 7.07 7.07l1.14-1.14" /></>,
+    drawing: <><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></>,
+    ai: <><path d="M12 3l1.9 5.6L20 10.5l-5.2 3.4.2 6.1-5-3.6-5 3.6.2-6.1L0 10.5l6.1-1.9Z" /></>,
+  };
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      {paths[type]}
+    </svg>
+  );
+}
+
+function DrawingLayer({
+  data,
+  active,
+  onActiveChange,
   onSave,
 }: {
-  initialData: CanvasData;
+  data: CanvasData;
+  active: boolean;
+  onActiveChange: (active: boolean) => void;
   onSave: (data: CanvasData) => void;
 }) {
-  // Two-canvas stack: background (dark fill + dot grid) is static; ink canvas sits
-  // on top and is transparent where not inked. Erasing removes pixels from the ink
-  // canvas via destination-out, revealing the background canvas underneath.
-  const bgCanvasRef = useRef<HTMLCanvasElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [strokes, setStrokes] = useState<Stroke[]>(initialData.strokes ?? []);
-  // Refs that mirror state so renderCanvas() always reads the latest values
-  // without needing to be re-created on every render.
-  const strokesRef = useRef<Stroke[]>(initialData.strokes ?? []);
-  const [history, setHistory] = useState<Stroke[][]>([initialData.strokes ?? []]);
+  const [strokes, setStrokes] = useState<Stroke[]>(data.strokes ?? []);
+  const strokesRef = useRef<Stroke[]>(data.strokes ?? []);
+  const [history, setHistory] = useState<Stroke[][]>([data.strokes ?? []]);
   const [histIdx, setHistIdx] = useState(0);
-  const [drawing, setDrawing] = useState(false);
-  const [tool, setTool] = useState<"pen" | "eraser">("pen");
-  const [penColor, setPenColor] = useState(PEN_COLORS[0]);
-  const penColorRef = useRef(PEN_COLORS[0]);
+  const [tool, setTool] = useState<"pen" | "highlighter" | "eraser">("pen");
+  const [color, setColor] = useState(PEN_COLORS[0]);
   const [sizeIdx, setSizeIdx] = useState(1);
-  const sizeIdxRef = useRef(1);
-  const [colorPickerOpen, setColorPickerOpen] = useState(false);
-  // Tracks the effective tool for the stroke currently being drawn.
-  const currentStrokeIsEraserRef = useRef(false);
-  // True while a physical pen eraser end is in contact — drives toolbar highlight
+  const [drawing, setDrawing] = useState(false);
   const [penEraserActive, setPenEraserActive] = useState(false);
-  // Live stroke points accumulated during a pointer-drag (ref avoids per-point re-renders)
   const currentPtsRef = useRef<number[][]>([]);
+  const eraserRef = useRef(false);
   const rafRef = useRef<number | null>(null);
+  const colorRef = useRef(color);
+  const sizeIdxRef = useRef(sizeIdx);
+  const toolRef = useRef(tool);
 
-  // ── Attachments ──────────────────────────────────────────────────────────────
-  const [attachments, setAttachments] = useState<Attachment[]>(initialData.attachments ?? []);
-  const attachmentsRef = useRef<Attachment[]>(initialData.attachments ?? []);
-  const [selectedAttId, setSelectedAttId] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [attachMenuOpen, setAttachMenuOpen] = useState(false);
-  const [urlInputOpen, setUrlInputOpen] = useState(false);
-  const [urlValue, setUrlValue] = useState("");
-  const [processing, setProcessing] = useState(false);
-
-  useEffect(() => { attachmentsRef.current = attachments; }, [attachments]);
-
-  function saveAll(s: Stroke[], a: Attachment[]) {
-    onSave({ strokes: s, attachments: a });
-  }
-
-  async function handleFileInput(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
-    if (!files.length) return;
-    setProcessing(true);
-    const cw = containerRef.current?.offsetWidth ?? 800;
-    const ch = containerRef.current?.offsetHeight ?? 600;
-    const newAtts: Attachment[] = [];
-    for (const file of files) {
-      const att = await processFile(file, cw, ch);
-      // Stagger positions when attaching multiple files
-      newAtts.push({ ...att, x: att.x + newAtts.length * 24, y: att.y + newAtts.length * 24 });
-    }
-    const next = [...attachmentsRef.current, ...newAtts];
-    setAttachments(next);
-    attachmentsRef.current = next;
-    saveAll(strokesRef.current, next);
-    e.target.value = "";
-    setProcessing(false);
-    setAttachMenuOpen(false);
-  }
-
-  function handleUrlAttach() {
-    const raw = urlValue.trim();
-    if (!raw) return;
-    const att = processUrl(raw);
-    const next = [...attachmentsRef.current, att];
-    setAttachments(next);
-    attachmentsRef.current = next;
-    saveAll(strokesRef.current, next);
-    setUrlValue("");
-    setUrlInputOpen(false);
-    setAttachMenuOpen(false);
-  }
-
-  function updateAttachment(id: string, updates: Partial<Attachment>) {
-    const next = attachmentsRef.current.map((a) => (a.id === id ? { ...a, ...updates } : a));
-    setAttachments(next);
-    attachmentsRef.current = next;
-    saveAll(strokesRef.current, next);
-  }
-
-  function deleteAttachment(id: string) {
-    const next = attachmentsRef.current.filter((a) => a.id !== id);
-    setAttachments(next);
-    attachmentsRef.current = next;
-    if (selectedAttId === id) setSelectedAttId(null);
-    saveAll(strokesRef.current, next);
-  }
-
-  // Sync state → refs
-  useEffect(() => { penColorRef.current = penColor; }, [penColor]);
+  useEffect(() => { colorRef.current = color; }, [color]);
   useEffect(() => { sizeIdxRef.current = sizeIdx; }, [sizeIdx]);
+  useEffect(() => { toolRef.current = tool; }, [tool]);
+
+  const renderCanvas = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const stroke of strokesRef.current) {
+      drawStrokeToCanvas(ctx, stroke.points, stroke.isEraser ? stroke.size * 3 : stroke.size, stroke.color, stroke.isEraser, stroke.highlighter);
+    }
+    if (currentPtsRef.current.length > 1) {
+      const isEraser = eraserRef.current;
+      const size = isEraser ? PEN_SIZES[sizeIdxRef.current] * 3 : PEN_SIZES[sizeIdxRef.current];
+      drawStrokeToCanvas(ctx, currentPtsRef.current, size, colorRef.current, isEraser, toolRef.current === "highlighter");
+    }
+  }, []);
+
   useEffect(() => {
     strokesRef.current = strokes;
     renderCanvas();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strokes]);
+  }, [renderCanvas, strokes]);
 
-  // Size both canvases to match their CSS box; re-render on resize
   useEffect(() => {
-    const ink = canvasRef.current;
-    const bg = bgCanvasRef.current;
-    if (!ink || !bg) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
     function resize() {
-      if (!ink || !bg) return;
-      const w = ink.offsetWidth;
-      const h = ink.offsetHeight;
-      if (ink.width !== w || ink.height !== h) {
-        ink.width = w; ink.height = h;
-        bg.width = w; bg.height = h;
-      }
-      renderBackground(); // eslint-disable-line react-hooks/exhaustive-deps
-      renderCanvas();     // eslint-disable-line react-hooks/exhaustive-deps
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(rect.width * dpr);
+      canvas.height = Math.floor(rect.height * dpr);
+      const ctx = canvas.getContext("2d");
+      if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      renderCanvas();
     }
-    const obs = new ResizeObserver(resize);
-    obs.observe(ink);
+    const observer = new ResizeObserver(resize);
+    observer.observe(canvas);
     resize();
-    return () => obs.disconnect();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return () => observer.disconnect();
+  }, [renderCanvas]);
 
-  function renderBackground() {
-    const bg = bgCanvasRef.current;
-    if (!bg || !bg.width || !bg.height) return;
-    const ctx = bg.getContext("2d");
-    if (!ctx) return;
-    const { width: w, height: h } = bg;
-    // Dark canvas fill
-    ctx.fillStyle = "#080808";
-    ctx.fillRect(0, 0, w, h);
-    // Dot grid
-    ctx.fillStyle = "rgba(255,255,255,0.06)";
-    for (let x = 0; x < w; x += 20) {
-      for (let y = 0; y < h; y += 20) {
-        ctx.beginPath();
-        ctx.arc(x + 0.75, y + 0.75, 0.75, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-  }
-
-  function renderCanvas() {
-    const ink = canvasRef.current;
-    if (!ink || !ink.width || !ink.height) return;
-    const ctx = ink.getContext("2d");
-    if (!ctx) return;
-    ctx.clearRect(0, 0, ink.width, ink.height);
-    for (const s of strokesRef.current) {
-      drawStrokeToCanvas(ctx, s.points, s.isEraser ? s.size * 3 : s.size, s.color, s.isEraser);
-    }
-    const livePts = currentPtsRef.current;
-    if (livePts.length > 1) {
-      const isEraser = currentStrokeIsEraserRef.current;
-      const liveSize = isEraser
-        ? PEN_SIZES[sizeIdxRef.current] * 3
-        : PEN_SIZES[sizeIdxRef.current];
-      drawStrokeToCanvas(ctx, livePts, liveSize, penColorRef.current, isEraser);
-    }
-  }
-
-  const pushHistory = useCallback((s: Stroke[]) => {
-    setHistory((h) => {
-      const next = h.slice(0, histIdx + 1);
-      next.push(s);
-      setHistIdx(next.length - 1);
-      return next;
+  function pushHistory(next: Stroke[]) {
+    setHistory((prev) => {
+      const trimmed = prev.slice(0, histIdx + 1);
+      trimmed.push(next);
+      setHistIdx(trimmed.length - 1);
+      return trimmed;
     });
-  }, [histIdx]);
+  }
+
+  function save(next: Stroke[]) {
+    onSave({ ...data, strokes: next });
+  }
 
   function undo() {
     if (histIdx <= 0) return;
-    const prev = history[histIdx - 1];
-    setHistIdx((i) => i - 1);
-    setStrokes(prev);
-    saveAll(prev, attachmentsRef.current);
+    const next = history[histIdx - 1];
+    setHistIdx((idx) => idx - 1);
+    setStrokes(next);
+    save(next);
   }
 
   function redo() {
     if (histIdx >= history.length - 1) return;
     const next = history[histIdx + 1];
-    setHistIdx((i) => i + 1);
+    setHistIdx((idx) => idx + 1);
     setStrokes(next);
-    saveAll(next, attachmentsRef.current);
+    save(next);
   }
 
   function getPoint(e: React.PointerEvent<HTMLCanvasElement>): number[] {
@@ -666,30 +650,29 @@ function DrawingCanvas({
   }
 
   function onPointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
-    setSelectedAttId(null); // clicking the canvas deselects any attachment
+    if (!active) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     setDrawing(true);
-    const erasing = e.pointerType === "pen" ? isPenEraser(e) : tool === "eraser";
-    currentStrokeIsEraserRef.current = erasing;
+    const erasing = e.pointerType === "pen" ? isPenEraser(e) : toolRef.current === "eraser";
+    eraserRef.current = erasing;
     if (e.pointerType === "pen") {
       setPenEraserActive(erasing);
-      setTool(erasing ? "eraser" : "pen");
+      if (erasing) setTool("eraser");
     }
     currentPtsRef.current = [getPoint(e)];
   }
 
   function onPointerMove(e: React.PointerEvent<HTMLCanvasElement>) {
-    if (!drawing) return;
+    if (!drawing || !active) return;
     if (e.pointerType === "pen") {
       const erasing = isPenEraser(e);
-      if (erasing !== currentStrokeIsEraserRef.current) {
-        currentStrokeIsEraserRef.current = erasing;
+      if (erasing !== eraserRef.current) {
+        eraserRef.current = erasing;
         setPenEraserActive(erasing);
-        setTool(erasing ? "eraser" : "pen");
+        if (erasing) setTool("eraser");
       }
     }
     currentPtsRef.current = [...currentPtsRef.current, getPoint(e)];
-    // Throttle redraws to one per animation frame
     if (rafRef.current === null) {
       rafRef.current = requestAnimationFrame(() => {
         rafRef.current = null;
@@ -702,28 +685,34 @@ function DrawingCanvas({
     if (!drawing || !currentPtsRef.current.length) return;
     setDrawing(false);
     if (e?.pointerType === "pen") setPenEraserActive(false);
-    const isEraser = currentStrokeIsEraserRef.current;
     const pts = currentPtsRef.current;
     currentPtsRef.current = [];
     if (pts.length < 2) return;
-    const newStroke: Stroke = {
-      id: Math.random().toString(36).slice(2),
+    const isEraser = eraserRef.current;
+    const next = [...strokesRef.current, {
+      id: uid("stroke"),
       points: pts,
-      color: isEraser ? "eraser" : penColorRef.current,
+      color: isEraser ? "eraser" : colorRef.current,
       size: PEN_SIZES[sizeIdxRef.current],
       isEraser,
-    };
-    const next = [...strokesRef.current, newStroke];
+      highlighter: toolRef.current === "highlighter",
+    }];
     setStrokes(next);
     pushHistory(next);
-    saveAll(next, attachmentsRef.current);
+    save(next);
   }
 
-  // Keyboard shortcuts
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === "z") { e.preventDefault(); undo(); }
-      if ((e.ctrlKey || e.metaKey) && (e.shiftKey && e.key === "z" || e.key === "y")) { e.preventDefault(); redo(); }
+      if (!active) return;
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        undo();
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === "y" || (e.shiftKey && e.key.toLowerCase() === "z"))) {
+        e.preventDefault();
+        redo();
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -732,843 +721,1027 @@ function DrawingCanvas({
   const currentSize = PEN_SIZES[sizeIdx];
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Toolbar */}
-      <div className="flex items-center gap-1.5 px-3 py-2 border-b border-white/8 bg-white/3 flex-wrap shrink-0">
-        {/* Pen / Eraser toggle */}
-        <div className="flex rounded-lg overflow-hidden border border-white/10">
-          <button
-            onClick={() => setTool("pen")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
-              tool === "pen" ? "bg-white/15 text-white" : "text-white/45 hover:text-white/70 hover:bg-white/5"
-            }`}
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Pen
-          </button>
-          <button
-            onClick={() => { setTool("eraser"); setPenEraserActive(false); }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border-l border-white/10 transition-colors ${
-              tool === "eraser" ? "bg-white/15 text-white" : "text-white/45 hover:text-white/70 hover:bg-white/5"
-            }`}
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M20 20H7L3 16l11-11 6 6-3 3" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M6.0001 17.9999L17 7" strokeLinecap="round" />
-            </svg>
-            Eraser
-            {/* Dim indicator when pen eraser end is auto-detected */}
-            {penEraserActive && (
-              <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" title="Pen eraser detected" />
-            )}
-          </button>
-        </div>
-
-        {/* Colour picker (pen only) */}
-        {tool === "pen" && (
-          <div className="relative">
+    <>
+      <canvas
+        ref={canvasRef}
+        className={`absolute inset-0 h-full w-full touch-none ${active ? "pointer-events-auto" : "pointer-events-none"}`}
+        style={{ cursor: active ? (tool === "eraser" ? "cell" : "crosshair") : "default" }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={(e) => onPointerUp(e)}
+        onPointerLeave={(e) => onPointerUp(e)}
+      />
+      <div className="absolute bottom-5 left-1/2 z-[90] flex -translate-x-1/2 flex-wrap items-center justify-center gap-1.5 rounded-2xl border border-white/12 bg-[#080d12]/90 p-2 shadow-2xl backdrop-blur-xl">
+        <button
+          type="button"
+          onClick={() => onActiveChange(!active)}
+          className={`rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${active ? "bg-sky-500 text-white" : "bg-white/8 text-white/62 hover:bg-white/12"}`}
+        >
+          Ink
+        </button>
+        <IconButton label="Pen" tone={active && tool === "pen" ? "active" : "normal"} onClick={() => { setTool("pen"); onActiveChange(true); }}>
+          <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+        </IconButton>
+        <IconButton label="Highlighter" tone={active && tool === "highlighter" ? "active" : "normal"} onClick={() => { setTool("highlighter"); onActiveChange(true); }}>
+          <path d="m9 11 6 6M4 20l4-1 10-10a2.1 2.1 0 0 0-3-3L5 16Z" />
+        </IconButton>
+        <IconButton label="Eraser" tone={active && tool === "eraser" ? "active" : "normal"} onClick={() => { setTool("eraser"); onActiveChange(true); }}>
+          <path d="M20 20H7L3 16l11-11 6 6-3 3M6 18 17 7" />
+        </IconButton>
+        {penEraserActive && <span className="h-2 w-2 rounded-full bg-sky-300" title="Pen eraser detected" />}
+        <div className="mx-1 h-6 w-px bg-white/10" />
+        <div className="flex items-center gap-1">
+          {PEN_COLORS.map((item) => (
             <button
-              onClick={() => setColorPickerOpen((o) => !o)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 transition-colors"
-              title="Pen colour"
-            >
-              <span className="w-3.5 h-3.5 rounded-full border border-white/20 flex-shrink-0" style={{ background: penColor }} />
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" className="text-white/30">
-                <path d="M5 7L1 3h8L5 7z" />
-              </svg>
-            </button>
-            {colorPickerOpen && (
-              <div
-                className="absolute left-0 top-full mt-1 z-50 p-2 rounded-xl border border-white/10 bg-[#111]/90 backdrop-blur-xl shadow-2xl"
-                onMouseLeave={() => setColorPickerOpen(false)}
-              >
-                <div className="grid grid-cols-3 gap-1.5">
-                  {PEN_COLORS.map((c) => (
-                    <button
-                      key={c}
-                      onClick={() => { setPenColor(c); setColorPickerOpen(false); }}
-                      className={`w-7 h-7 rounded-full border-2 transition-transform hover:scale-110 ${
-                        penColor === c ? "border-white/70 scale-110" : "border-transparent"
-                      }`}
-                      style={{ background: c, outline: c === "#ffffff" ? "1px solid rgba(255,255,255,0.15)" : undefined }}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Size control */}
-        <div className="flex items-center gap-1 px-2 py-1.5 rounded-lg border border-white/10">
-          <button
-            onClick={() => setSizeIdx((s) => Math.max(0, s - 1))}
-            disabled={sizeIdx === 0}
-            className="text-white/40 hover:text-white/70 disabled:opacity-25 transition-colors"
-          >
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M2 5h6" strokeLinecap="round" />
-            </svg>
-          </button>
-          <span className="w-5 text-center text-xs text-white/60 tabular-nums">{currentSize}</span>
-          <button
-            onClick={() => setSizeIdx((s) => Math.min(PEN_SIZES.length - 1, s + 1))}
-            disabled={sizeIdx === PEN_SIZES.length - 1}
-            className="text-white/40 hover:text-white/70 disabled:opacity-25 transition-colors"
-          >
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M5 2v6M2 5h6" strokeLinecap="round" />
-            </svg>
-          </button>
+              key={item}
+              type="button"
+              onClick={() => setColor(item)}
+              className={`h-6 w-6 rounded-full border-2 transition-transform ${color === item ? "scale-110 border-white/80" : "border-transparent"}`}
+              style={{ background: item }}
+              aria-label={`Stroke color ${item}`}
+            />
+          ))}
         </div>
-
-        <div className="w-px h-4 bg-white/10 mx-0.5" />
-
-        {/* Undo / Redo */}
-        <button
-          onClick={undo}
-          disabled={histIdx <= 0}
-          className="p-1.5 rounded-lg text-white/40 hover:text-white/70 hover:bg-white/5 disabled:opacity-25 transition-colors"
-          title="Undo (Ctrl+Z)"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M3 7v6h6" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-        <button
-          onClick={redo}
-          disabled={histIdx >= history.length - 1}
-          className="p-1.5 rounded-lg text-white/40 hover:text-white/70 hover:bg-white/5 disabled:opacity-25 transition-colors"
-          title="Redo (Ctrl+Y)"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M21 7v6h-6" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M3 17a9 9 0 019-9 9 9 0 016 2.3L21 13" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-
-        <div className="w-px h-4 bg-white/10 mx-0.5" />
-
-        <button
-          onClick={() => { setStrokes([]); pushHistory([]); saveAll([], attachmentsRef.current); }}
-          className="px-2.5 py-1.5 text-xs text-white/35 hover:text-red-400 hover:bg-red-500/8 rounded-lg transition-colors"
-        >
-          Clear
-        </button>
-
-        {/* ── Attach button ── */}
-        <div className="relative ml-auto">
-          <button
-            onClick={() => { setAttachMenuOpen((o) => !o); setUrlInputOpen(false); }}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-lg border transition-colors ${
-              attachMenuOpen ? "border-white/20 bg-white/8 text-white/70" : "border-white/10 text-white/40 hover:text-white/65 hover:bg-white/5"
-            }`}
-            title="Attach file or URL"
-          >
-            {processing ? (
-              <span className="w-3 h-3 rounded-full border border-white/25 border-t-white/70 animate-spin block" />
-            ) : (
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            )}
-            Attach
-          </button>
-
-          {attachMenuOpen && (
-            <div className="absolute right-0 top-full mt-1 z-50 w-48 rounded-xl border border-white/10 bg-[#111]/95 backdrop-blur-xl shadow-2xl overflow-hidden">
-              <button
-                onClick={() => { setAttachMenuOpen(false); fileInputRef.current?.click(); }}
-                className="flex items-center gap-2.5 w-full px-3 py-2.5 text-xs text-white/65 hover:bg-white/8 hover:text-white transition-colors"
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                Upload file
-              </button>
-              <button
-                onClick={() => { setUrlInputOpen((o) => !o); }}
-                className="flex items-center gap-2.5 w-full px-3 py-2.5 text-xs text-white/65 hover:bg-white/8 hover:text-white transition-colors border-t border-white/5"
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20" strokeLinecap="round"/></svg>
-                From URL
-              </button>
-              {urlInputOpen && (
-                <div className="px-3 pb-3 pt-1 border-t border-white/5">
-                  <input
-                    autoFocus
-                    value={urlValue}
-                    onChange={(e) => setUrlValue(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") handleUrlAttach(); if (e.key === "Escape") setUrlInputOpen(false); }}
-                    placeholder="https://..."
-                    className="w-full px-2.5 py-1.5 bg-white/6 rounded-lg text-xs text-white/80 placeholder-white/22 outline-none focus:bg-white/10 transition-colors"
-                  />
-                  <button
-                    onClick={handleUrlAttach}
-                    className="mt-1.5 w-full py-1.5 rounded-lg bg-white/10 hover:bg-white/16 text-xs text-white/70 hover:text-white transition-colors"
-                  >
-                    Attach
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {attachments.length > 0 && (
-          <span className="text-[11px] text-white/20 shrink-0">
-            {attachments.length} file{attachments.length !== 1 ? "s" : ""}
-          </span>
-        )}
+        <div className="mx-1 h-6 w-px bg-white/10" />
+        <button type="button" onClick={() => setSizeIdx((idx) => Math.max(0, idx - 1))} className="h-8 w-8 rounded-lg text-white/55 hover:bg-white/8">-</button>
+        <span className="w-7 text-center font-mono text-xs text-white/58">{currentSize}</span>
+        <button type="button" onClick={() => setSizeIdx((idx) => Math.min(PEN_SIZES.length - 1, idx + 1))} className="h-8 w-8 rounded-lg text-white/55 hover:bg-white/8">+</button>
+        <div className="mx-1 h-6 w-px bg-white/10" />
+        <IconButton label="Undo" disabled={histIdx <= 0} onClick={undo}>
+          <path d="M3 7v6h6" /><path d="M21 17a9 9 0 0 0-15-6.7L3 13" />
+        </IconButton>
+        <IconButton label="Redo" disabled={histIdx >= history.length - 1} onClick={redo}>
+          <path d="M21 7v6h-6" /><path d="M3 17a9 9 0 0 1 15-6.7L21 13" />
+        </IconButton>
+        <IconButton label="Clear drawing" tone="danger" onClick={() => {
+          if (!confirm("Clear drawing on this page?")) return;
+          setStrokes([]);
+          pushHistory([]);
+          save([]);
+        }}>
+          <path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" />
+        </IconButton>
       </div>
-
-      {/* Hidden file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        multiple
-        className="hidden"
-        accept="image/*,video/*,application/pdf,.docx,.xlsx,.xls,.csv,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,*/*"
-        onChange={handleFileInput}
-      />
-
-      {/* Two-canvas stack + attachment overlay */}
-      <div
-        ref={containerRef}
-        className="flex-1 overflow-hidden relative select-none"
-        onClick={() => { setAttachMenuOpen(false); setSelectedAttId(null); }}
-      >
-        {/* Background canvas – dark fill + dot grid; never cleared by erasing */}
-        <canvas ref={bgCanvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
-
-        {strokes.length === 0 && !drawing && attachments.length === 0 && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none z-10">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-white/8">
-              <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <p className="text-sm text-white/15">
-              Draw with your pen, stylus, or mouse
-            </p>
-          </div>
-        )}
-
-        {/* Ink canvas – transparent; destination-out erasing reveals the background canvas */}
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 w-full h-full touch-none"
-          style={{ touchAction: "none", cursor: tool === "eraser" ? "cell" : "crosshair" }}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={(e) => onPointerUp(e)}
-          onPointerLeave={(e) => onPointerUp(e)}
-        />
-
-        {/* Attachment widgets – float above the ink canvas */}
-        {attachments.map((att) => (
-          <AttachmentWidget
-            key={att.id}
-            att={att}
-            isSelected={att.id === selectedAttId}
-            onSelect={() => setSelectedAttId(att.id)}
-            onUpdate={(u) => updateAttachment(att.id, u)}
-            onDelete={() => deleteAttachment(att.id)}
-          />
-        ))}
-      </div>
-    </div>
+    </>
   );
 }
 
-// ─── Text Editor ──────────────────────────────────────────────────────────────
+function PageContextPanel({
+  page,
+  linkOptions,
+  onPatch,
+}: {
+  page: Page;
+  linkOptions: NotesPayload["linkOptions"];
+  onPatch: (patch: Partial<Page>) => void;
+}) {
+  const [tagValue, setTagValue] = useState("");
+  const metadata = parseJson<Record<string, string>>(page.metadataJson, {});
 
-function TextEditor({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  function addTag() {
+    const tag = tagValue.trim();
+    if (!tag || page.tags.includes(tag)) return;
+    onPatch({ tags: [...page.tags, tag] });
+    setTagValue("");
+  }
+
+  function addLink(type: LinkedRecord["type"], id: string) {
+    const collection = type === "client" ? linkOptions.clients :
+      type === "project" ? linkOptions.projects :
+      type === "task" ? linkOptions.tasks :
+      type === "invoice" ? linkOptions.invoices :
+      linkOptions.tickets;
+    const item = collection.find((option) => option._id === id);
+    if (!item || page.linkedRecords.some((link) => link.type === type && link.id === id)) return;
+    onPatch({ linkedRecords: [...page.linkedRecords, { type, id, label: item.label }] });
+  }
+
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-white/8 bg-white/3 shrink-0">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/30">
-          <polyline points="4 7 4 4 20 4 20 7" strokeLinecap="round" strokeLinejoin="round" />
-          <line x1="9" y1="20" x2="15" y2="20" strokeLinecap="round" />
-          <line x1="12" y1="4" x2="12" y2="20" strokeLinecap="round" />
-        </svg>
-        <span className="text-xs text-white/30 font-medium">Text note</span>
-        <span className="ml-auto text-[11px] text-white/20">{value.length} chars</span>
+    <aside className="hidden w-72 shrink-0 border-l border-white/8 bg-black/20 p-4 xl:block">
+      <div className="mb-5">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-300/80">Page Context</div>
+        <p className="mt-2 text-xs leading-relaxed text-white/38">Private internal note. Future portal sharing can be modeled from linked records, but this page is not exposed to clients.</p>
       </div>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={"Start typing...\n\nMarkdown is supported:\n  # Heading\n  **bold**  _italic_\n  - bullet list"}
-        className="flex-1 resize-none bg-transparent p-5 text-sm leading-relaxed text-white/85 placeholder-white/18 outline-none font-mono"
-        spellCheck
-      />
-    </div>
+
+      <div className="space-y-5">
+        <section>
+          <label className="text-[11px] font-semibold uppercase tracking-widest text-white/28">Tags</label>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {page.tags.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => onPatch({ tags: page.tags.filter((item) => item !== tag) })}
+                className="rounded-full border border-sky-300/20 bg-sky-400/10 px-2 py-1 text-xs text-sky-100/80"
+                title="Remove tag"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+          <div className="mt-2 flex gap-1">
+            <input
+              value={tagValue}
+              onChange={(e) => setTagValue(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") addTag(); }}
+              placeholder="Add tag"
+              className="min-w-0 flex-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-xs text-white/75 outline-none placeholder:text-white/20"
+            />
+            <button type="button" onClick={addTag} className="rounded-lg bg-white/8 px-3 text-xs text-white/62 hover:bg-white/12">Add</button>
+          </div>
+        </section>
+
+        <section className="space-y-2">
+          <label className="text-[11px] font-semibold uppercase tracking-widest text-white/28">Connections</label>
+          {(["client", "project", "task", "invoice", "ticket"] as const).map((type) => {
+            const options = type === "client" ? linkOptions.clients :
+              type === "project" ? linkOptions.projects :
+              type === "task" ? linkOptions.tasks :
+              type === "invoice" ? linkOptions.invoices :
+              linkOptions.tickets;
+            return (
+              <select
+                key={type}
+                value=""
+                onChange={(e) => addLink(type, e.target.value)}
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-xs text-white/72 outline-none"
+              >
+                <option value="">Link {type}</option>
+                {options.map((option) => <option key={option._id} value={option._id}>{option.label || option._id}</option>)}
+              </select>
+            );
+          })}
+          <div className="space-y-1.5">
+            {page.linkedRecords.map((link) => (
+              <button
+                key={`${link.type}:${link.id}`}
+                type="button"
+                onClick={() => onPatch({ linkedRecords: page.linkedRecords.filter((item) => !(item.type === link.type && item.id === link.id)) })}
+                className="block w-full rounded-lg border border-white/8 bg-white/[0.035] px-2.5 py-2 text-left text-xs text-white/62"
+                title="Remove connection"
+              >
+                <span className="font-semibold text-white/72">{link.type}</span> {link.label || link.id}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <label className="text-[11px] font-semibold uppercase tracking-widest text-white/28">Metadata</label>
+          <input
+            value={metadata.status || ""}
+            onChange={(e) => onPatch({ metadataJson: JSON.stringify({ ...metadata, status: e.target.value }) })}
+            placeholder="Status"
+            className="mt-2 w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-xs text-white/72 outline-none placeholder:text-white/20"
+          />
+          <input
+            value={metadata.owner || ""}
+            onChange={(e) => onPatch({ metadataJson: JSON.stringify({ ...metadata, owner: e.target.value }) })}
+            placeholder="Owner / context"
+            className="mt-2 w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-xs text-white/72 outline-none placeholder:text-white/20"
+          />
+        </section>
+      </div>
+    </aside>
   );
 }
 
-// ─── Note Card ────────────────────────────────────────────────────────────────
-
-function NoteCard({
-  note,
+function WorkspaceRow({
+  workspace,
   active,
   onSelect,
-  onPin,
-  onDelete,
+  onRename,
+  onDuplicate,
+  onArchive,
+  onMove,
 }: {
-  note: Note;
+  workspace: Workspace;
   active: boolean;
   onSelect: () => void;
-  onPin: () => void;
-  onDelete: () => void;
+  onRename: (title: string) => void;
+  onDuplicate: () => void;
+  onArchive: () => void;
+  onMove: (direction: -1 | 1) => void;
 }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-
+  const [editing, setEditing] = useState(false);
   return (
-    <button
-      onClick={onSelect}
-      className={`group w-full text-left rounded-xl px-3 py-2.5 transition-all duration-100 relative ${
-        active
-          ? "bg-white/10 ring-1 ring-white/15"
-          : "hover:bg-white/5"
-      }`}
-    >
-      {/* Colour dot */}
-      {note.color && (
-        <span
-          className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1 h-5 rounded-full opacity-70"
-          style={{ background: note.color }}
-        />
-      )}
-      <div className={note.color ? "pl-2" : ""}>
-        <div className="flex items-center gap-1.5 mb-0.5">
-          {note.isPinned && (
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className="text-amber-400/80 shrink-0">
-              <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5v6h2v-6h5v-2l-2-2z" />
-            </svg>
+    <div className={`group rounded-xl border px-2 py-2 transition-colors ${active ? "border-sky-400/30 bg-sky-400/12" : "border-transparent hover:bg-white/5"}`}>
+      <div className="flex items-center gap-2">
+        <button type="button" onClick={onSelect} className="flex min-w-0 flex-1 items-center gap-2 text-left">
+          <span className="h-2.5 w-2.5 rounded-full bg-sky-400 shadow-[0_0_18px_rgba(56,189,248,0.55)]" />
+          {editing ? (
+            <input
+              autoFocus
+              defaultValue={workspace.title}
+              onBlur={(e) => { setEditing(false); onRename(e.target.value); }}
+              onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+              className="min-w-0 flex-1 bg-transparent text-sm font-medium text-white/82 outline-none"
+            />
+          ) : (
+            <span className="truncate text-sm font-medium text-white/82">{workspace.title}</span>
           )}
-          <span className="text-sm font-medium text-white/82 truncate flex-1">{note.title}</span>
-        </div>
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-[11px] text-white/30 truncate leading-snug">
-            {note.content
-              ? note.content.slice(0, 50).replace(/\n/g, " ")
-              : note.canvasData
-              ? "Canvas note"
-              : "Empty note"}
-          </span>
-          <span className="text-[10px] text-white/22 shrink-0">{relativeTime(note._updatedAt)}</span>
-        </div>
+        </button>
+        <button type="button" onClick={() => setEditing(true)} className="opacity-0 transition-opacity group-hover:opacity-100 text-white/35 hover:text-white/70">Edit</button>
       </div>
-
-      {/* Context menu */}
-      <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="relative">
-          <button
-            onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
-            className="p-1 rounded-md bg-white/8 hover:bg-white/15 transition-colors"
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-white/50">
-              <circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" />
-            </svg>
-          </button>
-          {menuOpen && (
-            <div
-              className="absolute right-0 top-full mt-1 z-50 w-36 rounded-xl border border-white/10 bg-[#111]/95 backdrop-blur-xl shadow-2xl overflow-hidden"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => { onPin(); setMenuOpen(false); }}
-                className="flex items-center gap-2.5 w-full px-3 py-2.5 text-xs text-white/70 hover:bg-white/8 hover:text-white transition-colors"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-amber-400/70">
-                  <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5v6h2v-6h5v-2l-2-2z" />
-                </svg>
-                {note.isPinned ? "Unpin" : "Pin"}
-              </button>
-              <button
-                onClick={() => { onDelete(); setMenuOpen(false); }}
-                className="flex items-center gap-2.5 w-full px-3 py-2.5 text-xs text-red-400/70 hover:bg-red-500/8 hover:text-red-400 transition-colors border-t border-white/5"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                Delete
-              </button>
-            </div>
-          )}
-        </div>
+      <div className="mt-2 hidden items-center gap-1 group-hover:flex">
+        <button type="button" onClick={onDuplicate} className="rounded-md px-2 py-1 text-[11px] text-white/40 hover:bg-white/8 hover:text-white/70">Duplicate</button>
+        <button type="button" onClick={() => onMove(-1)} className="rounded-md px-2 py-1 text-[11px] text-white/40 hover:bg-white/8">Up</button>
+        <button type="button" onClick={() => onMove(1)} className="rounded-md px-2 py-1 text-[11px] text-white/40 hover:bg-white/8">Down</button>
+        <button type="button" onClick={onArchive} className="ml-auto rounded-md px-2 py-1 text-[11px] text-red-300/70 hover:bg-red-500/10">Archive</button>
       </div>
-    </button>
+    </div>
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+function SectionRow({
+  section,
+  active,
+  onSelect,
+  onRename,
+  onDuplicate,
+  onArchive,
+  onMove,
+}: {
+  section: Section;
+  active: boolean;
+  onSelect: () => void;
+  onRename: (title: string) => void;
+  onDuplicate: () => void;
+  onArchive: () => void;
+  onMove: (direction: -1 | 1) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  return (
+    <div className={`group rounded-lg border px-2 py-2 transition-colors ${active ? "border-white/15 bg-white/10" : "border-transparent hover:bg-white/5"}`}>
+      <button type="button" onClick={onSelect} className="flex w-full min-w-0 items-center gap-2 text-left">
+        <span className="h-5 w-1 rounded-full" style={{ background: section.color || "#38bdf8" }} />
+        {editing ? (
+          <input
+            autoFocus
+            defaultValue={section.title}
+            onBlur={(e) => { setEditing(false); onRename(e.target.value); }}
+            onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+            className="min-w-0 flex-1 bg-transparent text-sm text-white/78 outline-none"
+          />
+        ) : (
+          <span className="truncate text-sm text-white/78">{section.title}</span>
+        )}
+      </button>
+      <div className="mt-2 hidden items-center gap-1 group-hover:flex">
+        <button type="button" onClick={() => setEditing(true)} className="rounded-md px-2 py-1 text-[11px] text-white/40 hover:bg-white/8">Rename</button>
+        <button type="button" onClick={onDuplicate} className="rounded-md px-2 py-1 text-[11px] text-white/40 hover:bg-white/8">Duplicate</button>
+        <button type="button" onClick={() => onMove(-1)} className="rounded-md px-2 py-1 text-[11px] text-white/40 hover:bg-white/8">Up</button>
+        <button type="button" onClick={() => onMove(1)} className="rounded-md px-2 py-1 text-[11px] text-white/40 hover:bg-white/8">Down</button>
+        <button type="button" onClick={onArchive} className="ml-auto rounded-md px-2 py-1 text-[11px] text-red-300/70 hover:bg-red-500/10">Archive</button>
+      </div>
+    </div>
+  );
+}
+
+function PageRow({
+  page,
+  active,
+  subpage,
+  onSelect,
+  onRename,
+  onDuplicate,
+  onArchive,
+  onMove,
+}: {
+  page: Page;
+  active: boolean;
+  subpage?: boolean;
+  onSelect: () => void;
+  onRename: (title: string) => void;
+  onDuplicate: () => void;
+  onArchive: () => void;
+  onMove: (direction: -1 | 1) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  return (
+    <div className={`${subpage ? "ml-4" : ""} group rounded-xl border px-3 py-2.5 transition-colors ${active ? "border-sky-300/30 bg-sky-400/12" : "border-transparent hover:bg-white/5"}`}>
+      <button type="button" onClick={onSelect} className="block w-full text-left">
+        <div className="flex items-center gap-2">
+          {page.isPinned && <span className="text-amber-300">pin</span>}
+          {page.isFavorite && <span className="text-sky-300">star</span>}
+          {editing ? (
+            <input
+              autoFocus
+              defaultValue={page.title}
+              onBlur={(e) => { setEditing(false); onRename(e.target.value); }}
+              onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
+              className="min-w-0 flex-1 bg-transparent text-sm font-medium text-white/82 outline-none"
+            />
+          ) : (
+            <span className="min-w-0 flex-1 truncate text-sm font-medium text-white/82">{page.title}</span>
+          )}
+        </div>
+        <div className="mt-1 flex items-center gap-2 text-[11px] text-white/30">
+          <span>{relativeTime(page._updatedAt)}</span>
+          {page.tags.slice(0, 2).map((tag) => <span key={tag} className="rounded-full bg-white/6 px-1.5">{tag}</span>)}
+        </div>
+      </button>
+      <div className="mt-2 hidden items-center gap-1 group-hover:flex">
+        <button type="button" onClick={() => setEditing(true)} className="rounded-md px-2 py-1 text-[11px] text-white/40 hover:bg-white/8">Rename</button>
+        <button type="button" onClick={onDuplicate} className="rounded-md px-2 py-1 text-[11px] text-white/40 hover:bg-white/8">Duplicate</button>
+        <button type="button" onClick={() => onMove(-1)} className="rounded-md px-2 py-1 text-[11px] text-white/40 hover:bg-white/8">Up</button>
+        <button type="button" onClick={() => onMove(1)} className="rounded-md px-2 py-1 text-[11px] text-white/40 hover:bg-white/8">Down</button>
+        <button type="button" onClick={onArchive} className="ml-auto rounded-md px-2 py-1 text-[11px] text-red-300/70 hover:bg-red-500/10">Archive</button>
+      </div>
+    </div>
+  );
+}
 
 export default function NotesClient() {
-  const [notes, setNotes] = useState<Note[]>([]);
+  const [payload, setPayload] = useState<NotesPayload | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
-  const [tab, setTab] = useState<"text" | "canvas">("text");
+  const [error, setError] = useState<string | null>(null);
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string | null>(null);
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [filterMode, setFilterMode] = useState<"all" | "favorites" | "recent" | "tags">("all");
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [drawingActive, setDrawingActive] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [processingFile, setProcessingFile] = useState(false);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [guide, setGuide] = useState<{ x?: number; y?: number } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [colorPickerOpen, setColorPickerOpen] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const dragRef = useRef<{ id: string; startX: number; startY: number; baseX: number; baseY: number } | null>(null);
+  const resizeRef = useRef<{ id: string; startX: number; startY: number; baseW: number; baseH: number } | null>(null);
 
-  // Auto-enter fullscreen whenever a note is opened or created
-  useEffect(() => {
-    if (selectedId) setIsFullscreen(true);
-  }, [selectedId]);
-
-  // Escape exits fullscreen
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape" && isFullscreen) setIsFullscreen(false);
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/notes");
+      if (!res.ok) throw new Error("Failed to load notes");
+      const data = await res.json() as NotesPayload;
+      setPayload(data);
+      const workspaceId = selectedWorkspaceId || data.workspaces[0]?._id || data.defaults.workspaceId;
+      const sectionId = selectedSectionId || data.sections.find((section) => section.workspaceId === workspaceId)?._id || data.defaults.sectionId;
+      const pageId = selectedPageId || data.pages.find((page) => page.sectionId === sectionId)?._id || data.pages[0]?._id || null;
+      setSelectedWorkspaceId(workspaceId);
+      setSelectedSectionId(sectionId);
+      setSelectedPageId(pageId);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load notes");
+    } finally {
+      setLoading(false);
     }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [isFullscreen]);
+  }, [selectedPageId, selectedSectionId, selectedWorkspaceId]);
 
-  // ── Foldable / dual-screen layout ──────────────────────────────────────────
-  // When the app is spanned across two screens (Surface Duo, Galaxy Z Fold…)
-  // we expand the notes list to fill exactly the left screen so the hinge gap
-  // falls precisely on the divider between the list and the editor pane.
-  const { isSpanned, leftScreenWidth } = useFoldableLayout();
-  const listRef = useRef<HTMLDivElement>(null);
-  const [listPanelWidth, setListPanelWidth] = useState<number | undefined>(undefined);
-
-  useLayoutEffect(() => {
-    if (!isSpanned || leftScreenWidth === null) {
-      setListPanelWidth(undefined);
-      return;
-    }
-    if (listRef.current) {
-      const containerLeft = listRef.current.getBoundingClientRect().left;
-      // Width = (right edge of left screen) − (left edge of our panel)
-      const w = Math.max(160, Math.floor(leftScreenWidth - containerLeft));
-      setListPanelWidth(w);
-    }
-  }, [isSpanned, leftScreenWidth]);
-
-  // Load notes
   useEffect(() => {
-    fetch("/api/admin/notes")
-      .then((r) => r.ok ? r.json() : [])
-      .then((data: Note[]) => {
-        setNotes(data);
-        if (data.length > 0) setSelectedId(data[0]._id);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const selected = notes.find((n) => n._id === selectedId) ?? null;
+  const workspaces = useMemo(() => payload?.workspaces ?? [], [payload?.workspaces]);
+  const sections = useMemo(() => payload?.sections ?? [], [payload?.sections]);
+  const pages = useMemo(() => payload?.pages ?? [], [payload?.pages]);
+  const selectedWorkspace = workspaces.find((workspace) => workspace._id === selectedWorkspaceId) ?? null;
+  const workspaceSections = sections.filter((section) => section.workspaceId === selectedWorkspaceId);
+  const selectedSection = sections.find((section) => section._id === selectedSectionId) ?? workspaceSections[0] ?? null;
+  const selectedPage = pages.find((page) => page._id === selectedPageId) ?? null;
+  const allTags = useMemo(() => [...new Set(pages.flatMap((page) => page.tags))].sort(), [pages]);
 
-  const filtered = useMemo(
-    () => notes.filter((n) =>
-      n.title.toLowerCase().includes(search.toLowerCase()) ||
-      (n.content ?? "").toLowerCase().includes(search.toLowerCase())
-    ),
-    [notes, search]
-  );
+  const visiblePages = useMemo(() => {
+    const search = query.trim().toLowerCase();
+    return pages
+      .filter((page) => page.sectionId === selectedSectionId)
+      .filter((page) => {
+        if (filterMode === "favorites" && !page.isFavorite && !page.isPinned) return false;
+        if (filterMode === "recent" && Date.now() - new Date(page._updatedAt).getTime() > 7 * 24 * 60 * 60 * 1000) return false;
+        if (filterMode === "tags" && selectedTag && !page.tags.includes(selectedTag)) return false;
+        if (!search) return true;
+        const haystack = `${page.title} ${page.content ?? ""} ${page.tags.join(" ")} ${page.linkedRecords.map((link) => link.label).join(" ")}`.toLowerCase();
+        return haystack.includes(search);
+      })
+      .sort((a, b) => {
+        if (a.parentPageId && !b.parentPageId) return 1;
+        if (!a.parentPageId && b.parentPageId) return -1;
+        return (a.order ?? 0) - (b.order ?? 0);
+      });
+  }, [filterMode, pages, query, selectedSectionId, selectedTag]);
 
-  // ── Save helpers ─────────────────────────────────────────────────────────────
+  const blocks = useMemo(() => blocksForPage(selectedPage), [selectedPage]);
+  const canvasData = useMemo(() => parseJson<CanvasData>(selectedPage?.canvasData, { strokes: [] }), [selectedPage?.canvasData]);
 
-  function scheduleSave(id: string, patch: Partial<Note>) {
-    // Optimistic update
-    setNotes((prev) =>
-      prev.map((n) => (n._id === id ? { ...n, ...patch, _updatedAt: new Date().toISOString() } : n))
-    );
-    if (saveTimer.current) clearTimeout(saveTimer.current);
-    setSaving(true);
-    saveTimer.current = setTimeout(async () => {
+  function updatePayload(updater: (payload: NotesPayload) => NotesPayload) {
+    setPayload((prev) => prev ? updater(prev) : prev);
+  }
+
+  function patchEntity(id: string, targetType: "workspace" | "section" | "page", patch: Record<string, unknown>, debounce = false) {
+    updatePayload((current) => {
+      if (targetType === "workspace") {
+        return { ...current, workspaces: current.workspaces.map((item) => item._id === id ? { ...item, ...patch } : item) };
+      }
+      if (targetType === "section") {
+        return { ...current, sections: current.sections.map((item) => item._id === id ? { ...item, ...patch } : item) };
+      }
+      return {
+        ...current,
+        pages: current.pages.map((item) => item._id === id ? { ...item, ...patch, _updatedAt: new Date().toISOString() } as Page : item),
+      };
+    });
+
+    const send = async () => {
+      setSaving(true);
       try {
-        await fetch(`/api/admin/notes/${id}`, {
+        const res = await fetch(`/api/admin/notes/${id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(patch),
+          body: JSON.stringify({ targetType, ...patch }),
         });
+        if (!res.ok) throw new Error("Save failed");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Save failed");
       } finally {
         setSaving(false);
       }
-    }, 700);
+    };
+
+    if (debounce) {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      saveTimer.current = setTimeout(send, 650);
+    } else {
+      void send();
+    }
   }
 
-  // ── Create ───────────────────────────────────────────────────────────────────
+  function patchPage(patch: Partial<Page>, debounce = true) {
+    if (!selectedPage) return;
+    patchEntity(selectedPage._id, "page", patch as Record<string, unknown>, debounce);
+  }
 
-  async function handleCreate() {
+  function updateBlocks(next: NoteBlock[], debounce = true) {
+    if (!selectedPage) return;
+    patchPage({ blocksJson: JSON.stringify(next), content: pageTextFromBlocks(next) }, debounce);
+  }
+
+  function addBlock(type: NoteBlockType, x = 120, y = 120, metadata: Record<string, unknown> = {}, content = "") {
+    if (!selectedPage) return;
+    const now = new Date().toISOString();
+    const maxZ = Math.max(10, ...blocks.map((block) => block.zIndex));
+    const nextBlock: NoteBlock = {
+      id: uid(type),
+      pageId: selectedPage._id,
+      type,
+      content: content || (type === "checklist" ? "[ ] New item" : type === "link" ? "Bookmark" : ""),
+      x,
+      y,
+      width: type === "image" ? 460 : type === "file" ? 420 : 420,
+      height: type === "image" ? 320 : type === "file" ? 132 : 220,
+      zIndex: maxZ + 1,
+      metadata,
+      createdAt: now,
+      updatedAt: now,
+    };
+    setSelectedBlockId(nextBlock.id);
+    updateBlocks([...blocks, nextBlock], false);
+  }
+
+  function updateBlock(id: string, updates: Partial<NoteBlock>, debounce = true) {
+    updateBlocks(blocks.map((block) => block.id === id ? { ...block, ...updates, updatedAt: new Date().toISOString() } : block), debounce);
+  }
+
+  function duplicateBlock(block: NoteBlock) {
+    const now = new Date().toISOString();
+    const copy = {
+      ...block,
+      id: uid(block.type),
+      x: block.x + 28,
+      y: block.y + 28,
+      zIndex: Math.max(...blocks.map((item) => item.zIndex), block.zIndex) + 1,
+      createdAt: now,
+      updatedAt: now,
+    };
+    setSelectedBlockId(copy.id);
+    updateBlocks([...blocks, copy], false);
+  }
+
+  function deleteBlock(id: string) {
+    updateBlocks(blocks.filter((block) => block.id !== id), false);
+    if (selectedBlockId === id) setSelectedBlockId(null);
+  }
+
+  function layerBlock(block: NoteBlock, direction: "front" | "back") {
+    const zIndexes = blocks.map((item) => item.zIndex);
+    updateBlock(block.id, { zIndex: direction === "front" ? Math.max(...zIndexes) + 1 : Math.min(...zIndexes) - 1 }, false);
+  }
+
+  function startDrag(e: React.PointerEvent, block: NoteBlock) {
+    e.stopPropagation();
+    setSelectedBlockId(block.id);
+    dragRef.current = { id: block.id, startX: e.clientX, startY: e.clientY, baseX: block.x, baseY: block.y };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
+
+  function dragBlock(e: React.PointerEvent) {
+    if (!dragRef.current) return;
+    const rawX = Math.max(0, Math.min(CANVAS_WIDTH - 120, dragRef.current.baseX + e.clientX - dragRef.current.startX));
+    const rawY = Math.max(0, Math.min(CANVAS_HEIGHT - 80, dragRef.current.baseY + e.clientY - dragRef.current.startY));
+    const snapX = Math.round(rawX / 20) * 20;
+    const snapY = Math.round(rawY / 20) * 20;
+    const nearX = Math.abs(rawX - snapX) < 6;
+    const nearY = Math.abs(rawY - snapY) < 6;
+    setGuide({ x: nearX ? snapX : undefined, y: nearY ? snapY : undefined });
+    updateBlock(dragRef.current.id, { x: nearX ? snapX : rawX, y: nearY ? snapY : rawY }, true);
+  }
+
+  function startResize(e: React.PointerEvent, block: NoteBlock) {
+    e.stopPropagation();
+    setSelectedBlockId(block.id);
+    resizeRef.current = { id: block.id, startX: e.clientX, startY: e.clientY, baseW: block.width, baseH: block.height };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
+
+  function resizeBlock(e: React.PointerEvent) {
+    if (!resizeRef.current) return;
+    updateBlock(resizeRef.current.id, {
+      width: Math.max(180, resizeRef.current.baseW + e.clientX - resizeRef.current.startX),
+      height: Math.max(96, resizeRef.current.baseH + e.clientY - resizeRef.current.startY),
+    }, true);
+  }
+
+  useEffect(() => {
+    function clearInteraction() {
+      dragRef.current = null;
+      resizeRef.current = null;
+      setGuide(null);
+    }
+    window.addEventListener("pointerup", clearInteraction);
+    return () => window.removeEventListener("pointerup", clearInteraction);
+  }, []);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const target = e.target as HTMLElement | null;
+      const editing = target?.tagName === "TEXTAREA" || target?.tagName === "INPUT";
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "n") {
+        e.preventDefault();
+        void createPage();
+      }
+      if (!editing && e.key === "Delete" && selectedBlockId) {
+        deleteBlock(selectedBlockId);
+      }
+      if (!editing && e.key.toLowerCase() === "t") addBlock("text", 120, 120);
+      if (!editing && e.key.toLowerCase() === "c") addBlock("checklist", 140, 140);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
+  async function createWorkspace() {
     const res = await fetch("/api/admin/notes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: "Untitled Note" }),
+      body: JSON.stringify({ action: "workspace", title: "New Workspace" }),
     });
-    if (!res.ok) return;
-    const { _id } = await res.json() as { _id: string };
-    const newNote: Note = {
-      _id,
-      title: "Untitled Note",
-      content: null,
-      canvasData: null,
-      color: null,
-      isPinned: false,
-      _createdAt: new Date().toISOString(),
-      _updatedAt: new Date().toISOString(),
-    };
-    setNotes((prev) => [newNote, ...prev]);
-    setSelectedId(_id);
-    setTab("text");
+    if (!res.ok) return setError("Failed to create workspace");
+    await load();
   }
 
-  // ── Delete ────────────────────────────────────────────────────────────────────
-
-  async function handleDelete(id: string) {
-    await fetch(`/api/admin/notes/${id}`, { method: "DELETE" });
-    const remaining = notes.filter((n) => n._id !== id);
-    setNotes(remaining);
-    if (selectedId === id) setSelectedId(remaining[0]?._id ?? null);
+  async function createSection() {
+    if (!selectedWorkspaceId) return;
+    const res = await fetch("/api/admin/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "section", title: "New Section", workspaceId: selectedWorkspaceId }),
+    });
+    if (!res.ok) return setError("Failed to create section");
+    const section = await res.json() as Section;
+    await load();
+    setSelectedSectionId(section._id);
   }
 
-  // ── Pin ────────────────────────────────────────────────────────────────────────
-
-  function handlePin(note: Note) {
-    scheduleSave(note._id, { isPinned: !note.isPinned });
-    // Re-sort pinned to top
-    setTimeout(() => {
-      setNotes((prev) => [...prev].sort((a, b) => {
-        if (a.isPinned === b.isPinned) return new Date(b._updatedAt).getTime() - new Date(a._updatedAt).getTime();
-        return a.isPinned ? -1 : 1;
-      }));
-    }, 100);
+  async function createPage(parentPageId: string | null = null) {
+    if (!selectedWorkspaceId || !selectedSectionId) return;
+    const res = await fetch("/api/admin/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "page",
+        title: parentPageId ? "New Subpage" : "Untitled Page",
+        workspaceId: selectedWorkspaceId,
+        sectionId: selectedSectionId,
+        parentPageId,
+        blocksJson: JSON.stringify([]),
+      }),
+    });
+    if (!res.ok) return setError("Failed to create page");
+    const page = await res.json() as Page;
+    await load();
+    setSelectedPageId(page._id);
   }
 
-  // ── Canvas ────────────────────────────────────────────────────────────────────
+  async function duplicateEntity(target: "workspace" | "section" | "page", id: string) {
+    const action = target === "workspace" ? "duplicateWorkspace" : target === "section" ? "duplicateSection" : "duplicatePage";
+    const body = target === "workspace" ? { action, workspaceId: id } : target === "section" ? { action, sectionId: id } : { action, pageId: id };
+    const res = await fetch("/api/admin/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) return setError(`Failed to duplicate ${target}`);
+    await load();
+  }
 
-  const currentCanvasData = useMemo<CanvasData>(() => {
-    if (!selected?.canvasData) return { strokes: [] };
-    try { return JSON.parse(selected.canvasData) as CanvasData; }
-    catch { return { strokes: [] }; }
-  }, [selected?._id]); // eslint-disable-line react-hooks/exhaustive-deps
+  async function archiveEntity(target: "workspace" | "section" | "page", id: string) {
+    if (!confirm(`Archive this ${target}?`)) return;
+    const res = await fetch(`/api/admin/notes/${id}?target=${target}`, { method: "DELETE" });
+    if (!res.ok) return setError(`Failed to archive ${target}`);
+    updatePayload((current) => ({
+      ...current,
+      workspaces: target === "workspace" ? current.workspaces.filter((item) => item._id !== id) : current.workspaces,
+      sections: target === "section" ? current.sections.filter((item) => item._id !== id) : current.sections,
+      pages: target === "page" ? current.pages.filter((item) => item._id !== id) : current.pages,
+    }));
+    if (selectedPageId === id) setSelectedPageId(null);
+  }
 
-  const handleCanvasSave = useCallback((data: CanvasData) => {
-    if (!selected) return;
-    scheduleSave(selected._id, { canvasData: JSON.stringify(data) });
-  }, [selected?._id]); // eslint-disable-line react-hooks/exhaustive-deps
+  function moveItem(target: "workspace" | "section" | "page", id: string, direction: -1 | 1) {
+    const collection = target === "workspace" ? workspaces : target === "section" ? workspaceSections : visiblePages.filter((page) => !page.parentPageId);
+    const index = collection.findIndex((item) => item._id === id);
+    const swap = collection[index + direction];
+    const current = collection[index];
+    if (!current || !swap) return;
+    const currentOrder = current.order ?? index;
+    const swapOrder = swap.order ?? index + direction;
+    patchEntity(current._id, target, { order: swapOrder }, false);
+    patchEntity(swap._id, target, { order: currentOrder }, false);
+  }
 
-  const hasCanvasStrokes = useMemo(() => {
-    if (!selected?.canvasData) return false;
-    try { return (JSON.parse(selected.canvasData) as CanvasData).strokes?.length > 0; }
-    catch { return false; }
-  }, [selected?.canvasData]);
+  async function handleFileInput(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!selectedPage) return;
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    setProcessingFile(true);
+    try {
+      let next = [...blocks];
+      for (const file of files) {
+        const att = await processFile(file);
+        next = [...next, fileBlockFromAttachment(selectedPage._id, att, 160 + next.length * 24, 160 + next.length * 24, Math.max(10, ...next.map((block) => block.zIndex)) + 1)];
+      }
+      updateBlocks(next, false);
+    } finally {
+      setProcessingFile(false);
+      e.target.value = "";
+    }
+  }
 
-  // ── Render ────────────────────────────────────────────────────────────────────
+  function createLinkBlock() {
+    const url = window.prompt("Bookmark URL");
+    if (!url) return;
+    addBlock("link", 150, 150, { url }, url);
+  }
+
+  async function runAi(action: "summarize" | "tasks" | "cleanup" | "proposal" | "email" | "organize") {
+    if (!payload?.aiAvailable || !selectedPage) return;
+    setAiBusy(true);
+    try {
+      const source = pageTextFromBlocks(blocks) || selectedPage.content || selectedPage.title;
+      const promptMap = {
+        summarize: "Summarize this CEL3 Interactive backoffice note in a concise executive style.",
+        tasks: "Extract actionable tasks from this note. Return clear bullets with owners or due dates when present.",
+        cleanup: "Clean up this note into organized, polished internal notes while preserving facts.",
+        proposal: "Turn this note into a draft proposal outline for CEL3 Interactive.",
+        email: "Turn this note into a professional follow-up email draft.",
+        organize: "Suggest how to organize these notes into sections and pages.",
+      };
+      const res = await fetch("/api/admin/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [{
+            role: "user",
+            content: `${promptMap[action]}\n\nNote title: ${selectedPage.title}\n\n${source}`,
+          }],
+        }),
+      });
+      if (!res.ok) throw new Error("AI action failed");
+      const data = await res.json() as { response?: string };
+      addBlock("ai", 180, 180, { action, sourcePageId: selectedPage._id }, data.response || "No AI output returned.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "AI action failed");
+    } finally {
+      setAiBusy(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex h-[calc(100dvh-8rem)] items-center justify-center rounded-2xl border border-white/8 bg-black/20">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-sky-300" />
+      </div>
+    );
+  }
+
+  if (error && !payload) {
+    return (
+      <div className="flex h-[calc(100dvh-8rem)] flex-col items-center justify-center gap-3 rounded-2xl border border-red-400/20 bg-red-500/8 text-center">
+        <p className="text-sm font-semibold text-red-100">Notes could not load</p>
+        <p className="text-xs text-red-100/55">{error}</p>
+        <button type="button" onClick={load} className="rounded-xl bg-white/10 px-4 py-2 text-sm text-white/75 hover:bg-white/15">Retry</button>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex h-full overflow-hidden">
-      {/* Styles for Word/Excel/CSV content rendered inside attachment widgets */}
+    <div className="notes-workspace flex h-full min-h-[720px] overflow-hidden border border-white/10 bg-[#05070a] shadow-[0_24px_90px_rgba(0,0,0,0.35)]">
       <style>{`
         .notes-doc-content table { border-collapse: collapse; width: 100%; font-size: 11px; }
         .notes-doc-content th, .notes-doc-content td { border: 1px solid rgba(255,255,255,0.1); padding: 3px 6px; text-align: left; }
-        .notes-doc-content th { background: rgba(255,255,255,0.06); font-weight: 600; color: rgba(255,255,255,0.75); }
-        .notes-doc-content td { color: rgba(255,255,255,0.6); }
-        .notes-doc-content h1, .notes-doc-content h2, .notes-doc-content h3 { font-weight: 600; color: rgba(255,255,255,0.85); margin: 8px 0 4px; }
-        .notes-doc-content h1 { font-size: 16px; } .notes-doc-content h2 { font-size: 13px; } .notes-doc-content h3 { font-size: 11px; }
-        .notes-doc-content p { margin: 3px 0; color: rgba(255,255,255,0.7); }
-        .notes-doc-content ul, .notes-doc-content ol { margin: 4px 0 4px 16px; }
-        .notes-doc-content li { color: rgba(255,255,255,0.7); margin: 1px 0; }
-        .notes-doc-content strong, .notes-doc-content b { font-weight: 600; color: rgba(255,255,255,0.85); }
-        .notes-doc-content em, .notes-doc-content i { font-style: italic; }
-        .notes-doc-content a { color: #60a5fa; text-decoration: underline; }
+        .notes-doc-content th { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); }
+        .notes-doc-content td, .notes-doc-content p, .notes-doc-content li { color: rgba(255,255,255,0.68); }
       `}</style>
-      {/* ── Left: note list ── */}
-      <div
-        ref={listRef}
-        className="flex flex-col shrink-0 border-r border-white/8 bg-black/20 overflow-hidden transition-[width] duration-200"
-        style={{ width: listPanelWidth ?? 256 }}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/8 shrink-0">
-          <div className="flex items-center gap-2">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="text-white/50">
-              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span className="text-sm font-semibold text-white/75">Notes</span>
-            {notes.length > 0 && (
-              <span className="text-xs text-white/25">({notes.length})</span>
-            )}
-          </div>
-          <button
-            onClick={handleCreate}
-            className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/6 hover:bg-white/12 transition-colors"
-            title="New note"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-white/60">
-              <path d="M12 5v14M5 12h14" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
 
-        {/* Search */}
-        <div className="px-3 py-2 border-b border-white/5 shrink-0">
-          <div className="relative">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/25">
-              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" strokeLinecap="round" />
-            </svg>
+      <aside className="hidden w-72 shrink-0 flex-col border-r border-white/8 bg-white/[0.025] md:flex">
+        <div className="border-b border-white/8 p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-300">CEL3 Notes</div>
+          <div className="mt-2 flex items-center gap-2">
             <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search notes…"
-              className="w-full pl-8 pr-3 py-1.5 bg-white/5 rounded-lg text-xs text-white/70 placeholder-white/22 outline-none focus:bg-white/8 transition-colors"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search notes, tags, clients..."
+              className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/72 outline-none placeholder:text-white/22"
             />
+            <button type="button" onClick={createWorkspace} className="h-9 w-9 rounded-xl bg-sky-500 text-white shadow-[0_12px_30px_rgba(14,165,233,0.25)]">+</button>
           </div>
         </div>
 
-        {/* List */}
-        <div className="flex-1 overflow-y-auto py-1.5 px-1.5">
-          {loading ? (
-            <div className="flex items-center justify-center h-24">
-              <div className="w-5 h-5 rounded-full border-2 border-white/10 border-t-white/40 animate-spin" />
+        <div className="flex-1 overflow-y-auto p-3">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-white/25">Workspaces</span>
+          </div>
+          <div className="space-y-1.5">
+            {workspaces.map((workspace) => (
+              <WorkspaceRow
+                key={workspace._id}
+                workspace={workspace}
+                active={workspace._id === selectedWorkspaceId}
+                onSelect={() => {
+                  setSelectedWorkspaceId(workspace._id);
+                  const firstSection = sections.find((section) => section.workspaceId === workspace._id);
+                  setSelectedSectionId(firstSection?._id ?? null);
+                  setSelectedPageId(pages.find((page) => page.sectionId === firstSection?._id)?._id ?? null);
+                }}
+                onRename={(title) => patchEntity(workspace._id, "workspace", { title }, false)}
+                onDuplicate={() => duplicateEntity("workspace", workspace._id)}
+                onArchive={() => archiveEntity("workspace", workspace._id)}
+                onMove={(direction) => moveItem("workspace", workspace._id, direction)}
+              />
+            ))}
+          </div>
+
+          <div className="mt-6 mb-3 flex items-center justify-between">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-white/25">Sections</span>
+            <button type="button" onClick={createSection} className="rounded-lg bg-white/8 px-2 py-1 text-xs text-white/55 hover:bg-white/12">New</button>
+          </div>
+          <div className="space-y-1">
+            {workspaceSections.length === 0 ? (
+              <button type="button" onClick={createSection} className="w-full rounded-xl border border-dashed border-white/12 px-3 py-6 text-sm text-white/35">Create a section</button>
+            ) : workspaceSections.map((section) => (
+              <SectionRow
+                key={section._id}
+                section={section}
+                active={section._id === selectedSectionId}
+                onSelect={() => {
+                  setSelectedSectionId(section._id);
+                  setSelectedPageId(pages.find((page) => page.sectionId === section._id)?._id ?? null);
+                }}
+                onRename={(title) => patchEntity(section._id, "section", { title }, false)}
+                onDuplicate={() => duplicateEntity("section", section._id)}
+                onArchive={() => archiveEntity("section", section._id)}
+                onMove={(direction) => moveItem("section", section._id, direction)}
+              />
+            ))}
+          </div>
+        </div>
+      </aside>
+
+      <aside className="hidden w-80 shrink-0 flex-col border-r border-white/8 bg-black/18 lg:flex">
+        <div className="border-b border-white/8 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="truncate text-sm font-semibold text-white/82">{selectedSection?.title ?? "Pages"}</div>
+              <div className="mt-0.5 text-xs text-white/28">{visiblePages.length} page{visiblePages.length === 1 ? "" : "s"}</div>
             </div>
-          ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-32 gap-3 px-4 text-center">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="text-white/10">
-                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <p className="text-xs text-white/22">
-                {search ? "No results" : "No notes yet"}
-              </p>
-              {!search && (
-                <button
-                  onClick={handleCreate}
-                  className="text-xs text-white/45 hover:text-white/70 underline underline-offset-2 transition-colors"
-                >
-                  Create your first note
-                </button>
-              )}
-            </div>
-          ) : (
-            <>
-              {filtered.some((n) => n.isPinned) && (
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/20 px-3 pt-1 pb-1.5">Pinned</p>
-              )}
-              {filtered.filter((n) => n.isPinned).map((note) => (
-                <NoteCard
-                  key={note._id}
-                  note={note}
-                  active={note._id === selectedId}
-                  onSelect={() => setSelectedId(note._id)}
-                  onPin={() => handlePin(note)}
-                  onDelete={() => handleDelete(note._id)}
-                />
-              ))}
-              {filtered.some((n) => n.isPinned) && filtered.some((n) => !n.isPinned) && (
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/20 px-3 pt-3 pb-1.5">Notes</p>
-              )}
-              {filtered.filter((n) => !n.isPinned).map((note) => (
-                <NoteCard
-                  key={note._id}
-                  note={note}
-                  active={note._id === selectedId}
-                  onSelect={() => setSelectedId(note._id)}
-                  onPin={() => handlePin(note)}
-                  onDelete={() => handleDelete(note._id)}
-                />
-              ))}
-            </>
+            <button type="button" onClick={() => createPage()} className="rounded-xl bg-sky-500 px-3 py-2 text-xs font-semibold text-white">New Page</button>
+          </div>
+          <div className="mt-3 grid grid-cols-4 gap-1 rounded-xl border border-white/8 bg-white/[0.035] p-1">
+            {(["all", "favorites", "recent", "tags"] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setFilterMode(mode)}
+                className={`rounded-lg px-2 py-1.5 text-[11px] capitalize transition-colors ${filterMode === mode ? "bg-white/12 text-white/78" : "text-white/35 hover:text-white/62"}`}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+          {filterMode === "tags" && (
+            <select value={selectedTag ?? ""} onChange={(e) => setSelectedTag(e.target.value || null)} className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/70 outline-none">
+              <option value="">Any tag</option>
+              {allTags.map((tag) => <option key={tag} value={tag}>{tag}</option>)}
+            </select>
           )}
         </div>
-      </div>
 
-      {/* ── Right: editor (or fullscreen overlay) ── */}
-      {selected ? (
-        <div className={
-          isFullscreen
-            ? "fixed inset-0 z-[9999] flex flex-col bg-[#080808]"
-            : "flex-1 flex flex-col overflow-hidden min-w-0"
-        }>
-          {/* Top bar */}
-          <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/8 shrink-0">
-
-            {/* Back to notes — only visible in fullscreen */}
-            {isFullscreen && (
-              <button
-                onClick={() => setIsFullscreen(false)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white/45 hover:text-white/80 hover:bg-white/6 transition-colors shrink-0 mr-1"
-                title="Back to notes list  (Esc)"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span className="text-xs font-medium">Notes</span>
-              </button>
-            )}
-
-            <input
-              value={selected.title}
-              onChange={(e) => scheduleSave(selected._id, { title: e.target.value })}
-              className="flex-1 bg-transparent text-base font-semibold text-white/85 placeholder-white/25 outline-none min-w-0"
-              placeholder="Untitled Note"
-            />
-
-            {saving && (
-              <span className="text-[11px] text-white/25 animate-pulse shrink-0">Saving…</span>
-            )}
-
-            {/* Colour */}
-            <div className="relative">
-              <button
-                onClick={() => setColorPickerOpen((o) => !o)}
-                className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-white/5 transition-colors"
-                title="Note colour"
-              >
-                <span
-                  className="w-3 h-3 rounded-full border border-white/20"
-                  style={{ background: selected.color ?? "transparent" }}
-                />
-                <svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor" className="text-white/25">
-                  <path d="M5 7L1 3h8L5 7z" />
-                </svg>
-              </button>
-              {colorPickerOpen && (
-                <div
-                  className="absolute right-0 top-full mt-1 z-50 p-2.5 rounded-xl border border-white/10 bg-[#111]/95 backdrop-blur-xl shadow-2xl"
-                  onMouseLeave={() => setColorPickerOpen(false)}
-                >
-                  <p className="text-[10px] text-white/25 font-medium mb-2 px-0.5">Note colour</p>
-                  <div className="grid grid-cols-4 gap-1.5">
-                    {NOTE_COLORS.map((c) => (
-                      <button
-                        key={c.label}
-                        onClick={() => { scheduleSave(selected._id, { color: c.value }); setColorPickerOpen(false); }}
-                        className={`w-7 h-7 rounded-full border-2 transition-transform hover:scale-110 ${
-                          selected.color === c.value ? "border-white/60 scale-110" : "border-transparent"
-                        } ${c.dot}`}
-                        title={c.label}
-                      />
-                    ))}
-                  </div>
+        <div className="flex-1 overflow-y-auto p-3">
+          {visiblePages.length === 0 ? (
+            <div className="flex h-44 flex-col items-center justify-center rounded-2xl border border-dashed border-white/12 text-center">
+              <p className="text-sm text-white/42">No pages here</p>
+              <button type="button" onClick={() => createPage()} className="mt-3 rounded-xl bg-white/8 px-3 py-2 text-xs text-white/62 hover:bg-white/12">Create page</button>
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              {visiblePages.filter((page) => !page.parentPageId).map((page) => (
+                <div key={page._id} className="space-y-1">
+                  <PageRow
+                    page={page}
+                    active={page._id === selectedPageId}
+                    onSelect={() => setSelectedPageId(page._id)}
+                    onRename={(title) => patchEntity(page._id, "page", { title }, false)}
+                    onDuplicate={() => duplicateEntity("page", page._id)}
+                    onArchive={() => archiveEntity("page", page._id)}
+                    onMove={(direction) => moveItem("page", page._id, direction)}
+                  />
+                  {visiblePages.filter((subpage) => subpage.parentPageId === page._id).map((subpage) => (
+                    <PageRow
+                      key={subpage._id}
+                      page={subpage}
+                      subpage
+                      active={subpage._id === selectedPageId}
+                      onSelect={() => setSelectedPageId(subpage._id)}
+                      onRename={(title) => patchEntity(subpage._id, "page", { title }, false)}
+                      onDuplicate={() => duplicateEntity("page", subpage._id)}
+                      onArchive={() => archiveEntity("page", subpage._id)}
+                      onMove={(direction) => moveItem("page", subpage._id, direction)}
+                    />
+                  ))}
+                  <button type="button" onClick={() => createPage(page._id)} className="ml-4 rounded-lg px-2 py-1 text-[11px] text-white/28 hover:bg-white/6 hover:text-white/55">Add subpage</button>
                 </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </aside>
+
+      <main className="flex min-w-0 flex-1 flex-col bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.12),transparent_32%),linear-gradient(180deg,#071018,#05070a)]">
+        <div className="flex shrink-0 flex-col gap-2 border-b border-white/8 bg-black/35 p-3 lg:hidden">
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+            <select
+              value={selectedWorkspaceId ?? ""}
+              onChange={(e) => {
+                const workspaceId = e.target.value;
+                const firstSection = sections.find((section) => section.workspaceId === workspaceId);
+                setSelectedWorkspaceId(workspaceId);
+                setSelectedSectionId(firstSection?._id ?? null);
+                setSelectedPageId(pages.find((page) => page.sectionId === firstSection?._id)?._id ?? null);
+              }}
+              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/72 outline-none"
+            >
+              {workspaces.map((workspace) => <option key={workspace._id} value={workspace._id}>{workspace.title}</option>)}
+            </select>
+            <select
+              value={selectedSectionId ?? ""}
+              onChange={(e) => {
+                setSelectedSectionId(e.target.value);
+                setSelectedPageId(pages.find((page) => page.sectionId === e.target.value)?._id ?? null);
+              }}
+              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/72 outline-none"
+            >
+              {workspaceSections.map((section) => <option key={section._id} value={section._id}>{section.title}</option>)}
+            </select>
+            <select
+              value={selectedPageId ?? ""}
+              onChange={(e) => setSelectedPageId(e.target.value || null)}
+              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/72 outline-none"
+            >
+              <option value="">Select page</option>
+              {visiblePages.map((page) => <option key={page._id} value={page._id}>{page.parentPageId ? "- " : ""}{page.title}</option>)}
+            </select>
+          </div>
+          <div className="flex gap-2">
+            <button type="button" onClick={createWorkspace} className="rounded-xl bg-white/8 px-3 py-2 text-xs text-white/62">Workspace</button>
+            <button type="button" onClick={createSection} className="rounded-xl bg-white/8 px-3 py-2 text-xs text-white/62">Section</button>
+            <button type="button" onClick={() => createPage()} className="rounded-xl bg-sky-500 px-3 py-2 text-xs font-semibold text-white">Page</button>
+          </div>
+        </div>
+
+        {selectedPage ? (
+          <>
+            <header className="flex shrink-0 flex-wrap items-center gap-3 border-b border-white/8 bg-black/20 px-4 py-3 backdrop-blur-xl">
+              <div className="min-w-0 flex-1">
+                <div className="mb-1 flex items-center gap-2 text-[11px] text-white/32">
+                  <span>{selectedWorkspace?.title ?? "Workspace"}</span>
+                  <span>/</span>
+                  <span>{selectedSection?.title ?? "Section"}</span>
+                  <span>/</span>
+                  <span className="text-sky-200/72">{selectedPage.title}</span>
+                </div>
+                <input
+                  value={selectedPage.title}
+                  onChange={(e) => patchPage({ title: e.target.value }, true)}
+                  className="w-full bg-transparent text-xl font-semibold text-white/90 outline-none placeholder:text-white/20"
+                  placeholder="Untitled Page"
+                />
+              </div>
+              {saving && <span className="text-xs text-white/30">Saving...</span>}
+              {error && <span className="rounded-lg bg-red-500/10 px-2 py-1 text-xs text-red-200">{error}</span>}
+              <button type="button" onClick={() => patchPage({ isPinned: !selectedPage.isPinned }, false)} className={`rounded-xl px-3 py-2 text-xs ${selectedPage.isPinned ? "bg-amber-500/18 text-amber-200" : "bg-white/8 text-white/52 hover:bg-white/12"}`}>Pin</button>
+              <button type="button" onClick={() => patchPage({ isFavorite: !selectedPage.isFavorite }, false)} className={`rounded-xl px-3 py-2 text-xs ${selectedPage.isFavorite ? "bg-sky-500/18 text-sky-200" : "bg-white/8 text-white/52 hover:bg-white/12"}`}>Favorite</button>
+            </header>
+
+            <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-white/8 bg-black/12 px-4 py-2">
+              <button type="button" onClick={() => addBlock("text", 120, 120)} className="rounded-xl bg-white/8 px-3 py-2 text-xs text-white/62 hover:bg-white/12">Text</button>
+              <button type="button" onClick={() => addBlock("checklist", 140, 140)} className="rounded-xl bg-white/8 px-3 py-2 text-xs text-white/62 hover:bg-white/12">Checklist</button>
+              <button type="button" onClick={createLinkBlock} className="rounded-xl bg-white/8 px-3 py-2 text-xs text-white/62 hover:bg-white/12">Link</button>
+              <button type="button" onClick={() => fileInputRef.current?.click()} className="rounded-xl bg-white/8 px-3 py-2 text-xs text-white/62 hover:bg-white/12">{processingFile ? "Processing..." : "Image/File"}</button>
+              <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileInput} accept="image/*,video/*,application/pdf,.docx,.xlsx,.xls,.csv,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,*/*" />
+              <div className="h-6 w-px bg-white/10" />
+              {payload?.aiAvailable ? (
+                <div className="flex flex-wrap items-center gap-1">
+                  {(["summarize", "tasks", "cleanup", "proposal", "email", "organize"] as const).map((action) => (
+                    <button key={action} type="button" disabled={aiBusy} onClick={() => runAi(action)} className="rounded-xl bg-sky-500/10 px-3 py-2 text-xs text-sky-100/75 hover:bg-sky-500/16 disabled:opacity-45">
+                      {aiBusy ? "AI..." : action}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-xs text-white/25">AI actions appear when the backoffice AI service is configured.</span>
               )}
             </div>
 
-            {/* Pin */}
-            <button
-              onClick={() => handlePin(selected)}
-              className={`p-1.5 rounded-lg transition-colors ${
-                selected.isPinned
-                  ? "text-amber-400 bg-amber-500/10"
-                  : "text-white/30 hover:text-white/60 hover:bg-white/5"
-              }`}
-              title={selected.isPinned ? "Unpin" : "Pin note"}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5v6h2v-6h5v-2l-2-2z" />
-              </svg>
-            </button>
-
-            {/* Delete */}
-            <button
-              onClick={() => handleDelete(selected._id)}
-              className="p-1.5 rounded-lg text-white/25 hover:text-red-400 hover:bg-red-500/8 transition-colors"
-              title="Delete note"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-
-            {/* Fullscreen toggle */}
-            <button
-              onClick={() => setIsFullscreen((f) => !f)}
-              className="p-1.5 rounded-lg text-white/25 hover:text-white/60 hover:bg-white/5 transition-colors ml-0.5"
-              title={isFullscreen ? "Exit fullscreen  (Esc)" : "Fullscreen"}
-            >
-              {isFullscreen ? (
-                /* Compress / exit icon */
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M8 3v3a2 2 0 01-2 2H3M21 8h-3a2 2 0 01-2-2V3M3 16h3a2 2 0 012 2v3M16 21v-3a2 2 0 012-2h3" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              ) : (
-                /* Expand icon */
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M3 16v3a2 2 0 002 2h3M16 21h3a2 2 0 002-2v-3" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              )}
-            </button>
+            <div className="flex min-h-0 flex-1">
+              <div className="min-w-0 flex-1 overflow-auto">
+                <div
+                  className="relative m-5 rounded-2xl border border-white/10 bg-[#f6f8fb] shadow-[0_28px_90px_rgba(0,0,0,0.36)]"
+                  style={{
+                    width: CANVAS_WIDTH,
+                    height: CANVAS_HEIGHT,
+                    backgroundImage: "radial-gradient(circle, rgba(10,20,30,0.12) 1px, transparent 1px)",
+                    backgroundSize: "24px 24px",
+                  }}
+                  onPointerDown={(e) => {
+                    if (drawingActive) return;
+                    if (e.target !== e.currentTarget) return;
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    addBlock("text", e.clientX - rect.left, e.clientY - rect.top);
+                    setSelectedBlockId(null);
+                  }}
+                >
+                  {blocks.length === 0 && (canvasData.strokes?.length ?? 0) === 0 && (
+                    <div className="pointer-events-none absolute left-24 top-24 max-w-sm rounded-2xl border border-sky-500/15 bg-white/80 p-5 text-slate-600 shadow-xl">
+                      <p className="text-sm font-semibold text-slate-900">Start anywhere</p>
+                      <p className="mt-1 text-sm leading-relaxed">Click the canvas to create a note block, drag blocks freely, or turn on Ink for pen and highlighter strokes.</p>
+                    </div>
+                  )}
+                  {guide?.x !== undefined && <div className="pointer-events-none absolute top-0 h-full w-px bg-sky-400/55" style={{ left: guide.x }} />}
+                  {guide?.y !== undefined && <div className="pointer-events-none absolute left-0 h-px w-full bg-sky-400/55" style={{ top: guide.y }} />}
+                  {blocks.map((block) => (
+                    <NoteBlockView
+                      key={block.id}
+                      block={block}
+                      selected={block.id === selectedBlockId}
+                      onSelect={() => setSelectedBlockId(block.id)}
+                      onChange={(updates) => updateBlock(block.id, updates)}
+                      onDelete={() => deleteBlock(block.id)}
+                      onDuplicate={() => duplicateBlock(block)}
+                      onLayer={(direction) => layerBlock(block, direction)}
+                      onDragStart={startDrag}
+                      onDrag={dragBlock}
+                      onResizeStart={startResize}
+                      onResize={resizeBlock}
+                    />
+                  ))}
+                  <DrawingLayer
+                    key={selectedPage._id}
+                    data={canvasData}
+                    active={drawingActive}
+                    onActiveChange={setDrawingActive}
+                    onSave={(nextData) => patchPage({ canvasData: JSON.stringify(nextData) }, true)}
+                  />
+                </div>
+              </div>
+              <PageContextPanel page={selectedPage} linkOptions={payload?.linkOptions ?? { clients: [], projects: [], tasks: [], invoices: [], tickets: [] }} onPatch={(patch) => patchPage(patch, false)} />
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+              <p className="text-lg font-semibold text-white/78">No page selected</p>
+              <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/38">Create a page in the current section to start a freeform CEL3 workspace note.</p>
+              <button type="button" onClick={() => createPage()} className="mt-5 rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-white">Create Page</button>
+            </div>
           </div>
-
-          {/* Tab switcher */}
-          <div className="flex items-center gap-0 border-b border-white/8 px-5 shrink-0">
-            <button
-              onClick={() => setTab("text")}
-              className={`flex items-center gap-1.5 px-1 py-2.5 text-xs font-medium border-b-2 mr-4 transition-colors ${
-                tab === "text"
-                  ? "border-white/60 text-white/80"
-                  : "border-transparent text-white/30 hover:text-white/55"
-              }`}
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="4 7 4 4 20 4 20 7" strokeLinecap="round" strokeLinejoin="round" />
-                <line x1="9" y1="20" x2="15" y2="20" strokeLinecap="round" />
-                <line x1="12" y1="4" x2="12" y2="20" strokeLinecap="round" />
-              </svg>
-              Text
-            </button>
-            <button
-              onClick={() => setTab("canvas")}
-              className={`flex items-center gap-1.5 px-1 py-2.5 text-xs font-medium border-b-2 transition-colors ${
-                tab === "canvas"
-                  ? "border-white/60 text-white/80"
-                  : "border-transparent text-white/30 hover:text-white/55"
-              }`}
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              Canvas
-              {hasCanvasStrokes && (
-                <span className="w-1.5 h-1.5 rounded-full bg-white/40 inline-block" />
-              )}
-            </button>
-          </div>
-
-          {/* Editor */}
-          <div className="flex-1 overflow-hidden">
-            {tab === "text" ? (
-              <TextEditor
-                value={selected.content ?? ""}
-                onChange={(v) => scheduleSave(selected._id, { content: v })}
-              />
-            ) : (
-              <DrawingCanvas
-                key={selected._id}
-                initialData={currentCanvasData}
-                onSave={handleCanvasSave}
-              />
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-white/4 flex items-center justify-center mb-1">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" className="text-white/20">
-              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-white/50">No note selected</p>
-            <p className="text-xs text-white/25 mt-1">Select a note or create a new one</p>
-          </div>
-          <button
-            onClick={handleCreate}
-            className="mt-1 px-4 py-2 rounded-xl bg-white/8 hover:bg-white/13 text-sm text-white/65 hover:text-white/85 transition-colors"
-          >
-            New note
-          </button>
-          <p className="text-xs text-white/15 max-w-xs leading-relaxed">
-            Switch between Text and Canvas tabs in any note to type or draw with your pen or stylus.
-          </p>
-        </div>
-      )}
+        )}
+      </main>
     </div>
   );
 }
