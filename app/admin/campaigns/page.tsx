@@ -122,12 +122,13 @@ function RichEditor({ value, onChange }: { value: string; onChange: (v: string) 
 // ─── Campaign panel ───────────────────────────────────────────────────────────
 
 function CampaignPanel({
-  campaign, groups, onSaved, onDeleted,
+  campaign, groups, onSaved, onDeleted, isCreating,
 }: {
   campaign: Campaign | null;
   groups: Group[];
   onSaved: (c: Campaign) => void;
   onDeleted: (id: string) => void;
+  isCreating: boolean;
 }) {
   const [title, setTitle] = useState(campaign?.title ?? "");
   const [subject, setSubject] = useState(campaign?.subject ?? "");
@@ -202,7 +203,7 @@ function CampaignPanel({
     onDeleted(campaign.id);
   }
 
-  if (!campaign && title === "" && subject === "" && bodyHtml === "") {
+  if (!campaign && !isCreating) {
     return (
       <div className="flex-1 flex items-center justify-center text-white/25 text-sm">
         Select a campaign or create a new one
@@ -516,6 +517,7 @@ export default function CampaignsPage() {
               <div className="flex-1 border border-white/8 rounded-2xl overflow-hidden flex flex-col">
                 <CampaignPanel
                   campaign={creatingNew ? null : selectedCampaign}
+                  isCreating={creatingNew}
                   groups={groups}
                   onSaved={(c) => {
                     setCampaigns((prev) => {
