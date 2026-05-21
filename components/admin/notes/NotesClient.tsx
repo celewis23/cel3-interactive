@@ -790,10 +790,12 @@ function PageContextPanel({
   page,
   linkOptions,
   onPatch,
+  onClose,
 }: {
   page: Page;
   linkOptions: NotesPayload["linkOptions"];
   onPatch: (patch: Partial<Page>) => void;
+  onClose: () => void;
 }) {
   const [tagValue, setTagValue] = useState("");
   const metadata = parseJson<Record<string, string>>(page.metadataJson, {});
@@ -817,14 +819,29 @@ function PageContextPanel({
   }
 
   return (
-    <aside className="hidden w-72 shrink-0 border-l border-white/8 bg-black/20 p-4 xl:block">
-      <div className="mb-5">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-300/80">Page Context</div>
-        <p className="mt-2 text-xs leading-relaxed text-white/38">Private internal note. Future portal sharing can be modeled from linked records, but this page is not exposed to clients.</p>
-      </div>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="notes-page-context-title"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="max-h-[88dvh] w-full max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-[#070b11] shadow-[0_28px_120px_rgba(0,0,0,0.55)]">
+        <div className="flex items-start justify-between gap-4 border-b border-white/8 p-5">
+          <div>
+            <div id="notes-page-context-title" className="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-300/80">Page Context</div>
+            <p className="mt-2 max-w-xl text-xs leading-relaxed text-white/38">Private internal note. Future portal sharing can be modeled from linked records, but this page is not exposed to clients.</p>
+          </div>
+          <button type="button" onClick={onClose} className="rounded-xl bg-white/8 px-3 py-2 text-xs text-white/58 hover:bg-white/12 hover:text-white/82">
+            Close
+          </button>
+        </div>
 
-      <div className="space-y-5">
-        <section>
+        <div className="max-h-[calc(88dvh-104px)] overflow-y-auto p-5">
+          <div className="grid gap-5 md:grid-cols-2">
+            <section>
           <label className="text-[11px] font-semibold uppercase tracking-widest text-white/28">Tags</label>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {page.tags.map((tag) => (
@@ -849,9 +866,9 @@ function PageContextPanel({
             />
             <button type="button" onClick={addTag} className="rounded-lg bg-white/8 px-3 text-xs text-white/62 hover:bg-white/12">Add</button>
           </div>
-        </section>
+            </section>
 
-        <section className="space-y-2">
+            <section className="space-y-2">
           <label className="text-[11px] font-semibold uppercase tracking-widest text-white/28">Connections</label>
           {(["client", "project", "task", "invoice", "ticket"] as const).map((type) => {
             const options = type === "client" ? linkOptions.clients :
@@ -884,25 +901,29 @@ function PageContextPanel({
               </button>
             ))}
           </div>
-        </section>
+            </section>
 
-        <section>
+            <section className="md:col-span-2">
           <label className="text-[11px] font-semibold uppercase tracking-widest text-white/28">Metadata</label>
-          <input
-            value={metadata.status || ""}
-            onChange={(e) => onPatch({ metadataJson: JSON.stringify({ ...metadata, status: e.target.value }) })}
-            placeholder="Status"
-            className="mt-2 w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-xs text-white/72 outline-none placeholder:text-white/20"
-          />
-          <input
-            value={metadata.owner || ""}
-            onChange={(e) => onPatch({ metadataJson: JSON.stringify({ ...metadata, owner: e.target.value }) })}
-            placeholder="Owner / context"
-            className="mt-2 w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-xs text-white/72 outline-none placeholder:text-white/20"
-          />
-        </section>
+          <div className="mt-2 grid gap-2 md:grid-cols-2">
+            <input
+              value={metadata.status || ""}
+              onChange={(e) => onPatch({ metadataJson: JSON.stringify({ ...metadata, status: e.target.value }) })}
+              placeholder="Status"
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-xs text-white/72 outline-none placeholder:text-white/20"
+            />
+            <input
+              value={metadata.owner || ""}
+              onChange={(e) => onPatch({ metadataJson: JSON.stringify({ ...metadata, owner: e.target.value }) })}
+              placeholder="Owner / context"
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-xs text-white/72 outline-none placeholder:text-white/20"
+            />
+          </div>
+            </section>
+          </div>
+        </div>
       </div>
-    </aside>
+    </div>
   );
 }
 
@@ -1059,6 +1080,9 @@ export default function NotesClient() {
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string | null>(null);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
+  const [workspacesCollapsed, setWorkspacesCollapsed] = useState(false);
+  const [pagesCollapsed, setPagesCollapsed] = useState(false);
+  const [contextOpen, setContextOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [filterMode, setFilterMode] = useState<"all" | "favorites" | "recent" | "tags">("all");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -1098,6 +1122,15 @@ export default function NotesClient() {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!contextOpen) return;
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setContextOpen(false);
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [contextOpen]);
 
   const workspaces = useMemo(() => payload?.workspaces ?? [], [payload?.workspaces]);
   const sections = useMemo(() => payload?.sections ?? [], [payload?.sections]);
@@ -1459,7 +1492,18 @@ export default function NotesClient() {
         .notes-doc-content td, .notes-doc-content p, .notes-doc-content li { color: rgba(255,255,255,0.68); }
       `}</style>
 
-      <aside className="hidden w-72 shrink-0 flex-col border-r border-white/8 bg-white/[0.025] md:flex">
+      <aside className={`hidden shrink-0 flex-col overflow-hidden border-r border-white/8 bg-white/[0.025] transition-[width] duration-300 md:flex ${workspacesCollapsed ? "w-12" : "w-72"}`}>
+        {workspacesCollapsed ? (
+          <button
+            type="button"
+            onClick={() => setWorkspacesCollapsed(false)}
+            className="flex h-full w-12 items-center justify-center text-[11px] font-semibold uppercase tracking-[0.24em] text-white/38 transition-colors hover:bg-white/[0.04] hover:text-sky-200"
+            aria-label="Open workspaces panel"
+          >
+            <span className="-rotate-90 whitespace-nowrap">Workspaces</span>
+          </button>
+        ) : (
+        <>
         <div className="border-b border-white/8 p-4">
           <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-sky-300">CEL3 Notes</div>
           <div className="mt-2 flex items-center gap-2">
@@ -1470,6 +1514,7 @@ export default function NotesClient() {
               className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/72 outline-none placeholder:text-white/22"
             />
             <button type="button" onClick={createWorkspace} className="h-9 w-9 rounded-xl bg-sky-500 text-white shadow-[0_12px_30px_rgba(14,165,233,0.25)]">+</button>
+            <button type="button" onClick={() => setWorkspacesCollapsed(true)} className="h-9 rounded-xl bg-white/8 px-2 text-xs text-white/45 hover:bg-white/12 hover:text-white/72" aria-label="Collapse workspaces panel">Collapse</button>
           </div>
         </div>
 
@@ -1521,16 +1566,32 @@ export default function NotesClient() {
             ))}
           </div>
         </div>
+        </>
+        )}
       </aside>
 
-      <aside className="hidden w-80 shrink-0 flex-col border-r border-white/8 bg-black/18 lg:flex">
+      <aside className={`hidden shrink-0 flex-col overflow-hidden border-r border-white/8 bg-black/18 transition-[width] duration-300 lg:flex ${pagesCollapsed ? "w-12" : "w-80"}`}>
+        {pagesCollapsed ? (
+          <button
+            type="button"
+            onClick={() => setPagesCollapsed(false)}
+            className="flex h-full w-12 items-center justify-center text-[11px] font-semibold uppercase tracking-[0.24em] text-white/38 transition-colors hover:bg-white/[0.04] hover:text-sky-200"
+            aria-label="Open pages panel"
+          >
+            <span className="-rotate-90 whitespace-nowrap">Pages</span>
+          </button>
+        ) : (
+        <>
         <div className="border-b border-white/8 p-4">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold text-white/82">{selectedSection?.title ?? "Pages"}</div>
               <div className="mt-0.5 text-xs text-white/28">{visiblePages.length} page{visiblePages.length === 1 ? "" : "s"}</div>
             </div>
-            <button type="button" onClick={() => createPage()} className="rounded-xl bg-sky-500 px-3 py-2 text-xs font-semibold text-white">New Page</button>
+            <div className="flex shrink-0 items-center gap-2">
+              <button type="button" onClick={() => createPage()} className="rounded-xl bg-sky-500 px-3 py-2 text-xs font-semibold text-white">New Page</button>
+              <button type="button" onClick={() => setPagesCollapsed(true)} className="rounded-xl bg-white/8 px-2 py-2 text-xs text-white/45 hover:bg-white/12 hover:text-white/72" aria-label="Collapse pages panel">Collapse</button>
+            </div>
           </div>
           <div className="mt-3 grid grid-cols-4 gap-1 rounded-xl border border-white/8 bg-white/[0.035] p-1">
             {(["all", "favorites", "recent", "tags"] as const).map((mode) => (
@@ -1590,6 +1651,8 @@ export default function NotesClient() {
             </div>
           )}
         </div>
+        </>
+        )}
       </aside>
 
       <main className="flex min-w-0 flex-1 flex-col bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.12),transparent_32%),linear-gradient(180deg,#071018,#05070a)]">
@@ -1654,6 +1717,7 @@ export default function NotesClient() {
               </div>
               {saving && <span className="text-xs text-white/30">Saving...</span>}
               {error && <span className="rounded-lg bg-red-500/10 px-2 py-1 text-xs text-red-200">{error}</span>}
+              <button type="button" onClick={() => setContextOpen(true)} className="rounded-xl bg-sky-500/12 px-3 py-2 text-xs text-sky-100/75 hover:bg-sky-500/18">Page Context</button>
               <button type="button" onClick={() => patchPage({ isPinned: !selectedPage.isPinned }, false)} className={`rounded-xl px-3 py-2 text-xs ${selectedPage.isPinned ? "bg-amber-500/18 text-amber-200" : "bg-white/8 text-white/52 hover:bg-white/12"}`}>Pin</button>
               <button type="button" onClick={() => patchPage({ isFavorite: !selectedPage.isFavorite }, false)} className={`rounded-xl px-3 py-2 text-xs ${selectedPage.isFavorite ? "bg-sky-500/18 text-sky-200" : "bg-white/8 text-white/52 hover:bg-white/12"}`}>Favorite</button>
             </header>
@@ -1729,8 +1793,15 @@ export default function NotesClient() {
                   />
                 </div>
               </div>
-              <PageContextPanel page={selectedPage} linkOptions={payload?.linkOptions ?? { clients: [], projects: [], tasks: [], invoices: [], tickets: [] }} onPatch={(patch) => patchPage(patch, false)} />
             </div>
+            {contextOpen && (
+              <PageContextPanel
+                page={selectedPage}
+                linkOptions={payload?.linkOptions ?? { clients: [], projects: [], tasks: [], invoices: [], tickets: [] }}
+                onPatch={(patch) => patchPage(patch, false)}
+                onClose={() => setContextOpen(false)}
+              />
+            )}
           </>
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
