@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+type TicketNote = { _key: string; text: string; createdAt: string };
 type TicketAttachment = { _key?: string; name: string; webViewLink?: string | null };
 type AdminPortalTicket = {
   _id: string;
@@ -14,6 +15,7 @@ type AdminPortalTicket = {
   createdAt: string;
   updatedAt: string;
   adminNotes: string | null;
+  ticketNotes?: TicketNote[];
   attachments?: TicketAttachment[];
 };
 
@@ -25,10 +27,25 @@ const STATUS_OPTIONS = [
   { value: "closed", label: "Closed" },
 ];
 
+const STATUS_STYLES: Record<string, string> = {
+  submitted: "bg-sky-500/15 text-sky-300",
+  in_progress: "bg-amber-500/15 text-amber-300",
+  waiting_on_client: "bg-violet-500/15 text-violet-300",
+  completed: "bg-emerald-500/15 text-emerald-300",
+  closed: "bg-white/10 text-white/45",
+};
+
+const PRIORITY_DOT: Record<string, string> = {
+  urgent: "bg-red-400",
+  high: "bg-orange-400",
+  medium: "bg-amber-400",
+  low: "bg-white/30",
+};
+
 export default function AdminPortalRequestsPage() {
   const [tickets, setTickets] = useState<AdminPortalTicket[]>([]);
   const [loading, setLoading] = useState(true);
-  const [savingId, setSavingId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   async function load() {
@@ -37,7 +54,9 @@ export default function AdminPortalRequestsPage() {
       const res = await fetch("/api/admin/portal-requests");
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to load requests");
-      setTickets(data.tickets ?? []);
+      const list: AdminPortalTicket[] = data.tickets ?? [];
+      setTickets(list);
+      if (list.length > 0 && !selectedId) setSelectedId(list[0]._id);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load requests");
     } finally {
@@ -47,131 +66,250 @@ export default function AdminPortalRequestsPage() {
 
   useEffect(() => { void load(); }, []);
 
-  async function saveTicket(ticketId: string, status: string, adminNotes: string | null) {
-    setSavingId(ticketId);
-    setError("");
-    try {
-      const res = await fetch(`/api/admin/portal-requests/${ticketId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, adminNotes }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to update request");
-      setTickets((prev) => prev.map((ticket) => (ticket._id === ticketId ? data : ticket)));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update request");
-    } finally {
-      setSavingId(null);
-    }
+  function handleTicketUpdate(updated: AdminPortalTicket) {
+    setTickets((prev) => prev.map((t) => (t._id === updated._id ? updated : t)));
   }
 
+  const selected = tickets.find((t) => t._id === selectedId) ?? null;
+
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-white">Client Requests</h1>
-        <p className="text-sm text-white/40 mt-1">Review incoming work requests, update status, and keep clients informed.</p>
+    <div className="flex h-full min-h-[600px] gap-0 -m-8 overflow-hidden" style={{ height: "calc(100dvh - 4rem)" }}>
+      {/* Left list */}
+      <div className="flex w-72 shrink-0 flex-col border-r border-white/8">
+        <div className="border-b border-white/8 px-4 py-4">
+          <h1 className="text-base font-semibold text-white">Client Requests</h1>
+          <p className="mt-0.5 text-xs text-white/35">{tickets.length} total</p>
+        </div>
+
+        {error && (
+          <div className="mx-3 mt-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-3">{error}</div>
+        )}
+
+        <div className="flex-1 overflow-y-auto py-2">
+          {loading ? (
+            <div className="px-4 py-6 text-xs text-white/35">Loading…</div>
+          ) : tickets.length === 0 ? (
+            <div className="px-4 py-8 text-center text-xs text-white/30">No requests yet.</div>
+          ) : (
+            tickets.map((ticket) => (
+              <button
+                key={ticket._id}
+                type="button"
+                onClick={() => setSelectedId(ticket._id)}
+                className={`w-full px-4 py-3 text-left transition-colors border-l-2 ${
+                  selectedId === ticket._id
+                    ? "bg-white/6 border-sky-400"
+                    : "border-transparent hover:bg-white/3"
+                }`}
+              >
+                <div className="flex items-start gap-2">
+                  <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${PRIORITY_DOT[ticket.priority] ?? "bg-white/30"}`} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-white/88">{ticket.title}</p>
+                    <p className="mt-0.5 truncate text-xs text-white/35">{ticket.clientEmail ?? "Unknown"}</p>
+                    <div className="mt-1.5 flex items-center gap-2">
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${STATUS_STYLES[ticket.status] ?? "bg-white/10 text-white/45"}`}>
+                        {ticket.status.replaceAll("_", " ")}
+                      </span>
+                      <span className="text-[10px] text-white/25">
+                        {new Date(ticket.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </button>
+            ))
+          )}
+        </div>
       </div>
 
-      {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl p-3">
-          {error}
-        </div>
-      )}
-
-      <div className="grid gap-4">
-        {loading ? (
-          <div className="bg-white/3 border border-white/8 rounded-2xl p-6 text-sm text-white/40">Loading requests…</div>
-        ) : tickets.length === 0 ? (
-          <div className="bg-white/3 border border-white/8 rounded-2xl p-6 text-sm text-white/40">No client requests yet.</div>
+      {/* Right detail */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {selected ? (
+          <RequestDetail
+            key={selected._id}
+            ticket={selected}
+            onUpdate={handleTicketUpdate}
+          />
         ) : (
-          tickets.map((ticket) => (
-            <RequestCard key={ticket._id} ticket={ticket} saving={savingId === ticket._id} onSave={saveTicket} />
-          ))
+          <div className="flex flex-1 items-center justify-center text-sm text-white/30">
+            Select a request to view details
+          </div>
         )}
       </div>
     </div>
   );
 }
 
-function RequestCard({
+function RequestDetail({
   ticket,
-  saving,
-  onSave,
+  onUpdate,
 }: {
   ticket: AdminPortalTicket;
-  saving: boolean;
-  onSave: (ticketId: string, status: string, adminNotes: string | null) => Promise<void>;
+  onUpdate: (updated: AdminPortalTicket) => void;
 }) {
   const [status, setStatus] = useState(ticket.status);
-  const [notes, setNotes] = useState(ticket.adminNotes ?? "");
+  const [noteText, setNoteText] = useState("");
+  const [savingStatus, setSavingStatus] = useState(false);
+  const [savingNote, setSavingNote] = useState(false);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    setStatus(ticket.status);
-    setNotes(ticket.adminNotes ?? "");
-  }, [ticket]);
+  // Build the notes list: merge legacy adminNotes (if any) as the oldest entry
+  const notes: TicketNote[] = ticket.ticketNotes ?? [];
+  const legacyNote = ticket.adminNotes && notes.length === 0 ? ticket.adminNotes : null;
+
+  async function saveStatus() {
+    if (status === ticket.status) return;
+    setSavingStatus(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/admin/portal-requests/${ticket._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update status");
+      onUpdate({ ...ticket, ...data, status });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update status");
+    } finally {
+      setSavingStatus(false);
+    }
+  }
+
+  async function addNote(e: React.FormEvent) {
+    e.preventDefault();
+    if (!noteText.trim()) return;
+    setSavingNote(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/admin/portal-requests/${ticket._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ noteText: noteText.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to add note");
+      onUpdate({ ...ticket, ...data });
+      setNoteText("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to add note");
+    } finally {
+      setSavingNote(false);
+    }
+  }
 
   return (
-    <div className="bg-white/3 border border-white/8 rounded-2xl p-5">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h2 className="text-lg font-semibold text-white">{ticket.title}</h2>
-          <p className="text-xs text-white/35 mt-1">
-            {ticket.clientEmail ?? "Unknown client"}
-            {ticket.projectName ? ` • ${ticket.projectName}` : ""}
-            {` • ${new Date(ticket.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/60">{ticket.priority}</span>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-sky-500/50 [color-scheme:dark]"
-          >
-            {STATUS_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <p className="text-sm text-white/65 mt-4 whitespace-pre-wrap">{ticket.description}</p>
-
-      {ticket.attachments?.length ? (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {ticket.attachments.map((attachment) => (
-            <a
-              key={attachment._key ?? attachment.name}
-              href={attachment.webViewLink ?? "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-sky-300 hover:bg-white/8 transition-colors"
+    <div className="flex h-full flex-col overflow-hidden">
+      {/* Header */}
+      <div className="shrink-0 border-b border-white/8 px-6 py-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold text-white">{ticket.title}</h2>
+            <p className="mt-0.5 text-xs text-white/40">
+              {ticket.clientEmail ?? "Unknown client"}
+              {ticket.projectName ? ` · ${ticket.projectName}` : ""}
+              {` · ${new Date(ticket.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-white/8 px-2 py-0.5 text-xs text-white/50 capitalize">{ticket.priority}</span>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white outline-none focus:border-sky-500/50 [color-scheme:dark]"
             >
-              {attachment.name}
-            </a>
-          ))}
+              {STATUS_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={() => void saveStatus()}
+              disabled={savingStatus || status === ticket.status}
+              className="rounded-xl bg-sky-500 px-3 py-1.5 text-sm font-semibold text-black disabled:opacity-40 hover:bg-sky-400 transition-colors"
+            >
+              {savingStatus ? "Saving…" : "Save"}
+            </button>
+          </div>
         </div>
-      ) : null}
-
-      <div className="mt-4">
-        <label className="text-xs text-white/40 mb-1.5 block">Admin note visible in the portal</label>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          rows={3}
-          className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-sky-500/50 resize-none"
-        />
+        {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
       </div>
 
-      <div className="mt-4 flex justify-end">
-        <button
-          onClick={() => void onSave(ticket._id, status, notes.trim() || null)}
-          disabled={saving}
-          className="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:opacity-40 text-black font-semibold text-sm transition-colors"
-        >
-          {saving ? "Saving…" : "Save update"}
-        </button>
+      {/* Scrollable body */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Description + attachments */}
+        <div className="flex-1 overflow-y-auto px-6 py-5">
+          <p className="text-sm text-white/65 whitespace-pre-wrap leading-relaxed">{ticket.description}</p>
+
+          {ticket.attachments?.length ? (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {ticket.attachments.map((a) => (
+                <a
+                  key={a._key ?? a.name}
+                  href={a.webViewLink ?? "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-sky-300 hover:bg-white/8 transition-colors"
+                >
+                  {a.name}
+                </a>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        {/* Notes panel */}
+        <div className="flex w-80 shrink-0 flex-col border-l border-white/8">
+          <div className="shrink-0 border-b border-white/8 px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-white/40">Progress Notes</p>
+          </div>
+
+          {/* Notes list */}
+          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+            {notes.length === 0 && !legacyNote ? (
+              <p className="text-xs text-white/25 text-center py-4">No notes yet.</p>
+            ) : (
+              <>
+                {legacyNote && (
+                  <div className="rounded-xl border border-white/8 bg-white/3 p-3">
+                    <p className="text-xs text-white/25 mb-1">Legacy note</p>
+                    <p className="text-sm text-white/70 whitespace-pre-wrap">{legacyNote}</p>
+                  </div>
+                )}
+                {[...notes].reverse().map((note) => (
+                  <div key={note._key} className="rounded-xl border border-white/8 bg-white/3 p-3">
+                    <p className="text-xs text-white/30 mb-1.5">
+                      {new Date(note.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      {" · "}
+                      {new Date(note.createdAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+                    </p>
+                    <p className="text-sm text-white/75 whitespace-pre-wrap leading-relaxed">{note.text}</p>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+
+          {/* Add note form */}
+          <form onSubmit={(e) => void addNote(e)} className="shrink-0 border-t border-white/8 p-3 space-y-2">
+            <textarea
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              rows={3}
+              placeholder="Add a progress note…"
+              className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-white/20 focus:border-sky-500/50 transition-colors"
+            />
+            <button
+              type="submit"
+              disabled={savingNote || !noteText.trim()}
+              className="w-full rounded-xl bg-white/8 py-2 text-sm font-medium text-white/70 hover:bg-white/12 hover:text-white disabled:opacity-40 transition-colors"
+            >
+              {savingNote ? "Adding…" : "Add note"}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

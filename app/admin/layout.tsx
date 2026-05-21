@@ -378,6 +378,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
+  const [newRequestsCount, setNewRequestsCount] = useState(0);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [theme, setTheme] = useState<"dark" | "light">(() => {
     if (typeof window === "undefined") return "dark";
@@ -485,6 +486,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return () => { cancelled = true; clearInterval(id); };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchNewRequests() {
+      try {
+        const res = await fetch("/api/admin/portal-requests/count");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) setNewRequestsCount(data.count ?? 0);
+      } catch { /* ignore */ }
+    }
+    fetchNewRequests();
+    const id = setInterval(fetchNewRequests, 60_000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, []);
+
   // Don't render shell on login/pin pages
   if (pathname.startsWith("/admin/login") || pathname.startsWith("/admin/pin")) {
     return <>{children}</>;
@@ -576,6 +592,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (item.href === "/admin/email") return unreadCount;
     if (item.href === "/admin/messages") return unreadMessages;
     if (item.href === "/admin/announcements") return unreadAnnouncements;
+    if (item.href === "/admin/portal-requests") return newRequestsCount;
     return 0;
   }
 

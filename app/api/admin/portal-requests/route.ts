@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
       `*[_type == "clientPortalTicket"] | order(updatedAt desc){
         _id, title, description, status, priority, projectId, projectName,
         portalUserId, stripeCustomerId, pipelineContactId, clientEmail,
-        createdAt, updatedAt, adminNotes, driveFolderId, attachments
+        createdAt, updatedAt, adminNotes, ticketNotes, driveFolderId, attachments
       }`
     );
     return NextResponse.json({ tickets });
