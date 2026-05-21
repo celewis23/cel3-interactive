@@ -101,7 +101,6 @@ export default function MessengerClient({
       if (!res.ok) throw new Error(data.error || "Failed to load conversations");
       const items: Conversation[] = data.conversations ?? [];
       setConversations(items);
-      if (!selectedId && items[0]) setSelectedId(items[0]._id);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load conversations");
     } finally {
@@ -182,6 +181,13 @@ export default function MessengerClient({
     setSelectedId(id);
     if (mode === "admin") router.push(`/admin/messages/${id}`);
     else router.push(`/portal/messages?conversation=${id}`);
+  }
+
+  function returnToConversationList() {
+    setSelectedId("");
+    setMessages([]);
+    if (mode === "admin") router.push("/admin/messages");
+    else router.push("/portal/messages");
   }
 
   async function sendMessage() {
@@ -281,7 +287,7 @@ export default function MessengerClient({
       )}
 
       {(mode === "portal" || mode === "admin") && (
-        <form onSubmit={startConversation} className="rounded-2xl border border-white/8 bg-white/3 p-5">
+        <form onSubmit={startConversation} className={`${selectedId ? "hidden" : "block"} rounded-2xl border border-white/8 bg-white/3 p-5 md:block`}>
           <div className="mb-4">
             <h2 className="text-sm font-semibold text-white">
               {mode === "admin" ? "Start a client conversation" : "Start a conversation"}
@@ -341,8 +347,8 @@ export default function MessengerClient({
         </form>
       )}
 
-      <div className="min-h-[620px] overflow-hidden rounded-2xl border border-white/8 bg-white/3 lg:grid lg:grid-cols-[340px,1fr]">
-        <aside className="border-b border-white/8 lg:border-b-0 lg:border-r">
+      <div className="min-h-[620px] overflow-hidden rounded-2xl border border-white/8 bg-white/3 md:grid md:grid-cols-[340px,minmax(0,1fr)]">
+        <aside className={`${selectedId ? "hidden" : "block"} md:block border-white/8 md:border-r`}>
           <div className="border-b border-white/8 p-4">
             <input
               value={search}
@@ -351,7 +357,7 @@ export default function MessengerClient({
               className="w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white outline-none placeholder:text-white/25 focus:border-sky-500/50"
             />
           </div>
-          <div className="max-h-[280px] overflow-y-auto lg:max-h-[560px]">
+          <div className="max-h-[560px] overflow-y-auto">
             {loadingList ? (
               <div className="space-y-2 p-4">
                 {[0, 1, 2].map((item) => <div key={item} className="h-16 animate-pulse rounded-xl bg-white/5" />)}
@@ -392,15 +398,27 @@ export default function MessengerClient({
           </div>
         </aside>
 
-        <section className="flex min-h-[520px] flex-col">
+        <section className={`${selectedId ? "flex" : "hidden"} min-h-[620px] flex-col md:flex`}>
           <div className="flex items-center justify-between gap-3 border-b border-white/8 px-5 py-4">
-            <div className="min-w-0">
-              <h2 className="truncate text-sm font-semibold text-white">{threadTitle}</h2>
-              {selected && (
-                <p className="mt-0.5 truncate text-xs text-white/35">
-                  {[selected.clientEmail, selected.company, selected.status].filter(Boolean).join(" - ")}
-                </p>
-              )}
+            <div className="flex min-w-0 items-center gap-3">
+              <button
+                type="button"
+                onClick={returnToConversationList}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 transition-colors hover:text-white md:hidden"
+                aria-label="Back to conversations"
+              >
+                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                </svg>
+              </button>
+              <div className="min-w-0">
+                <h2 className="truncate text-sm font-semibold text-white">{threadTitle}</h2>
+                {selected && (
+                  <p className="mt-0.5 truncate text-xs text-white/35">
+                    {[selected.clientEmail, selected.company, selected.status].filter(Boolean).join(" - ")}
+                  </p>
+                )}
+              </div>
             </div>
             {selected?.unreadCount ? (
               <span className="rounded-full bg-sky-500/15 px-2 py-1 text-xs text-sky-300">{selected.unreadCount} unread</span>
