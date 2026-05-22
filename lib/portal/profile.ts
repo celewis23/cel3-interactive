@@ -39,9 +39,6 @@ type PipelineContactRecord = {
   googleContactResourceName: string | null;
   siteUrl?: string | null;
   managementUrl?: string | null;
-  managementUsername?: string | null;
-  managementPasswordEncrypted?: string | null;
-  managementPasswordIv?: string | null;
 };
 
 type LegacyContactRecord = {
@@ -80,8 +77,6 @@ export type PortalProfileUpdate = {
   addressCountry?: string | null;
   siteUrl?: string | null;
   managementUrl?: string | null;
-  managementUsername?: string | null;
-  managementPassword?: string | null;
 };
 
 async function getPortalUserById(userId: string) {
@@ -100,7 +95,7 @@ async function getPipelineContactById(pipelineContactId: string | null) {
   return sanityServer.fetch<PipelineContactRecord | null>(
     `*[_type == "pipelineContact" && _id == $id][0]{
       _id, name, email, phone, company, notes, stripeCustomerId, googleContactResourceName,
-      siteUrl, managementUrl, managementUsername, managementPasswordEncrypted, managementPasswordIv
+      siteUrl, managementUrl
     }`,
     { id: pipelineContactId }
   );
@@ -151,11 +146,8 @@ export async function getPortalProfile(userId: string): Promise<PortalProfile | 
     googleContactResourceName: pipelineContact?.googleContactResourceName ?? null,
     siteUrl: preferString(portalUser.siteUrl, pipelineContact?.siteUrl),
     managementUrl: preferString(portalUser.managementUrl, pipelineContact?.managementUrl),
-    managementUsername: preferString(portalUser.managementUsername, pipelineContact?.managementUsername),
-    hasManagementPassword: Boolean(
-      pipelineContact?.managementPasswordEncrypted
-      || portalUser.managementPasswordEncrypted
-    ),
+    managementUsername: preferString(portalUser.managementUsername),
+    hasManagementPassword: Boolean(portalUser.managementPasswordEncrypted),
     profileImageUrl: portalUser.profileImageUrl ?? null,
   };
 }
@@ -178,8 +170,6 @@ export async function updatePortalProfile(userId: string, input: PortalProfileUp
     addressCountry: input.addressCountry?.trim() || null,
     siteUrl: input.siteUrl?.trim() || null,
     managementUrl: input.managementUrl?.trim() || null,
-    managementUsername: input.managementUsername?.trim() || null,
-    managementPassword: input.managementPassword?.trim() || null,
   };
 
   if (!normalized.displayName) throw new Error("Display name is required");
@@ -188,8 +178,6 @@ export async function updatePortalProfile(userId: string, input: PortalProfileUp
   const siteAccessPatch = buildSiteAccessPatch({
     siteUrl: normalized.siteUrl,
     managementUrl: normalized.managementUrl,
-    managementUsername: normalized.managementUsername,
-    managementPassword: normalized.managementPassword,
   });
 
   await sanityWriteClient.patch(portalUser._id).set({
@@ -210,7 +198,6 @@ export async function updatePortalProfile(userId: string, input: PortalProfileUp
       email: normalized.email,
       phone: normalized.phone,
       company,
-      ...siteAccessPatch,
     }).commit();
   }
 

@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { getOrCreatePortalClientRootFolder, ensureClientDriveFolderAccess } from "@/lib/portal/provision";
+import { buildSiteAccessPatch } from "@/lib/siteAccess";
 
 export const runtime = "nodejs";
 
@@ -17,12 +18,44 @@ type PortalUser = {
   pipelineContactId: string | null;
   invitationSentAt: string | null;
   lastLoginAt: string | null;
+  siteUrl: string | null;
+  managementUrl: string | null;
+  managementUsername: string | null;
+  hasManagementPassword: boolean;
 };
 
 const PORTAL_PROJECTION = `{
   _id, email, name, company, status, driveRootFolderId,
-  stripeCustomerId, pipelineContactId, invitationSentAt, lastLoginAt
+  stripeCustomerId, pipelineContactId, invitationSentAt, lastLoginAt,
+  siteUrl, managementUrl, managementUsername,
+  "hasManagementPassword": defined(managementPasswordEncrypted)
 }`;
+
+async function readJsonBody(req: NextRequest) {
+  try {
+    return await req.json();
+  } catch {
+    return {};
+  }
+}
+
+function buildPortalSiteAccessPatch(body: Record<string, unknown>, defaults?: { siteUrl?: string | null; managementUrl?: string | null }) {
+  const input: Parameters<typeof buildSiteAccessPatch>[0] = {};
+  if ("siteUrl" in body) input.siteUrl = typeof body.siteUrl === "string" ? body.siteUrl : null;
+  else if (defaults && "siteUrl" in defaults) input.siteUrl = defaults.siteUrl;
+
+  if ("managementUrl" in body) input.managementUrl = typeof body.managementUrl === "string" ? body.managementUrl : null;
+  else if (defaults && "managementUrl" in defaults) input.managementUrl = defaults.managementUrl;
+
+  if ("managementUsername" in body) {
+    input.managementUsername = typeof body.managementUsername === "string" ? body.managementUsername : null;
+  }
+  if ("managementPassword" in body && typeof body.managementPassword === "string") {
+    input.managementPassword = body.managementPassword;
+  }
+
+  return buildSiteAccessPatch(input);
+}
 
 // GET — fetch portal user linked to this pipeline contact
 export async function GET(
@@ -53,11 +86,13 @@ export async function POST(
   if (authErr) return authErr;
   const { id } = await params;
   try {
+    const body = await readJsonBody(req);
     const contact = await sanityServer.fetch<{
       _id: string; name: string; email: string | null;
       company: string | null; stripeCustomerId: string | null;
+      siteUrl: string | null; managementUrl: string | null;
     } | null>(
-      `*[_type == "pipelineContact" && _id == $id][0]{ _id, name, email, company, stripeCustomerId }`,
+      `*[_type == "pipelineContact" && _id == $id][0]{ _id, name, email, company, stripeCustomerId, siteUrl, managementUrl }`,
       { id }
     );
     if (!contact) return NextResponse.json({ error: "Contact not found" }, { status: 404 });
@@ -67,6 +102,10 @@ export async function POST(
     );
 
     const email = contact.email.toLowerCase();
+    const siteAccessPatch = buildPortalSiteAccessPatch(body, {
+      siteUrl: contact.siteUrl,
+      managementUrl: contact.managementUrl,
+    });
 
     // Check for existing portal user (by contact link or email)
     const existing = await sanityServer.fetch<PortalUser | null>(
@@ -76,7 +115,7 @@ export async function POST(
 
     if (existing) {
       // Re-link, restore if suspended, ensure Drive access
-      const patch: Record<string, unknown> = { pipelineContactId: id };
+      const patch: Record<string, unknown> = { pipelineContactId: id, ...siteAccessPatch };
       if (existing.status === "suspended") patch.status = "ready";
 
       let folderId = existing.driveRootFolderId;
@@ -115,9 +154,14 @@ export async function POST(
       status: "ready",
       createdAt: new Date().toISOString(),
       lastLoginAt: null,
+      ...siteAccessPatch,
     });
 
-    return NextResponse.json({ portalUser: created });
+    const portalUser = await sanityServer.fetch<PortalUser | null>(
+      `*[_type == "clientPortalUser" && _id == $pid][0]${PORTAL_PROJECTION}`,
+      { pid: created._id }
+    );
+    return NextResponse.json({ portalUser });
   } catch (err) {
     console.error("PORTAL_PROVISION_ERR:", err);
     return NextResponse.json({ error: "Failed to provision portal access" }, { status: 500 });
@@ -144,6 +188,7 @@ export async function PATCH(
     if ("name" in body) patch.name = body.name ?? null;
     if ("company" in body) patch.company = body.company ?? null;
     if ("status" in body) patch.status = body.status;
+    Object.assign(patch, buildPortalSiteAccessPatch(body));
     if (Object.keys(patch).length > 0) {
       await sanityWriteClient.patch(portalUser._id).set(patch).commit();
     }

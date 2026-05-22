@@ -15,8 +15,6 @@ type PortalProfile = {
   addressCountry: string | null;
   siteUrl: string | null;
   managementUrl: string | null;
-  managementUsername: string | null;
-  hasManagementPassword: boolean;
   profileImageUrl: string | null;
 };
 
@@ -33,8 +31,6 @@ export default function PortalSettingsClient({ initialProfile }: { initialProfil
     addressCountry: initialProfile.addressCountry ?? "",
     siteUrl: initialProfile.siteUrl ?? "",
     managementUrl: initialProfile.managementUrl ?? "",
-    managementUsername: initialProfile.managementUsername ?? "",
-    managementPassword: "",
   });
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -64,7 +60,7 @@ export default function PortalSettingsClient({ initialProfile }: { initialProfil
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      const data = await res.json().catch(() => ({})) as { error?: string; displayName?: string; email?: string; phone?: string | null; addressLine1?: string | null; addressCity?: string | null; addressState?: string | null; addressPostalCode?: string | null; addressCountry?: string | null; siteUrl?: string | null; managementUrl?: string | null; managementUsername?: string | null; hasManagementPassword?: boolean };
+      const data = await res.json().catch(() => ({})) as { error?: string; displayName?: string; email?: string; phone?: string | null; addressLine1?: string | null; addressCity?: string | null; addressState?: string | null; addressPostalCode?: string | null; addressCountry?: string | null; siteUrl?: string | null; managementUrl?: string | null };
       if (!res.ok) {
         throw new Error(data.error ?? "Failed to update profile");
       }
@@ -81,8 +77,6 @@ export default function PortalSettingsClient({ initialProfile }: { initialProfil
         addressCountry: data.addressCountry ?? "",
         siteUrl: data.siteUrl ?? "",
         managementUrl: data.managementUrl ?? "",
-        managementUsername: data.managementUsername ?? "",
-        managementPassword: "",
       }));
       setSuccess("Your profile has been updated everywhere it is linked.");
     } catch (err) {
@@ -251,23 +245,11 @@ export default function PortalSettingsClient({ initialProfile }: { initialProfil
               className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
             />
           </div>
-          <div>
-            <label className="text-xs text-white/50 mb-1.5 block">Management Username</label>
-            <input
-              value={form.managementUsername}
-              onChange={(e) => setField("managementUsername", e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
-            />
-          </div>
-          <div>
-            <label className="text-xs text-white/50 mb-1.5 block">Management Password</label>
-            <input
-              value={form.managementPassword}
-              onChange={(e) => setField("managementPassword", e.target.value)}
-              type="password"
-              placeholder={initialProfile.hasManagementPassword ? "Leave blank to keep saved password" : "Enter password"}
-              className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
-            />
+          <div className="sm:col-span-2 rounded-xl border border-sky-500/15 bg-sky-500/8 px-4 py-3">
+            <p className="text-sm font-medium text-white">Website login credentials are managed by CEL3 Interactive.</p>
+            <p className="mt-1 text-xs leading-relaxed text-white/45">
+              This keeps your portal access separate from CEL3 internal administrator credentials.
+            </p>
           </div>
         </div>
 

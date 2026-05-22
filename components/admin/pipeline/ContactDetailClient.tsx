@@ -16,6 +16,10 @@ type PortalUser = {
   pipelineContactId: string | null;
   invitationSentAt: string | null;
   lastLoginAt: string | null;
+  siteUrl: string | null;
+  managementUrl: string | null;
+  managementUsername: string | null;
+  hasManagementPassword: boolean;
 };
 
 type PipelineContact = {
@@ -170,6 +174,10 @@ export default function ContactDetailClient({
   const [portalUser, setPortalUser] = useState<PortalUser | null>(initialPortalUser);
   const [portalName, setPortalName] = useState(initialPortalUser?.name ?? "");
   const [portalCompany, setPortalCompany] = useState(initialPortalUser?.company ?? "");
+  const [portalSiteUrl, setPortalSiteUrl] = useState(initialPortalUser?.siteUrl ?? initialContact.siteUrl ?? "");
+  const [portalManagementUrl, setPortalManagementUrl] = useState(initialPortalUser?.managementUrl ?? initialContact.managementUrl ?? "");
+  const [portalManagementUsername, setPortalManagementUsername] = useState(initialPortalUser?.managementUsername ?? "");
+  const [portalManagementPassword, setPortalManagementPassword] = useState("");
   const [portalProvisioning, setPortalProvisioning] = useState(false);
   const [portalSaving, setPortalSaving] = useState(false);
   const [portalInviting, setPortalInviting] = useState(false);
@@ -351,12 +359,25 @@ export default function ContactDetailClient({
   async function handleEnablePortal() {
     setPortalProvisioning(true);
     try {
-      const res = await fetch(`/api/admin/pipeline/contacts/${contact._id}/portal`, { method: "POST" });
+      const res = await fetch(`/api/admin/pipeline/contacts/${contact._id}/portal`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          siteUrl: portalSiteUrl.trim() || null,
+          managementUrl: portalManagementUrl.trim() || null,
+          managementUsername: portalManagementUsername.trim() || null,
+          managementPassword: portalManagementPassword,
+        }),
+      });
       const data = await res.json();
       if (res.ok) {
         setPortalUser(data.portalUser);
         setPortalName(data.portalUser?.name ?? "");
         setPortalCompany(data.portalUser?.company ?? "");
+        setPortalSiteUrl(data.portalUser?.siteUrl ?? "");
+        setPortalManagementUrl(data.portalUser?.managementUrl ?? "");
+        setPortalManagementUsername(data.portalUser?.managementUsername ?? "");
+        setPortalManagementPassword("");
       }
     } finally {
       setPortalProvisioning(false);
@@ -375,7 +396,13 @@ export default function ContactDetailClient({
       body: JSON.stringify({ status: "ready" }),
     });
     const data = await res.json();
-    if (res.ok) setPortalUser(data.portalUser);
+    if (res.ok) {
+      setPortalUser(data.portalUser);
+      setPortalSiteUrl(data.portalUser?.siteUrl ?? "");
+      setPortalManagementUrl(data.portalUser?.managementUrl ?? "");
+      setPortalManagementUsername(data.portalUser?.managementUsername ?? "");
+      setPortalManagementPassword("");
+    }
   }
 
   async function handleSavePortal() {
@@ -383,10 +410,23 @@ export default function ContactDetailClient({
     try {
       const res = await fetch(`/api/admin/pipeline/contacts/${contact._id}/portal`, {
         method: "PATCH", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: portalName || null, company: portalCompany || null }),
+        body: JSON.stringify({
+          name: portalName || null,
+          company: portalCompany || null,
+          siteUrl: portalSiteUrl.trim() || null,
+          managementUrl: portalManagementUrl.trim() || null,
+          managementUsername: portalManagementUsername.trim() || null,
+          managementPassword: portalManagementPassword,
+        }),
       });
       const data = await res.json();
-      if (res.ok) setPortalUser(data.portalUser);
+      if (res.ok) {
+        setPortalUser(data.portalUser);
+        setPortalSiteUrl(data.portalUser?.siteUrl ?? "");
+        setPortalManagementUrl(data.portalUser?.managementUrl ?? "");
+        setPortalManagementUsername(data.portalUser?.managementUsername ?? "");
+        setPortalManagementPassword("");
+      }
     } finally {
       setPortalSaving(false);
     }
@@ -422,6 +462,15 @@ export default function ContactDetailClient({
     form.managementUrl !== (contact.managementUrl ?? "") ||
     form.managementUsername !== (contact.managementUsername ?? "") ||
     form.managementPassword !== "";
+
+  const portalDetailsDirty = Boolean(portalUser) && (
+    portalName !== (portalUser?.name ?? "") ||
+    portalCompany !== (portalUser?.company ?? "") ||
+    portalSiteUrl !== (portalUser?.siteUrl ?? "") ||
+    portalManagementUrl !== (portalUser?.managementUrl ?? "") ||
+    portalManagementUsername !== (portalUser?.managementUsername ?? "") ||
+    portalManagementPassword !== ""
+  );
 
   return (
     <div className="flex flex-col lg:flex-row gap-8">
@@ -741,6 +790,41 @@ export default function ContactDetailClient({
               <p className="text-xs text-white/40 leading-relaxed">
                 Grant this contact a client portal login. A Drive folder will be created and an invitation can be sent.
               </p>
+              <div className="rounded-xl border border-sky-500/15 bg-sky-500/8 p-3">
+                <p className="text-xs font-semibold text-white/70">Client website credentials</p>
+                <p className="mt-1 text-[11px] leading-relaxed text-white/40">
+                  Use the account you want the client to use. These stay separate from CEL3 internal management credentials.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <input
+                  value={portalSiteUrl}
+                  onChange={(e) => setPortalSiteUrl(e.target.value)}
+                  placeholder="Client website URL"
+                  className="w-full px-2.5 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs placeholder-white/25 outline-none focus:border-sky-500/50 transition-colors"
+                />
+                <input
+                  value={portalManagementUrl}
+                  onChange={(e) => setPortalManagementUrl(e.target.value)}
+                  placeholder="Client management URL"
+                  className="w-full px-2.5 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs placeholder-white/25 outline-none focus:border-sky-500/50 transition-colors"
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    value={portalManagementUsername}
+                    onChange={(e) => setPortalManagementUsername(e.target.value)}
+                    placeholder="Client username"
+                    className="w-full px-2.5 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs placeholder-white/25 outline-none focus:border-sky-500/50 transition-colors"
+                  />
+                  <input
+                    type="password"
+                    value={portalManagementPassword}
+                    onChange={(e) => setPortalManagementPassword(e.target.value)}
+                    placeholder="Client password"
+                    className="w-full px-2.5 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs placeholder-white/25 outline-none focus:border-sky-500/50 transition-colors"
+                  />
+                </div>
+              </div>
               {!contact.email && (
                 <p className="text-xs text-amber-400/70">Add an email address to this contact first.</p>
               )}
@@ -781,7 +865,53 @@ export default function ContactDetailClient({
                   />
                 </div>
               </div>
-              {(portalName !== (portalUser.name ?? "") || portalCompany !== (portalUser.company ?? "")) && (
+
+              <div className="space-y-2 rounded-xl border border-white/8 bg-white/[0.03] p-3">
+                <div>
+                  <label className="block text-xs text-white/40 mb-1">Client website URL</label>
+                  <input
+                    value={portalSiteUrl}
+                    onChange={(e) => setPortalSiteUrl(e.target.value)}
+                    placeholder={contact.siteUrl ?? "https://clientsite.com"}
+                    className="w-full px-2.5 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs outline-none focus:border-sky-500/50 transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-white/40 mb-1">Client management URL</label>
+                  <input
+                    value={portalManagementUrl}
+                    onChange={(e) => setPortalManagementUrl(e.target.value)}
+                    placeholder={contact.managementUrl ?? "https://clientsite.com/wp-admin"}
+                    className="w-full px-2.5 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs outline-none focus:border-sky-500/50 transition-colors"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-xs text-white/40 mb-1">Client username</label>
+                    <input
+                      value={portalManagementUsername}
+                      onChange={(e) => setPortalManagementUsername(e.target.value)}
+                      placeholder="client-admin"
+                      className="w-full px-2.5 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs outline-none focus:border-sky-500/50 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-white/40 mb-1">Client password</label>
+                    <input
+                      type="password"
+                      value={portalManagementPassword}
+                      onChange={(e) => setPortalManagementPassword(e.target.value)}
+                      placeholder={portalUser.hasManagementPassword ? "Leave blank to keep saved" : "Optional"}
+                      className="w-full px-2.5 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs outline-none focus:border-sky-500/50 transition-colors"
+                    />
+                  </div>
+                </div>
+                <p className="text-[11px] leading-relaxed text-white/35">
+                  These are the credentials used by the client portal Manage Site button. CEL3 internal credentials remain on the main contact form.
+                </p>
+              </div>
+
+              {portalDetailsDirty && (
                 <button
                   onClick={handleSavePortal}
                   disabled={portalSaving}

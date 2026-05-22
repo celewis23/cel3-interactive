@@ -56,6 +56,10 @@ type PortalUser = {
   pipelineContactId: string | null;
   invitationSentAt: string | null;
   lastLoginAt: string | null;
+  siteUrl: string | null;
+  managementUrl: string | null;
+  managementUsername: string | null;
+  hasManagementPassword: boolean;
 };
 
 const DEFAULT_STAGES: Stage[] = [
@@ -102,7 +106,9 @@ export default async function ContactDetailPage({
     sanityServer.fetch<PortalUser | null>(
       `*[_type == "clientPortalUser" && pipelineContactId == $id][0]{
         _id, email, name, company, status, driveRootFolderId,
-        stripeCustomerId, pipelineContactId, invitationSentAt, lastLoginAt
+        stripeCustomerId, pipelineContactId, invitationSentAt, lastLoginAt,
+        siteUrl, managementUrl, managementUsername,
+        "hasManagementPassword": defined(managementPasswordEncrypted)
       }`,
       { id }
     ),

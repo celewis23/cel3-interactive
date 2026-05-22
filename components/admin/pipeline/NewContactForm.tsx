@@ -35,6 +35,8 @@ export default function NewContactForm() {
     managementUrl: "",
     managementUsername: "",
     managementPassword: "",
+    portalManagementUsername: "",
+    portalManagementPassword: "",
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -79,7 +81,16 @@ export default function NewContactForm() {
 
       // Provision portal access in the background if requested
       if (form.enablePortalAccess && contact._id && form.email.trim()) {
-        await fetch(`/api/admin/pipeline/contacts/${contact._id}/portal`, { method: "POST" }).catch(() => {});
+        await fetch(`/api/admin/pipeline/contacts/${contact._id}/portal`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            siteUrl: form.siteUrl.trim() || null,
+            managementUrl: form.managementUrl.trim() || null,
+            managementUsername: form.portalManagementUsername.trim() || null,
+            managementPassword: form.portalManagementPassword,
+          }),
+        }).catch(() => {});
       }
 
       router.push(`/admin/pipeline/contacts/${contact._id}`);
@@ -283,6 +294,38 @@ export default function NewContactForm() {
           )}
         </span>
       </label>
+
+      {form.enablePortalAccess && (
+        <div className="rounded-xl bg-sky-500/8 border border-sky-500/15 p-4 space-y-3">
+          <div>
+            <p className="text-sm font-medium text-white">Client portal website credentials</p>
+            <p className="text-xs text-white/40 mt-1">
+              Enter the website admin account the client is allowed to use. This stays separate from CEL3 internal management login above.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-white/50 mb-1.5">Client Username</label>
+              <input
+                value={form.portalManagementUsername}
+                onChange={(e) => setForm({ ...form, portalManagementUsername: e.target.value })}
+                placeholder="client-admin"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-white/50 mb-1.5">Client Password</label>
+              <input
+                type="password"
+                value={form.portalManagementPassword}
+                onChange={(e) => setForm({ ...form, portalManagementPassword: e.target.value })}
+                placeholder="Optional"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex items-center justify-between pt-2">

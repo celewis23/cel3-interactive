@@ -37,8 +37,6 @@ export async function PATCH(req: NextRequest) {
       addressCountry: typeof body.addressCountry === "string" ? body.addressCountry : null,
       siteUrl: typeof body.siteUrl === "string" ? body.siteUrl : null,
       managementUrl: typeof body.managementUrl === "string" ? body.managementUrl : null,
-      managementUsername: typeof body.managementUsername === "string" ? body.managementUsername : null,
-      managementPassword: typeof body.managementPassword === "string" ? body.managementPassword : null,
     });
     return NextResponse.json(profile);
   } catch (err) {

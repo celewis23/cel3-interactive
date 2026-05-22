@@ -28,12 +28,9 @@ export default async function PortalManageSitePage() {
           name: string;
           siteUrl: string | null;
           managementUrl: string | null;
-          managementUsername: string | null;
-          managementPasswordEncrypted: string | null;
-          managementPasswordIv: string | null;
         } | null>(
           `*[_type == "pipelineContact" && _id == $id][0]{
-            name, siteUrl, managementUrl, managementUsername, managementPasswordEncrypted, managementPasswordIv
+            name, siteUrl, managementUrl
           }`,
           { id: user.pipelineContactId }
         )
@@ -41,12 +38,11 @@ export default async function PortalManageSitePage() {
   ]);
 
   const details = getManagementLaunchDetails({
-    siteUrl: pipelineContact?.siteUrl ?? portalUser?.siteUrl ?? null,
-    managementUrl: pipelineContact?.managementUrl ?? portalUser?.managementUrl ?? null,
-    managementUsername: pipelineContact?.managementUsername ?? portalUser?.managementUsername ?? null,
-    managementPasswordEncrypted:
-      pipelineContact?.managementPasswordEncrypted ?? portalUser?.managementPasswordEncrypted ?? null,
-    managementPasswordIv: pipelineContact?.managementPasswordIv ?? portalUser?.managementPasswordIv ?? null,
+    siteUrl: portalUser?.siteUrl ?? pipelineContact?.siteUrl ?? null,
+    managementUrl: portalUser?.managementUrl ?? pipelineContact?.managementUrl ?? null,
+    managementUsername: portalUser?.managementUsername ?? null,
+    managementPasswordEncrypted: portalUser?.managementPasswordEncrypted ?? null,
+    managementPasswordIv: portalUser?.managementPasswordIv ?? null,
   });
 
   return (
