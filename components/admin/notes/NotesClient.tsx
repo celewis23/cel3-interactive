@@ -1544,6 +1544,17 @@ export default function NotesClient() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dragRef = useRef<{ id: string; startX: number; startY: number; baseX: number; baseY: number } | null>(null);
   const resizeRef = useRef<{ id: string; startX: number; startY: number; baseW: number; baseH: number } | null>(null);
+  const scrollViewportRef = useRef<HTMLDivElement>(null);
+  const canvasPanRef = useRef<{
+    mode: "mouse" | "touch";
+    startX: number;
+    startY: number;
+    scrollLeft: number;
+    scrollTop: number;
+  } | null>(null);
+  const pendingCanvasTapRef = useRef<{ pointerId: number; startX: number; startY: number; x: number; y: number } | null>(null);
+  const multiTouchCanvasRef = useRef(false);
+  const [canvasPanning, setCanvasPanning] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -1799,14 +1810,137 @@ export default function NotesClient() {
     }, true);
   }
 
+  function touchCenter(touches: React.TouchList) {
+    const first = touches.item(0);
+    const second = touches.item(1);
+    if (!first || !second) return null;
+    return {
+      x: (first.clientX + second.clientX) / 2,
+      y: (first.clientY + second.clientY) / 2,
+    };
+  }
+
+  function beginCanvasPan(mode: "mouse" | "touch", clientX: number, clientY: number) {
+    const viewport = scrollViewportRef.current;
+    if (!viewport) return;
+    canvasPanRef.current = {
+      mode,
+      startX: clientX,
+      startY: clientY,
+      scrollLeft: viewport.scrollLeft,
+      scrollTop: viewport.scrollTop,
+    };
+    setCanvasPanning(true);
+  }
+
+  function updateCanvasPan(clientX: number, clientY: number) {
+    const viewport = scrollViewportRef.current;
+    const pan = canvasPanRef.current;
+    if (!viewport || !pan) return;
+    viewport.scrollLeft = pan.scrollLeft - (clientX - pan.startX);
+    viewport.scrollTop = pan.scrollTop - (clientY - pan.startY);
+  }
+
+  function endCanvasPan() {
+    canvasPanRef.current = null;
+    setCanvasPanning(false);
+  }
+
+  function handleCanvasPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    if (drawingActive) return;
+    if (e.target !== e.currentTarget) return;
+
+    if (e.pointerType === "touch") {
+      const rect = e.currentTarget.getBoundingClientRect();
+      pendingCanvasTapRef.current = {
+        pointerId: e.pointerId,
+        startX: e.clientX,
+        startY: e.clientY,
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      };
+      e.currentTarget.setPointerCapture(e.pointerId);
+      return;
+    }
+
+    if (e.button !== 0) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    addBlock("text", e.clientX - rect.left, e.clientY - rect.top);
+  }
+
+  function handleCanvasPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    const tap = pendingCanvasTapRef.current;
+    if (!tap || tap.pointerId !== e.pointerId) return;
+    const moved = Math.hypot(e.clientX - tap.startX, e.clientY - tap.startY);
+    if (moved > 8) pendingCanvasTapRef.current = null;
+  }
+
+  function handleCanvasPointerUp(e: React.PointerEvent<HTMLDivElement>) {
+    const tap = pendingCanvasTapRef.current;
+    if (!tap || tap.pointerId !== e.pointerId) return;
+    pendingCanvasTapRef.current = null;
+    if (!multiTouchCanvasRef.current && !canvasPanRef.current) {
+      addBlock("text", tap.x, tap.y);
+    }
+  }
+
+  function handleCanvasRightMouseDown(e: React.MouseEvent<HTMLDivElement>) {
+    if (e.button !== 2 || e.target !== e.currentTarget) return;
+    e.preventDefault();
+    pendingCanvasTapRef.current = null;
+    setSelectedBlockId(null);
+    beginCanvasPan("mouse", e.clientX, e.clientY);
+  }
+
+  function handleViewportMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (canvasPanRef.current?.mode !== "mouse") return;
+    e.preventDefault();
+    updateCanvasPan(e.clientX, e.clientY);
+  }
+
+  function handleViewportTouchStart(e: React.TouchEvent<HTMLDivElement>) {
+    if (e.touches.length < 2) return;
+    const center = touchCenter(e.touches);
+    if (!center) return;
+    e.preventDefault();
+    pendingCanvasTapRef.current = null;
+    multiTouchCanvasRef.current = true;
+    beginCanvasPan("touch", center.x, center.y);
+  }
+
+  function handleViewportTouchMove(e: React.TouchEvent<HTMLDivElement>) {
+    if (e.touches.length < 2) return;
+    const center = touchCenter(e.touches);
+    if (!center) return;
+    e.preventDefault();
+    pendingCanvasTapRef.current = null;
+    multiTouchCanvasRef.current = true;
+    if (canvasPanRef.current?.mode !== "touch") beginCanvasPan("touch", center.x, center.y);
+    else updateCanvasPan(center.x, center.y);
+  }
+
+  function handleViewportTouchEnd(e: React.TouchEvent<HTMLDivElement>) {
+    if (e.touches.length < 2 && canvasPanRef.current?.mode === "touch") endCanvasPan();
+    if (e.touches.length === 0) {
+      window.setTimeout(() => {
+        multiTouchCanvasRef.current = false;
+      }, 0);
+    }
+  }
+
   useEffect(() => {
     function clearInteraction() {
       dragRef.current = null;
       resizeRef.current = null;
+      endCanvasPan();
       setGuide(null);
     }
     window.addEventListener("pointerup", clearInteraction);
-    return () => window.removeEventListener("pointerup", clearInteraction);
+    window.addEventListener("mouseup", clearInteraction);
+    return () => {
+      window.removeEventListener("pointerup", clearInteraction);
+      window.removeEventListener("mouseup", clearInteraction);
+    };
   }, []);
 
   useEffect(() => {
@@ -2295,7 +2429,17 @@ export default function NotesClient() {
             </div>
 
             <div className="flex min-h-0 flex-1">
-              <div className="min-w-0 flex-1 overflow-auto">
+              <div
+                ref={scrollViewportRef}
+                className={`min-w-0 flex-1 overflow-auto ${canvasPanning ? "cursor-grabbing select-none" : ""}`}
+                onMouseMove={handleViewportMouseMove}
+                onMouseUp={endCanvasPan}
+                onMouseLeave={endCanvasPan}
+                onTouchStart={handleViewportTouchStart}
+                onTouchMove={handleViewportTouchMove}
+                onTouchEnd={handleViewportTouchEnd}
+                onTouchCancel={handleViewportTouchEnd}
+              >
                 <div
                   className="relative m-5 rounded-2xl border border-white/10 bg-[#f6f8fb] shadow-[0_28px_90px_rgba(0,0,0,0.36)]"
                   style={{
@@ -2304,11 +2448,13 @@ export default function NotesClient() {
                     backgroundImage: "radial-gradient(circle, rgba(10,20,30,0.12) 1px, transparent 1px)",
                     backgroundSize: "24px 24px",
                   }}
-                  onPointerDown={(e) => {
-                    if (drawingActive) return;
-                    if (e.target !== e.currentTarget) return;
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    addBlock("text", e.clientX - rect.left, e.clientY - rect.top);
+                  onPointerDown={handleCanvasPointerDown}
+                  onPointerMove={handleCanvasPointerMove}
+                  onPointerUp={handleCanvasPointerUp}
+                  onPointerCancel={() => { pendingCanvasTapRef.current = null; }}
+                  onMouseDown={handleCanvasRightMouseDown}
+                  onContextMenu={(e) => {
+                    if (e.target === e.currentTarget) e.preventDefault();
                   }}
                 >
                   {blocks.length === 0 && (canvasData.strokes?.length ?? 0) === 0 && (
