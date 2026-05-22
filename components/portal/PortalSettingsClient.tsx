@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type PortalProfile = {
@@ -20,6 +21,7 @@ type PortalProfile = {
 };
 
 export default function PortalSettingsClient({ initialProfile }: { initialProfile: PortalProfile }) {
+  const router = useRouter();
   const [form, setForm] = useState({
     displayName: initialProfile.displayName,
     email: initialProfile.email,
@@ -42,6 +44,12 @@ export default function PortalSettingsClient({ initialProfile }: { initialProfil
 
   function setField<K extends keyof typeof form>(field: K, value: (typeof form)[K]) {
     setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  function handleCancel() {
+    setError("");
+    setSuccess("");
+    router.push("/portal");
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -299,13 +307,23 @@ export default function PortalSettingsClient({ initialProfile }: { initialProfil
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={saving}
-          className="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:opacity-50 text-black font-semibold text-sm transition-colors"
-        >
-          {saving ? "Saving…" : "Save changes"}
-        </button>
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            disabled={saving}
+            onClick={handleCancel}
+            className="px-5 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 disabled:opacity-50 text-white/70 hover:text-white font-semibold text-sm transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={saving}
+            className="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:opacity-50 text-black font-semibold text-sm transition-colors"
+          >
+            {saving ? "Saving…" : "Save changes"}
+          </button>
+        </div>
       </form>
     </div>
   );
