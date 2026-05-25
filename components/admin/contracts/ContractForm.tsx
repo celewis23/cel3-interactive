@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const CATEGORIES = ["service-agreement", "nda", "proposal", "scope", "retainer", "other"];
@@ -26,11 +26,21 @@ interface Template {
   variables: string[];
 }
 
+type ContractClientOption = {
+  _id: string;
+  name: string;
+  email: string | null;
+  company: string | null;
+  stripeCustomerId: string | null;
+  portalUserId: string | null;
+};
+
 interface Props {
   templates: Template[];
+  clients?: ContractClientOption[];
 }
 
-export default function ContractForm({ templates }: Props) {
+export default function ContractForm({ templates, clients = [] }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -57,16 +67,19 @@ export default function ContractForm({ templates }: Props) {
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [clientPickerOpen, setClientPickerOpen] = useState(false);
 
   useEffect(() => {
-    setClientName(searchParams.get("clientName") ?? "");
-    setClientEmail(searchParams.get("clientEmail") ?? "");
-    setClientCompany(searchParams.get("clientCompany") ?? "");
-    setPipelineContactId(searchParams.get("pipelineContactId") ?? "");
-    setStripeCustomerId(searchParams.get("stripeCustomerId") ?? "");
-    setPortalUserId(searchParams.get("portalUserId") ?? "");
+    const pipelineId = searchParams.get("pipelineContactId") ?? "";
+    const matchedClient = clients.find((client) => client._id === pipelineId) ?? null;
+    setClientName(searchParams.get("clientName") ?? matchedClient?.name ?? "");
+    setClientEmail(searchParams.get("clientEmail") ?? matchedClient?.email ?? "");
+    setClientCompany(searchParams.get("clientCompany") ?? matchedClient?.company ?? "");
+    setPipelineContactId(pipelineId);
+    setStripeCustomerId(searchParams.get("stripeCustomerId") ?? matchedClient?.stripeCustomerId ?? "");
+    setPortalUserId(searchParams.get("portalUserId") ?? matchedClient?.portalUserId ?? "");
     setProjectName(searchParams.get("projectName") ?? "");
-  }, [searchParams]);
+  }, [clients, searchParams]);
 
   useEffect(() => {
     if (!selectedTemplateId) {
@@ -81,6 +94,38 @@ export default function ContractForm({ templates }: Props) {
   const extraVars = selectedTemplate?.variables?.filter(
     (v) => !STANDARD_VARS.includes(v)
   ) ?? [];
+
+  const selectedClient = useMemo(
+    () => clients.find((client) => client._id === pipelineContactId) ?? null,
+    [clients, pipelineContactId]
+  );
+
+  const filteredClients = useMemo(() => {
+    const query = clientName.trim().toLowerCase();
+    const list = query
+      ? clients.filter((client) => {
+          const haystack = [client.name, client.email, client.company].filter(Boolean).join(" ").toLowerCase();
+          return haystack.includes(query);
+        })
+      : clients;
+    return list.slice(0, 8);
+  }, [clientName, clients]);
+
+  function selectClient(client: ContractClientOption) {
+    setClientName(client.name ?? "");
+    setClientEmail(client.email ?? "");
+    setClientCompany(client.company ?? "");
+    setPipelineContactId(client._id);
+    setStripeCustomerId(client.stripeCustomerId ?? "");
+    setPortalUserId(client.portalUserId ?? "");
+    setClientPickerOpen(false);
+  }
+
+  function clearSelectedClient() {
+    setPipelineContactId("");
+    setStripeCustomerId("");
+    setPortalUserId("");
+  }
 
   async function handleSave() {
     setError(null);
@@ -163,13 +208,67 @@ export default function ContractForm({ templates }: Props) {
           <label className="block text-xs font-medium text-white/50 mb-1.5 uppercase tracking-wider">
             Client Name *
           </label>
-          <input
-            type="text"
-            value={clientName}
-            onChange={(e) => setClientName(e.target.value)}
-            placeholder="Full name"
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/25 focus:outline-none focus:border-sky-400/50"
-          />
+          <div className="relative">
+            <input
+              type="text"
+              value={clientName}
+              onFocus={() => setClientPickerOpen(true)}
+              onChange={(e) => {
+                setClientName(e.target.value);
+                setClientPickerOpen(true);
+              }}
+              onBlur={() => window.setTimeout(() => setClientPickerOpen(false), 140)}
+              placeholder="Search or type a client name"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 pr-24 text-sm text-white placeholder-white/25 focus:outline-none focus:border-sky-400/50"
+            />
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => setClientPickerOpen((open) => !open)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-white/8 px-2.5 py-1.5 text-[11px] text-white/55 hover:bg-white/12 hover:text-white/80"
+            >
+              Clients
+            </button>
+            {clientPickerOpen && clients.length > 0 && (
+              <div className="absolute left-0 right-0 top-[calc(100%+0.4rem)] z-30 overflow-hidden rounded-xl border border-white/10 bg-[#090d14] shadow-2xl">
+                {filteredClients.length > 0 ? (
+                  <div className="max-h-72 overflow-y-auto py-1">
+                    {filteredClients.map((client) => (
+                      <button
+                        key={client._id}
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => selectClient(client)}
+                        className="flex w-full items-start gap-3 px-3 py-2.5 text-left transition-colors hover:bg-sky-500/10"
+                      >
+                        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-500/15 text-xs font-semibold text-sky-200">
+                          {(client.name || client.company || client.email || "?").slice(0, 1).toUpperCase()}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium text-white/86">{client.name}</span>
+                          <span className="mt-0.5 block truncate text-xs text-white/38">
+                            {[client.company, client.email].filter(Boolean).join(" - ") || "No additional client details"}
+                          </span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="px-3 py-3 text-xs text-white/40">No matching clients. You can keep typing to create the contract manually.</div>
+                )}
+              </div>
+            )}
+          </div>
+          {selectedClient && (
+            <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-sky-500/15 bg-sky-500/8 px-3 py-2">
+              <p className="min-w-0 truncate text-xs text-sky-100/72">
+                Linked to {selectedClient.name}{selectedClient.company ? ` - ${selectedClient.company}` : ""}
+              </p>
+              <button type="button" onClick={clearSelectedClient} className="shrink-0 text-[11px] text-white/42 hover:text-white/75">
+                Unlink
+              </button>
+            </div>
+          )}
         </div>
         <div>
           <label className="block text-xs font-medium text-white/50 mb-1.5 uppercase tracking-wider">
