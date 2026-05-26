@@ -36,6 +36,7 @@ interface Contract {
   viewedAt: string | null;
   signedAt: string | null;
   declinedAt: string | null;
+  _createdAt: string;
 }
 
 export default function ContractDetailPage() {
@@ -104,6 +105,19 @@ export default function ContractDetailPage() {
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const signingLinkFull = signingLink ?? `${siteUrl}/contracts/${contract.signingToken}`;
+  const projectTimeline = [
+    { label: "Start Date", value: contract.variables?.startDate },
+    { label: "Target Launch", value: contract.variables?.launchTarget },
+    { label: "End Date", value: contract.variables?.endDate },
+    { label: "Minimum Term", value: contract.variables?.minimumTerm },
+  ].filter((item) => item.value?.trim());
+  const activityTimeline = [
+    { label: "Created", date: contract._createdAt },
+    { label: "Sent", date: contract.sentAt },
+    { label: "Viewed", date: contract.viewedAt },
+    { label: "Signed", date: contract.signedAt },
+    { label: "Declined", date: contract.declinedAt },
+  ].filter((item): item is { label: string; date: string } => Boolean(item.date));
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -246,20 +260,40 @@ export default function ContractDetailPage() {
           {/* Timeline */}
           <div className="bg-white/3 border border-white/8 rounded-xl p-5">
             <div className="text-xs text-white/40 uppercase tracking-wider mb-3">Timeline</div>
-            <div className="space-y-2 text-sm">
-              {[
-                { label: "Created", date: null },
-                { label: "Sent", date: contract.sentAt },
-                { label: "Viewed", date: contract.viewedAt },
-                { label: "Signed", date: contract.signedAt },
-                { label: "Declined", date: contract.declinedAt },
-              ].map(({ label, date }) =>
-                date ? (
-                  <div key={label} className="flex justify-between">
-                    <span className="text-white/40">{label}</span>
-                    <span className="text-white/60 text-xs">{new Date(date).toLocaleDateString()}</span>
+            <div className="space-y-4 text-sm">
+              {projectTimeline.length > 0 && (
+                <div>
+                  <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-sky-200/60">Project</div>
+                  <div className="space-y-2">
+                    {projectTimeline.map(({ label, value }) => (
+                      <div key={label} className="flex justify-between gap-3">
+                        <span className="text-white/40">{label}</span>
+                        <span className="text-right text-white/70">{value}</span>
+                      </div>
+                    ))}
                   </div>
-                ) : null
+                </div>
+              )}
+
+              {activityTimeline.length > 0 && (
+                <div>
+                  {projectTimeline.length > 0 && <div className="mb-2 h-px bg-white/8" />}
+                  <div className="mb-2 text-[11px] font-medium uppercase tracking-wider text-white/25">Activity</div>
+                  <div className="space-y-2">
+                    {activityTimeline.map(({ label, date }) => (
+                      <div key={label} className="flex justify-between">
+                        <span className="text-white/40">{label}</span>
+                        <span className="text-white/60 text-xs">{new Date(date).toLocaleDateString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {projectTimeline.length === 0 && activityTimeline.length === 0 && (
+                <div className="rounded-lg border border-white/8 bg-white/[0.03] px-3 py-2 text-xs text-white/35">
+                  No timeline values have been recorded yet.
+                </div>
               )}
             </div>
           </div>
