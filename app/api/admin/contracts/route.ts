@@ -3,16 +3,9 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { logAudit, AuditAction } from "@/lib/audit/log";
+import { renderContractBody } from "@/lib/contracts/render";
 
 export const runtime = "nodejs";
-
-function substituteVariables(body: string, vars: Record<string, string>): string {
-  let result = body;
-  for (const [key, value] of Object.entries(vars)) {
-    result = result.replaceAll(`{{${key}}}`, value || "");
-  }
-  return result;
-}
 
 export async function GET(req: NextRequest) {
   const authErr = await requirePermission(req, "contracts", "view");
@@ -67,7 +60,7 @@ export async function POST(req: NextRequest) {
 
     // Substitute variables into template body
     const rawBody = body.body || "";
-    const substitutedBody = substituteVariables(rawBody, variables);
+    const substitutedBody = renderContractBody(rawBody, variables);
 
     const today = new Date().toISOString().slice(0, 10);
     const expiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);

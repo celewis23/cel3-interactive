@@ -4,6 +4,7 @@ import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 import { automationEngine } from "@/lib/automations/engine";
+import { normalizeContractVariables, renderContractBody } from "@/lib/contracts/render";
 
 export const runtime = "nodejs";
 
@@ -57,13 +58,47 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       viewedAt: string | null;
       signedAt: string | null;
       declinedAt: string | null;
-    } | null>(`*[_type == "contract" && _id == $id][0]{ status, sentAt, viewedAt, signedAt, declinedAt }`, { id });
+      templateId: string | null;
+      body: string;
+      variables: Record<string, unknown> | null;
+      clientName: string;
+      clientEmail: string | null;
+      clientCompany: string | null;
+      projectName: string | null;
+      number: string;
+      date: string;
+    } | null>(
+      `*[_type == "contract" && _id == $id][0]{
+        status, sentAt, viewedAt, signedAt, declinedAt,
+        templateId, body, variables, clientName, clientEmail, clientCompany,
+        projectName, number, date
+      }`,
+      { id }
+    );
 
     if (!current) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     const patch: Record<string, unknown> = {};
     for (const field of ALLOWED_FIELDS) {
       if (field in body) patch[field] = body[field];
+    }
+
+    if ("variables" in body) {
+      const variables = normalizeContractVariables({
+        ...(current.variables ?? {}),
+        ...(typeof body.variables === "object" && body.variables ? body.variables : {}),
+      });
+      patch.variables = variables;
+
+      if (!("body" in body)) {
+        const templateBody = current.templateId
+          ? await sanityServer.fetch<string | null>(
+              `*[_type == "contractTemplate" && _id == $templateId][0].body`,
+              { templateId: current.templateId }
+            )
+          : null;
+        patch.body = renderContractBody(templateBody || current.body || "", variables);
+      }
     }
 
     // Status transition timestamps

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -12,6 +12,21 @@ const STATUS_STYLES: Record<string, string> = {
   declined: "bg-red-500/10 text-red-400",
   expired: "bg-orange-500/10 text-orange-400",
 };
+
+const VARIABLE_ORDER = [
+  "clientName",
+  "clientEmail",
+  "clientCompany",
+  "projectName",
+  "contractNumber",
+  "contractDate",
+  "startDate",
+  "launchTarget",
+  "endDate",
+  "minimumTerm",
+  "totalAmount",
+  "paymentTerms",
+];
 
 interface Contract {
   _id: string;
@@ -47,6 +62,10 @@ export default function ContractDetailPage() {
   const [sending, setSending] = useState(false);
   const [signingLink, setSigningLink] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [variableSaving, setVariableSaving] = useState(false);
+  const [variableSaved, setVariableSaved] = useState(false);
+  const [variableError, setVariableError] = useState<string | null>(null);
+  const variableSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     fetch(`/api/admin/contracts/${id}`)
@@ -54,6 +73,12 @@ export default function ContractDetailPage() {
       .then((d) => { setContract(d); setLoading(false); })
       .catch(() => setLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    return () => {
+      if (variableSaveTimer.current) clearTimeout(variableSaveTimer.current);
+    };
+  }, []);
 
   async function handleSend() {
     setSending(true);
@@ -95,6 +120,39 @@ export default function ContractDetailPage() {
     });
   }
 
+  function inputTypeForVariable(key: string) {
+    return key.toLowerCase().includes("date") || key === "launchTarget" ? "date" : "text";
+  }
+
+  function updateVariable(key: string, value: string) {
+    if (!contract) return;
+    const nextVariables = { ...(contract.variables ?? {}), [key]: value };
+    setContract({ ...contract, variables: nextVariables });
+    setVariableSaved(false);
+    setVariableError(null);
+
+    if (variableSaveTimer.current) clearTimeout(variableSaveTimer.current);
+    variableSaveTimer.current = setTimeout(async () => {
+      setVariableSaving(true);
+      try {
+        const res = await fetch(`/api/admin/contracts/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ variables: nextVariables }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error ?? "Failed to save variables");
+        setContract(data);
+        setVariableSaved(true);
+        window.setTimeout(() => setVariableSaved(false), 1800);
+      } catch (err) {
+        setVariableError(err instanceof Error ? err.message : "Failed to save variables");
+      } finally {
+        setVariableSaving(false);
+      }
+    }, 550);
+  }
+
   if (loading) {
     return <div className="py-20 text-center text-white/30 text-sm">Loading…</div>;
   }
@@ -105,6 +163,12 @@ export default function ContractDetailPage() {
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const signingLinkFull = signingLink ?? `${siteUrl}/contracts/${contract.signingToken}`;
+  const variableEntries = Object.entries(contract.variables ?? {}).sort(([a], [b]) => {
+    const ai = VARIABLE_ORDER.indexOf(a);
+    const bi = VARIABLE_ORDER.indexOf(b);
+    if (ai !== -1 || bi !== -1) return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+    return a.localeCompare(b);
+  });
   const projectTimeline = [
     { label: "Start Date", value: contract.variables?.startDate },
     { label: "Target Launch", value: contract.variables?.launchTarget },
@@ -299,18 +363,37 @@ export default function ContractDetailPage() {
           </div>
 
           {/* Variables */}
-          {contract.variables && Object.keys(contract.variables).length > 0 && (
+          {variableEntries.length > 0 && (
             <div className="bg-white/3 border border-white/8 rounded-xl p-5">
-              <div className="text-xs text-white/40 uppercase tracking-wider mb-3">Variables</div>
-              <div className="space-y-1.5">
-                {Object.entries(contract.variables)
-                  .filter(([, v]) => v)
-                  .map(([k, v]) => (
-                    <div key={k}>
-                      <div className="text-xs text-white/30 font-mono">{`{{${k}}}`}</div>
-                      <div className="text-xs text-white/60">{v}</div>
-                    </div>
-                  ))}
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs text-white/40 uppercase tracking-wider">Variables</div>
+                  <p className="mt-1 text-[11px] text-white/28">Autosaves and updates the contract preview.</p>
+                </div>
+                <div className="min-w-[64px] text-right text-[11px] text-white/30">
+                  {variableSaving ? "Saving..." : variableSaved ? "Saved" : ""}
+                </div>
+              </div>
+              <div className="space-y-3">
+                {variableEntries.map(([key, value]) => (
+                  <label key={key} className="block">
+                    <span className="mb-1 block text-xs text-white/30 font-mono">{`{{${key}}}`}</span>
+                    <input
+                      type={inputTypeForVariable(key)}
+                      value={value ?? ""}
+                      onChange={(e) => updateVariable(key, e.target.value)}
+                      className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/72 outline-none transition-colors placeholder:text-white/20 focus:border-sky-400/50"
+                    />
+                  </label>
+                ))}
+              </div>
+              {variableError && (
+                <div className="mt-3 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+                  {variableError}
+                </div>
+              )}
+              <div className="mt-3 rounded-lg border border-white/8 bg-white/[0.025] px-3 py-2 text-[11px] leading-relaxed text-white/34">
+                Variables update the rendered contract body. Client profile fields remain unchanged unless edited elsewhere.
               </div>
             </div>
           )}
