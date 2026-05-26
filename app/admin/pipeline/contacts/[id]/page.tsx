@@ -32,6 +32,10 @@ type PipelineContact = {
   siteUrl: string | null;
   managementUrl: string | null;
   managementUsername: string | null;
+  portalSiteUrl: string | null;
+  portalManagementUrl: string | null;
+  portalManagementUsername: string | null;
+  hasPortalManagementPassword: boolean;
 };
 
 type PipelineActivity = {
@@ -90,7 +94,9 @@ export default async function ContactDetailPage({
         name, email, phone, company, source, notes, owner,
         stage, stageEnteredAt, estimatedValue, stripeCustomerId, googleContactResourceName,
         closedAt, driveFileUrl, driveFileName, followUpEventId,
-        siteUrl, managementUrl, managementUsername
+        siteUrl, managementUrl, managementUsername,
+        portalSiteUrl, portalManagementUrl, portalManagementUsername,
+        "hasPortalManagementPassword": defined(portalManagementPasswordEncrypted)
       }`,
       { id }
     ),

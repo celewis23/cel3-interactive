@@ -45,6 +45,10 @@ type PipelineContact = {
   siteUrl: string | null;
   managementUrl: string | null;
   managementUsername: string | null;
+  portalSiteUrl: string | null;
+  portalManagementUrl: string | null;
+  portalManagementUsername: string | null;
+  hasPortalManagementPassword: boolean;
 };
 
 type PipelineActivity = {
@@ -174,9 +178,9 @@ export default function ContactDetailClient({
   const [portalUser, setPortalUser] = useState<PortalUser | null>(initialPortalUser);
   const [portalName, setPortalName] = useState(initialPortalUser?.name ?? "");
   const [portalCompany, setPortalCompany] = useState(initialPortalUser?.company ?? "");
-  const [portalSiteUrl, setPortalSiteUrl] = useState(initialPortalUser?.siteUrl ?? initialContact.siteUrl ?? "");
-  const [portalManagementUrl, setPortalManagementUrl] = useState(initialPortalUser?.managementUrl ?? initialContact.managementUrl ?? "");
-  const [portalManagementUsername, setPortalManagementUsername] = useState(initialPortalUser?.managementUsername ?? "");
+  const [portalSiteUrl, setPortalSiteUrl] = useState(initialPortalUser?.siteUrl ?? initialContact.portalSiteUrl ?? "");
+  const [portalManagementUrl, setPortalManagementUrl] = useState(initialPortalUser?.managementUrl ?? initialContact.portalManagementUrl ?? "");
+  const [portalManagementUsername, setPortalManagementUsername] = useState(initialPortalUser?.managementUsername ?? initialContact.portalManagementUsername ?? "");
   const [portalManagementPassword, setPortalManagementPassword] = useState("");
   const [portalProvisioning, setPortalProvisioning] = useState(false);
   const [portalSaving, setPortalSaving] = useState(false);
@@ -408,23 +412,50 @@ export default function ContactDetailClient({
   async function handleSavePortal() {
     setPortalSaving(true);
     try {
-      const res = await fetch(`/api/admin/pipeline/contacts/${contact._id}/portal`, {
-        method: "PATCH", headers: { "Content-Type": "application/json" },
+      const res = await fetch(
+        portalUser
+          ? `/api/admin/pipeline/contacts/${contact._id}/portal`
+          : `/api/admin/pipeline/contacts/${contact._id}`,
+        {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: portalName || null,
-          company: portalCompany || null,
-          siteUrl: portalSiteUrl.trim() || null,
-          managementUrl: portalManagementUrl.trim() || null,
-          managementUsername: portalManagementUsername.trim() || null,
-          managementPassword: portalManagementPassword,
+          ...(portalUser
+            ? {
+                name: portalName || null,
+                company: portalCompany || null,
+                siteUrl: portalSiteUrl.trim() || null,
+                managementUrl: portalManagementUrl.trim() || null,
+                managementUsername: portalManagementUsername.trim() || null,
+                managementPassword: portalManagementPassword,
+              }
+            : {
+                portalSiteUrl: portalSiteUrl.trim() || null,
+                portalManagementUrl: portalManagementUrl.trim() || null,
+                portalManagementUsername: portalManagementUsername.trim() || null,
+                portalManagementPassword,
+              }),
         }),
       });
       const data = await res.json();
       if (res.ok) {
-        setPortalUser(data.portalUser);
-        setPortalSiteUrl(data.portalUser?.siteUrl ?? "");
-        setPortalManagementUrl(data.portalUser?.managementUrl ?? "");
-        setPortalManagementUsername(data.portalUser?.managementUsername ?? "");
+        if (portalUser) {
+          setPortalUser(data.portalUser);
+          setPortalSiteUrl(data.portalUser?.siteUrl ?? "");
+          setPortalManagementUrl(data.portalUser?.managementUrl ?? "");
+          setPortalManagementUsername(data.portalUser?.managementUsername ?? "");
+        } else {
+          setContact((prev) => ({
+            ...prev,
+            portalSiteUrl: data.portalSiteUrl ?? null,
+            portalManagementUrl: data.portalManagementUrl ?? null,
+            portalManagementUsername: data.portalManagementUsername ?? null,
+            hasPortalManagementPassword: data.hasPortalManagementPassword ?? prev.hasPortalManagementPassword,
+          }));
+          setPortalSiteUrl(data.portalSiteUrl ?? "");
+          setPortalManagementUrl(data.portalManagementUrl ?? "");
+          setPortalManagementUsername(data.portalManagementUsername ?? "");
+        }
         setPortalManagementPassword("");
       }
     } finally {
@@ -463,14 +494,21 @@ export default function ContactDetailClient({
     form.managementUsername !== (contact.managementUsername ?? "") ||
     form.managementPassword !== "";
 
-  const portalDetailsDirty = Boolean(portalUser) && (
-    portalName !== (portalUser?.name ?? "") ||
-    portalCompany !== (portalUser?.company ?? "") ||
-    portalSiteUrl !== (portalUser?.siteUrl ?? "") ||
-    portalManagementUrl !== (portalUser?.managementUrl ?? "") ||
-    portalManagementUsername !== (portalUser?.managementUsername ?? "") ||
-    portalManagementPassword !== ""
-  );
+  const portalDetailsDirty = portalUser
+    ? (
+        portalName !== (portalUser.name ?? "") ||
+        portalCompany !== (portalUser.company ?? "") ||
+        portalSiteUrl !== (portalUser.siteUrl ?? "") ||
+        portalManagementUrl !== (portalUser.managementUrl ?? "") ||
+        portalManagementUsername !== (portalUser.managementUsername ?? "") ||
+        portalManagementPassword !== ""
+      )
+    : (
+        portalSiteUrl !== (contact.portalSiteUrl ?? "") ||
+        portalManagementUrl !== (contact.portalManagementUrl ?? "") ||
+        portalManagementUsername !== (contact.portalManagementUsername ?? "") ||
+        portalManagementPassword !== ""
+      );
 
   return (
     <div className="flex flex-col lg:flex-row gap-8">
@@ -800,13 +838,13 @@ export default function ContactDetailClient({
                 <input
                   value={portalSiteUrl}
                   onChange={(e) => setPortalSiteUrl(e.target.value)}
-                  placeholder="Client website URL"
+                  placeholder={contact.siteUrl ?? "Client website URL"}
                   className="w-full px-2.5 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs placeholder-white/25 outline-none focus:border-sky-500/50 transition-colors"
                 />
                 <input
                   value={portalManagementUrl}
                   onChange={(e) => setPortalManagementUrl(e.target.value)}
-                  placeholder="Client management URL"
+                  placeholder={contact.managementUrl ?? "Client management URL"}
                   className="w-full px-2.5 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs placeholder-white/25 outline-none focus:border-sky-500/50 transition-colors"
                 />
                 <div className="grid grid-cols-2 gap-2">
@@ -820,11 +858,20 @@ export default function ContactDetailClient({
                     type="password"
                     value={portalManagementPassword}
                     onChange={(e) => setPortalManagementPassword(e.target.value)}
-                    placeholder="Client password"
+                    placeholder={contact.hasPortalManagementPassword ? "Leave blank to keep saved" : "Client password"}
                     className="w-full px-2.5 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-xs placeholder-white/25 outline-none focus:border-sky-500/50 transition-colors"
                   />
                 </div>
               </div>
+              {portalDetailsDirty && (
+                <button
+                  onClick={handleSavePortal}
+                  disabled={portalSaving}
+                  className="w-full py-2 rounded-xl bg-white/8 hover:bg-white/14 text-white text-sm font-medium transition-colors disabled:opacity-40"
+                >
+                  {portalSaving ? "Saving…" : "Save Portal Details"}
+                </button>
+              )}
               {!contact.email && (
                 <p className="text-xs text-amber-400/70">Add an email address to this contact first.</p>
               )}

@@ -5,7 +5,7 @@ import { sanityWriteClient } from "@/lib/sanity.write";
 import { syncContactProfileFromPipeline } from "@/lib/contacts/unifiedSync";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 import { automationEngine } from "@/lib/automations/engine";
-import { buildSiteAccessPatch } from "@/lib/siteAccess";
+import { buildSiteAccessPatch, encryptSitePassword, normalizeUrl } from "@/lib/siteAccess";
 
 export const runtime = "nodejs";
 
@@ -27,7 +27,34 @@ const ALLOWED_FIELDS = [
   "siteUrl",
   "managementUrl",
   "managementUsername",
+  "portalSiteUrl",
+  "portalManagementUrl",
+  "portalManagementUsername",
 ] as const;
+
+function buildPortalDraftAccessPatch(body: Record<string, unknown>) {
+  const patch: Record<string, unknown> = {};
+  if ("portalSiteUrl" in body) {
+    patch.portalSiteUrl = typeof body.portalSiteUrl === "string" ? normalizeUrl(body.portalSiteUrl) : null;
+  }
+  if ("portalManagementUrl" in body) {
+    patch.portalManagementUrl = typeof body.portalManagementUrl === "string" ? normalizeUrl(body.portalManagementUrl) : null;
+  }
+  if ("portalManagementUsername" in body) {
+    patch.portalManagementUsername = typeof body.portalManagementUsername === "string"
+      ? body.portalManagementUsername.trim() || null
+      : null;
+  }
+  if ("portalManagementPassword" in body && typeof body.portalManagementPassword === "string") {
+    const trimmed = body.portalManagementPassword.trim();
+    if (trimmed) {
+      const encrypted = encryptSitePassword(trimmed);
+      patch.portalManagementPasswordEncrypted = encrypted.encrypted;
+      patch.portalManagementPasswordIv = encrypted.iv;
+    }
+  }
+  return patch;
+}
 
 export async function GET(
   req: NextRequest,
@@ -44,7 +71,9 @@ export async function GET(
         name, email, phone, company, source, notes, owner,
         stage, stageEnteredAt, estimatedValue, stripeCustomerId, googleContactResourceName,
         closedAt, driveFileUrl, driveFileName, followUpEventId,
-        siteUrl, managementUrl, managementUsername
+        siteUrl, managementUrl, managementUsername,
+        portalSiteUrl, portalManagementUrl, portalManagementUsername,
+        "hasPortalManagementPassword": defined(portalManagementPasswordEncrypted)
       }`,
       { id }
     );
@@ -90,6 +119,7 @@ export async function PATCH(
         managementPassword: "managementPassword" in body ? body.managementPassword : undefined,
       })
     );
+    Object.assign(patch, buildPortalDraftAccessPatch(body));
 
     const stageChanging = "stage" in body && body.stage !== current.stage;
     const now = new Date().toISOString();
@@ -123,7 +153,9 @@ export async function PATCH(
         name, email, phone, company, source, notes, owner,
         stage, stageEnteredAt, estimatedValue, stripeCustomerId, googleContactResourceName,
         closedAt, driveFileUrl, driveFileName, followUpEventId,
-        siteUrl, managementUrl, managementUsername
+        siteUrl, managementUrl, managementUsername,
+        portalSiteUrl, portalManagementUrl, portalManagementUsername,
+        "hasPortalManagementPassword": defined(portalManagementPasswordEncrypted)
       }`,
       { id }
     );

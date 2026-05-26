@@ -32,6 +32,10 @@ type LinkedPipelineContact = {
   siteUrl: string | null;
   managementUrl: string | null;
   managementUsername: string | null;
+  portalSiteUrl: string | null;
+  portalManagementUrl: string | null;
+  portalManagementUsername: string | null;
+  hasPortalManagementPassword: boolean;
 };
 
 type LinkedPortalUser = {
@@ -142,9 +146,9 @@ function pipelineContactToFormData(c: LinkedPipelineContact, portalUser?: Linked
     managementUrl: c.managementUrl ?? "",
     managementUsername: c.managementUsername ?? "",
     managementPassword: "",
-    portalSiteUrl: portalUser?.siteUrl ?? "",
-    portalManagementUrl: portalUser?.managementUrl ?? "",
-    portalManagementUsername: portalUser?.managementUsername ?? "",
+    portalSiteUrl: portalUser?.siteUrl ?? c.portalSiteUrl ?? "",
+    portalManagementUrl: portalUser?.managementUrl ?? c.portalManagementUrl ?? "",
+    portalManagementUsername: portalUser?.managementUsername ?? c.portalManagementUsername ?? "",
     portalManagementPassword: "",
   };
 }
@@ -346,7 +350,7 @@ function ContactForm({
 
             {!portalUser && (
               <p className="text-xs text-white/35">
-                Saving client portal credentials here will enable portal access for this client if it is not already enabled.
+                These details will be saved for later. Portal access is only enabled when you click the Enable Portal Access button from the client record.
               </p>
             )}
           </div>
@@ -468,6 +472,23 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
 
   const id = contact.resourceName.replace("people/", "");
 
+  const loadLinkedContext = useCallback(async () => {
+    const res = await fetch(`/api/admin/contacts/${id}/linked`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({})) as { error?: string };
+      throw new Error(err.error ?? "Failed to load client details");
+    }
+    const data = await res.json() as {
+      pipelineContact: LinkedPipelineContact | null;
+      portalUser: LinkedPortalUser | null;
+      stages: Stage[];
+    };
+    setLinkedContact(data.pipelineContact ?? null);
+    setPortalUser(data.portalUser ?? null);
+    setStages(data.stages ?? []);
+    return data;
+  }, [id]);
+
   useEffect(() => {
     setEditing(false);
     setSaveError(null);
@@ -477,23 +498,15 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
     setStages([]);
   }, [contact.resourceName]);
 
+  useEffect(() => {
+    loadLinkedContext().catch((e) => setSaveError((e as Error).message));
+  }, [loadLinkedContext]);
+
   const openEditor = async () => {
     setLoadingEditContext(true);
     setSaveError(null);
     try {
-      const res = await fetch(`/api/admin/contacts/${id}/linked`);
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({})) as { error?: string };
-        throw new Error(err.error ?? "Failed to load contact editor");
-      }
-      const data = await res.json() as {
-        pipelineContact: LinkedPipelineContact | null;
-        portalUser: LinkedPortalUser | null;
-        stages: Stage[];
-      };
-      setLinkedContact(data.pipelineContact ?? null);
-      setPortalUser(data.portalUser ?? null);
-      setStages(data.stages ?? []);
+      await loadLinkedContext();
       setEditing(true);
     } catch (e) {
       setSaveError((e as Error).message);
@@ -524,6 +537,10 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
             managementUrl: form.managementUrl.trim() || null,
             managementUsername: form.managementUsername.trim() || null,
             managementPassword: form.managementPassword,
+            portalSiteUrl: form.portalSiteUrl.trim() || null,
+            portalManagementUrl: form.portalManagementUrl.trim() || null,
+            portalManagementUsername: form.portalManagementUsername.trim() || null,
+            portalManagementPassword: form.portalManagementPassword,
           }),
         });
         if (!patchRes.ok) {
@@ -534,25 +551,18 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
         const updatedPipeline = await patchRes.json() as LinkedPipelineContact;
         setLinkedContact(updatedPipeline);
 
-        const hasExplicitPortalInput = Boolean(
-          form.portalSiteUrl.trim() ||
-          form.portalManagementUrl.trim() ||
-          form.portalManagementUsername.trim() ||
-          form.portalManagementPassword
-        );
-        const portalPayload = {
-          name: form.name.trim(),
-          company: form.company.trim() || null,
-          siteUrl: form.portalSiteUrl.trim() || (portalUser ? null : form.siteUrl.trim() || null),
-          managementUrl: form.portalManagementUrl.trim() || (portalUser ? null : form.managementUrl.trim() || null),
-          managementUsername: form.portalManagementUsername.trim() || null,
-          managementPassword: form.portalManagementPassword,
-        };
-        if (portalUser || hasExplicitPortalInput) {
+        if (portalUser) {
           const portalRes = await fetch(`/api/admin/pipeline/contacts/${linkedContact._id}/portal`, {
-            method: portalUser ? "PATCH" : "POST",
+            method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(portalPayload),
+            body: JSON.stringify({
+              name: form.name.trim(),
+              company: form.company.trim() || null,
+              siteUrl: form.portalSiteUrl.trim() || null,
+              managementUrl: form.portalManagementUrl.trim() || null,
+              managementUsername: form.portalManagementUsername.trim() || null,
+              managementPassword: form.portalManagementPassword,
+            }),
           });
           if (!portalRes.ok) {
             const err = await portalRes.json().catch(() => ({})) as { error?: string };
@@ -614,6 +624,8 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
 
   const actionButtonClass =
     "inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50";
+  const linkedWebsiteUrl = linkedContact?.siteUrl ?? linkedContact?.portalSiteUrl ?? null;
+  const linkedManagementUrl = linkedContact?.managementUrl ?? linkedContact?.portalManagementUrl ?? null;
 
   if (editing) {
     return (
@@ -671,25 +683,16 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col h-full min-h-0 lg:h-auto">
       <div className="flex items-center justify-between px-5 py-4 border-b border-white/8 flex-shrink-0">
         <h3 className="text-sm font-semibold text-white">Client</h3>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={openEditor}
-            disabled={loadingEditContext}
-            className={`${actionButtonClass} bg-sky-500 text-white hover:bg-sky-400 lg:hidden`}
-          >
-            {loadingEditContext ? "Loading…" : "Edit"}
-          </button>
-          <button onClick={onClose} className="text-white/40 hover:text-white" aria-label="Close client panel">
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+        <button onClick={onClose} className="text-white/40 hover:text-white" aria-label="Close client panel">
+          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
-      <div className="flex-1 overflow-y-auto p-5">
+      <div className="flex-1 overflow-y-auto p-5 lg:flex-none">
         <div className="flex items-center gap-4 mb-5">
           <AvatarCircle name={contact.displayName} photoUrl={contact.photoUrl} index={0} />
           <div>
@@ -737,6 +740,41 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
               ))}
             </div>
           )}
+          {linkedWebsiteUrl && (
+            <div>
+              <p className="text-xs text-white/30 mb-1">Website</p>
+              <a
+                href={linkedWebsiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block break-all text-sm text-sky-400 hover:text-sky-300"
+              >
+                {linkedWebsiteUrl}
+              </a>
+            </div>
+          )}
+          {linkedManagementUrl && (
+            <div className="flex flex-wrap gap-2 pt-1">
+              <a
+                href={linkedWebsiteUrl ?? linkedManagementUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-2 rounded-xl bg-white/8 hover:bg-white/12 text-white text-sm transition-colors"
+              >
+                Open Site
+              </a>
+              {linkedContact && (
+                <a
+                  href={`/admin/manage-site/${linkedContact._id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-semibold text-sm transition-colors"
+                >
+                  Manage Site
+                </a>
+              )}
+            </div>
+          )}
           {contact.addresses.length > 0 && (
             <div>
               <p className="text-xs text-white/30 mb-1">Address</p>
@@ -768,11 +806,11 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
         )}
       </div>
 
-      <div className="flex-shrink-0 px-5 py-4 border-t border-white/8 flex gap-2 bg-inherit sticky bottom-0">
+      <div className="flex-shrink-0 px-5 py-4 border-t border-white/8 flex gap-2 bg-inherit lg:static sticky bottom-0">
         <button
           onClick={openEditor}
           disabled={loadingEditContext}
-          className="flex-1 px-3 py-2 rounded-xl text-sm text-white bg-sky-500 hover:bg-sky-400 disabled:opacity-50 transition-colors hidden lg:inline-flex lg:items-center lg:justify-center"
+          className="flex-1 px-3 py-2 rounded-xl text-sm text-white bg-sky-500 hover:bg-sky-400 disabled:opacity-50 transition-colors inline-flex items-center justify-center"
         >
           {loadingEditContext ? "Loading…" : "Edit"}
         </button>
@@ -1031,7 +1069,7 @@ export default function ContactsClient() {
 
       {/* Detail panel — full-screen overlay on mobile, side panel on lg+ */}
       {selected && (
-        <div className="fixed inset-0 z-40 h-[100dvh] lg:h-auto lg:static lg:inset-auto lg:z-auto lg:w-80 lg:flex-shrink-0 bg-[#0d0d0d] lg:bg-white/3 lg:border lg:border-white/8 lg:rounded-2xl overflow-hidden flex flex-col">
+        <div className="fixed inset-0 z-40 h-[100dvh] lg:h-auto lg:static lg:inset-auto lg:z-auto lg:w-80 lg:flex-shrink-0 lg:self-start lg:max-h-[calc(100dvh-7rem)] bg-[#0d0d0d] lg:bg-white/3 lg:border lg:border-white/8 lg:rounded-2xl overflow-hidden flex flex-col">
           <DetailPanel
             contact={selected}
             onClose={() => setSelected(null)}

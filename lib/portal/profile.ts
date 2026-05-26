@@ -39,6 +39,8 @@ type PipelineContactRecord = {
   googleContactResourceName: string | null;
   siteUrl?: string | null;
   managementUrl?: string | null;
+  portalSiteUrl?: string | null;
+  portalManagementUrl?: string | null;
 };
 
 type LegacyContactRecord = {
@@ -95,7 +97,7 @@ async function getPipelineContactById(pipelineContactId: string | null) {
   return sanityServer.fetch<PipelineContactRecord | null>(
     `*[_type == "pipelineContact" && _id == $id][0]{
       _id, name, email, phone, company, notes, stripeCustomerId, googleContactResourceName,
-      siteUrl, managementUrl
+      siteUrl, managementUrl, portalSiteUrl, portalManagementUrl
     }`,
     { id: pipelineContactId }
   );
@@ -144,8 +146,8 @@ export async function getPortalProfile(userId: string): Promise<PortalProfile | 
     stripeCustomerId: portalUser.stripeCustomerId,
     pipelineContactId: portalUser.pipelineContactId,
     googleContactResourceName: pipelineContact?.googleContactResourceName ?? null,
-    siteUrl: preferString(portalUser.siteUrl, pipelineContact?.siteUrl),
-    managementUrl: preferString(portalUser.managementUrl, pipelineContact?.managementUrl),
+    siteUrl: preferString(portalUser.siteUrl, pipelineContact?.portalSiteUrl, pipelineContact?.siteUrl),
+    managementUrl: preferString(portalUser.managementUrl, pipelineContact?.portalManagementUrl, pipelineContact?.managementUrl),
     managementUsername: preferString(portalUser.managementUsername),
     hasManagementPassword: Boolean(portalUser.managementPasswordEncrypted),
     profileImageUrl: portalUser.profileImageUrl ?? null,

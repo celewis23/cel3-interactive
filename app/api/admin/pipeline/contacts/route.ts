@@ -22,7 +22,9 @@ export async function GET(req: NextRequest) {
         name, email, phone, company, source, notes, owner,
         stage, stageEnteredAt, estimatedValue, stripeCustomerId, googleContactResourceName,
         closedAt, driveFileUrl, driveFileName, followUpEventId,
-        siteUrl, managementUrl, managementUsername
+        siteUrl, managementUrl, managementUsername,
+        portalSiteUrl, portalManagementUrl, portalManagementUsername,
+        "hasPortalManagementPassword": defined(portalManagementPasswordEncrypted)
       }`
     );
     return NextResponse.json(contacts);
@@ -84,6 +86,11 @@ export async function POST(req: NextRequest) {
       managementUsername: null,
       managementPasswordEncrypted: null,
       managementPasswordIv: null,
+      portalSiteUrl: null,
+      portalManagementUrl: null,
+      portalManagementUsername: null,
+      portalManagementPasswordEncrypted: null,
+      portalManagementPasswordIv: null,
       ...siteAccessPatch,
     });
 

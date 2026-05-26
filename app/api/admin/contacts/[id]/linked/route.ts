@@ -30,6 +30,10 @@ type LinkedPipelineContact = {
   siteUrl: string | null;
   managementUrl: string | null;
   managementUsername: string | null;
+  portalSiteUrl: string | null;
+  portalManagementUrl: string | null;
+  portalManagementUsername: string | null;
+  hasPortalManagementPassword: boolean;
 };
 
 type LinkedPortalUser = {
@@ -73,7 +77,9 @@ export async function GET(
         ][0]{
           _id, name, email, phone, company, source, notes, owner,
           stage, estimatedValue, stripeCustomerId, googleContactResourceName,
-          siteUrl, managementUrl, managementUsername
+          siteUrl, managementUrl, managementUsername,
+          portalSiteUrl, portalManagementUrl, portalManagementUsername,
+          "hasPortalManagementPassword": defined(portalManagementPasswordEncrypted)
         }`,
         { resourceName, email }
       ),

@@ -91,8 +91,16 @@ export async function POST(
       _id: string; name: string; email: string | null;
       company: string | null; stripeCustomerId: string | null;
       siteUrl: string | null; managementUrl: string | null;
+      portalSiteUrl: string | null; portalManagementUrl: string | null;
+      portalManagementUsername: string | null;
+      portalManagementPasswordEncrypted: string | null; portalManagementPasswordIv: string | null;
     } | null>(
-      `*[_type == "pipelineContact" && _id == $id][0]{ _id, name, email, company, stripeCustomerId, siteUrl, managementUrl }`,
+      `*[_type == "pipelineContact" && _id == $id][0]{
+        _id, name, email, company, stripeCustomerId,
+        siteUrl, managementUrl,
+        portalSiteUrl, portalManagementUrl, portalManagementUsername,
+        portalManagementPasswordEncrypted, portalManagementPasswordIv
+      }`,
       { id }
     );
     if (!contact) return NextResponse.json({ error: "Contact not found" }, { status: 404 });
@@ -103,9 +111,20 @@ export async function POST(
 
     const email = contact.email.toLowerCase();
     const siteAccessPatch = buildPortalSiteAccessPatch(body, {
-      siteUrl: contact.siteUrl,
-      managementUrl: contact.managementUrl,
+      siteUrl: contact.portalSiteUrl ?? contact.siteUrl,
+      managementUrl: contact.portalManagementUrl ?? contact.managementUrl,
     });
+    if (!("managementUsername" in body) && contact.portalManagementUsername) {
+      siteAccessPatch.managementUsername = contact.portalManagementUsername;
+    }
+    if (
+      !("managementPassword" in body) &&
+      contact.portalManagementPasswordEncrypted &&
+      contact.portalManagementPasswordIv
+    ) {
+      siteAccessPatch.managementPasswordEncrypted = contact.portalManagementPasswordEncrypted;
+      siteAccessPatch.managementPasswordIv = contact.portalManagementPasswordIv;
+    }
 
     // Check for existing portal user (by contact link or email)
     const existing = await sanityServer.fetch<PortalUser | null>(
