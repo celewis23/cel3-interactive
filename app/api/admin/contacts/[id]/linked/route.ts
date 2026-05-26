@@ -32,6 +32,18 @@ type LinkedPipelineContact = {
   managementUsername: string | null;
 };
 
+type LinkedPortalUser = {
+  _id: string;
+  email: string;
+  name: string | null;
+  company: string | null;
+  status: string;
+  siteUrl: string | null;
+  managementUrl: string | null;
+  managementUsername: string | null;
+  hasManagementPassword: boolean;
+};
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -70,8 +82,20 @@ export async function GET(
       ),
     ]);
 
+    const portalUser = pipelineContact
+      ? await sanityServer.fetch<LinkedPortalUser | null>(
+          `*[_type == "clientPortalUser" && pipelineContactId == $id][0]{
+            _id, email, name, company, status,
+            siteUrl, managementUrl, managementUsername,
+            "hasManagementPassword": defined(managementPasswordEncrypted)
+          }`,
+          { id: pipelineContact._id }
+        )
+      : null;
+
     return NextResponse.json({
       pipelineContact,
+      portalUser,
       stages: configRaw?.stages ?? DEFAULT_STAGES,
     });
   } catch (err) {

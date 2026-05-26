@@ -34,6 +34,18 @@ type LinkedPipelineContact = {
   managementUsername: string | null;
 };
 
+type LinkedPortalUser = {
+  _id: string;
+  email: string;
+  name: string | null;
+  company: string | null;
+  status: string;
+  siteUrl: string | null;
+  managementUrl: string | null;
+  managementUsername: string | null;
+  hasManagementPassword: boolean;
+};
+
 function AvatarCircle({ name, photoUrl, index }: { name: string | null; photoUrl?: string | null; index: number }) {
   const initial = name ? name.charAt(0).toUpperCase() : "?";
   const color = AVATAR_COLORS[index % AVATAR_COLORS.length];
@@ -65,6 +77,10 @@ interface ContactFormData {
   managementUrl: string;
   managementUsername: string;
   managementPassword: string;
+  portalSiteUrl: string;
+  portalManagementUrl: string;
+  portalManagementUsername: string;
+  portalManagementPassword: string;
 }
 
 function emptyFormData(): ContactFormData {
@@ -82,6 +98,10 @@ function emptyFormData(): ContactFormData {
     managementUrl: "",
     managementUsername: "",
     managementPassword: "",
+    portalSiteUrl: "",
+    portalManagementUrl: "",
+    portalManagementUsername: "",
+    portalManagementPassword: "",
   };
 }
 
@@ -100,10 +120,14 @@ function contactToFormData(c: Contact): ContactFormData {
     managementUrl: "",
     managementUsername: "",
     managementPassword: "",
+    portalSiteUrl: "",
+    portalManagementUrl: "",
+    portalManagementUsername: "",
+    portalManagementPassword: "",
   };
 }
 
-function pipelineContactToFormData(c: LinkedPipelineContact): ContactFormData {
+function pipelineContactToFormData(c: LinkedPipelineContact, portalUser?: LinkedPortalUser | null): ContactFormData {
   return {
     name: c.name,
     email: c.email ?? "",
@@ -118,6 +142,10 @@ function pipelineContactToFormData(c: LinkedPipelineContact): ContactFormData {
     managementUrl: c.managementUrl ?? "",
     managementUsername: c.managementUsername ?? "",
     managementPassword: "",
+    portalSiteUrl: portalUser?.siteUrl ?? "",
+    portalManagementUrl: portalUser?.managementUrl ?? "",
+    portalManagementUsername: portalUser?.managementUsername ?? "",
+    portalManagementPassword: "",
   };
 }
 
@@ -131,6 +159,7 @@ interface ContactFormProps {
   stages?: Stage[];
   showPipelineFields?: boolean;
   stripeCustomerId?: string | null;
+  portalUser?: LinkedPortalUser | null;
 }
 
 function ContactForm({
@@ -143,6 +172,7 @@ function ContactForm({
   stages = [],
   showPipelineFields = false,
   stripeCustomerId = null,
+  portalUser = null,
 }: ContactFormProps) {
   const [form, setForm] = useState<ContactFormData>(initialData ?? emptyFormData());
 
@@ -231,7 +261,7 @@ function ContactForm({
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className="block text-xs text-white/50 mb-1.5">Management URL</label>
+              <label className="block text-xs text-white/50 mb-1.5">CEL3 Management URL</label>
               <input
                 type="url"
                 value={form.managementUrl}
@@ -241,7 +271,7 @@ function ContactForm({
               />
             </div>
             <div>
-              <label className="block text-xs text-white/50 mb-1.5">Management Username</label>
+              <label className="block text-xs text-white/50 mb-1.5">CEL3 Management Username</label>
               <input
                 type="text"
                 value={form.managementUsername}
@@ -251,7 +281,7 @@ function ContactForm({
               />
             </div>
             <div>
-              <label className="block text-xs text-white/50 mb-1.5">Management Password</label>
+              <label className="block text-xs text-white/50 mb-1.5">CEL3 Management Password</label>
               <input
                 type="password"
                 value={form.managementPassword}
@@ -260,6 +290,65 @@ function ContactForm({
                 className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
               />
             </div>
+          </div>
+
+          <div className="rounded-2xl border border-sky-400/15 bg-sky-400/5 p-4 space-y-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-200/80">Client Portal Site Login</p>
+              <p className="mt-1 text-xs text-white/40">
+                These credentials are used by the client portal Manage Site button. Keep them separate from CEL3 internal management credentials.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-xs text-white/50 mb-1.5">Client Website URL</label>
+              <input
+                type="url"
+                value={form.portalSiteUrl}
+                onChange={(e) => setField("portalSiteUrl", e.target.value)}
+                placeholder={form.siteUrl || "https://clientsite.com"}
+                className="w-full px-3 py-2.5 rounded-xl bg-black/20 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label className="block text-xs text-white/50 mb-1.5">Client Management URL</label>
+                <input
+                  type="url"
+                  value={form.portalManagementUrl}
+                  onChange={(e) => setField("portalManagementUrl", e.target.value)}
+                  placeholder={form.managementUrl || "https://clientsite.com/wp-admin"}
+                  className="w-full px-3 py-2.5 rounded-xl bg-black/20 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-white/50 mb-1.5">Client Username</label>
+                <input
+                  type="text"
+                  value={form.portalManagementUsername}
+                  onChange={(e) => setField("portalManagementUsername", e.target.value)}
+                  placeholder="client-admin"
+                  className="w-full px-3 py-2.5 rounded-xl bg-black/20 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-white/50 mb-1.5">Client Password</label>
+                <input
+                  type="password"
+                  value={form.portalManagementPassword}
+                  onChange={(e) => setField("portalManagementPassword", e.target.value)}
+                  placeholder={portalUser?.hasManagementPassword ? "Leave blank to keep saved" : "Optional"}
+                  className="w-full px-3 py-2.5 rounded-xl bg-black/20 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+                />
+              </div>
+            </div>
+
+            {!portalUser && (
+              <p className="text-xs text-white/35">
+                Saving client portal credentials here will enable portal access for this client if it is not already enabled.
+              </p>
+            )}
           </div>
         </>
       )}
@@ -373,6 +462,7 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [linkedContact, setLinkedContact] = useState<LinkedPipelineContact | null>(null);
+  const [portalUser, setPortalUser] = useState<LinkedPortalUser | null>(null);
   const [stages, setStages] = useState<Stage[]>([]);
   const [loadingEditContext, setLoadingEditContext] = useState(false);
 
@@ -383,6 +473,7 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
     setSaveError(null);
     setConfirmDelete(false);
     setLinkedContact(null);
+    setPortalUser(null);
     setStages([]);
   }, [contact.resourceName]);
 
@@ -395,8 +486,13 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
         const err = await res.json().catch(() => ({})) as { error?: string };
         throw new Error(err.error ?? "Failed to load contact editor");
       }
-      const data = await res.json() as { pipelineContact: LinkedPipelineContact | null; stages: Stage[] };
+      const data = await res.json() as {
+        pipelineContact: LinkedPipelineContact | null;
+        portalUser: LinkedPortalUser | null;
+        stages: Stage[];
+      };
       setLinkedContact(data.pipelineContact ?? null);
+      setPortalUser(data.portalUser ?? null);
       setStages(data.stages ?? []);
       setEditing(true);
     } catch (e) {
@@ -437,6 +533,34 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
 
         const updatedPipeline = await patchRes.json() as LinkedPipelineContact;
         setLinkedContact(updatedPipeline);
+
+        const hasExplicitPortalInput = Boolean(
+          form.portalSiteUrl.trim() ||
+          form.portalManagementUrl.trim() ||
+          form.portalManagementUsername.trim() ||
+          form.portalManagementPassword
+        );
+        const portalPayload = {
+          name: form.name.trim(),
+          company: form.company.trim() || null,
+          siteUrl: form.portalSiteUrl.trim() || (portalUser ? null : form.siteUrl.trim() || null),
+          managementUrl: form.portalManagementUrl.trim() || (portalUser ? null : form.managementUrl.trim() || null),
+          managementUsername: form.portalManagementUsername.trim() || null,
+          managementPassword: form.portalManagementPassword,
+        };
+        if (portalUser || hasExplicitPortalInput) {
+          const portalRes = await fetch(`/api/admin/pipeline/contacts/${linkedContact._id}/portal`, {
+            method: portalUser ? "PATCH" : "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(portalPayload),
+          });
+          if (!portalRes.ok) {
+            const err = await portalRes.json().catch(() => ({})) as { error?: string };
+            throw new Error(err.error ?? "Failed to update client portal credentials");
+          }
+          const portalData = await portalRes.json() as { portalUser: LinkedPortalUser | null };
+          setPortalUser(portalData.portalUser ?? null);
+        }
       } else {
         const getRes = await fetch(`/api/admin/contacts/${id}`);
         if (!getRes.ok) throw new Error("Failed to fetch contact for update");
@@ -495,7 +619,7 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
     return (
       <div className="flex flex-col h-full min-h-0">
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/8 flex-shrink-0">
-          <h3 className="text-sm font-semibold text-white">Edit Contact</h3>
+          <h3 className="text-sm font-semibold text-white">Edit Client</h3>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setEditing(false)}
@@ -503,7 +627,7 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
             >
               Cancel
             </button>
-            <button onClick={onClose} className="text-white/40 hover:text-white" aria-label="Close contact panel">
+            <button onClick={onClose} className="text-white/40 hover:text-white" aria-label="Close client panel">
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -513,7 +637,7 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
         <div className="flex-1 overflow-y-auto p-5">
           <ContactForm
             key={linkedContact?._id ?? contact.resourceName}
-            initialData={linkedContact ? pipelineContactToFormData(linkedContact) : contactToFormData(contact)}
+            initialData={linkedContact ? pipelineContactToFormData(linkedContact, portalUser) : contactToFormData(contact)}
             onSubmit={handleUpdate}
             onCancel={() => setEditing(false)}
             submitLabel="Save"
@@ -522,10 +646,11 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
             stages={stages}
             showPipelineFields={Boolean(linkedContact)}
             stripeCustomerId={linkedContact?.stripeCustomerId ?? null}
+            portalUser={portalUser}
           />
           {!linkedContact && (
             <p className="mt-4 text-xs text-white/35">
-              This contact is not linked to a pipeline record yet, so this editor will update Google and any matched synced records using the shared fields.
+              This client is not linked to a pipeline record yet, so this editor will update Google and any matched synced records using the shared fields.
             </p>
           )}
           {linkedContact?.managementUrl && (
@@ -548,7 +673,7 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
   return (
     <div className="flex flex-col h-full min-h-0">
       <div className="flex items-center justify-between px-5 py-4 border-b border-white/8 flex-shrink-0">
-        <h3 className="text-sm font-semibold text-white">Contact</h3>
+        <h3 className="text-sm font-semibold text-white">Client</h3>
         <div className="flex items-center gap-2">
           <button
             onClick={openEditor}
@@ -557,7 +682,7 @@ function DetailPanel({ contact, onClose, onUpdate, onDelete }: DetailPanelProps)
           >
             {loadingEditContext ? "Loading…" : "Edit"}
           </button>
-          <button onClick={onClose} className="text-white/40 hover:text-white" aria-label="Close contact panel">
+          <button onClick={onClose} className="text-white/40 hover:text-white" aria-label="Close client panel">
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -790,8 +915,8 @@ export default function ContactsClient() {
         {/* Header */}
         <div className="mb-6 flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-2xl font-semibold text-white">Contacts</h1>
-            <p className="text-sm text-white/40 mt-1">{totalItems} contact{totalItems !== 1 ? "s" : ""}</p>
+            <h1 className="text-2xl font-semibold text-white">Clients</h1>
+            <p className="text-sm text-white/40 mt-1">{totalItems} client{totalItems !== 1 ? "s" : ""}</p>
           </div>
           <button
             onClick={() => setShowNewModal(true)}
@@ -800,7 +925,7 @@ export default function ContactsClient() {
             <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
-            New Contact
+            New Client
           </button>
         </div>
 
@@ -817,7 +942,7 @@ export default function ContactsClient() {
             type="text"
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
-            placeholder="Search contacts…"
+            placeholder="Search clients…"
             className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50"
           />
           {searchLoading && (
@@ -842,7 +967,7 @@ export default function ContactsClient() {
           </div>
         )}
 
-        {/* Contact list */}
+        {/* Client list */}
         <div className="bg-white/3 border border-white/8 rounded-2xl overflow-hidden">
           {loading && contacts.length === 0 ? (
             <div className="p-4 space-y-3">
@@ -858,7 +983,7 @@ export default function ContactsClient() {
             </div>
           ) : contacts.length === 0 ? (
             <div className="p-12 text-center text-white/30 text-sm">
-              {search ? "No contacts found" : "No contacts yet"}
+              {search ? "No clients found" : "No clients yet"}
             </div>
           ) : (
             <div className="divide-y divide-white/5">
@@ -916,12 +1041,12 @@ export default function ContactsClient() {
         </div>
       )}
 
-      {/* New contact modal */}
+      {/* New client modal */}
       {showNewModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="bg-[#111] border border-white/10 rounded-2xl p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-white">New Contact</h3>
+              <h3 className="text-sm font-semibold text-white">New Client</h3>
               <button onClick={() => setShowNewModal(false)} className="text-white/40 hover:text-white">
                 <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

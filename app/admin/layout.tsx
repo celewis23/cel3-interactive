@@ -149,7 +149,7 @@ const NAV: NavItem[] = [
     ),
   },
   {
-    label: "Contacts",
+    label: "Clients",
     href: "/admin/contacts",
     icon: (
       <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
