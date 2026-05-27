@@ -59,6 +59,15 @@ const NAV: NavItem[] = [
     ),
   },
   {
+    label: "Fit Requests",
+    href: "/admin/fit-requests",
+    icon: (
+      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75l2.25 2.25L15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+  },
+  {
     label: "Estimates",
     href: "/admin/estimates",
     icon: (
@@ -342,6 +351,7 @@ const NAV_SECTION_DEFS = [
     title: "Clients",
     hrefs: [
       "/admin/pipeline",
+      "/admin/fit-requests",
       "/admin/contacts",
       "/admin/estimates",
       "/admin/contracts",

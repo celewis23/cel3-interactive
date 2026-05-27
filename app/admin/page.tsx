@@ -105,7 +105,7 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {[
           { label: "Case Studies", value: projectCount, href: "/admin/case-studies", sub: "published" },
-          { label: "Fit Requests", value: leadCount, href: "/admin/analytics", sub: "total leads" },
+          { label: "Fit Requests", value: leadCount, href: "/admin/fit-requests", sub: "total leads" },
           { label: "Upcoming Bookings", value: upcomingBookings.length, href: "/admin/bookings", sub: "confirmed" },
           { label: "Active Forms", value: formCount, href: "/admin/forms", sub: "CEL3 Forms" },
           { label: "Submissions", value: submissionCount, href: "/admin/forms", sub: "all forms" },
@@ -131,7 +131,7 @@ export default async function AdminDashboard() {
         <div className="bg-white/3 border border-white/8 rounded-2xl overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/6">
             <h2 className="text-xs font-semibold text-white/50 uppercase tracking-widest">Recent Fit Requests</h2>
-            <Link href="/admin/analytics" className="text-xs text-sky-400 hover:text-sky-300 transition-colors">
+            <Link href="/admin/fit-requests" className="text-xs text-sky-400 hover:text-sky-300 transition-colors">
               View all →
             </Link>
           </div>
@@ -146,7 +146,8 @@ export default async function AdminDashboard() {
                 const services = Array.isArray(l.services) ? l.services.filter((s): s is string => typeof s === "string") : [];
                 const relTime = l.createdAt ? DateTime.fromISO(l.createdAt).toRelative() : "";
                 return (
-                  <li key={l._id} className="px-5 py-3">
+                  <li key={l._id}>
+                    <Link href={`/admin/fit-requests?id=${l._id}`} className="block px-5 py-3 transition-colors hover:bg-white/[0.03]">
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-sm font-medium text-white truncate">{name || "—"}</span>
                       <span className="text-xs text-white/25 shrink-0">{relTime}</span>
@@ -162,6 +163,7 @@ export default async function AdminDashboard() {
                         <span key={s} className="text-xs px-1.5 py-0.5 rounded-full bg-white/5 text-white/35">{s}</span>
                       ))}
                     </div>
+                    </Link>
                   </li>
                 );
               })}

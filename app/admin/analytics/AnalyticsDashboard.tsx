@@ -666,7 +666,8 @@ export default function AnalyticsDashboard() {
                 const services = safeServices(l.services);
                 const budget = str(l.budget);
                 return (
-                  <li key={l._id} className="flex flex-col gap-0.5 py-2 border-b border-white/5 last:border-0">
+                  <li key={l._id} className="border-b border-white/5 last:border-0">
+                    <Link href={`/admin/fit-requests?id=${l._id}`} className="flex flex-col gap-0.5 rounded-xl py-2 transition-colors hover:bg-white/[0.03]">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-white">{str(l.name)}</span>
                       {relTime && <span className="text-xs text-white/30">{relTime}</span>}
@@ -682,6 +683,7 @@ export default function AnalyticsDashboard() {
                         <span key={s} className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/40">{s}</span>
                       ))}
                     </div>
+                    </Link>
                   </li>
                 );
               })}

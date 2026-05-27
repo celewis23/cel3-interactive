@@ -109,6 +109,7 @@ export async function POST(req: Request) {
       _type: "fitRequest",
       name: body.name.trim(),
       email: body.email.trim(),
+      leadEmail: body.email.trim(),
       company: body.company?.trim() || undefined,
       website: body.website?.trim() || undefined,
       budget: body.budget,
@@ -300,8 +301,8 @@ ${SITE_URL}
         });
 
         leadAckSent = true;
-      } catch (emailErr: any) {
-        console.error("Fit email send error:", emailErr?.message || emailErr);
+      } catch (emailErr: unknown) {
+        console.error("Fit email send error:", emailErr instanceof Error ? emailErr.message : emailErr);
       }
     } else {
       if (!RESEND_API_KEY) console.warn("RESEND_API_KEY missing: Fit emails not sent.");
@@ -309,7 +310,16 @@ ${SITE_URL}
     }
 
     // Store email workflow state back into Sanity (high leverage)
-    const emailMeta: any = {
+    const emailMeta: {
+      email: {
+        threadKey: string;
+        teamEmailSent: boolean;
+        leadAckSent: boolean;
+        updatedAt: string;
+        teamSentAt?: string;
+        leadAckSentAt?: string;
+      };
+    } = {
       email: {
         threadKey,
         teamEmailSent,
@@ -331,8 +341,8 @@ ${SITE_URL}
       teamEmailSent,
       leadAckSent,
     });
-  } catch (err: any) {
-    console.error("Fit route error:", err?.message || err);
+  } catch (err: unknown) {
+    console.error("Fit route error:", err instanceof Error ? err.message : err);
     return NextResponse.json({ ok: false, error: "Server error" }, { status: 500 });
   }
 }
