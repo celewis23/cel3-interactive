@@ -95,6 +95,14 @@ export default function DocEditorModal({ fileId, fileName, fileType, onClose, on
     if (editingName) nameInputRef.current?.select();
   }, [editingName]);
 
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   async function handleRename() {
     if (!name.trim() || name.trim() === fileName) { setEditingName(false); setName(fileName); return; }
     setRenaming(true);
@@ -294,22 +302,23 @@ export default function DocEditorModal({ fileId, fileName, fileType, onClose, on
           allow="clipboard-read; clipboard-write"
         />
       </div>
-      <div className="fixed bottom-4 right-4 z-[3010] flex items-center gap-2 rounded-xl border border-black/10 bg-white/95 p-1.5 shadow-[0_16px_50px_rgba(0,0,0,0.18)] backdrop-blur">
+      <div className="fixed bottom-5 left-1/2 z-[3010] flex -translate-x-1/2 items-center gap-2 rounded-2xl border border-black/15 bg-[#202124]/95 p-2 shadow-[0_18px_60px_rgba(0,0,0,0.28)] backdrop-blur">
         <button
           onClick={onClose}
-          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[#202124] transition-colors hover:bg-black/5"
+          className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+          aria-label="Back to Drive files"
         >
           <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
           </svg>
-          Back to Drive
+          Back to Drive files
         </button>
-        <div className="h-6 w-px bg-black/10" />
+        <div className="h-7 w-px bg-white/15" />
         <a
           href={openUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded-lg p-2 text-[#5f6368] transition-colors hover:bg-black/5 hover:text-[#202124]"
+          className="rounded-xl p-2.5 text-white/75 transition-colors hover:bg-white/10 hover:text-white"
           title="Open in Google"
           aria-label="Open in Google"
         >
