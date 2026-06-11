@@ -75,7 +75,10 @@ export default function DocEditorModal({ fileId, fileName, fileType, onClose, on
       ? `https://drive.google.com/file/d/${fileId}/view`
       : `${EMBED_BASE[fileType]}/${fileId}/edit`;
 
-  const embedUrl = `${EMBED_BASE[fileType]}/${fileId}/edit?rm=minimal`;
+  const embedUrl =
+    fileType === "other"
+      ? `https://drive.google.com/file/d/${fileId}/preview`
+      : `${EMBED_BASE[fileType]}/${fileId}/edit`;
 
   // Close download dropdown on outside click
   useEffect(() => {
@@ -215,7 +218,7 @@ export default function DocEditorModal({ fileId, fileName, fileType, onClose, on
   // ── Mobile: launch screen (Google blocks iframe editing on mobile) ──────────
   if (isMobile) {
     return (
-      <div className="fixed inset-0 z-[60] flex flex-col bg-[#0a0a0a]" style={{ height: "100dvh" }}>
+      <div className="fixed inset-0 z-[3000] flex flex-col bg-[#0a0a0a]" style={{ height: "100dvh" }}>
         {toolbar}
 
         <div className="flex-1 flex flex-col items-center justify-center gap-8 px-6 py-8">
@@ -281,9 +284,8 @@ export default function DocEditorModal({ fileId, fileName, fileType, onClose, on
 
   // ── Desktop: embedded iframe editor ────────────────────────────────────────
   return (
-    <div className="fixed inset-0 z-[60] flex flex-col bg-[#0a0a0a]" style={{ height: "100dvh" }}>
-      {toolbar}
-      <div className="flex-1 min-h-0 relative bg-white overflow-hidden">
+    <div className="fixed inset-0 z-[3000] bg-white" style={{ height: "100dvh" }}>
+      <div className="relative h-full bg-white overflow-hidden">
         <iframe
           key={fileId}
           src={embedUrl}
@@ -291,6 +293,30 @@ export default function DocEditorModal({ fileId, fileName, fileType, onClose, on
           title={name}
           allow="clipboard-read; clipboard-write"
         />
+      </div>
+      <div className="fixed bottom-4 right-4 z-[3010] flex items-center gap-2 rounded-xl border border-black/10 bg-white/95 p-1.5 shadow-[0_16px_50px_rgba(0,0,0,0.18)] backdrop-blur">
+        <button
+          onClick={onClose}
+          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[#202124] transition-colors hover:bg-black/5"
+        >
+          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          </svg>
+          Back to Drive
+        </button>
+        <div className="h-6 w-px bg-black/10" />
+        <a
+          href={openUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-lg p-2 text-[#5f6368] transition-colors hover:bg-black/5 hover:text-[#202124]"
+          title="Open in Google"
+          aria-label="Open in Google"
+        >
+          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+          </svg>
+        </a>
       </div>
     </div>
   );
