@@ -217,7 +217,7 @@ function AttachmentChip({ messageId, att }: { messageId: string; att: GmailAttac
 function MessageCard({ message, defaultOpen }: { message: GmailMessageParsed; defaultOpen: boolean }) {
   const [collapsed, setCollapsed] = useState(!defaultOpen);
   return (
-    <div className="overflow-hidden border-y border-white/8 bg-[#090b10] max-lg:-mx-5">
+    <div className="overflow-hidden border-y border-white/8 bg-[#090b10]">
       <button
         onClick={() => setCollapsed((c) => !c)}
         className="w-full flex items-start justify-between gap-4 px-5 py-4 hover:bg-white/[0.025] transition-colors text-left"
@@ -251,19 +251,18 @@ function MessageCard({ message, defaultOpen }: { message: GmailMessageParsed; de
         <div className="border-t border-white/5">
           {message.bodyHtml ? (
             <div
-              className="bg-white px-5 py-4 overflow-x-auto text-gray-900 text-sm max-lg:px-4"
-              // eslint-disable-next-line react/no-danger
+              className="bg-white px-5 py-4 overflow-x-auto text-gray-900 text-sm"
               dangerouslySetInnerHTML={{
                 __html: resolveCidReferences(message.bodyHtml, message.id, message.attachments),
               }}
             />
           ) : (
-            <pre className="bg-white px-5 py-4 whitespace-pre-wrap text-sm text-gray-900 font-sans leading-relaxed max-lg:px-4">
+            <pre className="bg-white px-5 py-4 whitespace-pre-wrap text-sm text-gray-900 font-sans leading-relaxed">
               {message.bodyText}
             </pre>
           )}
           {message.attachments.filter((a) => !a.inline).length > 0 && (
-            <div className="flex flex-wrap gap-2 px-5 py-4 max-lg:px-4">
+            <div className="flex flex-wrap gap-2 px-5 py-4">
               {message.attachments.filter((a) => !a.inline).map((att) => (
                 <AttachmentChip key={att.attachmentId} messageId={message.id} att={att} />
               ))}

@@ -124,11 +124,11 @@ function extractName(from: string): string {
 
 // ─── Single message card ───────────────────────────────────────────────────
 
-function MessageCard({ message, index }: { message: GmailMessageParsed; index: number }) {
+function MessageCard({ message }: { message: GmailMessageParsed }) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="overflow-hidden border-y border-white/10 bg-[#090b10] max-lg:-mx-4">
+    <div className="overflow-hidden border-y border-white/10 bg-[#090b10]">
       {/* Message header */}
       <button
         onClick={() => setCollapsed((c) => !c)}
@@ -176,8 +176,7 @@ function MessageCard({ message, index }: { message: GmailMessageParsed; index: n
         <div className="border-t border-white/5">
           {message.bodyHtml ? (
             <div
-              className="bg-white px-5 py-4 overflow-x-auto text-gray-900 text-sm max-lg:px-4"
-              // eslint-disable-next-line react/no-danger
+              className="bg-white px-5 py-4 overflow-x-auto text-gray-900 text-sm"
               dangerouslySetInnerHTML={{
                 __html: resolveCidReferences(
                   message.bodyHtml,
@@ -187,14 +186,14 @@ function MessageCard({ message, index }: { message: GmailMessageParsed; index: n
               }}
             />
           ) : (
-            <pre className="bg-white px-5 py-4 whitespace-pre-wrap text-sm text-gray-900 font-sans leading-relaxed max-lg:px-4">
+            <pre className="bg-white px-5 py-4 whitespace-pre-wrap text-sm text-gray-900 font-sans leading-relaxed">
               {message.bodyText}
             </pre>
           )}
 
           {/* Downloadable attachments (non-inline only) */}
           {message.attachments.filter((a) => !a.inline).length > 0 && (
-            <div className="flex flex-wrap gap-2 px-5 py-4 max-lg:px-4">
+            <div className="flex flex-wrap gap-2 px-5 py-4">
               {message.attachments
                 .filter((a) => !a.inline)
                 .map((att) => (
@@ -496,8 +495,8 @@ export default function ThreadClient({ thread, link }: Props) {
       {/* Main column */}
       <div className="flex-1 min-w-0 space-y-3">
         {/* Messages */}
-        {messages.map((message, i) => (
-          <MessageCard key={message.id} message={message} index={i} />
+        {messages.map((message) => (
+          <MessageCard key={message.id} message={message} />
         ))}
 
         {/* Reply success notice */}

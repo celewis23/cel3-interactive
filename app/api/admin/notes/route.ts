@@ -137,7 +137,7 @@ export async function GET(req: NextRequest) {
         scope.params
       ),
       sanityServer.fetch<AdminNoteDoc[]>(
-        `*[_type == "adminNote" && ${scope.ownerFilter} && isArchived != true] | order(isPinned desc, order asc, _updatedAt desc) {
+        `*[_type == "adminNote" && ${scope.ownerFilter}] | order(isPinned desc, order asc, _updatedAt desc) {
           _id, title, content, canvasData, blocksJson, color, isPinned, isFavorite, isArchived,
           workspaceId, sectionId, parentPageId, order, tags, metadataJson, linkedRecords,
           staffId, _createdAt, _updatedAt

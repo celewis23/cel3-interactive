@@ -4,7 +4,7 @@ export const runtime = "nodejs";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { COOKIE_NAME, verifySessionToken } from "@/lib/admin/auth";
-import NotesClient from "@/components/admin/notes/NotesClient";
+import EvernoteNotesClient from "@/components/admin/notes/EvernoteNotesClient";
 
 export default async function NotesPage() {
   const cookieStore = await cookies();
@@ -12,5 +12,5 @@ export default async function NotesPage() {
   const session = token ? verifySessionToken(token) : null;
   if (!session || session.step !== "full") redirect("/admin/login");
 
-  return <NotesClient />;
+  return <EvernoteNotesClient />;
 }
