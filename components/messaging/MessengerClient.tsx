@@ -441,8 +441,8 @@ export default function MessengerClient({
   const rootClass = selectedId ? "flex min-h-0 flex-col gap-3 max-md:overflow-hidden" : "flex flex-col gap-5";
   const mobileShellHeightClass = mode === "admin" ? "max-md:h-[calc(100dvh-11.75rem)]" : "max-md:h-[calc(100dvh-10.25rem)]";
   const shellClass = selectedId
-    ? `messenger-shell relative isolate z-0 min-h-0 overflow-hidden rounded-none border-y border-white/8 bg-white/3 max-md:-mx-4 ${mobileShellHeightClass} md:min-h-[620px] md:rounded-2xl md:border`
-    : "messenger-shell relative isolate z-0 min-h-[620px] overflow-hidden rounded-2xl border border-white/8 bg-white/3";
+    ? `messenger-shell relative isolate z-0 min-h-0 overflow-hidden rounded-none border-y border-white/8 bg-white/3 max-md:-mx-4 ${mobileShellHeightClass} md:h-[calc(100dvh-13rem)] md:rounded-2xl md:border`
+    : "messenger-shell relative isolate z-0 min-h-[620px] overflow-hidden rounded-2xl border border-white/8 bg-white/3 md:h-[calc(100dvh-13rem)] md:min-h-0";
 
   return (
     <div className={rootClass}>
@@ -465,8 +465,8 @@ export default function MessengerClient({
       )}
 
       <div className={shellClass}>
-        <aside className={`messenger-list ${selectedId ? "hidden" : "block"} border-white/8 md:block`}>
-          <div className="border-b border-white/8 p-4">
+        <aside className={`messenger-list ${selectedId ? "hidden" : "block"} h-full min-h-0 border-white/8 md:flex md:flex-col`}>
+          <div className="shrink-0 border-b border-white/8 p-4">
             <div className="mb-3 flex items-center justify-between gap-3">
               <h2 className="text-sm font-semibold text-white">Chats</h2>
               <button
@@ -484,7 +484,7 @@ export default function MessengerClient({
               className="w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white outline-none placeholder:text-white/25 focus:border-sky-500/50"
             />
           </div>
-          <div className="max-h-[560px] overflow-y-auto md:max-h-none">
+          <div className="max-h-[560px] overflow-y-auto md:max-h-none md:min-h-0 md:flex-1">
             {loadingList ? (
               <div className="space-y-2 p-4">
                 {[0, 1, 2].map((item) => <div key={item} className="h-16 animate-pulse rounded-xl bg-white/5" />)}
