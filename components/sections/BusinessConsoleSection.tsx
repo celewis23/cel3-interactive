@@ -42,21 +42,44 @@ export function BusinessConsoleSection() {
         </div>
 
         <div className="lg:col-span-7 rounded-2xl border border-white/10 bg-white/5 p-5">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3" role="list">
             {PLATFORM_ITEMS.map((item, index) => (
               <div
                 key={item}
+                role="listitem"
                 className={[
-                  "rounded-xl border p-4 transition-colors",
+                  "group relative min-h-[94px] overflow-hidden rounded-xl border p-4",
+                  "transform-gpu transition-all duration-300 ease-out",
+                  "hover:-translate-y-1 hover:scale-[1.015] hover:border-[rgb(var(--accent))]/75",
+                  "hover:bg-[rgb(var(--accent))]/12 hover:shadow-[0_18px_45px_rgba(0,170,255,0.16)]",
                   index === 0 || index === 1
                     ? "border-[rgb(var(--accent))]/60 bg-[rgb(var(--accent))]/15"
                     : "border-white/10 bg-black/25",
                 ].join(" ")}
               >
-                <div className="text-[10px] tracking-[0.22em] uppercase text-white/35">
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                  style={{
+                    background:
+                      "radial-gradient(circle at 18% 18%, rgba(0, 170, 255, 0.2), transparent 38%)",
+                  }}
+                />
+                <div className="pointer-events-none absolute inset-x-4 bottom-0 h-px scale-x-0 bg-[rgb(var(--accent))] opacity-0 transition-all duration-300 group-hover:scale-x-100 group-hover:opacity-80" />
+
+                <div className="relative text-[10px] tracking-[0.22em] uppercase text-white/35 transition-colors duration-300 group-hover:text-[rgb(var(--accent))]">
                   {String(index + 1).padStart(2, "0")}
                 </div>
-                <div className="mt-2 text-sm font-medium text-white">{item}</div>
+                <div className="relative mt-2 flex items-end justify-between gap-3">
+                  <div className="text-sm font-medium text-white transition-transform duration-300 group-hover:translate-x-0.5">
+                    {item}
+                  </div>
+                  <span
+                    aria-hidden="true"
+                    className="translate-x-2 text-sm text-[rgb(var(--accent))] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100"
+                  >
+                    →
+                  </span>
+                </div>
               </div>
             ))}
           </div>

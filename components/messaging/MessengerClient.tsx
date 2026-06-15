@@ -647,7 +647,7 @@ export default function MessengerClient({
                 )}
               </div>
 
-              <div className="shrink-0 border-t border-white/8 bg-[#06080d] p-4">
+              <div className="shrink-0 border-t border-white/8 bg-[#06080d] p-4 max-md:pb-[calc(1rem+env(safe-area-inset-bottom))]">
                 {attachments.length > 0 && (
                   <div className="mb-3 flex flex-wrap gap-2">
                     {attachments.map((file, index) => (
@@ -665,7 +665,7 @@ export default function MessengerClient({
                     ))}
                   </div>
                 )}
-                <div className="flex items-end gap-3">
+                <div className="flex min-w-0 items-end gap-2 sm:gap-3">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -695,15 +695,28 @@ export default function MessengerClient({
                     rows={1}
                     maxLength={5000}
                     placeholder="Write a reply..."
-                    className="min-h-11 flex-1 resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/25 focus:border-sky-500/50"
+                    className="min-h-11 min-w-0 flex-1 resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/25 focus:border-sky-500/50"
                   />
                   <button
                     type="button"
                     onClick={() => void sendMessage()}
                     disabled={sending || (!compose.trim() && attachments.length === 0)}
-                    className="rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-sky-400 disabled:opacity-40"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-500 text-sm font-semibold text-black transition-colors hover:bg-sky-400 disabled:opacity-40 sm:w-auto sm:px-4"
+                    aria-label={sending ? "Sending message" : "Send message"}
                   >
-                    {sending ? "Sending..." : "Send"}
+                    <span className="hidden sm:inline">{sending ? "Sending..." : "Send"}</span>
+                    <svg
+                      className="sm:hidden"
+                      width="18"
+                      height="18"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.9"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h13m0 0-5-5m5 5-5 5" />
+                    </svg>
                   </button>
                 </div>
                 <p className="mt-2 text-xs text-white/25">Enter to send. Shift+Enter for a new line.</p>
