@@ -536,7 +536,7 @@ export default function MessengerClient({
           </div>
         </aside>
 
-        <section className={`messenger-thread ${selectedId ? "flex" : "hidden"} h-full min-h-0 flex-col md:flex md:min-h-[620px]`}>
+        <section className={`messenger-thread ${selectedId ? "grid" : "hidden"} h-full min-h-0 grid-rows-[auto,minmax(0,1fr),auto] md:grid`}>
           <div className="shrink-0 flex items-center justify-between gap-3 border-b border-white/8 px-5 py-4">
             <div className="flex min-w-0 items-center gap-3">
               <button
@@ -568,7 +568,7 @@ export default function MessengerClient({
               {mode === "admin" ? "Choose a client conversation from the list." : "Start a conversation or choose an existing one."}
             </div>
           ) : loadingThread ? (
-            <div className="flex-1 min-h-0 space-y-3 p-5">
+            <div className="min-h-0 space-y-3 overflow-hidden p-5">
               {[0, 1, 2, 3].map((item) => <div key={item} className="h-14 animate-pulse rounded-xl bg-white/5" />)}
             </div>
           ) : (
@@ -576,7 +576,7 @@ export default function MessengerClient({
               <div
                 ref={messagesViewportRef}
                 onScroll={handleMessagesScroll}
-                className="flex-1 min-h-0 space-y-3 overflow-y-auto overscroll-contain p-5"
+                className="min-h-0 space-y-3 overflow-y-auto overscroll-contain p-5"
               >
                 {messages.length === 0 ? (
                   <div className="flex h-full items-center justify-center text-sm text-white/35">No messages in this conversation yet.</div>
