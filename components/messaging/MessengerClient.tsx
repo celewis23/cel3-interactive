@@ -438,11 +438,11 @@ export default function MessengerClient({
   }
 
   const threadTitle = selected ? conversationLabel(selected) : mode === "admin" ? "Select a conversation" : "Messages";
-  const rootClass = selectedId ? "flex min-h-0 flex-col gap-3 max-md:overflow-hidden" : "flex flex-col gap-5";
+  const rootClass = selectedId ? "flex min-h-0 w-full max-w-full flex-col gap-3 max-md:overflow-hidden" : "flex w-full max-w-full flex-col gap-5";
   const mobileShellHeightClass = mode === "admin" ? "max-md:h-[calc(100dvh-11.75rem)]" : "max-md:h-[calc(100dvh-10.25rem)]";
   const shellClass = selectedId
-    ? `messenger-shell relative isolate z-0 min-h-0 overflow-hidden rounded-none border-y border-white/8 bg-white/3 max-md:-mx-4 ${mobileShellHeightClass} md:h-[calc(100dvh-13rem)] md:rounded-2xl md:border`
-    : "messenger-shell relative isolate z-0 min-h-[620px] overflow-hidden rounded-2xl border border-white/8 bg-white/3 md:h-[calc(100dvh-13rem)] md:min-h-0";
+    ? `messenger-shell relative isolate z-0 min-h-0 w-full max-w-full overflow-hidden rounded-none border-y border-white/8 bg-white/3 ${mobileShellHeightClass} md:h-[calc(100dvh-13rem)] md:rounded-2xl md:border`
+    : "messenger-shell relative isolate z-0 min-h-[620px] w-full max-w-full overflow-hidden rounded-2xl border border-white/8 bg-white/3 md:h-[calc(100dvh-13rem)] md:min-h-0";
 
   return (
     <div className={rootClass}>
@@ -536,9 +536,9 @@ export default function MessengerClient({
           </div>
         </aside>
 
-        <section className={`messenger-thread ${selectedId ? "grid" : "hidden"} h-full min-h-0 grid-rows-[auto,minmax(0,1fr),auto] md:grid`}>
-          <div className="shrink-0 flex items-center justify-between gap-3 border-b border-white/8 px-5 py-4">
-            <div className="flex min-w-0 items-center gap-3">
+        <section className={`messenger-thread ${selectedId ? "grid" : "hidden"} h-full min-h-0 w-full max-w-full overflow-hidden grid-rows-[auto,minmax(0,1fr),auto] md:grid`}>
+          <div className="shrink-0 flex min-w-0 items-center justify-between gap-3 border-b border-white/8 px-4 py-4 md:px-5">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
               <button
                 type="button"
                 onClick={returnToConversationList}
@@ -549,7 +549,7 @@ export default function MessengerClient({
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                 </svg>
               </button>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <h2 className="truncate text-sm font-semibold text-white">{threadTitle}</h2>
                 {selected && (
                   <p className="mt-0.5 truncate text-xs text-white/35">
@@ -559,7 +559,7 @@ export default function MessengerClient({
               </div>
             </div>
             {selected?.unreadCount ? (
-              <span className="rounded-full bg-sky-500/15 px-2 py-1 text-xs text-sky-300">{selected.unreadCount} unread</span>
+              <span className="hidden shrink-0 rounded-full bg-sky-500/15 px-2 py-1 text-xs text-sky-300 min-[380px]:inline-flex">{selected.unreadCount} unread</span>
             ) : null}
           </div>
 
@@ -576,7 +576,7 @@ export default function MessengerClient({
               <div
                 ref={messagesViewportRef}
                 onScroll={handleMessagesScroll}
-                className="min-h-0 space-y-3 overflow-y-auto overscroll-contain p-5"
+                className="min-h-0 w-full max-w-full space-y-3 overflow-y-auto overflow-x-hidden overscroll-contain p-3 md:p-5"
               >
                 {messages.length === 0 ? (
                   <div className="flex h-full items-center justify-center text-sm text-white/35">No messages in this conversation yet.</div>
@@ -584,7 +584,7 @@ export default function MessengerClient({
                   messages.map((message) => {
                     const mine = mode === "admin" ? message.senderKind === "admin" : message.senderKind === "client";
                     return (
-                      <div key={message._id} className={`flex items-end gap-2 ${mine ? "flex-row-reverse" : "flex-row"}`}>
+                      <div key={message._id} className={`flex min-w-0 items-end gap-2 ${mine ? "flex-row-reverse" : "flex-row"}`}>
                         <Avatar
                           name={mine ? "You" : message.senderName}
                           email={message.senderEmail}
@@ -601,7 +601,7 @@ export default function MessengerClient({
                               showTimestamp(message._id);
                             }
                           }}
-                          className={`relative z-0 max-w-[min(680px,78%)] rounded-2xl border px-4 py-3 text-left shadow-sm outline-none transition-transform active:scale-[0.99] ${mine ? "rounded-br-sm border-sky-400/40 bg-sky-500 text-black" : "rounded-bl-sm border-black/5 bg-white text-[#111111]"}`}
+                          className={`relative z-0 max-w-[calc(100%-3rem)] rounded-2xl border px-4 py-3 text-left shadow-sm outline-none transition-transform active:scale-[0.99] md:max-w-[min(680px,78%)] ${mine ? "rounded-br-sm border-sky-400/40 bg-sky-500 text-black" : "rounded-bl-sm border-black/5 bg-white text-[#111111]"}`}
                           aria-label={`Message sent ${formatTime(message.createdAt)}`}
                         >
                           {visibleTimestampId === message._id && (
@@ -647,7 +647,7 @@ export default function MessengerClient({
                 )}
               </div>
 
-              <div className="shrink-0 border-t border-white/8 bg-[#06080d] p-4 max-md:pb-[calc(1rem+env(safe-area-inset-bottom))]">
+              <div className="shrink-0 w-full max-w-full border-t border-white/8 bg-[#06080d] p-3 max-md:pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:p-4">
                 {attachments.length > 0 && (
                   <div className="mb-3 flex flex-wrap gap-2">
                     {attachments.map((file, index) => (
