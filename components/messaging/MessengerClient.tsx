@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 type Mode = "admin" | "portal";
 
@@ -155,14 +155,19 @@ export default function MessengerClient({
   const [search, setSearch] = useState("");
   const [showNewConversation, setShowNewConversation] = useState(false);
   const [visibleTimestampId, setVisibleTimestampId] = useState("");
-  const endRef = useRef<HTMLDivElement>(null);
+  const messagesViewportRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const timestampTimerRef = useRef<number | null>(null);
+  const scrollFrameRef = useRef<number | null>(null);
+  const shouldStickToBottomRef = useRef(true);
+  const lastScrollConversationIdRef = useRef("");
+  const lastMessageIdRef = useRef("");
 
   const selected = useMemo(
     () => conversations.find((item) => item._id === selectedId) ?? null,
     [conversations, selectedId]
   );
+  const latestMessageId = messages[messages.length - 1]?._id ?? "";
 
   const filteredPortalUsers = useMemo(() => {
     const query = portalUserSearch.trim().toLowerCase();
@@ -251,17 +256,59 @@ export default function MessengerClient({
     return () => window.clearInterval(id);
   }, [loadConversations, loadThread, selectedId]);
 
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages.length, selectedId]);
+  const scrollToLatestMessage = useCallback((behavior: ScrollBehavior = "auto") => {
+    const viewport = messagesViewportRef.current;
+    if (!viewport) return;
+    viewport.scrollTo({ top: viewport.scrollHeight, behavior });
+  }, []);
+
+  const scheduleScrollToLatestMessage = useCallback((behavior: ScrollBehavior = "auto") => {
+    if (scrollFrameRef.current) window.cancelAnimationFrame(scrollFrameRef.current);
+    scrollFrameRef.current = window.requestAnimationFrame(() => {
+      scrollToLatestMessage(behavior);
+      scrollFrameRef.current = window.requestAnimationFrame(() => {
+        scrollToLatestMessage(behavior);
+        scrollFrameRef.current = null;
+      });
+    });
+  }, [scrollToLatestMessage]);
+
+  const handleMessagesScroll = useCallback(() => {
+    const viewport = messagesViewportRef.current;
+    if (!viewport) return;
+    const distanceFromBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+    shouldStickToBottomRef.current = distanceFromBottom < 96;
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!selectedId || loadingThread) return;
+
+    const switchedConversation = selectedId !== lastScrollConversationIdRef.current;
+    const messageChanged = latestMessageId !== lastMessageIdRef.current;
+    if (!switchedConversation && !messageChanged) return;
+
+    const shouldScroll =
+      switchedConversation ||
+      shouldStickToBottomRef.current ||
+      latestMessageId.startsWith("pending-");
+
+    lastScrollConversationIdRef.current = selectedId;
+    lastMessageIdRef.current = latestMessageId;
+
+    if (!shouldScroll) return;
+    shouldStickToBottomRef.current = true;
+    scheduleScrollToLatestMessage(switchedConversation ? "auto" : "smooth");
+  }, [latestMessageId, loadingThread, scheduleScrollToLatestMessage, selectedId]);
 
   useEffect(() => {
+    shouldStickToBottomRef.current = true;
     setVisibleTimestampId("");
   }, [selectedId]);
 
   useEffect(() => {
     return () => {
       if (timestampTimerRef.current) window.clearTimeout(timestampTimerRef.current);
+      if (scrollFrameRef.current) window.cancelAnimationFrame(scrollFrameRef.current);
     };
   }, []);
 
@@ -521,7 +568,11 @@ export default function MessengerClient({
             </div>
           ) : (
             <>
-              <div className="flex-1 space-y-3 overflow-y-auto p-5">
+              <div
+                ref={messagesViewportRef}
+                onScroll={handleMessagesScroll}
+                className="flex-1 space-y-3 overflow-y-auto p-5"
+              >
                 {messages.length === 0 ? (
                   <div className="flex h-full items-center justify-center text-sm text-white/35">No messages in this conversation yet.</div>
                 ) : (
@@ -589,7 +640,6 @@ export default function MessengerClient({
                     );
                   })
                 )}
-                <div ref={endRef} />
               </div>
 
               <div className="border-t border-white/8 p-4">
