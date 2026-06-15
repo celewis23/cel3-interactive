@@ -159,7 +159,7 @@ export default function MessengerClient({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const timestampTimerRef = useRef<number | null>(null);
   const scrollFrameRef = useRef<number | null>(null);
-  const shouldStickToBottomRef = useRef(true);
+  const shouldStickToLatestRef = useRef(true);
   const lastScrollConversationIdRef = useRef("");
   const lastMessageIdRef = useRef("");
 
@@ -168,6 +168,7 @@ export default function MessengerClient({
     [conversations, selectedId]
   );
   const latestMessageId = messages[messages.length - 1]?._id ?? "";
+  const visibleMessages = useMemo(() => [...messages].reverse(), [messages]);
 
   const filteredPortalUsers = useMemo(() => {
     const query = portalUserSearch.trim().toLowerCase();
@@ -259,7 +260,7 @@ export default function MessengerClient({
   const scrollToLatestMessage = useCallback((behavior: ScrollBehavior = "auto") => {
     const viewport = messagesViewportRef.current;
     if (!viewport) return;
-    viewport.scrollTo({ top: viewport.scrollHeight, behavior });
+    viewport.scrollTo({ top: 0, behavior });
   }, []);
 
   const scheduleScrollToLatestMessage = useCallback((behavior: ScrollBehavior = "auto") => {
@@ -276,8 +277,7 @@ export default function MessengerClient({
   const handleMessagesScroll = useCallback(() => {
     const viewport = messagesViewportRef.current;
     if (!viewport) return;
-    const distanceFromBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
-    shouldStickToBottomRef.current = distanceFromBottom < 96;
+    shouldStickToLatestRef.current = viewport.scrollTop < 96;
   }, []);
 
   useLayoutEffect(() => {
@@ -289,19 +289,19 @@ export default function MessengerClient({
 
     const shouldScroll =
       switchedConversation ||
-      shouldStickToBottomRef.current ||
+      shouldStickToLatestRef.current ||
       latestMessageId.startsWith("pending-");
 
     lastScrollConversationIdRef.current = selectedId;
     lastMessageIdRef.current = latestMessageId;
 
     if (!shouldScroll) return;
-    shouldStickToBottomRef.current = true;
+    shouldStickToLatestRef.current = true;
     scheduleScrollToLatestMessage(switchedConversation ? "auto" : "smooth");
   }, [latestMessageId, loadingThread, scheduleScrollToLatestMessage, selectedId]);
 
   useEffect(() => {
-    shouldStickToBottomRef.current = true;
+    shouldStickToLatestRef.current = true;
     setVisibleTimestampId("");
   }, [selectedId]);
 
@@ -438,10 +438,15 @@ export default function MessengerClient({
   }
 
   const threadTitle = selected ? conversationLabel(selected) : mode === "admin" ? "Select a conversation" : "Messages";
+  const rootClass = selectedId ? "flex min-h-0 flex-col gap-3 max-md:overflow-hidden" : "flex flex-col gap-5";
+  const mobileShellHeightClass = mode === "admin" ? "max-md:h-[calc(100dvh-11.75rem)]" : "max-md:h-[calc(100dvh-10.25rem)]";
+  const shellClass = selectedId
+    ? `messenger-shell relative isolate z-0 min-h-0 overflow-hidden rounded-none border-y border-white/8 bg-white/3 max-md:-mx-4 ${mobileShellHeightClass} md:min-h-[620px] md:rounded-2xl md:border`
+    : "messenger-shell relative isolate z-0 min-h-[620px] overflow-hidden rounded-2xl border border-white/8 bg-white/3";
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className={rootClass}>
+      <div className={`${selectedId ? "hidden md:flex" : "flex"} flex-wrap items-start justify-between gap-4`}>
         <div>
           <h1 className="text-2xl font-semibold text-white">{mode === "admin" ? "Client Messages" : "Messages"}</h1>
           <p className="mt-1 text-sm text-white/40">
@@ -459,7 +464,7 @@ export default function MessengerClient({
         <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-300">{error}</div>
       )}
 
-      <div className="messenger-shell relative isolate z-0 min-h-[620px] overflow-hidden rounded-2xl border border-white/8 bg-white/3">
+      <div className={shellClass}>
         <aside className={`messenger-list ${selectedId ? "hidden" : "block"} border-white/8 md:block`}>
           <div className="border-b border-white/8 p-4">
             <div className="mb-3 flex items-center justify-between gap-3">
@@ -479,7 +484,7 @@ export default function MessengerClient({
               className="w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white outline-none placeholder:text-white/25 focus:border-sky-500/50"
             />
           </div>
-          <div className="max-h-[560px] overflow-y-auto">
+          <div className="max-h-[560px] overflow-y-auto md:max-h-none">
             {loadingList ? (
               <div className="space-y-2 p-4">
                 {[0, 1, 2].map((item) => <div key={item} className="h-16 animate-pulse rounded-xl bg-white/5" />)}
@@ -531,8 +536,8 @@ export default function MessengerClient({
           </div>
         </aside>
 
-        <section className={`messenger-thread ${selectedId ? "flex" : "hidden"} min-h-[620px] flex-col md:flex`}>
-          <div className="flex items-center justify-between gap-3 border-b border-white/8 px-5 py-4">
+        <section className={`messenger-thread ${selectedId ? "flex" : "hidden"} h-full min-h-0 flex-col md:flex md:min-h-[620px]`}>
+          <div className="shrink-0 flex items-center justify-between gap-3 border-b border-white/8 px-5 py-4">
             <div className="flex min-w-0 items-center gap-3">
               <button
                 type="button"
@@ -563,7 +568,7 @@ export default function MessengerClient({
               {mode === "admin" ? "Choose a client conversation from the list." : "Start a conversation or choose an existing one."}
             </div>
           ) : loadingThread ? (
-            <div className="flex-1 space-y-3 p-5">
+            <div className="flex-1 min-h-0 space-y-3 p-5">
               {[0, 1, 2, 3].map((item) => <div key={item} className="h-14 animate-pulse rounded-xl bg-white/5" />)}
             </div>
           ) : (
@@ -571,12 +576,12 @@ export default function MessengerClient({
               <div
                 ref={messagesViewportRef}
                 onScroll={handleMessagesScroll}
-                className="flex-1 space-y-3 overflow-y-auto p-5"
+                className="flex-1 min-h-0 space-y-3 overflow-y-auto overscroll-contain p-5"
               >
                 {messages.length === 0 ? (
                   <div className="flex h-full items-center justify-center text-sm text-white/35">No messages in this conversation yet.</div>
                 ) : (
-                  messages.map((message) => {
+                  visibleMessages.map((message) => {
                     const mine = mode === "admin" ? message.senderKind === "admin" : message.senderKind === "client";
                     return (
                       <div key={message._id} className={`flex items-end gap-2 ${mine ? "flex-row-reverse" : "flex-row"}`}>
@@ -642,7 +647,7 @@ export default function MessengerClient({
                 )}
               </div>
 
-              <div className="border-t border-white/8 p-4">
+              <div className="shrink-0 border-t border-white/8 bg-[#06080d] p-4">
                 {attachments.length > 0 && (
                   <div className="mb-3 flex flex-wrap gap-2">
                     {attachments.map((file, index) => (
