@@ -19,18 +19,18 @@ export default function AssessmentPaymentCard() {
       }
 
       window.location.href = data.url;
-    } catch (err: any) {
-      setError(err?.message || "Something went wrong.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
       setLoading(false);
     }
   }
 
   return (
     <div className="rounded-2xl border border-slate-200 p-6 lg:sticky lg:top-6 lg:h-fit">
-      <h2 className="text-xl font-semibold">Pay to book your assessment</h2>
+      <h2 className="text-xl font-semibold">Book the $150 discovery assessment</h2>
 
       <p className="mt-2 text-white/50">
-        Payment is required before scheduling. This ensures focused sessions and protects time.
+        Payment is required before scheduling. Console and platform build pricing is scoped after this session.
       </p>
 
       <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">

@@ -9,7 +9,7 @@ export default function AssessmentBookingForm({ defaultEmail = "" }: { defaultEm
   const [error, setError] = useState<string>("");
 
   const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("defaultEmail");
+  const [email, setEmail] = useState(defaultEmail);
   const [company, setCompany] = useState("");
   const [website, setWebsite] = useState("");
   const [goal, setGoal] = useState("");
@@ -29,7 +29,7 @@ export default function AssessmentBookingForm({ defaultEmail = "" }: { defaultEm
     setState("submitting");
 
     try {
-      const res = await fetch("/api/assessment", {
+      const res = await fetch("/api/fit/assessment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fullName, email, company, website, goal }),
@@ -42,8 +42,8 @@ export default function AssessmentBookingForm({ defaultEmail = "" }: { defaultEm
       }
 
       setState("success");
-    } catch (err: any) {
-      setError(err?.message || "Failed to submit. Please try again.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to submit. Please try again.");
       setState("error");
     }
   }

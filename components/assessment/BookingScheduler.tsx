@@ -7,8 +7,6 @@ import { DateTime } from "luxon";
 const TZ = "America/New_York";
 
 type Slot = { startIso: string; endIso: string };
-const router = useRouter();
-const [redirectIn, setRedirectIn] = useState<number | null>(null);
 
 export default function BookingScheduler({
   sessionId,
@@ -17,6 +15,7 @@ export default function BookingScheduler({
   sessionId: string;
   defaultEmail?: string;
 }) {
+  const router = useRouter();
   const [date, setDate] = useState(() => DateTime.now().setZone(TZ).toISODate()!);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [loading, setLoading] = useState(false);
@@ -52,7 +51,6 @@ export default function BookingScheduler({
 
   useEffect(() => {
     loadSlots(date);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date]);
 
   async function book() {
@@ -81,9 +79,9 @@ export default function BookingScheduler({
       }
 
       setSubmitState("success");
-    } catch (e: any) {
+    } catch (e: unknown) {
       setSubmitState("error");
-      setError(e?.message || "Booking failed.");
+      setError(e instanceof Error ? e.message : "Booking failed.");
     }
   }
 

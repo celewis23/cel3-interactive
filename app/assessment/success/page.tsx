@@ -1,7 +1,6 @@
 // app/assessment/success/page.tsx
 import Link from "next/link";
 import { stripe } from "@/lib/stripe";
-import AssessmentBookingForm from "@/components/assessment/AssessmentBookingForm";
 import BookingScheduler from "@/components/assessment/BookingScheduler";
 export default async function AssessmentSuccessPage({
   searchParams,

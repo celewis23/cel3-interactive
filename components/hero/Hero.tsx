@@ -84,7 +84,7 @@ export function Hero() {
                 </a>
               </div>
               <p className="mt-4 max-w-xl text-sm text-gray-300">
-                Plan the website, console, workflows, data, and integrations your business needs before you build.
+                Start with a fixed $150 assessment to map the website, console, workflows, data, and integrations before a full build is scoped.
               </p>
 
             </div>

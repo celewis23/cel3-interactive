@@ -79,7 +79,7 @@ export default function BusinessConsolesOperationsPlatformsPage() {
                   href="/assessment"
                   className="rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm text-white transition-colors hover:bg-[rgb(var(--accent))]/100"
                 >
-                  Start a Discovery Assessment
+                  Start a Discovery Assessment — $150
                 </Link>
 
                 <Link
@@ -185,11 +185,15 @@ export default function BusinessConsolesOperationsPlatformsPage() {
               Start with a discovery assessment. We will map the public experience, business console,
               data model, workflows, integrations, and first useful release.
             </p>
+            <p className="mt-3 max-w-3xl text-sm text-white/55">
+              The assessment is a fixed $150 strategy session. Custom platform pricing is scoped after
+              the assessment because each console depends on workflows, integrations, permissions, and launch needs.
+            </p>
             <Link
               href="/assessment"
               className="mt-7 inline-flex rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm text-white transition-colors hover:bg-[rgb(var(--accent))]/100"
             >
-              Plan Your Business Platform →
+              Book the $150 Assessment →
             </Link>
           </section>
 

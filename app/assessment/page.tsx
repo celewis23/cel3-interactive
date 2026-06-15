@@ -1,6 +1,5 @@
 // app/assessment/page.tsx
 import Link from "next/link";
-import AssessmentBookingForm from "@/components/assessment/AssessmentBookingForm";
 import AssessmentPaymentCard from "@/components/assessment/AssessmentPayCard";
 
 export const metadata = {
@@ -14,7 +13,7 @@ export default function AssessmentPage() {
     <main className="min-h-screen bg-black text-white">
       <section className="mx-auto max-w-5xl px-6 py-16">
         <div className="space-y-4">
-          <a href="/" className="text-white/30">← Back to Home</a>
+          <Link href="/" className="text-white/30">← Back to Home</Link>
           <p className="text-sm font-semibold tracking-wide text-[rgb(var(--accent))]">
             A MOMENT OF CLARITY
           </p>
@@ -25,7 +24,9 @@ export default function AssessmentPage() {
 
           <p className="max-w-2xl text-lg text-white/50">
             Get clarity on what to fix, improve, or build next before committing
-            to a full project.
+            to a full project. The assessment is a fixed $150 strategy session;
+            full platform pricing is scoped afterward based on the console,
+            workflows, integrations, and launch plan.
           </p>
         </div>
 

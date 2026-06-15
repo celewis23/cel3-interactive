@@ -37,7 +37,7 @@ export function BusinessConsoleSection() {
             href="/business-consoles-operations-platforms"
             className="mt-6 inline-flex rounded-full border border-white/20 bg-white/5 px-5 py-2.5 text-sm text-white/85 transition-colors hover:border-[rgb(var(--accent))] hover:bg-[rgb(var(--accent))]/100"
           >
-            Build Your Business Console →
+            Explore Business Console Systems →
           </Link>
         </div>
 
