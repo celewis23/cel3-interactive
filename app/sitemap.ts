@@ -13,19 +13,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     // Pillar pages
     {
+      url: `${SITE_URL}/business-consoles-operations-platforms`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.95,
+    },
+    {
       url: `${SITE_URL}/custom-web-applications`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.9,
     },
     {
-      url: `${SITE_URL}/custom-crm-dashboards`,
+      url: `${SITE_URL}/custom-data-dashboards`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.9,
     },
     {
       url: `${SITE_URL}/interactive-digital-experiences`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}/ai-enhanced-systems`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.9,

@@ -75,7 +75,8 @@ export default function Page() {
               <p className="mt-5 text-base md:text-lg text-white/75">
                 Your website should make the business easier to understand and easier to contact.
                 We build clear service pages, useful customer flows, and digital experiences that
-                support the way your company actually works.
+                connect to the way your company actually works: booking, ecommerce, customer records,
+                content updates, follow-up, and internal operations.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -83,7 +84,7 @@ export default function Page() {
                   href="/#fit"
                   className="rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm text-white hover:bg-white/15 transition-colors"
                 >
-                  Start a Conversation
+                  Plan Your Business Platform
                 </Link>
 
                 <Link
@@ -142,7 +143,8 @@ export default function Page() {
 
                 <p className="mt-4 text-white/75">
                   A good business website gives visitors the information they need, makes next
-                  steps obvious, and connects inquiries back to the team cleanly.
+                  steps obvious, and connects inquiries back to the team cleanly through forms,
+                  booking, ecommerce, content tools, and customer records.
                 </p>
 
                 <div className="mt-6 space-y-4">
@@ -238,11 +240,11 @@ export default function Page() {
                   Next step
                 </p>
                 <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                  If your website needs to work harder for the business, let’s scope it.
+                  If your website needs to work harder for the business, let’s scope the platform behind it.
                 </h2>
                 <p className="mt-4 text-white/75">
-                  Send your goals, audience, and constraints. I’ll reply with what we’d build first,
-                  how we’d measure success, and the clearest path to a useful first version.
+                  Send your goals, audience, and constraints. I’ll reply with what we’d build first:
+                  the public experience, the business console, and the workflow that makes it useful.
                 </p>
 
                 <div className="mt-7 flex flex-wrap items-center gap-4">
@@ -250,7 +252,7 @@ export default function Page() {
                     href="/#fit"
                     className="rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm text-white hover:bg-white/15 transition-colors"
                   >
-                    Send Fit Request →
+                    Start a Discovery Assessment →
                   </Link>
                   <span className="text-xs tracking-[0.22em] uppercase text-white/45">
                     Fast response • Clear next steps

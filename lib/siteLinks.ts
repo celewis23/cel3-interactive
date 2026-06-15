@@ -10,6 +10,10 @@ export const NAV_LINKS: NavLink[] = [
 
 export const PILLAR_LINKS = [
   {
+    label: "Business Consoles",
+    href: "/business-consoles-operations-platforms",
+  },
+  {
     label: "Custom Web Applications",
     href: "/custom-web-applications",
   },

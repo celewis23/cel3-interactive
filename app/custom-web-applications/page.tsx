@@ -11,28 +11,28 @@ export const metadata: Metadata = {
 
 const WHAT_WE_BUILD = [
   {
-    title: "Custom web applications",
-    desc: "Purpose-built apps with clear workflows, reliable states, and clean UX for daily use.",
+    title: "Business consoles",
+    desc: "Secure admin platforms for customers, products, bookings, content, communication, and operations.",
   },
   {
-    title: "Dashboards + admin panels",
-    desc: "Operational visibility, role-based views, and interfaces that reduce noise.",
+    title: "Customer portals",
+    desc: "Account experiences where customers can view projects, files, messages, invoices, requests, and status.",
   },
   {
-    title: "Interactive websites",
-    desc: "High-signal marketing sites that guide action and communicate value through feedback.",
+    title: "Ecommerce systems",
+    desc: "Storefronts, checkout, product management, order workflows, and internal commerce controls.",
   },
   {
-    title: "Workflow + internal systems",
-    desc: "Replace manual handoffs with systems that enforce process and keep teams aligned.",
+    title: "Booking platforms",
+    desc: "Scheduling, intake, appointment management, staff views, reminders, and customer follow-up.",
   },
   {
-    title: "Custom CRMs",
-    desc: "If generic tools don’t fit, we build a CRM that matches how you actually run ops.",
+    title: "Communication hubs",
+    desc: "Messaging, email, notifications, customer history, and follow-up workflows in one place.",
   },
   {
-    title: "E-commerce beyond templates",
-    desc: "When storefronts aren’t enough: catalogs, portals, pricing rules, integrations, and more.",
+    title: "AI-ready workflow tools",
+    desc: "Structured data and permissions that let AI assist safely with summaries, drafts, and insights.",
   },
 ] as const;
 
@@ -88,7 +88,7 @@ export default function CustomWebApplicationsPage() {
                 href="/#fit"
                 className="rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm text-white hover:bg-[rgb(var(--accent))]/100 transition-colors"
               >
-                Start a Conversation
+                Plan Your Business Platform
               </Link>
 
               <Link
@@ -197,11 +197,12 @@ export default function CustomWebApplicationsPage() {
                 Next step
               </p>
               <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                Start with clarity, then ship.
+                Start with the operating model, then ship.
               </h2>
               <p className="mt-4 text-white/75">
-                If you’re exploring a custom web application, interactive platform, or internal system,
-                send your scope and constraints. You’ll get a clear reply with next steps and what we’d ship first.
+                If you’re exploring a business console, customer portal, ecommerce workflow,
+                booking system, or internal platform, send your scope and constraints. You’ll get
+                a clear reply with next steps and what we’d ship first.
               </p>
 
               <div className="mt-7 flex flex-wrap items-center gap-4">
@@ -209,7 +210,7 @@ export default function CustomWebApplicationsPage() {
                   href="/#fit"
                   className="rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm text-white hover:bg-[rgb(var(--accent))]/100 transition-colors"
                 >
-                  Send Fit Request →
+                  Discuss Your Digital System →
                 </Link>
                 <span className="text-xs tracking-[0.22em] uppercase text-white/45">
                   Fast response • Clear direction

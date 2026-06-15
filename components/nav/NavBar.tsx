@@ -27,7 +27,8 @@ export function NavBar() {
 
   // Close menu when route changes
   useEffect(() => {
-    setOpen(false);
+    const frame = window.requestAnimationFrame(() => setOpen(false));
+    return () => window.cancelAnimationFrame(frame);
   }, [pathname]);
 
   // Escape to close
@@ -94,7 +95,7 @@ export function NavBar() {
                 href="/#fit"
                 className="text-sm text-white border border-white/20 hover:bg-[rgb(var(--accent))]/100 rounded-full px-4 py-2 transition-colors"
               >
-                Let’s See If We’re a Fit
+                Start Discovery
               </Link>
             </nav>
 
@@ -197,7 +198,7 @@ export function NavBar() {
                     "hover:bg-[rgba(var(--accent),0.95)] hover:border-transparent transition-colors",
                   ].join(" ")}
                 >
-                  Let’s See If We’re a Fit
+                  Start Discovery
                 </Link>
               </div>
             </div>

@@ -8,7 +8,7 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Selected Work & Case Studies | CEL3 Interactive",
   description:
-    "A selection of custom web applications, interactive platforms, and digital systems built by CEL3 Interactive.",
+    "A selection of custom business platforms, websites, business consoles, portals, ecommerce systems, and AI-ready operations tools built by CEL3 Interactive.",
 };
 
 
@@ -19,7 +19,7 @@ type Item = {
   summary?: string;
   client?: string;
   industry?: string;
-  heroImage?: any;
+  heroImage?: unknown;
   featured?: boolean;
 };
 
@@ -60,7 +60,7 @@ function Card({ p }: { p: Item }) {
         </div>
 
         <p className="mt-3 text-sm text-white/70 line-clamp-3">
-          {p.summary ?? "Full breakdown: problem → approach → build → results."}
+          {p.summary ?? "Full breakdown: problem → solution → business impact → platform components."}
         </p>
 
         <div className="mt-5 text-sm text-white/70 group-hover:text-white transition-colors">
@@ -85,7 +85,8 @@ export default async function WorkIndexPage() {
               Case Studies
             </h1>
             <p className="mt-3 max-w-2xl text-white/70">
-              Interactive builds, systems, and experiences. Full storytelling breakdowns.
+              Business platforms, public experiences, consoles, portals, and operational systems.
+              Full breakdowns show the problem, solution, business impact, and platform components.
             </p>
           </div>
           <div className="flex gap-2">
@@ -99,7 +100,7 @@ export default async function WorkIndexPage() {
                 href="/#fit"
                 className="hidden md:inline-flex rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-[rgb(var(--accent))] transition-colors"
             >
-                Start a project →
+                Start a discovery assessment →
             </Link>
           </div>
         </div>

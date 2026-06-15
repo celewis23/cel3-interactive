@@ -18,6 +18,16 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
+const PLATFORM_COMPONENTS = [
+  "Public website",
+  "Business console",
+  "CMS",
+  "Booking or commerce workflows",
+  "Customer management",
+  "Analytics",
+  "AI-ready architecture",
+] as const;
+
 export async function generateStaticParams() {
   const slugs = await sanityServer.fetch<{ slug: string }[]>(workSlugsQuery);
   return slugs.map((s) => ({ slug: s.slug }));
@@ -176,18 +186,62 @@ export default async function WorkDetailPage({ params }: PageProps) {
                 <div className="mt-6 rounded-xl border border-white/10 bg-black/30 p-4">
                   <div className="text-sm text-white/80">Want something like this?</div>
                   <p className="mt-2 text-sm text-white/60">
-                    Send a Fit request and we’ll map scope, timeline, and build strategy.
+                    Start a discovery assessment and we’ll map the public experience,
+                    business console, workflows, integrations, and first useful release.
                   </p>
                   <a
-                    href="/#fit"
+                    href="/assessment"
                     className="mt-4 inline-block rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors"
                   >
-                    Let’s Talk →
+                    Start Assessment →
                   </a>
                 </div>
               </div>
             </div>
           </div>
+
+          <section className="mt-12 rounded-2xl border border-white/10 bg-white/5 p-6">
+            <p className="text-xs tracking-[0.25em] uppercase text-white/55">
+              Business framing
+            </p>
+            <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="rounded-xl border border-white/10 bg-black/25 p-4">
+                <h2 className="text-sm font-semibold text-white">Problem</h2>
+                <p className="mt-2 text-sm text-white/70">
+                  The business needed more than a marketing website. The platform had to support
+                  customer activity, content, operational visibility, and ongoing management.
+                </p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-black/25 p-4">
+                <h2 className="text-sm font-semibold text-white">Solution</h2>
+                <p className="mt-2 text-sm text-white/70">
+                  CEL3 shaped the public experience and supporting platform architecture so the
+                  client could manage the business with fewer disconnected tools.
+                </p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-black/25 p-4">
+                <h2 className="text-sm font-semibold text-white">Business Impact</h2>
+                <p className="mt-2 text-sm text-white/70">
+                  The result is a centralized system that gives the client more control over daily
+                  operations and creates a stronger foundation for future workflow and AI features.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <h2 className="text-sm font-semibold text-white">Platform Components</h2>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {PLATFORM_COMPONENTS.map((component) => (
+                  <span
+                    key={component}
+                    className="rounded-full border border-white/15 bg-black/30 px-3 py-1 text-xs text-white/70"
+                  >
+                    {component}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </section>
         </div>
       </CaseStudyGalleryProvider>
     </main>

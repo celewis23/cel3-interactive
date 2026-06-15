@@ -8,24 +8,29 @@ type Pillar = {
 
 const PILLARS: Pillar[] = [
   {
+    label: "Business Consoles & Operations Platforms",
+    href: "/business-consoles-operations-platforms",
+    desc: "Secure backoffices for managing customers, commerce, bookings, content, communication, and operations.",
+  },
+  {
     label: "Custom Web Applications",
     href: "/custom-web-applications",
-    desc: "Platforms, portals, and internal tools built around real workflows.",
+    desc: "Custom portals, ecommerce systems, booking flows, and workflow tools built around real operations.",
   },
   {
     label: "Custom CRMs & Dashboards",
     href: "/custom-data-dashboards",
-    desc: "Replace spreadsheets with a single source of truth and automation.",
+    desc: "Customer records, reporting surfaces, and dashboards your team can trust.",
   },
   {
     label: "Interactive Digital Experiences",
     href: "/interactive-digital-experiences",
-    desc: "Business websites and customer experiences that make services easier to understand.",
+    desc: "Public websites and customer experiences connected to real business workflows.",
   },
     {
-    label: "Automation & Integrations",
+    label: "AI-Enhanced Operations",
     href: "/ai-enhanced-systems",
-    desc: "Practical workflow automation and connected tools for day-to-day operations.",
+    desc: "Assistive AI, practical automation, and connected tools with human oversight.",
   },
 ];
 

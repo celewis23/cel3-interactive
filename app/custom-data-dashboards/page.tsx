@@ -5,9 +5,9 @@ import SystemSignalBadge from "@/components/ui/SystemSignalBadge";
 import PillarLinks from "@/components/sections/PillarLinks";
 
 export const metadata: Metadata = {
-  title: "Custom CRMs & Data Dashboards | CEL3 Interactive",
+  title: "Customer Management, CRMs & Operations Dashboards | CEL3 Interactive",
   description:
-    "Custom CRMs, dashboards, and reporting tools that organize business information and support better day-to-day decisions.",
+    "Customer management systems, CRMs, reporting dashboards, and operational views that give businesses clearer records and better day-to-day decisions.",
 };
 
 const PAIN_POINTS = [
@@ -62,15 +62,15 @@ export default function Page() {
               </p>
 
               <h1 className="mt-4 text-4xl md:text-5xl font-semibold tracking-tight text-white">
-                Turn raw data into clarity your team can actually use.
+                Turn customer records, operations, and reporting into clarity your team can actually use.
               </h1>
 
               <p className="mt-5 text-base md:text-lg text-white/75 max-w-3xl">
                 Most businesses don’t have a “data problem” — they have a{" "}
                 <span className="text-white/90 font-medium">visibility</span>{" "}
                 problem. When metrics are scattered, definitions change, and reporting is manual,
-                decisions get slower and execution gets messy. We build data-driven interfaces that
-                make the truth obvious and the next move clear.
+                decisions get slower and execution gets messy. We build customer management systems,
+                dashboards, and reporting surfaces that make the truth obvious and the next move clear.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -78,7 +78,7 @@ export default function Page() {
                   href="/#fit"
                   className="rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm text-white hover:bg-[rgb(var(--accent))]/100 transition-colors"
                 >
-                  Start a Conversation
+                  Plan Your Business Console
                 </Link>
 
                 <Link
@@ -207,11 +207,11 @@ export default function Page() {
                   Next step
                 </p>
                 <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                  If you want visibility you can trust, let’s scope it.
+                  If you want records and visibility your team can trust, let’s scope it.
                 </h2>
                 <p className="mt-4 text-white/75">
-                  Share your current tools, the metrics you care about, and what you wish you could
-                  see instantly. I’ll reply with a build plan, timeline, and what we’d ship first.
+                  Share your current tools, customer records, reporting needs, and what you wish you
+                  could see instantly. I’ll reply with a build plan, timeline, and what we’d ship first.
                 </p>
 
                 <div className="mt-7 flex flex-wrap items-center gap-4">
@@ -219,7 +219,7 @@ export default function Page() {
                     href="/#fit"
                     className="rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm text-white hover:bg-[rgb(var(--accent))]/100 transition-colors"
                   >
-                    Send Fit Request →
+                    Start a Discovery Assessment →
                   </Link>
                   <span className="text-xs tracking-[0.22em] uppercase text-white/45">
                     Fast response • Clear next steps

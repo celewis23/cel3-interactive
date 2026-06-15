@@ -4,37 +4,37 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Section } from "../layout/Section";
 
-type CapKey = "experiences" | "platforms" | "data" | "automation";
+type CapKey = "experiences" | "systems" | "commerce" | "ai";
 
 const CAPS: Record<CapKey, { title: string; desc: string; detail: string }> = {
   experiences: {
-    title: "Business Websites",
-    desc: "Websites that explain your services clearly and help customers take the next step.",
-    detail: "Clear messaging, useful structure, and dependable implementation.",
+    title: "Digital Experiences",
+    desc: "Websites, landing pages, interactive brand experiences, mobile-first interfaces, and public customer experiences.",
+    detail: "Public-facing experiences that explain what you offer, guide action, and connect visitors to the next operational step.",
   },
-  platforms: {
-    title: "Web Applications & Platforms",
-    desc: "Custom portals, booking tools, internal apps, and workflows built for daily use.",
-    detail: "Software shaped around how your business actually operates.",
+  systems: {
+    title: "Business Systems",
+    desc: "Admin consoles, client portals, customer management, internal dashboards, and workflow tools.",
+    detail: "Secure tools for managing customers, staff tasks, content, requests, reporting, and daily operations.",
   },
-  data: {
-    title: "CRMs & Dashboards",
-    desc: "Customer records, reporting views, and operational dashboards your team can trust.",
-    detail: "Cleaner information for owners, staff, sales, and operations.",
+  commerce: {
+    title: "Commerce & Bookings",
+    desc: "Ecommerce stores, Stripe checkout, product management, inventory tools, booking systems, and appointment management.",
+    detail: "Selling, scheduling, fulfillment, and customer activity connected to the systems your team uses behind the scenes.",
   },
-  automation: {
-    title: "Automation & Integrations",
-    desc: "Connect the tools you already use and reduce repetitive manual work.",
-    detail: "Practical automation with clear rules, oversight, and maintainable workflows.",
+  ai: {
+    title: "AI-Enhanced Operations",
+    desc: "AI reply assistants, customer summaries, content support, workflow automation, business insights, and staff assistance tools.",
+    detail: "Assistive AI that surfaces context, drafts useful work, and keeps human review in the process.",
   },
 };
 
 // Pillar routes (update these paths if your pillar slugs differ)
 const CAP_LINKS: Record<CapKey, string> = {
   experiences: "/interactive-digital-experiences",
-  platforms: "/custom-web-applications",
-  data: "/custom-data-dashboards",
-  automation: "/ai-enhanced-systems",
+  systems: "/business-consoles-operations-platforms",
+  commerce: "/custom-web-applications",
+  ai: "/ai-enhanced-systems",
 };
 
 export function CapabilityMatrix() {
@@ -44,10 +44,10 @@ export function CapabilityMatrix() {
   const activeCap = useMemo(() => CAPS[active], [active]);
 
   const items: { key: CapKey; label: string }[] = [
-    { key: "experiences", label: "Business Websites" },
-    { key: "platforms", label: "Web Applications & Platforms" },
-    { key: "data", label: "CRMs & Dashboards" },
-    { key: "automation", label: "Automation & Integrations" },
+    { key: "experiences", label: "Digital Experiences" },
+    { key: "systems", label: "Business Systems" },
+    { key: "commerce", label: "Commerce & Bookings" },
+    { key: "ai", label: "AI-Enhanced Operations" },
   ];
 
   const handleNavigate = (key: CapKey) => {
@@ -72,7 +72,7 @@ export function CapabilityMatrix() {
             onClick={() => handleNavigate(active)}
             className="mt-6 inline-flex items-center text-sm font-semibold text-white/80 hover:text-white"
           >
-            Learn more about {activeCap.title} →
+            Explore {activeCap.title} →
           </button>
         </div>
 
