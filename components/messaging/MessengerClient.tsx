@@ -159,7 +159,7 @@ export default function MessengerClient({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const timestampTimerRef = useRef<number | null>(null);
   const scrollFrameRef = useRef<number | null>(null);
-  const shouldStickToLatestRef = useRef(true);
+  const shouldStickToBottomRef = useRef(true);
   const lastScrollConversationIdRef = useRef("");
   const lastMessageIdRef = useRef("");
 
@@ -168,7 +168,6 @@ export default function MessengerClient({
     [conversations, selectedId]
   );
   const latestMessageId = messages[messages.length - 1]?._id ?? "";
-  const visibleMessages = useMemo(() => [...messages].reverse(), [messages]);
 
   const filteredPortalUsers = useMemo(() => {
     const query = portalUserSearch.trim().toLowerCase();
@@ -260,7 +259,7 @@ export default function MessengerClient({
   const scrollToLatestMessage = useCallback((behavior: ScrollBehavior = "auto") => {
     const viewport = messagesViewportRef.current;
     if (!viewport) return;
-    viewport.scrollTo({ top: 0, behavior });
+    viewport.scrollTo({ top: viewport.scrollHeight, behavior });
   }, []);
 
   const scheduleScrollToLatestMessage = useCallback((behavior: ScrollBehavior = "auto") => {
@@ -277,7 +276,8 @@ export default function MessengerClient({
   const handleMessagesScroll = useCallback(() => {
     const viewport = messagesViewportRef.current;
     if (!viewport) return;
-    shouldStickToLatestRef.current = viewport.scrollTop < 96;
+    const distanceFromBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+    shouldStickToBottomRef.current = distanceFromBottom < 96;
   }, []);
 
   useLayoutEffect(() => {
@@ -289,19 +289,19 @@ export default function MessengerClient({
 
     const shouldScroll =
       switchedConversation ||
-      shouldStickToLatestRef.current ||
+      shouldStickToBottomRef.current ||
       latestMessageId.startsWith("pending-");
 
     lastScrollConversationIdRef.current = selectedId;
     lastMessageIdRef.current = latestMessageId;
 
     if (!shouldScroll) return;
-    shouldStickToLatestRef.current = true;
+    shouldStickToBottomRef.current = true;
     scheduleScrollToLatestMessage(switchedConversation ? "auto" : "smooth");
   }, [latestMessageId, loadingThread, scheduleScrollToLatestMessage, selectedId]);
 
   useEffect(() => {
-    shouldStickToLatestRef.current = true;
+    shouldStickToBottomRef.current = true;
     setVisibleTimestampId("");
   }, [selectedId]);
 
@@ -581,7 +581,7 @@ export default function MessengerClient({
                 {messages.length === 0 ? (
                   <div className="flex h-full items-center justify-center text-sm text-white/35">No messages in this conversation yet.</div>
                 ) : (
-                  visibleMessages.map((message) => {
+                  messages.map((message) => {
                     const mine = mode === "admin" ? message.senderKind === "admin" : message.senderKind === "client";
                     return (
                       <div key={message._id} className={`flex items-end gap-2 ${mine ? "flex-row-reverse" : "flex-row"}`}>

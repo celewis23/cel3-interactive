@@ -1,6 +1,7 @@
 "use client";
 
 import { KeyboardEvent, useEffect, useRef, useState } from "react";
+import { useDraggableFloatingButton } from "@/components/shared/useDraggableFloatingButton";
 
 type Message = {
   role: "user" | "assistant";
@@ -35,6 +36,9 @@ export default function PortalAssistant() {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const { consumeDragClick, dragHandleProps } = useDraggableFloatingButton({
+    storageKey: "cel3-portal-ai-assistant-position",
+  });
 
   useEffect(() => {
     try {
@@ -139,9 +143,13 @@ export default function PortalAssistant() {
   return (
     <>
       <button
+        {...dragHandleProps}
         type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className={`fixed bottom-[76px] right-4 lg:bottom-6 lg:right-6 z-50 w-12 h-12 rounded-full shadow-2xl flex items-center justify-center transition-all duration-200 ${iconButtonClass}`}
+        onClick={() => {
+          if (consumeDragClick()) return;
+          setOpen((prev) => !prev);
+        }}
+        className={`fixed bottom-[76px] right-4 lg:bottom-6 lg:right-6 z-50 w-12 h-12 cursor-grab rounded-full shadow-2xl flex items-center justify-center transition-colors duration-200 active:cursor-grabbing ${iconButtonClass}`}
         title="Portal Assistant"
         aria-label="Open portal assistant"
       >

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, KeyboardEvent } from "react";
+import { useDraggableFloatingButton } from "@/components/shared/useDraggableFloatingButton";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -72,6 +73,9 @@ export default function AIAssistant({ theme }: { theme: AdminTheme }) {
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const { consumeDragClick, dragHandleProps } = useDraggableFloatingButton({
+    storageKey: "cel3-admin-ai-assistant-position",
+  });
 
   // Auto-scroll
   useEffect(() => {
@@ -188,8 +192,12 @@ export default function AIAssistant({ theme }: { theme: AdminTheme }) {
     <>
       {/* Floating button — sits above the mobile bottom nav bar on small screens */}
       <button
-        onClick={() => setOpen(!open)}
-        className={`fixed bottom-[76px] right-4 lg:bottom-6 lg:right-6 z-50 w-12 h-12 rounded-full shadow-2xl flex items-center justify-center transition-all duration-200 ${
+        {...dragHandleProps}
+        onClick={() => {
+          if (consumeDragClick()) return;
+          setOpen(!open);
+        }}
+        className={`fixed bottom-[76px] right-4 lg:bottom-6 lg:right-6 z-50 w-12 h-12 cursor-grab rounded-full shadow-2xl flex items-center justify-center transition-colors duration-200 active:cursor-grabbing ${
           open
             ? floatingOpenClass
             : floatingClosedClass
