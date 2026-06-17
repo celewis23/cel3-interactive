@@ -32,6 +32,7 @@ type MessageAttachment = {
   thumbnailLink: string | null;
   contentType: string;
   size: number | null;
+  localUrl?: string;
 };
 
 type Message = {
@@ -59,6 +60,13 @@ type PortalUser = {
 };
 
 const POLL_MS = 15_000;
+const MAX_IMAGES_PER_MESSAGE = 8;
+
+type SelectedImage = {
+  id: string;
+  file: File;
+  previewUrl: string;
+};
 
 async function readApiJson<T>(res: Response, fallbackMessage: string): Promise<T> {
   const text = await res.text();
@@ -103,8 +111,18 @@ function conversationLabel(conversation: Conversation) {
   return conversation.title || conversation.company || conversation.clientName || conversation.clientEmail || "Conversation";
 }
 
-function fileLabel(file: File) {
-  return `${file.name}${file.size ? ` (${formatFileSize(file.size)})` : ""}`;
+function isImageAttachment(attachment: MessageAttachment) {
+  return attachment.contentType.startsWith("image/");
+}
+
+function attachmentImageSrc(attachment: MessageAttachment) {
+  if (attachment.localUrl) return attachment.localUrl;
+  if (!attachment.driveFileId) return attachment.thumbnailLink;
+  return `/api/messages/attachments/${encodeURIComponent(attachment.driveFileId)}`;
+}
+
+function revokeImagePreviews(images: SelectedImage[]) {
+  images.forEach((image) => URL.revokeObjectURL(image.previewUrl));
 }
 
 function senderInitial(name: string, email?: string | null) {
@@ -144,9 +162,10 @@ export default function MessengerClient({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [compose, setCompose] = useState("");
-  const [attachments, setAttachments] = useState<File[]>([]);
+  const [attachments, setAttachments] = useState<SelectedImage[]>([]);
   const [newTitle, setNewTitle] = useState("");
   const [newBody, setNewBody] = useState("");
+  const [newAttachments, setNewAttachments] = useState<SelectedImage[]>([]);
   const [portalUsers, setPortalUsers] = useState<PortalUser[]>([]);
   const [selectedPortalUserId, setSelectedPortalUserId] = useState("");
   const [portalUserSearch, setPortalUserSearch] = useState("");
@@ -157,11 +176,14 @@ export default function MessengerClient({
   const [visibleTimestampId, setVisibleTimestampId] = useState("");
   const messagesViewportRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const newFileInputRef = useRef<HTMLInputElement>(null);
   const timestampTimerRef = useRef<number | null>(null);
   const scrollFrameRef = useRef<number | null>(null);
   const shouldStickToBottomRef = useRef(true);
   const lastScrollConversationIdRef = useRef("");
   const lastMessageIdRef = useRef("");
+  const attachmentsRef = useRef<SelectedImage[]>([]);
+  const newAttachmentsRef = useRef<SelectedImage[]>([]);
 
   const selected = useMemo(
     () => conversations.find((item) => item._id === selectedId) ?? null,
@@ -309,8 +331,18 @@ export default function MessengerClient({
     return () => {
       if (timestampTimerRef.current) window.clearTimeout(timestampTimerRef.current);
       if (scrollFrameRef.current) window.cancelAnimationFrame(scrollFrameRef.current);
+      revokeImagePreviews(attachmentsRef.current);
+      revokeImagePreviews(newAttachmentsRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    attachmentsRef.current = attachments;
+  }, [attachments]);
+
+  useEffect(() => {
+    newAttachmentsRef.current = newAttachments;
+  }, [newAttachments]);
 
   function selectConversation(id: string) {
     setSelectedId(id);
@@ -325,10 +357,37 @@ export default function MessengerClient({
     else router.push("/portal/messages");
   }
 
-  function onFilesSelected(files: FileList | null) {
+  function addImageAttachments(
+    files: FileList | null,
+    update: React.Dispatch<React.SetStateAction<SelectedImage[]>>,
+    inputRef: React.RefObject<HTMLInputElement | null>
+  ) {
     if (!files) return;
-    setAttachments((current) => [...current, ...Array.from(files)].slice(0, 8));
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    const selectedImages = Array.from(files).filter((file) => file.type.startsWith("image/"));
+    if (selectedImages.length !== files.length) {
+      setError("Only image files can be sent in chat messages");
+    }
+    update((current) => {
+      const available = Math.max(0, MAX_IMAGES_PER_MESSAGE - current.length);
+      const nextImages = selectedImages.slice(0, available).map((file, index) => ({
+        id: `${Date.now()}-${index}-${file.name}`,
+        file,
+        previewUrl: URL.createObjectURL(file),
+      }));
+      return [...current, ...nextImages];
+    });
+    if (inputRef.current) inputRef.current.value = "";
+  }
+
+  function removeImageAttachment(
+    index: number,
+    update: React.Dispatch<React.SetStateAction<SelectedImage[]>>
+  ) {
+    update((current) => {
+      const removed = current[index];
+      if (removed) URL.revokeObjectURL(removed.previewUrl);
+      return current.filter((_, itemIndex) => itemIndex !== index);
+    });
   }
 
   function showTimestamp(messageId: string) {
@@ -343,7 +402,7 @@ export default function MessengerClient({
   async function sendMessage() {
     const body = compose.trim();
     if (!selectedId || (!body && attachments.length === 0)) return;
-    const selectedFiles = attachments;
+    const selectedImages = attachments;
     setSending(true);
     setError("");
     const optimistic: Message = {
@@ -357,16 +416,17 @@ export default function MessengerClient({
       body,
       createdAt: new Date().toISOString(),
       deletedAt: null,
-      attachments: selectedFiles.map((file, index) => ({
+      attachments: selectedImages.map((image, index) => ({
         _key: `pending-file-${index}`,
         driveFileId: "",
-        fileName: file.name,
-        fileUrl: null,
+        fileName: image.file.name,
+        fileUrl: image.previewUrl,
         webViewLink: null,
         webContentLink: null,
-        thumbnailLink: null,
-        contentType: file.type || "application/octet-stream",
-        size: file.size,
+        thumbnailLink: image.previewUrl,
+        contentType: image.file.type || "image/*",
+        size: image.file.size,
+        localUrl: image.previewUrl,
       })),
       pending: true,
     };
@@ -374,12 +434,12 @@ export default function MessengerClient({
     setCompose("");
     setAttachments([]);
     try {
-      const hasFiles = selectedFiles.length > 0;
+      const hasFiles = selectedImages.length > 0;
       const init: RequestInit = { method: "POST" };
       if (hasFiles) {
         const formData = new FormData();
         formData.set("body", body);
-        selectedFiles.forEach((file) => formData.append("files", file));
+        selectedImages.forEach((image) => formData.append("files", image.file));
         init.body = formData;
       } else {
         init.headers = { "Content-Type": "application/json" };
@@ -389,11 +449,12 @@ export default function MessengerClient({
       const res = await fetch(`/api/messages/conversations/${selectedId}/messages`, init);
       const data = await readApiJson<{ message: Message }>(res, "Failed to send message");
       setMessages((prev) => prev.map((item) => item._id === optimistic._id ? data.message : item));
+      revokeImagePreviews(selectedImages);
       void loadConversations(true);
     } catch (err) {
       setMessages((prev) => prev.filter((item) => item._id !== optimistic._id));
       setCompose(body);
-      setAttachments(selectedFiles);
+      setAttachments(selectedImages);
       setError(err instanceof Error ? err.message : "Failed to send message");
     } finally {
       setSending(false);
@@ -403,26 +464,39 @@ export default function MessengerClient({
   async function startConversation(e: React.FormEvent) {
     e.preventDefault();
     const body = newBody.trim();
-    if (!body) return;
+    if (!body && newAttachments.length === 0) return;
     if (mode === "admin" && !selectedPortalUserId) {
       setError("Choose a portal user before starting a conversation");
       return;
     }
+    const selectedImages = newAttachments;
     setStarting(true);
     setError("");
     try {
-      const res = await fetch("/api/messages/conversations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const hasFiles = selectedImages.length > 0;
+      const init: RequestInit = { method: "POST" };
+      if (hasFiles) {
+        const formData = new FormData();
+        formData.set("title", newTitle.trim());
+        formData.set("body", body);
+        if (mode === "admin") formData.set("portalUserId", selectedPortalUserId);
+        selectedImages.forEach((image) => formData.append("files", image.file));
+        init.body = formData;
+      } else {
+        init.headers = { "Content-Type": "application/json" };
+        init.body = JSON.stringify({
           title: newTitle.trim(),
           body,
           portalUserId: mode === "admin" ? selectedPortalUserId : undefined,
-        }),
-      });
+        });
+      }
+
+      const res = await fetch("/api/messages/conversations", init);
       const data = await readApiJson<{ conversation: Conversation }>(res, "Failed to start conversation");
       setNewTitle("");
       setNewBody("");
+      setNewAttachments([]);
+      revokeImagePreviews(selectedImages);
       setShowNewConversation(false);
       if (mode === "admin") {
         setSelectedPortalUserId(portalUsers[0]?._id || "");
@@ -611,34 +685,48 @@ export default function MessengerClient({
                           )}
                           <span className={`absolute bottom-0 h-4 w-4 ${mine ? "-right-1 bg-sky-500" : "-left-1 bg-white"} rotate-45`} aria-hidden="true" />
                           <div className="relative z-10">
-                          {message.body && <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[#111111]">{message.body}</p>}
-                          {message.attachments && message.attachments.length > 0 && (
-                            <div className="mt-3 grid gap-2">
-                              {message.attachments.map((attachment) => {
-                                const href = attachment.webViewLink || attachment.fileUrl || attachment.webContentLink || "#";
-                                return (
-                                  <a
-                                    key={attachment._key}
-                                    href={href}
-                                    target={href === "#" ? undefined : "_blank"}
-                                    rel="noreferrer"
-                                    className="flex items-center gap-3 rounded-xl border border-black/10 bg-black/[0.04] p-2 text-left transition hover:border-sky-500/40"
-                                  >
-                                    {attachment.thumbnailLink ? (
-                                      // eslint-disable-next-line @next/next/no-img-element
-                                      <img src={attachment.thumbnailLink} alt="" className="h-11 w-11 rounded-lg object-cover" />
-                                    ) : (
+                            {message.body && <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[#111111]">{message.body}</p>}
+                            {message.attachments && message.attachments.length > 0 && (
+                              <div className={`${message.body ? "mt-3" : ""} grid gap-2`}>
+                                {message.attachments.map((attachment) => {
+                                  const imageSrc = isImageAttachment(attachment) ? attachmentImageSrc(attachment) : null;
+                                  const href = attachment.webViewLink || attachment.fileUrl || attachment.webContentLink || imageSrc || "#";
+                                  if (imageSrc) {
+                                    return (
+                                      <a
+                                        key={attachment._key}
+                                        href={href}
+                                        target={href === "#" || attachment.localUrl ? undefined : "_blank"}
+                                        rel="noreferrer"
+                                        className="group block overflow-hidden rounded-xl border border-black/10 bg-black/[0.04] text-left"
+                                      >
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={imageSrc} alt={attachment.fileName} className="max-h-80 w-full min-w-44 max-w-[min(22rem,70vw)] object-contain" />
+                                        <span className="flex items-center justify-between gap-3 border-t border-black/10 px-3 py-2">
+                                          <span className="min-w-0 truncate text-xs font-semibold text-black/70">{attachment.fileName}</span>
+                                          <span className="shrink-0 text-[11px] text-black/45">{message.pending ? "Sending..." : formatFileSize(attachment.size)}</span>
+                                        </span>
+                                      </a>
+                                    );
+                                  }
+                                  return (
+                                    <a
+                                      key={attachment._key}
+                                      href={href}
+                                      target={href === "#" ? undefined : "_blank"}
+                                      rel="noreferrer"
+                                      className="flex items-center gap-3 rounded-xl border border-black/10 bg-black/[0.04] p-2 text-left transition hover:border-sky-500/40"
+                                    >
                                       <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-black/5 text-xs text-black/50">FILE</span>
-                                    )}
-                                    <span className="min-w-0 flex-1">
-                                      <span className="block truncate text-xs font-semibold text-black/75">{attachment.fileName}</span>
-                                      <span className="block text-[11px] text-black/45">{formatFileSize(attachment.size)}</span>
-                                    </span>
-                                  </a>
-                                );
-                              })}
-                            </div>
-                          )}
+                                      <span className="min-w-0 flex-1">
+                                        <span className="block truncate text-xs font-semibold text-black/75">{attachment.fileName}</span>
+                                        <span className="block text-[11px] text-black/45">{formatFileSize(attachment.size)}</span>
+                                      </span>
+                                    </a>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -649,18 +737,22 @@ export default function MessengerClient({
 
               <div className="shrink-0 w-full max-w-full border-t border-white/8 bg-[#06080d] p-3 max-md:pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:p-4">
                 {attachments.length > 0 && (
-                  <div className="mb-3 flex flex-wrap gap-2">
-                    {attachments.map((file, index) => (
-                      <span key={`${file.name}-${index}`} className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/65">
-                        <span className="truncate">{fileLabel(file)}</span>
+                  <div className="mb-3 flex max-w-full gap-2 overflow-x-auto pb-1">
+                    {attachments.map((image, index) => (
+                      <span key={image.id} className="relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/5">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={image.previewUrl} alt={image.file.name} className="h-full w-full object-cover" />
                         <button
                           type="button"
-                          onClick={() => setAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index))}
-                          className="text-white/35 transition hover:text-white"
-                          aria-label={`Remove ${file.name}`}
+                          onClick={() => removeImageAttachment(index, setAttachments)}
+                          className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-sm text-white/80 transition hover:text-white"
+                          aria-label={`Remove ${image.file.name}`}
                         >
                           x
                         </button>
+                        <span className="absolute inset-x-0 bottom-0 truncate bg-black/60 px-1.5 py-1 text-[10px] text-white/80">
+                          {formatFileSize(image.file.size)}
+                        </span>
                       </span>
                     ))}
                   </div>
@@ -670,14 +762,15 @@ export default function MessengerClient({
                     ref={fileInputRef}
                     type="file"
                     multiple
+                    accept="image/*"
                     className="hidden"
-                    onChange={(event) => onFilesSelected(event.target.files)}
+                    onChange={(event) => addImageAttachments(event.target.files, setAttachments, fileInputRef)}
                   />
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/55 transition hover:border-sky-500/40 hover:text-white"
-                    aria-label="Attach files"
+                    aria-label="Attach images"
                   >
                     <svg width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="m21.44 11.05-8.49 8.49a6 6 0 0 1-8.49-8.49l8.49-8.49a4 4 0 1 1 5.66 5.66l-8.49 8.49a2 2 0 1 1-2.83-2.83l7.78-7.78" />
@@ -814,6 +907,48 @@ export default function MessengerClient({
                 placeholder={mode === "admin" ? "Write the first message..." : "Write your message..."}
                 className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-white/25 focus:border-sky-500/50"
               />
+              {newAttachments.length > 0 && (
+                <div className="flex max-w-full gap-2 overflow-x-auto pb-1">
+                  {newAttachments.map((image, index) => (
+                    <span key={image.id} className="relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/5">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={image.previewUrl} alt={image.file.name} className="h-full w-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeImageAttachment(index, setNewAttachments)}
+                        className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-sm text-white/80 transition hover:text-white"
+                        aria-label={`Remove ${image.file.name}`}
+                      >
+                        x
+                      </button>
+                      <span className="absolute inset-x-0 bottom-0 truncate bg-black/60 px-1.5 py-1 text-[10px] text-white/80">
+                        {formatFileSize(image.file.size)}
+                      </span>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="flex items-center justify-between gap-3">
+                <input
+                  ref={newFileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(event) => addImageAttachments(event.target.files, setNewAttachments, newFileInputRef)}
+                />
+                <button
+                  type="button"
+                  onClick={() => newFileInputRef.current?.click()}
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/60 transition hover:border-sky-500/40 hover:text-white"
+                >
+                  <svg width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5 8.25 11l4 4L15 12l6 6M5 20h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Zm4-11.5h.01" />
+                  </svg>
+                  Photos
+                </button>
+                <span className="text-xs text-white/30">{newAttachments.length}/{MAX_IMAGES_PER_MESSAGE}</span>
+              </div>
               <div className="flex items-center justify-end gap-2">
                 <button
                   type="button"
@@ -824,7 +959,7 @@ export default function MessengerClient({
                 </button>
                 <button
                   type="submit"
-                  disabled={starting || !newBody.trim() || (mode === "admin" && (!selectedPortalUserId || loadingPortalUsers))}
+                  disabled={starting || (!newBody.trim() && newAttachments.length === 0) || (mode === "admin" && (!selectedPortalUserId || loadingPortalUsers))}
                   className="rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-sky-400 disabled:opacity-40"
                 >
                   {starting ? "Starting..." : "Chat"}

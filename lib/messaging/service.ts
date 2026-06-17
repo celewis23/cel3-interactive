@@ -5,7 +5,7 @@ import { sanityServer } from "@/lib/sanityServer";
 import { sendPushNotificationToAudience } from "@/lib/notifications/push";
 import { MessagingActor } from "@/lib/messaging/auth";
 import { logAudit } from "@/lib/audit/log";
-import { createFolder, listFiles, uploadFile } from "@/lib/google/drive";
+import { createFolder, downloadFileContent, listFiles, uploadFile } from "@/lib/google/drive";
 
 const MAX_MESSAGE_LENGTH = 5000;
 const MAX_ATTACHMENT_BYTES = 50 * 1024 * 1024;
@@ -680,16 +680,53 @@ async function createMessageDocument(
   } satisfies MessageRecord;
 }
 
-export async function startConversation(actor: MessagingActor, input: { title?: unknown; body?: unknown }, req?: NextRequest) {
+function messagePreview(body: string, attachments: MessageAttachment[]) {
+  if (body) return body;
+  if (attachments.length === 1) return `Sent ${attachments[0].fileName}`;
+  return `Sent ${attachments.length} attachments`;
+}
+
+export async function startConversation(
+  actor: MessagingActor,
+  input: { title?: unknown; body?: unknown },
+  req?: NextRequest,
+  attachmentInputs: MessageAttachmentInput[] = []
+) {
   if (actor.kind !== "client") throw new Error("Only portal users can start client conversations");
 
-  const validation = validateMessageBody(input.body);
+  const validation = validateMessageBody(input.body, { allowEmpty: attachmentInputs.length > 0 });
   if (!validation.ok) return { error: validation.error };
+  const attachmentValidation = validateAttachments(attachmentInputs);
+  if (!attachmentValidation.ok) return { error: attachmentValidation.error, status: 400 };
 
   const now = new Date().toISOString();
   const title = String(input.title ?? "").trim().slice(0, 120) || "Client message";
   const conversationId = randomUUID();
   const clientParticipant = makeParticipant(actor, now, "Client");
+  const conversation: ConversationRecord = {
+    _id: conversationId,
+    title,
+    status: "open",
+    type: "ClientSupport",
+    clientId: actor.userId,
+    clientName: actor.name,
+    clientEmail: actor.email,
+    clientProfileImageUrl: actor.avatarUrl,
+    company: actor.company,
+    stripeCustomerId: actor.stripeCustomerId,
+    pipelineContactId: actor.pipelineContactId,
+    driveFolderId: null,
+    createdByActorId: actor.actorId,
+    createdByUserId: actor.userId,
+    createdAt: now,
+    updatedAt: now,
+    lastMessageAt: now,
+    lastMessagePreview: null,
+    lastSenderName: actor.name,
+    unreadCount: 0,
+    participantCount: 1,
+    participants: [clientParticipant],
+  };
 
   await sql.query(
     `INSERT INTO messaging_conversations (
@@ -720,8 +757,19 @@ export async function startConversation(actor: MessagingActor, input: { title?: 
   );
   await insertParticipant(conversationId, clientParticipant);
 
-  const message = await createMessageDocument(conversationId, actor, validation.body, now);
-  await notifyAdminsForClientMessage(conversationId, title, actor, validation.body);
+  const uploadResult = await uploadConversationAttachments(conversation, actor, attachmentInputs, now);
+  if (uploadResult.error) return { error: uploadResult.error, status: uploadResult.status ?? 400 };
+
+  const attachments = uploadResult.attachments ?? [];
+  const preview = messagePreview(validation.body, attachments);
+  const message = await createMessageDocument(conversationId, actor, validation.body, now, attachments);
+  await sql.query(
+    `UPDATE messaging_conversations
+     SET last_message_preview = $1, updated_at = $2, last_message_at = $2
+     WHERE id = $3`,
+    [preview.slice(0, 180), now, conversationId]
+  );
+  await notifyAdminsForClientMessage(conversationId, title, actor, preview);
 
   if (req) {
     logAudit(req, {
@@ -735,20 +783,8 @@ export async function startConversation(actor: MessagingActor, input: { title?: 
 
   return {
     conversation: {
-      _id: conversationId,
-      title,
-      status: "open",
-      type: "ClientSupport",
-      clientId: actor.userId,
-      clientName: actor.name,
-      clientEmail: actor.email,
-      clientProfileImageUrl: actor.avatarUrl,
-      company: actor.company,
-      createdAt: now,
-      updatedAt: now,
-      lastMessageAt: now,
-      lastMessagePreview: validation.body.slice(0, 180),
-      lastSenderName: actor.name,
+      ...conversation,
+      lastMessagePreview: preview.slice(0, 180),
       unreadCount: 0,
       participantCount: 1,
     },
@@ -759,15 +795,18 @@ export async function startConversation(actor: MessagingActor, input: { title?: 
 export async function startAdminConversation(
   actor: MessagingActor,
   input: { title?: unknown; body?: unknown; portalUserId?: unknown },
-  req?: NextRequest
+  req?: NextRequest,
+  attachmentInputs: MessageAttachmentInput[] = []
 ) {
   if (actor.kind !== "admin") return { error: "Only admin users can start client conversations", status: 403 };
 
   const portalUserId = String(input.portalUserId ?? "").trim();
   if (!portalUserId) return { error: "portalUserId is required", status: 400 };
 
-  const validation = validateMessageBody(input.body);
+  const validation = validateMessageBody(input.body, { allowEmpty: attachmentInputs.length > 0 });
   if (!validation.ok) return { error: validation.error, status: 400 };
+  const attachmentValidation = validateAttachments(attachmentInputs);
+  if (!attachmentValidation.ok) return { error: attachmentValidation.error, status: 400 };
 
   const client = await sanityServer.fetch<MessageablePortalUser | null>(
     `*[_type == "clientPortalUser" && _id == $id && status != "suspended"][0]{
@@ -829,8 +868,7 @@ export async function startAdminConversation(
   await insertParticipant(conversationId, adminParticipant);
   await insertParticipant(conversationId, clientParticipant);
 
-  const message = await createMessageDocument(conversationId, actor, validation.body, now);
-  const conversation = {
+  const conversation: ConversationRecord = {
     _id: conversationId,
     title,
     status: "open",
@@ -843,13 +881,27 @@ export async function startAdminConversation(
     createdAt: now,
     updatedAt: now,
     lastMessageAt: now,
-    lastMessagePreview: validation.body.slice(0, 180),
+    lastMessagePreview: null,
     lastSenderName: actor.name,
     unreadCount: 0,
     participantCount: 2,
     participants: [adminParticipant, clientParticipant],
-  } satisfies ConversationRecord;
-  await notifyClientForAdminMessage(conversation, actor, validation.body);
+  };
+
+  const uploadResult = await uploadConversationAttachments(conversation, actor, attachmentInputs, now);
+  if (uploadResult.error) return { error: uploadResult.error, status: uploadResult.status ?? 400 };
+
+  const attachments = uploadResult.attachments ?? [];
+  const preview = messagePreview(validation.body, attachments);
+  const message = await createMessageDocument(conversationId, actor, validation.body, now, attachments);
+  conversation.lastMessagePreview = preview.slice(0, 180);
+  await sql.query(
+    `UPDATE messaging_conversations
+     SET last_message_preview = $1, updated_at = $2, last_message_at = $2
+     WHERE id = $3`,
+    [conversation.lastMessagePreview, now, conversationId]
+  );
+  await notifyClientForAdminMessage(conversation, actor, preview);
 
   if (req) {
     logAudit(req, {
@@ -943,7 +995,7 @@ export async function sendConversationMessage(
   const validation = validateMessageBody(bodyInput, { allowEmpty: attachments.length > 0 });
   if (!validation.ok) return { error: validation.error, status: 400 };
 
-  const preview = validation.body || (attachments.length === 1 ? `Sent ${attachments[0].fileName}` : `Sent ${attachments.length} attachments`);
+  const preview = messagePreview(validation.body, attachments);
   const message = await createMessageDocument(conversationId, actor, validation.body, now, attachments);
 
   await sql.query(
@@ -1005,6 +1057,27 @@ export async function markConversationRead(actor: MessagingActor, conversationId
 
   await markNotificationsRead(actor, conversationId);
   return { ok: true };
+}
+
+export async function getMessageAttachmentFile(actor: MessagingActor, driveFileId: string) {
+  const rows = await sql.query<AttachmentRow>(
+    `SELECT * FROM messaging_message_attachments WHERE drive_file_id = $1 LIMIT 1`,
+    [driveFileId]
+  );
+  const row = rows[0];
+  if (!row) return { error: "Attachment not found", status: 404 };
+
+  const conversation = await fetchConversation(row.conversation_id);
+  if (!actorCanAccessConversation(actor, conversation)) {
+    return { error: "Attachment not found", status: 404 };
+  }
+
+  const file = await downloadFileContent(row.drive_file_id);
+  return {
+    data: file.data,
+    name: file.name || row.file_name,
+    mimeType: file.mimeType || row.content_type || "application/octet-stream",
+  };
 }
 
 export async function getUnreadCount(actor: MessagingActor) {
