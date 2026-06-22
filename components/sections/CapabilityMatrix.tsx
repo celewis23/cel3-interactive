@@ -8,9 +8,9 @@ type CapKey = "experiences" | "systems" | "commerce" | "ai";
 
 const CAPS: Record<CapKey, { title: string; desc: string; detail: string }> = {
   experiences: {
-    title: "Digital Experiences",
-    desc: "Websites, landing pages, interactive brand experiences, mobile-first interfaces, and public customer experiences.",
-    detail: "Public-facing experiences that explain what you offer, guide action, and connect visitors to the next operational step.",
+    title: "Business Websites",
+    desc: "Clear, high-signal websites that explain what you do and guide visitors toward action.",
+    detail: "Public-facing experiences connected to the customer journey and the operational steps that follow.",
   },
   systems: {
     title: "Business Systems",
@@ -19,8 +19,8 @@ const CAPS: Record<CapKey, { title: string; desc: string; detail: string }> = {
   },
   commerce: {
     title: "Commerce & Bookings",
-    desc: "Ecommerce stores, Stripe checkout, product management, inventory tools, booking systems, and appointment management.",
-    detail: "Selling, scheduling, fulfillment, and customer activity connected to the systems your team uses behind the scenes.",
+    desc: "Booking, intake, Stripe payments, product workflows, reminders, and customer follow-up.",
+    detail: "Selling and scheduling connected to the records, staff workflows, and follow-up your team uses behind the scenes.",
   },
   ai: {
     title: "AI-Enhanced Operations",
@@ -44,7 +44,7 @@ export function CapabilityMatrix() {
   const activeCap = useMemo(() => CAPS[active], [active]);
 
   const items: { key: CapKey; label: string }[] = [
-    { key: "experiences", label: "Digital Experiences" },
+    { key: "experiences", label: "Business Websites" },
     { key: "systems", label: "Business Systems" },
     { key: "commerce", label: "Commerce & Bookings" },
     { key: "ai", label: "AI-Enhanced Operations" },
@@ -56,7 +56,7 @@ export function CapabilityMatrix() {
   };
 
   return (
-    <Section id="capabilities" eyebrow="Capabilities" title="What We Build">
+    <Section id="capabilities" eyebrow="Capabilities" title="What CEL3 Builds">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
         <div className="lg:col-span-5">
           <p className="text-sm text-white/55">Explore a capability:</p>

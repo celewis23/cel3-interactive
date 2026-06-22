@@ -6,59 +6,61 @@ import PillarLinks from "@/components/sections/PillarLinks";
 export const metadata: Metadata = {
   title: "Custom Web Applications & Business Platforms | CEL3 Interactive",
   description:
-    "We design and build custom web applications, portals, dashboards, and internal systems for businesses with workflows that off-the-shelf tools do not fit.",
+    "Custom portals, dashboards, ecommerce systems, booking flows, internal tools, and workflow platforms for companies that off-the-shelf software does not fit.",
 };
 
 const WHAT_WE_BUILD = [
   {
-    title: "Business consoles",
-    desc: "Secure admin platforms for customers, products, bookings, content, communication, and operations.",
+    title: "Client portals",
+    desc: "Account experiences where customers can view projects, files, messages, invoices, requests, and status.",
   },
   {
-    title: "Customer portals",
-    desc: "Account experiences where customers can view projects, files, messages, invoices, requests, and status.",
+    title: "Business dashboards",
+    desc: "Internal views for records, requests, operations, reporting, and staff work.",
   },
   {
     title: "Ecommerce systems",
     desc: "Storefronts, checkout, product management, order workflows, and internal commerce controls.",
   },
   {
-    title: "Booking platforms",
+    title: "Booking flows",
     desc: "Scheduling, intake, appointment management, staff views, reminders, and customer follow-up.",
   },
   {
-    title: "Communication hubs",
-    desc: "Messaging, email, notifications, customer history, and follow-up workflows in one place.",
+    title: "Internal tools",
+    desc: "Role-based systems for the work your team currently handles in spreadsheets, inboxes, and plugin dashboards.",
   },
   {
-    title: "AI-ready workflow tools",
-    desc: "Structured data and permissions that let AI assist safely with summaries, drafts, and insights.",
+    title: "Workflow platforms",
+    desc: "Connected tools that bring payments, forms, messages, content, and customer history into one operating model.",
   },
 ] as const;
 
 const WHEN_CUSTOM = [
-  "You have multiple user roles and workflows that don’t fit off-the-shelf tools",
-  "You need clarity inside data-heavy screens (not clutter)",
-  "Your platform must evolve without becoming fragile",
-  "You’re integrating systems (payments, email, CRM, internal tools) and need one source of truth",
+  "You have multiple user roles or permissions",
+  "Your workflow does not fit a generic SaaS tool",
+  "Customers need a portal or account experience",
+  "Staff need a better internal dashboard",
+  "Payments, bookings, forms, or messages need to connect",
+  "You need one source of truth across tools",
 ] as const;
 
 const PRINCIPLES = [
   {
-    title: "Structure first",
-    desc: "We map workflows and data before polishing UI. That’s how platforms stay durable.",
+    title: "Map the workflow first",
+    desc: "We define the real customer, staff, data, and payment flow before designing screens.",
   },
   {
-    title: "State is visible",
-    desc: "Interfaces should show what’s happening: progress, health, next actions, and outcomes.",
+    title: "Ship the core loop",
+    desc: "The first release should solve a real operational problem, not just look complete.",
   },
   {
-    title: "Interaction is signal",
-    desc: "Motion and feedback exist to reduce friction and guide decisions, not decorate screens.",
+    title: "Make state visible",
+    desc: "Good platforms show what is new, stuck, paid, booked, waiting, assigned, or ready for review.",
   },
   {
-    title: "Ship usable increments",
-    desc: "We build a core loop first, then expand. You get value early, then we iterate.",
+    title: "Build for change",
+    desc: "The system should evolve as the business changes without becoming fragile.",
   },
 ] as const;
 
@@ -67,166 +69,130 @@ export default function CustomWebApplicationsPage() {
     <main className="bg-black min-h-screen pt-24 md:pt-28">
       <Container>
         <div className="mx-auto max-w-6xl px-4 pb-20">
-          {/* HERO */}
           <section className="max-w-3xl">
             <p className="text-xs tracking-[0.25em] uppercase text-white/55">
               Pillar • Custom Web Applications
             </p>
 
             <h1 className="mt-4 text-4xl md:text-5xl font-semibold tracking-tight text-white">
-              Custom web applications and business platforms
+              Custom web applications built around how your business actually works.
             </h1>
 
             <p className="mt-5 text-base md:text-lg text-white/75">
-              CEL3 Interactive designs and builds custom web applications, portals,
-              dashboards, and internal systems for businesses that need tools shaped around
-              real workflows.
+              CEL3 designs and builds portals, dashboards, ecommerce systems, booking flows,
+              internal tools, and workflow platforms for companies that off-the-shelf software
+              does not fit.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
-                href="/#fit"
+                href="/assessment"
                 className="rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm text-white hover:bg-[rgb(var(--accent))]/100 transition-colors"
               >
-                Plan Your Business Platform
+                Plan Your Platform
               </Link>
 
               <Link
                 href="/work"
                 className="text-sm text-white/70 hover:text-[rgb(var(--accent))]/100 transition-colors"
               >
-                View Work →
+                View Platform Work →
               </Link>
 
               <span className="text-xs tracking-[0.22em] uppercase text-white/45">
-                Built for teams ready to invest
+                Built when software needs to fit the operation
               </span>
             </div>
           </section>
 
-          {/* WHAT WE BUILD */}
           <section className="mt-14 rounded-2xl border border-white/10 bg-black/25 backdrop-blur p-6">
-            <div className="flex items-end justify-between gap-6 flex-wrap">
-              <div>
-                <p className="text-xs tracking-[0.25em] uppercase text-white/55">
-                  What we build
-                </p>
-                <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                  Systems that feel clear, practical, and operational.
-                </h2>
-                <p className="mt-4 text-white/75 max-w-3xl">
-                  We work with businesses that have outgrown static sites and off-the-shelf tools.
-                  Our projects are built when workflow, data flow, and system clarity matter.
-                </p>
-              </div>
-            </div>
+            <p className="text-xs tracking-[0.25em] uppercase text-white/55">
+              What we build
+            </p>
+            <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
+              Platforms for the work that happens after someone lands on your site.
+            </h2>
 
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {WHAT_WE_BUILD.map((i) => (
-                <div
-                  key={i.title}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-5"
-                >
-                  <div className="text-sm font-semibold text-white">{i.title}</div>
-                  <div className="mt-2 text-sm text-white/70">{i.desc}</div>
+              {WHAT_WE_BUILD.map((item) => (
+                <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                  <div className="text-sm font-semibold text-white">{item.title}</div>
+                  <div className="mt-2 text-sm text-white/70">{item.desc}</div>
                 </div>
               ))}
             </div>
           </section>
 
-          {/* WHEN CUSTOM MAKES SENSE */}
           <section className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-5 rounded-2xl border border-white/10 bg-black/30 backdrop-blur p-6">
               <p className="text-xs tracking-[0.25em] uppercase text-white/55">
                 When custom makes sense
               </p>
               <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                Not everything needs custom.
+                Custom is useful when a generic tool bends the business in the wrong direction.
               </h2>
               <p className="mt-4 text-white/75">
-                Custom development becomes the right choice when your business requires systems
-                that fit your workflow instead of forcing your team into fixed processes.
+                Not every business needs custom software. It becomes the right choice when
+                customer experience, staff workflow, payments, records, and reporting need to
+                work together in a specific way.
               </p>
             </div>
 
             <div className="lg:col-span-7 rounded-2xl border border-white/10 bg-white/5 p-6">
-              <div className="text-xs tracking-[0.25em] uppercase text-white/55">
-                Good signals
-              </div>
-              <ul className="mt-4 space-y-3 text-sm text-white/75">
-                {WHEN_CUSTOM.map((x) => (
-                  <li key={x} className="flex gap-3">
-                    <span className="text-[rgb(var(--accent))] mt-[2px]">•</span>
-                    <span>{x}</span>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-white/75">
+                {WHEN_CUSTOM.map((item) => (
+                  <li key={item} className="rounded-xl border border-white/10 bg-black/25 p-4">
+                    <span className="text-[rgb(var(--accent))]">•</span> {item}
                   </li>
                 ))}
               </ul>
             </div>
           </section>
 
-          {/* INTERACTIVE BY DESIGN */}
           <section className="mt-10 rounded-2xl border border-white/10 bg-black/25 backdrop-blur p-6">
             <p className="text-xs tracking-[0.25em] uppercase text-white/55">
-              Interactive by design
+              How we approach it
             </p>
             <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-              Interaction isn’t decoration. It’s communication.
+              Build the operating model before the interface gets expensive.
             </h2>
-            <p className="mt-4 text-white/75 max-w-4xl">
-              Motion and feedback are used to communicate state, guide decisions, and reduce friction.
-              In dashboards, CRMs, and operational tools, clarity beats raw data volume.
-            </p>
 
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {PRINCIPLES.map((p) => (
-                <div
-                  key={p.title}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-5"
-                >
-                  <div className="text-sm font-semibold text-white">{p.title}</div>
-                  <div className="mt-2 text-sm text-white/70">{p.desc}</div>
+              {PRINCIPLES.map((item) => (
+                <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                  <div className="text-sm font-semibold text-white">{item.title}</div>
+                  <div className="mt-2 text-sm text-white/70">{item.desc}</div>
                 </div>
               ))}
             </div>
           </section>
+
           <PillarLinks currentHref="/custom-web-applications" />
-          {/* CTA */}
-          <section className="mt-12 relative overflow-hidden rounded-2xl border border-white/10 bg-black/30 backdrop-blur p-7">
+
+          <section className="mt-12 rounded-2xl border border-[rgb(var(--accent))]/30 bg-[rgb(var(--accent))]/10 p-7">
             <div className="max-w-3xl">
               <p className="text-xs tracking-[0.25em] uppercase text-white/55">
                 Next step
               </p>
               <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                Start with the operating model, then ship.
+                Not sure what to build first? Start with a $150 Digital Systems Audit.
               </h2>
               <p className="mt-4 text-white/75">
-                If you’re exploring a business console, customer portal, ecommerce workflow,
-                booking system, or internal platform, send your scope and constraints. You’ll get
-                a clear reply with next steps and what we’d ship first.
+                We will map your current website, customer journey, tools, workflows, data, and
+                bottlenecks before a full custom platform is scoped.
               </p>
 
               <div className="mt-7 flex flex-wrap items-center gap-4">
                 <Link
-                  href="/#fit"
+                  href="/assessment"
                   className="rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm text-white hover:bg-[rgb(var(--accent))]/100 transition-colors"
                 >
-                  Discuss Your Digital System →
+                  Book a $150 Digital Systems Audit →
                 </Link>
                 <span className="text-xs tracking-[0.22em] uppercase text-white/45">
-                  Fast response • Clear direction
+                  Practical scope • Clear first release
                 </span>
               </div>
-            </div>
-
-            {/* subtle sweep (no styled-jsx) */}
-            <div className="pointer-events-none absolute inset-y-0 -left-24 w-24 opacity-60 animate-[pillarSweep_3.2s_linear_infinite]">
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(to right, transparent, rgba(var(--accent),0.45), transparent)",
-                }}
-              />
             </div>
           </section>
 

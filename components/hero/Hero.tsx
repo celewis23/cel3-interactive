@@ -43,7 +43,7 @@ export function Hero() {
                 transition={{ duration: 0.35, ease: "easeOut" }}
                 className="text-5xl md:text-6xl font-semibold tracking-tight text-white origin-left"
               >
-                Custom business platforms that help you operate, automate, and grow.
+                Websites, portals, dashboards, and AI-ready systems for businesses that have outgrown disconnected tools.
               </motion.h1>
 
               <motion.p
@@ -54,9 +54,9 @@ export function Hero() {
                 transition={{ duration: 0.35, ease: "easeOut" }}
                 className="mt-6 text-base md:text-lg text-white/75 max-w-xl"
               >
-                CEL3 Interactive builds websites, client portals, ecommerce systems,
-                booking platforms, business consoles, and AI-powered tools designed
-                around how your organization actually works.
+                CEL3 Interactive builds custom business platforms that connect your public
+                website to the real work behind it: customers, bookings, payments, content,
+                communication, reporting, and operations.
               </motion.p>
 
               <motion.p
@@ -64,27 +64,26 @@ export function Hero() {
                 transition={{ duration: 0.35, ease: "easeOut" }}
                 className="mt-6 text-sm text-white/55"
               >
-                Public presence, internal operations, customer data, communication,
-                and workflow support in one coherent system.
+                Your website is only the front door. We build the business system behind it.
               </motion.p>
 
-              <div className="mt-10 flex items-center gap-4">
+              <div className="mt-10 flex flex-wrap items-center gap-4">
                 <a
                   href="/assessment"
                   className="rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm text-white hover:bg-[rgb(var(--accent))]/100 transition-colors hover:border-[rgb(var(--accent))]"
                 >
-                  Start a Discovery Assessment
+                  Book a $150 Digital Systems Audit
                 </a>
 
                 <a
-                  href="/business-consoles-operations-platforms"
+                  href="/work"
                   className="text-sm text-white/70 hover:text-[rgb(var(--accent))] transition-colors"
                 >
-                  Explore Business Consoles
+                  See Platform Examples
                 </a>
               </div>
               <p className="mt-4 max-w-xl text-sm text-gray-300">
-                Start with a fixed $150 assessment to map the website, console, workflows, data, and integrations before a full build is scoped.
+                Start with a fixed-price assessment before committing to a full build.
               </p>
 
             </div>
@@ -104,8 +103,8 @@ export function Hero() {
                 </p>
 
                 <p className="mt-3 text-white/80">
-                  Website. Business console. Customers. Products. Bookings.
-                  Messages. Analytics. AI-assisted workflows.
+                  Public website. Intake. Customer records. Bookings and payments.
+                  Staff workflow. Follow-up. Dashboards. AI-assisted admin.
                 </p>
 
                 {/* IMPORTANT: do NOT wrap in h-24, SystemSignalMini already controls its own height */}

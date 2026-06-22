@@ -5,22 +5,31 @@ import PillarLinks from "@/components/sections/PillarLinks";
 import SystemSignalBadge from "@/components/ui/SystemSignalBadge";
 
 export const metadata: Metadata = {
-  title: "Business Consoles & Operations Platforms | CEL3 Interactive",
+  title: "Custom Business Consoles & Operations Platforms | CEL3 Interactive",
   description:
-    "Secure business consoles, admin platforms, client portals, ecommerce management, booking systems, communication hubs, analytics, and AI-ready operations tools.",
+    "Custom backoffice systems for managing customers, bookings, payments, content, staff workflows, reporting, and AI-assisted operations.",
 };
 
-const FEATURES = [
-  "Customer management",
-  "Product management",
-  "Order management",
-  "Booking management",
-  "Content management",
+const NEED_SIGNALS = [
+  "Staff are jumping between too many tools",
+  "Customer records are incomplete or scattered",
+  "Bookings, payments, messages, and forms are disconnected",
+  "Reporting requires manual exports",
+  "Important follow-ups depend on memory",
+  "Your business has outgrown generic dashboards",
+] as const;
+
+const CAN_MANAGE = [
+  "Customers",
+  "Leads and inquiries",
+  "Bookings and appointments",
+  "Products and orders",
+  "Payments and invoices",
+  "Content and pages",
+  "Messages and notifications",
   "Staff roles and permissions",
-  "Communication center",
   "Reports and analytics",
-  "AI assistant tools",
-  "Secure settings and integrations",
+  "AI-assisted summaries and drafts",
 ] as const;
 
 const USE_CASES = [
@@ -29,12 +38,12 @@ const USE_CASES = [
     desc: "Manage inquiries, bookings, client updates, staff handoffs, documents, and follow-up from one place.",
   },
   {
-    title: "Commerce operations",
-    desc: "Manage products, orders, payments, customer records, fulfillment states, and internal notes behind the storefront.",
+    title: "Appointment-based teams",
+    desc: "Connect intake, scheduling, payments, reminders, customer records, and staff views.",
   },
   {
-    title: "Content-heavy organizations",
-    desc: "Update public pages, campaigns, assets, announcements, forms, and customer communications without developer bottlenecks.",
+    title: "Commerce operations",
+    desc: "Manage products, orders, payments, customer records, fulfillment states, and internal notes behind the storefront.",
   },
   {
     title: "Growing teams",
@@ -42,16 +51,17 @@ const USE_CASES = [
   },
 ] as const;
 
-const CONSOLE_AREAS = [
-  "CRM and customer history",
-  "Ecommerce and product operations",
-  "Booking and appointment workflows",
-  "Email, SMS, and message centers",
-  "Forms, intake, and onboarding",
-  "CMS and content publishing",
-  "Dashboards and reporting",
-  "AI-assisted summaries and drafts",
-] as const;
+function BulletGrid({ items }: { items: readonly string[] }) {
+  return (
+    <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {items.map((item) => (
+        <div key={item} className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white/75">
+          <span className="text-[rgb(var(--accent))]">•</span> {item}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function BusinessConsolesOperationsPlatformsPage() {
   return (
@@ -65,13 +75,12 @@ export default function BusinessConsolesOperationsPlatformsPage() {
               </p>
 
               <h1 className="mt-4 text-4xl md:text-5xl font-semibold tracking-tight text-white">
-                The secure backoffice behind your website, customers, commerce, and operations.
+                The secure backoffice behind your website, customers, bookings, payments, and operations.
               </h1>
 
               <p className="mt-5 text-base md:text-lg text-white/75">
-                Public websites are only one part of the system. CEL3 builds the business console
-                behind them: a secure place to manage customers, products, bookings, content,
-                communication, reporting, staff workflows, and AI-assisted operations.
+                CEL3 builds custom business consoles for teams that need one clear place to
+                manage the work behind the public website.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -79,7 +88,7 @@ export default function BusinessConsolesOperationsPlatformsPage() {
                   href="/assessment"
                   className="rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm text-white transition-colors hover:bg-[rgb(var(--accent))]/100"
                 >
-                  Start a Discovery Assessment — $150
+                  Start with a Digital Systems Audit
                 </Link>
 
                 <Link
@@ -101,51 +110,34 @@ export default function BusinessConsolesOperationsPlatformsPage() {
           <section className="mt-14 grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-5 rounded-2xl border border-white/10 bg-black/25 p-6 backdrop-blur">
               <p className="text-xs tracking-[0.25em] uppercase text-white/55">
-                What is a business console?
+                Why it matters
               </p>
               <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                A custom operating surface for the parts of your business that generic tools do not handle well.
+                Your public website is only useful if the operational system behind it can keep up.
               </h2>
               <p className="mt-4 text-white/75">
-                It is the private side of your platform: the screens, permissions, data, workflows,
-                and controls your team uses to run the business after customers interact with the public site.
+                A business console is the private side of your platform: the screens,
+                permissions, data, workflows, and controls your team uses after customers
+                interact with the public site.
               </p>
             </div>
 
             <div className="lg:col-span-7 rounded-2xl border border-white/10 bg-white/5 p-6">
-              <p className="text-xs tracking-[0.25em] uppercase text-white/55">
-                What it can include
-              </p>
-              <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {FEATURES.map((feature) => (
-                  <div key={feature} className="rounded-xl border border-white/10 bg-black/25 p-4 text-sm text-white/75">
-                    <span className="text-[rgb(var(--accent))]">•</span> {feature}
-                  </div>
-                ))}
-              </div>
+              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-white">
+                You may need a business console if...
+              </h2>
+              <BulletGrid items={NEED_SIGNALS} />
             </div>
           </section>
 
           <section className="mt-10 rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur">
             <p className="text-xs tracking-[0.25em] uppercase text-white/55">
-              Better than disconnected plugins
+              Managed in one place
             </p>
             <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-              One business surface instead of ten partial dashboards.
+              What a business console can manage
             </h2>
-            <p className="mt-4 max-w-4xl text-white/75">
-              Plugins can help with isolated tasks, but they often leave staff bouncing between tools,
-              copying information, and guessing what changed. A custom business console gives your
-              operation a single, secure interface for the information and actions that matter most.
-            </p>
-
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {CONSOLE_AREAS.map((area) => (
-                <div key={area} className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white/75">
-                  {area}
-                </div>
-              ))}
-            </div>
+            <BulletGrid items={CAN_MANAGE} />
           </section>
 
           <section className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -157,8 +149,9 @@ export default function BusinessConsolesOperationsPlatformsPage() {
                 Businesses that need control, not just a prettier website.
               </h2>
               <p className="mt-4 text-white/75">
-                This is a fit when the website needs to connect to customers, payments, bookings,
-                staff tasks, documents, reporting, or communications in a way off-the-shelf tools do not.
+                This is a fit when the website needs to connect to customers, payments,
+                bookings, staff tasks, documents, reporting, or communications in a way
+                off-the-shelf tools do not.
               </p>
             </div>
 
@@ -174,26 +167,22 @@ export default function BusinessConsolesOperationsPlatformsPage() {
 
           <PillarLinks currentHref="/business-consoles-operations-platforms" />
 
-          <section className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-6">
+          <section className="mt-10 rounded-2xl border border-[rgb(var(--accent))]/30 bg-[rgb(var(--accent))]/10 p-6">
             <p className="text-xs tracking-[0.25em] uppercase text-white/55">
               Next step
             </p>
             <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-              Plan the platform your team will actually run.
+              Not sure what you need? Start with a $150 Digital Systems Audit.
             </h2>
             <p className="mt-4 max-w-3xl text-white/75">
-              Start with a discovery assessment. We will map the public experience, business console,
-              data model, workflows, integrations, and first useful release.
-            </p>
-            <p className="mt-3 max-w-3xl text-sm text-white/55">
-              The assessment is a fixed $150 strategy session. Custom platform pricing is scoped after
-              the assessment because each console depends on workflows, integrations, permissions, and launch needs.
+              We will map the public experience, business console, data model, workflows,
+              integrations, and first useful release before a full platform is scoped.
             </p>
             <Link
               href="/assessment"
               className="mt-7 inline-flex rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm text-white transition-colors hover:bg-[rgb(var(--accent))]/100"
             >
-              Book the $150 Assessment →
+              Book a $150 Digital Systems Audit →
             </Link>
           </section>
 

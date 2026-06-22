@@ -5,56 +5,64 @@ import SystemSignalBadge from "@/components/ui/SystemSignalBadge";
 import PillarLinks from "@/components/sections/PillarLinks";
 
 export const metadata: Metadata = {
-  title: "Customer Management, CRMs & Operations Dashboards | CEL3 Interactive",
+  title: "Custom CRMs, Dashboards & Reporting Systems | CEL3 Interactive",
   description:
-    "Customer management systems, CRMs, reporting dashboards, and operational views that give businesses clearer records and better day-to-day decisions.",
+    "Custom CRMs, customer records, dashboards, and reporting surfaces that turn scattered data into clear operational views your team can trust.",
 };
 
-const PAIN_POINTS = [
-  {
-    title: "Data scattered across tools",
-    desc: "Metrics live in different places, definitions don’t match, and nobody trusts the numbers.",
-  },
-  {
-    title: "Dashboards that don’t drive action",
-    desc: "Charts look nice, but they don’t answer what to do next or what needs attention.",
-  },
-  {
-    title: "Slow visibility and manual reporting",
-    desc: "You’re exporting CSVs, copying into spreadsheets, and rebuilding the same view every week.",
-  },
+const DEALING_WITH = [
+  "Spreadsheets pretending to be CRMs",
+  "Reports that require manual exports",
+  "Metrics scattered across tools",
+  "Customer history split between email, forms, payments, and notes",
+  "Dashboards that show charts but do not drive action",
+  "Owners who cannot quickly see what needs attention",
 ] as const;
 
-const DELIVERABLES = [
-  "A unified data model (what matters, how it’s defined)",
-  "Dashboards designed for decisions, not decoration",
-  "Interactive filters, drilldowns, and “why” views",
-  "Role-based views (owners, ops, sales, finance, support)",
-  "Event + funnel visibility (what’s happening and where it breaks)",
-  "Integrations (Stripe, forms, email, databases, APIs, Zapier/Make)",
+const CAN_INCLUDE = [
+  "Customer records",
+  "Lead and inquiry tracking",
+  "Revenue and payment visibility",
+  "Booking or order status",
+  "Funnel and conversion reporting",
+  "Staff activity",
+  "Follow-up queues",
+  "Segmentation and filters",
+  "AI summaries and recommendations",
 ] as const;
 
 const FAQ = [
   {
-    q: "Is this just dashboards?",
-    a: "No. The real value is the interface layer and data model underneath. We design how data is defined, connected, and presented so your team can interpret it quickly and take action.",
+    q: "Is this just charts?",
+    a: "No. The real value is the interface layer and data model underneath: how customer records, payments, forms, notes, bookings, and follow-ups connect.",
   },
   {
-    q: "Can you work with our existing tools and data sources?",
-    a: "Yes. We can integrate with what you already use (Stripe, Google Sheets, forms, CRMs, internal databases, APIs) and create a clean, reliable view on top — or rebuild parts that are slowing you down.",
+    q: "Can you work with our existing tools?",
+    a: "Yes. We can integrate with Stripe, forms, email, spreadsheets, CRMs, internal databases, and APIs where it makes sense.",
   },
   {
-    q: "What’s the typical investment range?",
-    a: "Most CRM and dashboard builds start in the five-figure range and scale based on the number of sources, user roles, reporting needs, permissions, and workflow automation.",
+    q: "Where should we start?",
+    a: "Start with the Digital Systems Audit so we can map your records, reporting, bottlenecks, and the first dashboard your team will actually use.",
   },
 ] as const;
+
+function BulletGrid({ items }: { items: readonly string[] }) {
+  return (
+    <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {items.map((item) => (
+        <div key={item} className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white/75">
+          <span className="text-[rgb(var(--accent))]">•</span> {item}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function Page() {
   return (
     <main className="bg-black min-h-screen pt-24 md:pt-28">
       <Container>
         <div className="mx-auto max-w-6xl px-4">
-          {/* Top bar */}
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-xs tracking-[0.25em] uppercase text-white/55">
@@ -62,121 +70,79 @@ export default function Page() {
               </p>
 
               <h1 className="mt-4 text-4xl md:text-5xl font-semibold tracking-tight text-white">
-                Turn customer records, operations, and reporting into clarity your team can actually use.
+                Turn scattered customer records and reporting into a dashboard your team can trust.
               </h1>
 
               <p className="mt-5 text-base md:text-lg text-white/75 max-w-3xl">
-                Most businesses don’t have a “data problem” — they have a{" "}
-                <span className="text-white/90 font-medium">visibility</span>{" "}
-                problem. When metrics are scattered, definitions change, and reporting is manual,
-                decisions get slower and execution gets messy. We build customer management systems,
-                dashboards, and reporting surfaces that make the truth obvious and the next move clear.
+                CEL3 builds custom CRMs, dashboards, and reporting surfaces that make the next move clear.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <Link
-                  href="/#fit"
+                  href="/assessment"
                   className="rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm text-white hover:bg-[rgb(var(--accent))]/100 transition-colors"
                 >
-                  Plan Your Business Console
+                  Audit Your Data Workflow
                 </Link>
 
                 <Link
                   href="/work"
                   className="text-sm text-white/70 hover:text-[rgb(var(--accent))] transition-colors"
                 >
-                  View Work →
+                  View Platform Work →
                 </Link>
 
                 <span className="text-xs tracking-[0.22em] uppercase text-white/45">
-                  Built for clear records + better decisions
+                  Built for clear records and better decisions
                 </span>
               </div>
             </div>
 
-            {/* Subtle “signal” badge */}
             <SystemSignalBadge />
           </div>
 
-          {/* Body */}
           <div className="mt-14 grid grid-cols-1 lg:grid-cols-12 gap-10">
-            {/* Left rail */}
             <div className="lg:col-span-5">
-              <div className="rounded-2xl border border-white/10 bg-black/25 backdrop-blur p-6">
+              <section className="rounded-2xl border border-white/10 bg-black/25 backdrop-blur p-6">
                 <p className="text-xs tracking-[0.25em] uppercase text-white/55">
-                  The problem
+                  This is for teams dealing with...
                 </p>
-
                 <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                  You don’t need more reports. You need a sharper decision surface.
+                  Records and reports that slow down action.
                 </h2>
+                <BulletGrid items={DEALING_WITH} />
+              </section>
 
+              <section className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-6">
+                <h2 className="text-2xl font-semibold tracking-tight text-white">
+                  A useful dashboard reduces ambiguity.
+                </h2>
                 <p className="mt-4 text-white/75">
-                  A useful dashboard doesn’t just display data — it{" "}
-                  <span className="text-white/90 font-medium">reduces ambiguity</span>.
-                  The goal is clarity: what’s happening, why it’s happening, what’s stuck, and what
-                  needs attention next.
+                  The goal is clarity: what is happening, why it is happening, what is stuck,
+                  and what needs attention next.
                 </p>
-
-                <div className="mt-6 space-y-4">
-                  {PAIN_POINTS.map((p) => (
-                    <div
-                      key={p.title}
-                      className="rounded-xl border border-white/10 bg-white/5 p-4"
-                    >
-                      <div className="text-sm font-semibold text-white">
-                        {p.title}
-                      </div>
-                      <div className="mt-1 text-sm text-white/70">{p.desc}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-6">
-                <div className="text-xs tracking-[0.25em] uppercase text-white/55">
-                  Best-fit scenarios
-                </div>
-                <ul className="mt-4 space-y-2 text-sm text-white/75">
-                  <li>• You need one source of truth across tools and teams</li>
-                  <li>• You want dashboards that explain what matters (not just charts)</li>
-                  <li>• You need drilldowns, segmentation, and role-based visibility</li>
-                  <li>• You’re tired of manual reporting and “CSV workflows”</li>
-                </ul>
-              </div>
+              </section>
             </div>
 
-            {/* Main content */}
             <div className="lg:col-span-7">
               <section className="rounded-2xl border border-white/10 bg-black/30 backdrop-blur p-6">
                 <p className="text-xs tracking-[0.25em] uppercase text-white/55">
-                  What you get
+                  What your dashboard can include
                 </p>
                 <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                  Interfaces that make the next move obvious.
+                  Records, queues, reporting, and recommendations in one trusted surface.
                 </h2>
-
-                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {DELIVERABLES.map((d) => (
-                    <div
-                      key={d}
-                      className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white/75"
-                    >
-                      <span className="text-[rgb(var(--accent))]">•</span>{" "}
-                      {d}
-                    </div>
-                  ))}
-                </div>
+                <BulletGrid items={CAN_INCLUDE} />
 
                 <div className="mt-8 rounded-xl border border-white/10 bg-black/25 p-5">
                   <div className="text-xs tracking-[0.25em] uppercase text-white/55">
                     Typical build flow
                   </div>
                   <ol className="mt-4 space-y-2 text-sm text-white/75">
-                    <li>1) Map sources + definitions (what’s true, what’s noisy)</li>
-                    <li>2) Design the interface model (views, drilldowns, decisions)</li>
-                    <li>3) Build the v1 dashboard layer and ship a usable release</li>
-                    <li>4) Add segmentation, permissions, automation, and deeper reporting</li>
+                    <li>1. Map sources and definitions</li>
+                    <li>2. Design the customer record and decision views</li>
+                    <li>3. Build the first dashboard your team can use immediately</li>
+                    <li>4. Add filters, permissions, automation, and deeper reporting</li>
                   </ol>
                 </div>
               </section>
@@ -186,15 +152,10 @@ export default function Page() {
                   FAQ
                 </p>
                 <div className="mt-5 space-y-5">
-                  {FAQ.map((f) => (
-                    <div
-                      key={f.q}
-                      className="rounded-xl border border-white/10 bg-white/5 p-5"
-                    >
-                      <div className="text-sm font-semibold text-white">
-                        {f.q}
-                      </div>
-                      <div className="mt-2 text-sm text-white/75">{f.a}</div>
+                  {FAQ.map((item) => (
+                    <div key={item.q} className="rounded-xl border border-white/10 bg-white/5 p-5">
+                      <div className="text-sm font-semibold text-white">{item.q}</div>
+                      <div className="mt-2 text-sm text-white/75">{item.a}</div>
                     </div>
                   ))}
                 </div>
@@ -202,34 +163,33 @@ export default function Page() {
 
               <PillarLinks currentHref="/custom-data-dashboards" />
 
-              <section className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-6">
+              <section className="mt-8 rounded-2xl border border-[rgb(var(--accent))]/30 bg-[rgb(var(--accent))]/10 p-6">
                 <p className="text-xs tracking-[0.25em] uppercase text-white/55">
                   Next step
                 </p>
                 <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                  If you want records and visibility your team can trust, let’s scope it.
+                  Not sure what your records and reporting need? Start with a $150 Digital Systems Audit.
                 </h2>
                 <p className="mt-4 text-white/75">
-                  Share your current tools, customer records, reporting needs, and what you wish you
-                  could see instantly. I’ll reply with a build plan, timeline, and what we’d ship first.
+                  We will review your current tools, reporting gaps, customer journey, and admin
+                  bottlenecks before recommending what to fix, automate, or build next.
                 </p>
 
                 <div className="mt-7 flex flex-wrap items-center gap-4">
                   <Link
-                    href="/#fit"
+                    href="/assessment"
                     className="rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm text-white hover:bg-[rgb(var(--accent))]/100 transition-colors"
                   >
-                    Start a Discovery Assessment →
+                    Book a $150 Digital Systems Audit →
                   </Link>
                   <span className="text-xs tracking-[0.22em] uppercase text-white/45">
-                    Fast response • Clear next steps
+                    Clear diagnosis • Practical roadmap
                   </span>
                 </div>
               </section>
             </div>
           </div>
 
-          {/* Bottom spacing */}
           <div className="h-20" />
         </div>
       </Container>

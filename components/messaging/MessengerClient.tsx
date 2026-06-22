@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 type Mode = "admin" | "portal";
 
@@ -61,6 +61,8 @@ type PortalUser = {
 
 const POLL_MS = 15_000;
 const MAX_IMAGES_PER_MESSAGE = 8;
+const MESSAGE_URL_PATTERN = /\b((?:https?:\/\/|www\.)[^\s<>"']+)/gi;
+const TRAILING_URL_PUNCTUATION_PATTERN = /[.,!?;:)\]}]+$/;
 
 type SelectedImage = {
   id: string;
@@ -105,6 +107,61 @@ function formatFileSize(value?: number | null) {
   if (!value) return "";
   if (value < 1024 * 1024) return `${Math.ceil(value / 1024)} KB`;
   return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function normalizeMessageUrl(value: string) {
+  return /^https?:\/\//i.test(value) ? value : `https://${value}`;
+}
+
+function splitTrailingUrlPunctuation(value: string) {
+  const match = value.match(TRAILING_URL_PUNCTUATION_PATTERN);
+  if (!match) return { urlText: value, trailingText: "" };
+  return {
+    urlText: value.slice(0, -match[0].length),
+    trailingText: match[0],
+  };
+}
+
+function renderLinkedMessageText(body: string) {
+  const nodes: ReactNode[] = [];
+  let lastIndex = 0;
+
+  for (const match of body.matchAll(MESSAGE_URL_PATTERN)) {
+    const rawMatch = match[0];
+    const index = match.index ?? 0;
+
+    if (index > lastIndex) nodes.push(body.slice(lastIndex, index));
+
+    const { urlText, trailingText } = splitTrailingUrlPunctuation(rawMatch);
+    if (urlText) {
+      nodes.push(
+        <a
+          key={`${index}-${urlText}`}
+          href={normalizeMessageUrl(urlText)}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(event) => event.stopPropagation()}
+          className="font-semibold text-[#063d66] underline decoration-black/30 underline-offset-2 transition hover:text-black"
+        >
+          {urlText}
+        </a>
+      );
+    }
+    if (trailingText) nodes.push(trailingText);
+
+    lastIndex = index + rawMatch.length;
+  }
+
+  if (lastIndex < body.length) nodes.push(body.slice(lastIndex));
+  return nodes;
+}
+
+function MessageBody({ body }: { body: string }) {
+  return (
+    <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[#111111]">
+      {renderLinkedMessageText(body)}
+    </p>
+  );
 }
 
 function conversationLabel(conversation: Conversation) {
@@ -685,7 +742,7 @@ export default function MessengerClient({
                           )}
                           <span className={`absolute bottom-0 h-4 w-4 ${mine ? "-right-1 bg-sky-500" : "-left-1 bg-white"} rotate-45`} aria-hidden="true" />
                           <div className="relative z-10">
-                            {message.body && <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[#111111]">{message.body}</p>}
+                            {message.body && <MessageBody body={message.body} />}
                             {message.attachments && message.attachments.length > 0 && (
                               <div className={`${message.body ? "mt-3" : ""} grid gap-2`}>
                                 {message.attachments.map((attachment) => {

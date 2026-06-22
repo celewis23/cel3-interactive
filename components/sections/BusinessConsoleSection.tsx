@@ -3,15 +3,12 @@ import { Section } from "../layout/Section";
 
 const PLATFORM_ITEMS = [
   "Public Website",
-  "Business Console",
-  "Customers",
-  "Products",
-  "Orders",
-  "Bookings",
-  "Content Management",
-  "Email / SMS",
-  "Analytics",
-  "AI Assistant",
+  "Intake",
+  "Customer Record",
+  "Booking / Payment",
+  "Staff Workflow",
+  "Follow-Up",
+  "Dashboard",
 ] as const;
 
 export function BusinessConsoleSection() {
@@ -20,24 +17,24 @@ export function BusinessConsoleSection() {
       id="business-console"
       eyebrow="Operations layer"
       title="Your website is only the front door."
-      subtitle="Behind every serious CEL3 solution is a secure business console that helps your team manage customers, products, bookings, content, communications, analytics, and operations from one place."
+      subtitle="Most websites stop when a visitor submits a form. CEL3 builds what happens after that."
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div className="lg:col-span-5 rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur">
           <p className="text-sm text-white/70">
-            Most websites stop when a visitor clicks submit. CEL3 builds the system behind that moment:
-            the intake flow, customer record, follow-up, payment path, booking status, content tools,
-            communication history, and reporting surface your team uses every day.
+            Most websites stop when a visitor submits a form. CEL3 builds what happens after that:
+            the intake flow, customer record, payment path, booking status, follow-up, internal
+            dashboard, and reporting surface your team uses every day.
           </p>
           <p className="mt-4 text-sm text-white/60">
-            The result is a public website connected to real operations, not a polished page floating
-            beside disconnected plugins and spreadsheets.
+            The result is not just a better-looking website. It is a clearer operating system for
+            the business behind it.
           </p>
           <Link
-            href="/business-consoles-operations-platforms"
+            href="/assessment"
             className="mt-6 inline-flex rounded-full border border-white/20 bg-white/5 px-5 py-2.5 text-sm text-white/85 transition-colors hover:border-[rgb(var(--accent))] hover:bg-[rgb(var(--accent))]/100"
           >
-            Explore Business Console Systems →
+            Map Your System →
           </Link>
         </div>
 

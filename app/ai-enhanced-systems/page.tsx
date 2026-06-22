@@ -5,73 +5,76 @@ import SystemSignalBadge from "@/components/ui/SystemSignalBadge";
 import PillarLinks from "@/components/sections/PillarLinks";
 
 export const metadata: Metadata = {
-  title: "AI-Enhanced Operations & Workflow Automation | CEL3 Interactive",
+  title: "AI-Assisted Workflows & Operations Systems | CEL3 Interactive",
   description:
-    "Assistive AI, practical automation, integrations, and workflow tools that reduce repetitive admin while keeping business judgment and approvals in human hands.",
+    "Practical AI-assisted workflows that help teams summarize, draft, route, follow up, and report faster while keeping important actions human-approved.",
 };
 
-const PAIN_POINTS = [
+const USE_CASES = [
+  "Draft customer replies for review",
+  "Summarize customer history",
+  "Recommend follow-ups",
+  "Turn form submissions into structured records",
+  "Generate internal notes or task summaries",
+  "Draft product descriptions or content updates",
+  "Flag stalled leads, bookings, or requests",
+  "Summarize reports and operational activity",
+] as const;
+
+const AVOID = [
+  "AI hype without a workflow",
+  "Fully automated customer actions without review",
+  "Black-box decisions",
+  "Replacing judgment with unreliable shortcuts",
+  "Tools that create more admin than they remove",
+] as const;
+
+const PRINCIPLES = [
   {
-    title: "Manual work slows the team down",
-    desc: "Staff spend too much time copying information, following up, checking statuses, or rebuilding the same reports.",
+    title: "Human approval stays visible",
+    desc: "Important customer-facing actions should be drafted, reviewed, and tracked instead of blindly sent.",
   },
   {
-    title: "Tools don’t talk to each other",
-    desc: "Customer details, payments, forms, email, files, and project updates live in separate places.",
+    title: "AI needs connected context",
+    desc: "Useful assistance depends on clean records, permissions, status, and workflow state.",
   },
   {
-    title: "Processes depend on memory",
-    desc: "Important steps are handled differently depending on who is working, which creates missed handoffs and inconsistent service.",
+    title: "Start with one real bottleneck",
+    desc: "The right first AI workflow is usually a narrow admin task that repeats often and slows people down.",
   },
 ] as const;
 
-const DELIVERABLES = [
-  "Intake forms that route requests to the right place",
-  "Customer, billing, email, file, and CRM integrations",
-  "AI-drafted customer replies for human review",
-  "Customer activity summaries and recommended follow-ups",
-  "Product descriptions, content support, and admin drafting tools",
-  "Order, booking, message, and request analysis",
-  "Approval workflows for tasks that still need human review",
-  "Status tracking, notifications, and handoff checklists",
-  "Role-based access, audit trails, and admin controls",
-] as const;
-
-const FAQ = [
-  {
-    q: "Is this about replacing our team?",
-    a: "No. The goal is to remove avoidable admin, improve handoffs, and make important information easier to find. Your team still owns the judgment and customer relationship.",
-  },
-  {
-    q: "Can you work with our existing tools?",
-    a: "Yes. We usually start by reviewing the tools you already use, then connect or improve the parts that create the most friction.",
-  },
-  {
-    q: "What’s the typical investment range?",
-    a: "Most automation and integration projects start in the five-figure range and scale based on the number of systems, user roles, business rules, and approval requirements.",
-  },
-] as const;
+function BulletGrid({ items }: { items: readonly string[] }) {
+  return (
+    <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {items.map((item) => (
+        <div key={item} className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white/75">
+          <span className="text-[rgb(var(--accent))]">•</span> {item}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function Page() {
   return (
     <main className="bg-black min-h-screen pt-24 md:pt-28">
       <Container>
         <div className="mx-auto max-w-6xl px-4">
-          {/* Top bar */}
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-xs tracking-[0.25em] uppercase text-white/55">
-                Pillar • AI-Enhanced Operations
+                Pillar • AI-Enhanced Systems
               </p>
 
               <h1 className="mt-4 text-4xl md:text-5xl font-semibold tracking-tight text-white">
-                AI-assisted workflows that help your team respond faster without giving up control.
+                AI-assisted workflows that reduce admin without giving up control.
               </h1>
 
               <p className="mt-5 text-base md:text-lg text-white/75 max-w-3xl">
-                AI should not replace your judgment. It should reduce repetitive work,
-                surface useful context, draft the first pass, and help staff move faster
-                while important actions still stay visible and confirmable.
+                CEL3 builds AI-enhanced systems that help your team summarize, draft, route,
+                follow up, and report faster while keeping important actions reviewable and
+                human-approved.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -79,91 +82,68 @@ export default function Page() {
                   href="/assessment"
                   className="rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm text-white hover:bg-[rgb(var(--accent))]/100 transition-colors"
                 >
-                  Start a Discovery Assessment
+                  Find AI Opportunities in Your Workflow
                 </Link>
 
                 <Link
                   href="/work"
                   className="text-sm text-white/70 hover:text-[rgb(var(--accent))] transition-colors"
                 >
-                  View Work →
+                  View Platform Work →
                 </Link>
 
                 <span className="text-xs tracking-[0.22em] uppercase text-white/45">
-                  Assistive AI • Confirm-before-action • Real operations
+                  Assistive AI • Reviewable actions • Real operations
                 </span>
               </div>
             </div>
 
-            {/* Subtle “signal” badge */}
             <SystemSignalBadge />
           </div>
 
-          {/* Body */}
           <div className="mt-14 grid grid-cols-1 lg:grid-cols-12 gap-10">
-            {/* Left rail */}
             <div className="lg:col-span-5">
-              <div className="rounded-2xl border border-white/10 bg-black/25 backdrop-blur p-6">
+              <section className="rounded-2xl border border-white/10 bg-black/25 backdrop-blur p-6">
                 <p className="text-xs tracking-[0.25em] uppercase text-white/55">
-                  The problem
+                  Practical AI use cases
                 </p>
-
                 <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                  You do not need AI theater. You need practical support where admin work slows people down.
+                  Use AI where it reduces real admin work.
                 </h2>
+                <BulletGrid items={USE_CASES} />
+              </section>
 
+              <section className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-6">
+                <h2 className="text-2xl font-semibold tracking-tight text-white">
+                  AI only helps when the workflow is clear.
+                </h2>
                 <p className="mt-4 text-white/75">
-                  AI is useful when it helps staff understand context, draft responses,
-                  summarize activity, recommend follow-ups, and complete routine admin
-                  with clear review points.
+                  Good AI systems need clean records, defined actions, review states, and
+                  guardrails. Otherwise they create another disconnected tool to manage.
                 </p>
-
-                <div className="mt-6 space-y-4">
-                  {PAIN_POINTS.map((p) => (
-                    <div
-                      key={p.title}
-                      className="rounded-xl border border-white/10 bg-white/5 p-4"
-                    >
-                      <div className="text-sm font-semibold text-white">
-                        {p.title}
-                      </div>
-                      <div className="mt-1 text-sm text-white/70">{p.desc}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-6">
-                <div className="text-xs tracking-[0.25em] uppercase text-white/55">
-                  Best-fit scenarios
-                </div>
-                <ul className="mt-4 space-y-2 text-sm text-white/75">
-                  <li>• You want customer replies drafted, not blindly sent</li>
-                  <li>• You need customer, billing, booking, file, or email data connected</li>
-                  <li>• You want summaries, follow-ups, and content support inside the console</li>
-                  <li>• You need approvals, permissions, and oversight built into the process</li>
-                </ul>
-              </div>
+              </section>
             </div>
 
-            {/* Main content */}
             <div className="lg:col-span-7">
               <section className="rounded-2xl border border-white/10 bg-black/30 backdrop-blur p-6">
                 <p className="text-xs tracking-[0.25em] uppercase text-white/55">
-                  What you get
+                  What we avoid
                 </p>
                 <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                  Assistive workflows that save time without hiding the details.
+                  Practical automation, not AI theater.
                 </h2>
+                <BulletGrid items={AVOID} />
+              </section>
 
-                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {DELIVERABLES.map((d) => (
-                    <div
-                      key={d}
-                      className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white/75"
-                    >
-                      <span className="text-[rgb(var(--accent))]">•</span>{" "}
-                      {d}
+              <section className="mt-8 rounded-2xl border border-white/10 bg-black/25 backdrop-blur p-6">
+                <p className="text-xs tracking-[0.25em] uppercase text-white/55">
+                  How we design it
+                </p>
+                <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {PRINCIPLES.map((item) => (
+                    <div key={item.title} className="rounded-xl border border-white/10 bg-white/5 p-5">
+                      <h3 className="text-sm font-semibold text-white">{item.title}</h3>
+                      <p className="mt-2 text-sm text-white/70">{item.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -173,46 +153,26 @@ export default function Page() {
                     Typical build flow
                   </div>
                   <ol className="mt-4 space-y-2 text-sm text-white/75">
-                    <li>1) Identify repetitive tasks and where staff need better context</li>
-                    <li>2) Map data sources, permissions, approvals, and exceptions</li>
-                    <li>3) Ship one assistive workflow with clear review and tracking</li>
-                    <li>4) Expand once the process is proven in real use</li>
+                    <li>1. Identify repetitive admin and context gaps</li>
+                    <li>2. Map records, permissions, approvals, and exceptions</li>
+                    <li>3. Ship one assistive workflow with clear review states</li>
+                    <li>4. Expand once the process is proven in real use</li>
                   </ol>
-                </div>
-              </section>
-
-              <section className="mt-8 rounded-2xl border border-white/10 bg-black/25 backdrop-blur p-6">
-                <p className="text-xs tracking-[0.25em] uppercase text-white/55">
-                  FAQ
-                </p>
-                <div className="mt-5 space-y-5">
-                  {FAQ.map((f) => (
-                    <div
-                      key={f.q}
-                      className="rounded-xl border border-white/10 bg-white/5 p-5"
-                    >
-                      <div className="text-sm font-semibold text-white">
-                        {f.q}
-                      </div>
-                      <div className="mt-2 text-sm text-white/75">{f.a}</div>
-                    </div>
-                  ))}
                 </div>
               </section>
 
               <PillarLinks currentHref="/ai-enhanced-systems" />
 
-              <section className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-6">
+              <section className="mt-8 rounded-2xl border border-[rgb(var(--accent))]/30 bg-[rgb(var(--accent))]/10 p-6">
                 <p className="text-xs tracking-[0.25em] uppercase text-white/55">
                   Next step
                 </p>
                 <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-white">
-                  If repetitive admin is slowing your team down, let’s scope the fix.
+                  Not sure where AI belongs? Start with a $150 Digital Systems Audit.
                 </h2>
                 <p className="mt-4 text-white/75">
-                  Share your current tools, where staff lose time, and which customer or admin
-                  workflows need better context. I’ll reply with a practical build plan and what
-                  we’d ship first.
+                  We will review your tools, workflows, customer journey, and admin bottlenecks
+                  to find practical AI opportunities with human control built in.
                 </p>
 
                 <div className="mt-7 flex flex-wrap items-center gap-4">
@@ -220,17 +180,16 @@ export default function Page() {
                     href="/assessment"
                     className="rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm text-white hover:bg-[rgb(var(--accent))]/100 transition-colors"
                   >
-                    Start a Discovery Assessment →
+                    Book a $150 Digital Systems Audit →
                   </Link>
                   <span className="text-xs tracking-[0.22em] uppercase text-white/45">
-                    Clear scope • Practical safeguards • Real operations
+                    Clear scope • Practical safeguards
                   </span>
                 </div>
               </section>
             </div>
           </div>
 
-          {/* Bottom spacing */}
           <div className="h-20" />
         </div>
       </Container>
