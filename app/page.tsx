@@ -1,5 +1,3 @@
-import { MotionProvider } from "@/components/motion/MotionProvider";
-import { NavBar } from "@/components/nav/NavBar";
 import { Hero } from "@/components/hero/Hero";
 import { HomeAuditSection, HomeBuildsSection, HomeProblemSection } from "@/components/sections/HomeLeadGenerationSections";
 import InteractiveByDesign  from "@/components/sections/InteractiveByDesign";
@@ -11,7 +9,6 @@ import { FitCTA } from "@/components/sections/FitCTA";
 import FitSectionClient from "@/components/sections/FitSectionClient";
 import  WorkingTogether from "@/components/sections/WorkingTogether";
 import { DifferentiationSection } from "@/components/sections/DifferentiationSection";
-import  Footer  from "@/components/sections/Footer";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,24 +20,20 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <MotionProvider>
-      <main className="min-h-screen bg-black text-white">
-        <NavBar />
-        <Hero />
-        <HomeProblemSection />
-        <HomeBuildsSection />
-        <InteractiveByDesign />
-        <BusinessConsoleSection />
-        <HomeAuditSection />
-        <CapabilityMatrix />
-        <DifferentiationSection />
-        <FitCTA />
-        <WhoWeWorkWith />
-        <WorkPreview />
-        <WorkingTogether />
-        <FitSectionClient />
-        <Footer />
-      </main>
-    </MotionProvider>
+    <main className="min-h-screen bg-black text-white">
+      <Hero />
+      <HomeProblemSection />
+      <HomeBuildsSection />
+      <InteractiveByDesign />
+      <BusinessConsoleSection />
+      <HomeAuditSection />
+      <CapabilityMatrix />
+      <DifferentiationSection />
+      <FitCTA />
+      <WhoWeWorkWith />
+      <WorkPreview />
+      <WorkingTogether />
+      <FitSectionClient />
+    </main>
   );
 }

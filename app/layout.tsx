@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { GeistSans } from "geist/font/sans";
+import { SiteChrome } from "@/components/layout/SiteChrome";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,14 +40,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        {/* Google Analytics */}
-        <script
-          src="https://www.googletagmanager.com/gtag/js?id=G-G1FLY7YQQB"
-        />
-        <script
-          id="ga-init"
-        >
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} bg-black text-white antialiased`}
+      >
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-G1FLY7YQQB" strategy="afterInteractive" />
+        <Script id="ga-init" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -55,12 +53,8 @@ export default function RootLayout({
               page_path: window.location.pathname,
             });
           `}
-        </script>
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-black text-white antialiased`}
-      >
-        {children}
+        </Script>
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );
