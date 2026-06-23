@@ -223,6 +223,78 @@ body {
   color-scheme: light;
 }
 
+[data-admin-theme="dark"] .admin-shell,
+[data-admin-theme="dark"] .admin-shell * {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(56 189 248 / 0.58) rgb(255 255 255 / 0.06);
+}
+
+[data-admin-theme="light"] .admin-shell,
+[data-admin-theme="light"] .admin-shell * {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(14 165 233 / 0.7) rgb(17 17 17 / 0.08);
+}
+
+[data-admin-theme] .admin-shell::-webkit-scrollbar,
+[data-admin-theme] .admin-shell ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+[data-admin-theme] .admin-shell::-webkit-scrollbar-track,
+[data-admin-theme] .admin-shell ::-webkit-scrollbar-track {
+  border-radius: 999px;
+}
+
+[data-admin-theme="dark"] .admin-shell::-webkit-scrollbar-track,
+[data-admin-theme="dark"] .admin-shell ::-webkit-scrollbar-track {
+  background: rgb(255 255 255 / 0.05);
+  border: 1px solid rgb(255 255 255 / 0.04);
+}
+
+[data-admin-theme="light"] .admin-shell::-webkit-scrollbar-track,
+[data-admin-theme="light"] .admin-shell ::-webkit-scrollbar-track {
+  background: rgb(17 17 17 / 0.06);
+  border: 1px solid rgb(17 17 17 / 0.05);
+}
+
+[data-admin-theme] .admin-shell::-webkit-scrollbar-thumb,
+[data-admin-theme] .admin-shell ::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+[data-admin-theme="dark"] .admin-shell::-webkit-scrollbar-thumb,
+[data-admin-theme="dark"] .admin-shell ::-webkit-scrollbar-thumb {
+  background-color: rgb(56 189 248 / 0.58);
+  border: 2px solid #0a0a0a;
+}
+
+[data-admin-theme="light"] .admin-shell::-webkit-scrollbar-thumb,
+[data-admin-theme="light"] .admin-shell ::-webkit-scrollbar-thumb {
+  background-color: rgb(14 165 233 / 0.7);
+  border: 2px solid #f8f6f1;
+}
+
+[data-admin-theme="dark"] .admin-shell::-webkit-scrollbar-thumb:hover,
+[data-admin-theme="dark"] .admin-shell ::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(125 211 252 / 0.82);
+}
+
+[data-admin-theme="light"] .admin-shell::-webkit-scrollbar-thumb:hover,
+[data-admin-theme="light"] .admin-shell ::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(2 132 199 / 0.82);
+}
+
+[data-admin-theme] .admin-shell::-webkit-scrollbar-corner,
+[data-admin-theme] .admin-shell ::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+[data-admin-theme] .admin-shell .admin-scroll {
+  scrollbar-gutter: stable;
+}
+
 [data-admin-theme="dark"] .admin-shell .contract-document {
   background-color: #050505;
   border: 1px solid rgb(255 255 255 / 0.1);

@@ -254,20 +254,20 @@ export default function LeadGeneratorClient({
   const reviewCount = leads.filter((lead) => lead.status === "review").length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Lead Generator</h1>
+          <h1 className="text-2xl font-semibold text-white sm:text-3xl">Lead Generator</h1>
           <p className="mt-1 text-sm text-white/40">
             {reviewCount} in review, {activeCount} active, {leads.length} total captured.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
           <button
             type="button"
             onClick={seedLeads}
             disabled={busyAction === "seed"}
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/70 transition-colors hover:border-white/20 hover:text-white disabled:opacity-40"
+            className="min-h-11 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/70 transition-colors hover:border-white/20 hover:text-white disabled:opacity-40"
           >
             {busyAction === "seed" ? "Seeding..." : "Seed 20 Researched Leads"}
           </button>
@@ -275,7 +275,7 @@ export default function LeadGeneratorClient({
             type="button"
             onClick={runFinder}
             disabled={busyAction === "run"}
-            className="rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-sky-400 disabled:opacity-40"
+            className="min-h-11 rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-sky-400 disabled:opacity-40"
           >
             {busyAction === "run" ? "Searching..." : "Run Finder Now"}
           </button>
@@ -290,20 +290,19 @@ export default function LeadGeneratorClient({
         </div>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(320px,420px)_1fr]">
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-white/8 bg-white/3 p-4">
-            <div className="mb-3 flex items-center gap-2">
+      <div className="grid gap-4 xl:grid-cols-[minmax(320px,420px)_1fr] xl:gap-6">
+        <div className="order-1 rounded-2xl border border-white/8 bg-white/3 p-3 sm:p-4 xl:col-start-1">
+            <div className="mb-3 grid gap-2 sm:flex sm:items-center">
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search leads"
-                className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none transition-colors placeholder:text-white/25 focus:border-sky-400/50"
+                className="min-h-11 min-w-0 flex-1 rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none transition-colors placeholder:text-white/25 focus:border-sky-400/50"
               />
               <select
                 value={statusFilter}
                 onChange={(event) => setStatusFilter(event.target.value as LeadCandidateStatus | "all")}
-                className="rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none [color-scheme:dark]"
+                className="min-h-11 rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none [color-scheme:dark] sm:w-36"
               >
                 {STATUS_OPTIONS.map((status) => (
                   <option key={status.id} value={status.id}>{status.label}</option>
@@ -311,7 +310,7 @@ export default function LeadGeneratorClient({
               </select>
             </div>
 
-            <div className="max-h-[680px] space-y-2 overflow-y-auto pr-1">
+            <div className="admin-scroll max-h-[min(56vh,560px)] space-y-2 overflow-y-auto pr-1 xl:max-h-[680px]">
               {filteredLeads.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-white/10 px-4 py-8 text-center text-sm text-white/35">
                   No leads match this view.
@@ -330,8 +329,8 @@ export default function LeadGeneratorClient({
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-white">{lead.businessName}</p>
-                        <p className="mt-0.5 truncate text-xs text-white/40">{lead.city} · {lead.niche}</p>
+                        <p className="break-words text-sm font-semibold leading-snug text-white">{lead.businessName}</p>
+                        <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-white/40">{lead.city} · {lead.niche}</p>
                       </div>
                       <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusClass(lead.status)}`}>
                         {lead.status}
@@ -345,9 +344,9 @@ export default function LeadGeneratorClient({
                 ))
               )}
             </div>
-          </div>
+        </div>
 
-          <div className="rounded-2xl border border-white/8 bg-white/3 p-4">
+        <div className="order-3 rounded-2xl border border-white/8 bg-white/3 p-4 xl:col-start-1 xl:row-start-2">
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <h2 className="text-sm font-semibold text-white">Schedule</h2>
@@ -444,7 +443,7 @@ export default function LeadGeneratorClient({
                 type="button"
                 onClick={saveSettings}
                 disabled={busyAction === "settings"}
-                className="rounded-xl bg-white/8 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/14 disabled:opacity-40"
+                className="min-h-10 rounded-xl bg-white/8 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/14 disabled:opacity-40"
               >
                 {busyAction === "settings" ? "Saving..." : "Save"}
               </button>
@@ -452,10 +451,9 @@ export default function LeadGeneratorClient({
             {settings.lastRunMessage && (
               <p className="mt-3 text-xs text-white/35">{settings.lastRunMessage}</p>
             )}
-          </div>
         </div>
 
-        <div className="min-w-0 rounded-2xl border border-white/8 bg-white/3 p-5">
+        <div className="order-2 min-w-0 rounded-2xl border border-white/8 bg-white/3 p-4 sm:p-5 xl:col-start-2 xl:row-span-2 xl:row-start-1">
           {!selected ? (
             <div className="flex min-h-[480px] items-center justify-center text-sm text-white/35">
               Select a lead to review.
@@ -475,15 +473,15 @@ export default function LeadGeneratorClient({
                   <input
                     value={selected.businessName}
                     onChange={(event) => updateSelected({ businessName: event.target.value })}
-                    className="w-full border-0 bg-transparent p-0 text-2xl font-semibold text-white outline-none"
+                    className="w-full border-0 bg-transparent p-0 text-xl font-semibold leading-tight text-white outline-none sm:text-2xl"
                   />
                   <p className="mt-1 text-sm text-white/40">{selected.city} · {selected.region}</p>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
                   {selected.approvedPipelineContactId && (
                     <Link
                       href={`/admin/pipeline/contacts/${selected.approvedPipelineContactId}`}
-                      className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-sm font-medium text-emerald-300 transition-colors hover:border-emerald-300/40"
+                      className="min-h-10 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-center text-sm font-medium text-emerald-300 transition-colors hover:border-emerald-300/40"
                     >
                       View Pipeline Contact
                     </Link>
@@ -492,7 +490,7 @@ export default function LeadGeneratorClient({
                     type="button"
                     onClick={saveSelected}
                     disabled={saving}
-                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/75 transition-colors hover:border-white/20 hover:text-white disabled:opacity-40"
+                    className="min-h-10 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/75 transition-colors hover:border-white/20 hover:text-white disabled:opacity-40"
                   >
                     {saving ? "Saving..." : "Save Review"}
                   </button>
@@ -505,7 +503,7 @@ export default function LeadGeneratorClient({
                   <input
                     value={selected.niche}
                     onChange={(event) => updateSelected({ niche: event.target.value })}
-                    className="w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
+                    className="min-h-11 w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
                   />
                 </label>
                 <label className="block">
@@ -513,7 +511,7 @@ export default function LeadGeneratorClient({
                   <select
                     value={selected.status}
                     onChange={(event) => updateSelected({ status: event.target.value as LeadCandidateStatus })}
-                    className="w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none [color-scheme:dark]"
+                    className="min-h-11 w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none [color-scheme:dark]"
                   >
                     {STATUS_OPTIONS.filter((status) => status.id !== "all").map((status) => (
                       <option key={status.id} value={status.id}>{status.label}</option>
@@ -525,7 +523,7 @@ export default function LeadGeneratorClient({
                   <input
                     value={selected.phone ?? ""}
                     onChange={(event) => updateSelected({ phone: event.target.value || null })}
-                    className="w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
+                    className="min-h-11 w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
                   />
                 </label>
                 <label className="block">
@@ -534,7 +532,7 @@ export default function LeadGeneratorClient({
                     value={selected.email ?? ""}
                     onChange={(event) => updateSelected({ email: event.target.value || null })}
                     placeholder="Public email only"
-                    className="w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none placeholder:text-white/25 focus:border-sky-400/50"
+                    className="min-h-11 w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none placeholder:text-white/25 focus:border-sky-400/50"
                   />
                 </label>
                 <label className="block lg:col-span-2">
@@ -542,7 +540,7 @@ export default function LeadGeneratorClient({
                   <input
                     value={selected.address ?? ""}
                     onChange={(event) => updateSelected({ address: event.target.value || null })}
-                    className="w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
+                    className="min-h-11 w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
                   />
                 </label>
                 <label className="block">
@@ -550,7 +548,7 @@ export default function LeadGeneratorClient({
                   <input
                     value={selected.website ?? ""}
                     onChange={(event) => updateSelected({ website: event.target.value || null })}
-                    className="w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
+                    className="min-h-11 w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
                   />
                 </label>
                 <label className="block">
@@ -558,7 +556,7 @@ export default function LeadGeneratorClient({
                   <input
                     value={selected.contactUrl ?? ""}
                     onChange={(event) => updateSelected({ contactUrl: event.target.value || null })}
-                    className="w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
+                    className="min-h-11 w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
                   />
                 </label>
               </div>
@@ -586,7 +584,7 @@ export default function LeadGeneratorClient({
                     value={selected.currentSnapshot}
                     onChange={(event) => updateSelected({ currentSnapshot: event.target.value })}
                     rows={5}
-                    className="w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
+                    className="admin-scroll w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
                   />
                 </label>
                 <label className="block">
@@ -595,7 +593,7 @@ export default function LeadGeneratorClient({
                     value={selected.gapAssessment}
                     onChange={(event) => updateSelected({ gapAssessment: event.target.value })}
                     rows={5}
-                    className="w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
+                    className="admin-scroll w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
                   />
                 </label>
                 <label className="block">
@@ -604,7 +602,7 @@ export default function LeadGeneratorClient({
                     value={selected.howCel3CanHelp}
                     onChange={(event) => updateSelected({ howCel3CanHelp: event.target.value })}
                     rows={5}
-                    className="w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
+                    className="admin-scroll w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
                   />
                 </label>
               </div>
@@ -621,7 +619,7 @@ export default function LeadGeneratorClient({
                     type="button"
                     onClick={sendSelectedEmail}
                     disabled={!selected.email || busyAction === "send"}
-                    className="rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-sky-400 disabled:opacity-40"
+                    className="min-h-10 rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-sky-400 disabled:opacity-40"
                   >
                     {busyAction === "send" ? "Sending..." : "Send Email Now"}
                   </button>
@@ -631,7 +629,7 @@ export default function LeadGeneratorClient({
                   <input
                     value={selected.emailSubject}
                     onChange={(event) => updateSelected({ emailSubject: event.target.value })}
-                    className="w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
+                    className="min-h-11 w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
                   />
                 </label>
                 <label className="mt-3 block">
@@ -640,10 +638,10 @@ export default function LeadGeneratorClient({
                     value={selected.emailBodyHtml}
                     onChange={(event) => updateSelected({ emailBodyHtml: event.target.value })}
                     rows={8}
-                    className="w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
+                    className="admin-scroll w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
                   />
                 </label>
-                <div className="mt-3 rounded-xl border border-white/8 bg-black p-3">
+                <div className="admin-scroll mt-3 max-h-52 overflow-y-auto rounded-xl border border-white/8 bg-black p-3">
                   <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-white/35">Plain preview</p>
                   <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/60">{stripHtml(selected.emailBodyHtml)}</p>
                 </div>
@@ -655,30 +653,30 @@ export default function LeadGeneratorClient({
                   value={selected.notes ?? ""}
                   onChange={(event) => updateSelected({ notes: event.target.value || null })}
                   rows={3}
-                  className="w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
+                  className="admin-scroll w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none focus:border-sky-400/50"
                 />
               </label>
 
-              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/8 pt-5">
+              <div className="flex flex-col gap-3 border-t border-white/8 pt-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                 <button
                   type="button"
                   onClick={rejectSelected}
-                  className="text-sm text-white/35 transition-colors hover:text-red-300"
+                  className="min-h-10 rounded-xl border border-white/8 px-4 py-2 text-sm text-white/35 transition-colors hover:border-red-300/20 hover:text-red-300 sm:border-0 sm:px-0"
                 >
                   Reject Lead
                 </button>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
                   <button
                     type="button"
                     onClick={() => patchSelected({ status: "contacted" }, "Lead marked contacted.")}
-                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/70 transition-colors hover:border-white/20 hover:text-white"
+                    className="min-h-10 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/70 transition-colors hover:border-white/20 hover:text-white"
                   >
                     Mark Contacted
                   </button>
                   <button
                     type="button"
                     onClick={() => patchSelected({ status: "followed-up" }, "Lead marked followed up.")}
-                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/70 transition-colors hover:border-white/20 hover:text-white"
+                    className="min-h-10 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/70 transition-colors hover:border-white/20 hover:text-white"
                   >
                     Mark Followed Up
                   </button>
@@ -686,7 +684,7 @@ export default function LeadGeneratorClient({
                     type="button"
                     onClick={approveSelected}
                     disabled={busyAction === "approve"}
-                    className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-emerald-400 disabled:opacity-40"
+                    className="min-h-10 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-emerald-400 disabled:opacity-40"
                   >
                     {busyAction === "approve" ? "Approving..." : "Approve to Pipeline"}
                   </button>
