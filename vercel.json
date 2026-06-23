@@ -3,6 +3,10 @@
     {
       "path": "/api/admin/notifications/email",
       "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/lead-generator",
+      "schedule": "* * * * *"
     }
   ]
 }
