@@ -69,6 +69,16 @@ const NAV: NavItem[] = [
     ),
   },
   {
+    label: "Platform Leads",
+    href: "/admin/leads/platform-builder",
+    icon: (
+      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 6.75A2.25 2.25 0 016.75 4.5h10.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25H6.75a2.25 2.25 0 01-2.25-2.25V6.75z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9h7.5M8.25 12h5.5M8.25 15h3.5" />
+      </svg>
+    ),
+  },
+  {
     label: "Fit Requests",
     href: "/admin/fit-requests",
     icon: (
@@ -362,6 +372,7 @@ const NAV_SECTION_DEFS = [
     hrefs: [
       "/admin/pipeline",
       "/admin/lead-generator",
+      "/admin/leads/platform-builder",
       "/admin/fit-requests",
       "/admin/contacts",
       "/admin/estimates",

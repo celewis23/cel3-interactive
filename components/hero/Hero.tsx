@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { Container } from "../layout/Container";
 import { HeroSystem } from "./HeroSystem";
 import { useScrollState } from "../motion/useScrollState";
@@ -34,6 +35,17 @@ export function Hero() {
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
             {/* Left: headline */}
             <div className="lg:col-span-7">
+              <motion.p
+                animate={{
+                  opacity: activated ? 0.55 : 0.8,
+                  y: activated ? -2 : 0,
+                }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+                className="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-white/60"
+              >
+                Richmond-based. Working locally and remotely with service businesses that need clearer digital operations.
+              </motion.p>
+
               <motion.h1
                 animate={{
                   opacity: 1,
@@ -68,19 +80,26 @@ export function Hero() {
               </motion.p>
 
               <div className="mt-10 flex flex-wrap items-center gap-4">
-                <a
+                <Link
+                  href="/build-your-platform"
+                  className="rounded-full border border-sky-300/60 bg-sky-300 px-6 py-3 text-sm font-semibold text-black hover:bg-sky-200 transition-colors hover:border-sky-200"
+                >
+                  Build Your Platform
+                </Link>
+
+                <Link
                   href="/assessment"
                   className="rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm text-white hover:bg-[rgb(var(--accent))]/100 transition-colors hover:border-[rgb(var(--accent))]"
                 >
                   Book a $150 Digital Systems Audit
-                </a>
+                </Link>
 
-                <a
+                <Link
                   href="/work"
                   className="text-sm text-white/70 hover:text-[rgb(var(--accent))] transition-colors"
                 >
                   See Platform Examples
-                </a>
+                </Link>
               </div>
               <p className="mt-4 max-w-xl text-sm text-gray-300">
                 Start with a fixed-price assessment before committing to a full build.
