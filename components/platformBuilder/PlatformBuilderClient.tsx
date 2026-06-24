@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { PlatformBuilderResult, PlatformBuilderSection, PlatformContactInput } from "@/lib/platformBuilder/types";
 
@@ -40,6 +40,8 @@ const timelineOptions = [
 ];
 
 export function PlatformBuilderClient({ sections }: Props) {
+  const builderRef = useRef<HTMLElement | null>(null);
+  const stepButtonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeSectionId, setActiveSectionId] = useState(sections[0]?.id);
   const [contact, setContact] = useState<PlatformContactInput>(initialContact);
@@ -56,6 +58,30 @@ export function PlatformBuilderClient({ sections }: Props) {
   const direction = useMemo(() => getGeneralDirection(selectedFeatures), [selectedFeatures]);
   const roughLabel = useMemo(() => getRoughPackageLabel(selectedFeatures), [selectedFeatures]);
   const activeSection = sections.find((section) => section.id === activeSectionId) ?? sections[0];
+
+  useEffect(() => {
+    if (!activeSectionId) return;
+    stepButtonRefs.current[activeSectionId]?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  }, [activeSectionId]);
+
+  function moveToSection(sectionId: PlatformBuilderSection["id"]) {
+    setActiveSectionId(sectionId);
+    window.requestAnimationFrame(() => {
+      builderRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      stepButtonRefs.current[sectionId]?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+    });
+  }
 
   function toggleFeature(id: string) {
     setResult(null);
@@ -119,15 +145,18 @@ export function PlatformBuilderClient({ sections }: Props) {
         </div>
       </section>
 
-      <main id="builder" className="mx-auto grid max-w-7xl gap-7 px-5 pb-24 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <main ref={builderRef} id="builder" className="mx-auto grid max-w-7xl scroll-mt-24 gap-7 px-5 pb-24 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="min-w-0">
           <div className="sticky top-[72px] z-20 -mx-5 border-y border-white/8 bg-[#05070a]/88 px-5 py-3 backdrop-blur lg:top-0">
             <div className="flex gap-2 overflow-x-auto pb-1">
               {sections.map((section, index) => (
                 <button
                   key={section.id}
+                  ref={(node) => {
+                    stepButtonRefs.current[section.id] = node;
+                  }}
                   type="button"
-                  onClick={() => setActiveSectionId(section.id)}
+                  onClick={() => moveToSection(section.id)}
                   className={[
                     "shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition-all",
                     activeSection.id === section.id
@@ -200,14 +229,14 @@ export function PlatformBuilderClient({ sections }: Props) {
             <div className="mt-6 flex justify-between">
               <button
                 type="button"
-                onClick={() => setActiveSectionId(sections[Math.max(sections.findIndex((section) => section.id === activeSection.id) - 1, 0)].id)}
+                onClick={() => moveToSection(sections[Math.max(sections.findIndex((section) => section.id === activeSection.id) - 1, 0)].id)}
                 className="rounded-full border border-white/10 px-5 py-2.5 text-sm text-white/55 transition-colors hover:border-white/20 hover:text-white"
               >
                 Previous
               </button>
               <button
                 type="button"
-                onClick={() => setActiveSectionId(sections[Math.min(sections.findIndex((section) => section.id === activeSection.id) + 1, sections.length - 1)].id)}
+                onClick={() => moveToSection(sections[Math.min(sections.findIndex((section) => section.id === activeSection.id) + 1, sections.length - 1)].id)}
                 className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-sky-200"
               >
                 Next Section
