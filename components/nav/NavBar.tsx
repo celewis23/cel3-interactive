@@ -74,9 +74,8 @@ export function NavBar() {
       <div className={headerClass}>
         <Container>
           <div className="flex items-center justify-between py-4">
-            {/* IMPORTANT: Logo already contains a Link */}
             <div className="text-white font-semibold tracking-tight">
-              <Logo />
+              <Logo href="/" />
             </div>
 
             {/* Desktop nav */}

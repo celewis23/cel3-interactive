@@ -28,7 +28,7 @@ export function Logo({ href, className = "" }: LogoProps) {
       }}
       transition={{ duration: 0.4, ease: "easeOut" }}
       className={[
-        "flex items-baseline gap-2 select-none",
+        "inline-flex items-baseline gap-2 select-none",
         className,
       ].join(" ")}
     >
@@ -80,11 +80,15 @@ export function Logo({ href, className = "" }: LogoProps) {
   // ✅ Only wrap in Link if href is provided
   if (href) {
     return (
-      <Link href={href} aria-label="CEL3 Interactive" className="group">
+      <Link
+        href={href}
+        aria-label="CEL3 Interactive home"
+        className="group inline-flex rounded-lg px-2 py-2 -mx-2 -my-2 focus:outline-none focus:ring-2 focus:ring-sky-300/35"
+      >
         {Content}
       </Link>
     );
   }
 
-  return <div className="group">{Content}</div>;
+  return <div className="group inline-flex">{Content}</div>;
 }
