@@ -8,6 +8,8 @@ type Props = {
   sections: PlatformBuilderSection[];
 };
 
+type BuilderStage = "building" | "reviewing" | "capturingLead" | "proposalReady";
+
 const initialContact: PlatformContactInput = {
   firstName: "",
   lastName: "",
@@ -41,9 +43,11 @@ const timelineOptions = [
 
 export function PlatformBuilderClient({ sections }: Props) {
   const builderRef = useRef<HTMLElement | null>(null);
+  const formRef = useRef<HTMLElement | null>(null);
   const stepButtonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeSectionId, setActiveSectionId] = useState(sections[0]?.id);
+  const [stage, setStage] = useState<BuilderStage>("building");
   const [contact, setContact] = useState<PlatformContactInput>(initialContact);
   const [result, setResult] = useState<PlatformBuilderResult | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -58,6 +62,8 @@ export function PlatformBuilderClient({ sections }: Props) {
   const direction = useMemo(() => getGeneralDirection(selectedFeatures), [selectedFeatures]);
   const roughLabel = useMemo(() => getRoughPackageLabel(selectedFeatures), [selectedFeatures]);
   const activeSection = sections.find((section) => section.id === activeSectionId) ?? sections[0];
+  const activeSectionIndex = sections.findIndex((section) => section.id === activeSection.id);
+  const isLastSection = activeSectionIndex === sections.length - 1;
 
   useEffect(() => {
     if (!activeSectionId) return;
@@ -68,7 +74,16 @@ export function PlatformBuilderClient({ sections }: Props) {
     });
   }, [activeSectionId]);
 
+  useEffect(() => {
+    if (stage !== "capturingLead") return;
+    formRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [stage]);
+
   function moveToSection(sectionId: PlatformBuilderSection["id"]) {
+    setStage((current) => current === "proposalReady" ? "building" : current);
     setActiveSectionId(sectionId);
     window.requestAnimationFrame(() => {
       builderRef.current?.scrollIntoView({
@@ -83,8 +98,38 @@ export function PlatformBuilderClient({ sections }: Props) {
     });
   }
 
+  function viewPlatformSummary() {
+    setStage("reviewing");
+    setDrawerOpen(true);
+    window.requestAnimationFrame(() => {
+      builderRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }
+
+  function beginLeadCapture() {
+    if (selectedIds.length === 0) {
+      setError("Select at least one feature before generating a proposal.");
+      setDrawerOpen(false);
+      setStage("building");
+      window.requestAnimationFrame(() => {
+        builderRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+      return;
+    }
+    setError("");
+    setDrawerOpen(false);
+    setStage("capturingLead");
+  }
+
   function toggleFeature(id: string) {
     setResult(null);
+    setStage((current) => current === "proposalReady" ? "building" : current);
     setSelectedIds((current) => (
       current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
     ));
@@ -112,6 +157,7 @@ export function PlatformBuilderClient({ sections }: Props) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to generate proposal.");
       setResult(data);
+      setStage("proposalReady");
       setDrawerOpen(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to generate proposal.");
@@ -138,9 +184,13 @@ export function PlatformBuilderClient({ sections }: Props) {
             <a href="#builder" className="rounded-full bg-sky-400 px-5 py-3 font-semibold text-black transition-colors hover:bg-sky-300">
               Start Building
             </a>
-            <a href="#proposal-form" className="rounded-full border border-white/16 px-5 py-3 text-white/75 transition-colors hover:border-sky-300/50 hover:text-sky-200">
-              Generate My Proposal
-            </a>
+            <button
+              type="button"
+              onClick={viewPlatformSummary}
+              className="rounded-full border border-white/16 px-5 py-3 text-white/75 transition-colors hover:border-sky-300/50 hover:text-sky-200"
+            >
+              View Platform Summary
+            </button>
           </div>
         </div>
       </section>
@@ -236,67 +286,75 @@ export function PlatformBuilderClient({ sections }: Props) {
               </button>
               <button
                 type="button"
-                onClick={() => moveToSection(sections[Math.min(sections.findIndex((section) => section.id === activeSection.id) + 1, sections.length - 1)].id)}
+                onClick={() => {
+                  if (isLastSection) {
+                    viewPlatformSummary();
+                    return;
+                  }
+                  moveToSection(sections[Math.min(activeSectionIndex + 1, sections.length - 1)].id);
+                }}
                 className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-sky-200"
               >
-                Next Section
+                {isLastSection ? "View Platform Summary" : "Next Section"}
               </button>
             </div>
           </section>
 
-          <section id="proposal-form" className="mt-14 rounded-3xl border border-white/10 bg-white/[0.035] p-5 md:p-8">
-            <div className="max-w-2xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300">Your Platform Is Ready</p>
-              <h2 className="mt-3 text-2xl font-semibold text-white">Enter your information and we will generate a professional proposal based on your selections.</h2>
-              <p className="mt-3 text-sm leading-6 text-white/55">
-                Final pricing, timeline, and the downloadable proposal are generated server-side after this step.
-              </p>
-            </div>
-
-            <form onSubmit={submit} className="mt-7 grid gap-4 md:grid-cols-2">
-              <Field label="First name" value={contact.firstName} onChange={(value) => updateContact("firstName", value)} required />
-              <Field label="Last name" value={contact.lastName} onChange={(value) => updateContact("lastName", value)} required />
-              <Field label="Business name" value={contact.businessName} onChange={(value) => updateContact("businessName", value)} required />
-              <Field label="Email" type="email" value={contact.email} onChange={(value) => updateContact("email", value)} required />
-              <Field label="Phone" value={contact.phone} onChange={(value) => updateContact("phone", value)} required />
-              <Field label="Website" value={contact.website ?? ""} onChange={(value) => updateContact("website", value)} />
-              <Field label="Business type" value={contact.businessType ?? ""} onChange={(value) => updateContact("businessType", value)} />
-              <SelectField label="Preferred contact" value={contact.preferredContactMethod ?? "Email"} onChange={(value) => updateContact("preferredContactMethod", value)} options={["Email", "Phone", "Text", "No preference"]} />
-              <SelectField label="Budget comfort range" value={contact.budgetComfortRange} onChange={(value) => updateContact("budgetComfortRange", value)} options={budgetOptions} required />
-              <SelectField label="Desired timeline" value={contact.desiredTimeline} onChange={(value) => updateContact("desiredTimeline", value)} options={timelineOptions} required />
-              <label className="md:col-span-2">
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">Project notes</span>
-                <textarea
-                  required
-                  value={contact.projectNotes}
-                  onChange={(event) => updateContact("projectNotes", event.target.value)}
-                  rows={5}
-                  className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-white/25 focus:border-sky-300/60"
-                  placeholder="Tell us what you are building, what is not working today, and what matters most."
-                />
-              </label>
-              {error ? (
-                <div className="md:col-span-2 rounded-2xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
-                  {error}
-                </div>
-              ) : null}
-              <div className="md:col-span-2 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="rounded-full bg-sky-400 px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {submitting ? "Generating Proposal..." : "Generate My Proposal"}
-                </button>
-                <Link
-                  href="/assessment"
-                  className="rounded-full border border-white/12 px-6 py-3 text-center text-sm text-white/70 transition-colors hover:border-sky-300/50 hover:text-sky-200"
-                >
-                  Schedule Discovery Call
-                </Link>
+          {stage === "capturingLead" ? (
+            <section ref={formRef} id="proposal-form" className="mt-14 scroll-mt-24 rounded-3xl border border-white/10 bg-white/[0.035] p-5 md:p-8">
+              <div className="max-w-2xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300">Your Platform Is Ready</p>
+                <h2 className="mt-3 text-2xl font-semibold text-white">Enter your information and we will generate a professional proposal based on your selections.</h2>
+                <p className="mt-3 text-sm leading-6 text-white/55">
+                  Final pricing, timeline, and the downloadable proposal are generated server-side after this step.
+                </p>
               </div>
-            </form>
-          </section>
+
+              <form onSubmit={submit} className="mt-7 grid gap-4 md:grid-cols-2">
+                <Field label="First name" value={contact.firstName} onChange={(value) => updateContact("firstName", value)} required />
+                <Field label="Last name" value={contact.lastName} onChange={(value) => updateContact("lastName", value)} required />
+                <Field label="Business name" value={contact.businessName} onChange={(value) => updateContact("businessName", value)} required />
+                <Field label="Email" type="email" value={contact.email} onChange={(value) => updateContact("email", value)} required />
+                <Field label="Phone" value={contact.phone} onChange={(value) => updateContact("phone", value)} required />
+                <Field label="Website" value={contact.website ?? ""} onChange={(value) => updateContact("website", value)} />
+                <Field label="Business type" value={contact.businessType ?? ""} onChange={(value) => updateContact("businessType", value)} />
+                <SelectField label="Preferred contact" value={contact.preferredContactMethod ?? "Email"} onChange={(value) => updateContact("preferredContactMethod", value)} options={["Email", "Phone", "Text", "No preference"]} />
+                <SelectField label="Budget comfort range" value={contact.budgetComfortRange} onChange={(value) => updateContact("budgetComfortRange", value)} options={budgetOptions} required />
+                <SelectField label="Desired timeline" value={contact.desiredTimeline} onChange={(value) => updateContact("desiredTimeline", value)} options={timelineOptions} required />
+                <label className="md:col-span-2">
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">Project notes</span>
+                  <textarea
+                    required
+                    value={contact.projectNotes}
+                    onChange={(event) => updateContact("projectNotes", event.target.value)}
+                    rows={5}
+                    className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-white/25 focus:border-sky-300/60"
+                    placeholder="Tell us what you are building, what is not working today, and what matters most."
+                  />
+                </label>
+                {error ? (
+                  <div className="md:col-span-2 rounded-2xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+                    {error}
+                  </div>
+                ) : null}
+                <div className="md:col-span-2 flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="rounded-full bg-sky-400 px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {submitting ? "Generating Proposal..." : "Generate My Proposal"}
+                  </button>
+                  <Link
+                    href="/assessment"
+                    className="rounded-full border border-white/12 px-6 py-3 text-center text-sm text-white/70 transition-colors hover:border-sky-300/50 hover:text-sky-200"
+                  >
+                    Schedule Discovery Call
+                  </Link>
+                </div>
+              </form>
+            </section>
+          ) : null}
 
           {result ? (
             <section className="mt-8 rounded-3xl border border-sky-300/25 bg-sky-300/10 p-5 md:p-8">
@@ -326,6 +384,8 @@ export function PlatformBuilderClient({ sections }: Props) {
             direction={direction}
             roughLabel={roughLabel}
             result={result}
+            stage={stage}
+            onGenerateProposal={beginLeadCapture}
           />
         </aside>
       </main>
@@ -349,6 +409,8 @@ export function PlatformBuilderClient({ sections }: Props) {
               direction={direction}
               roughLabel={roughLabel}
               result={result}
+              stage={stage}
+              onGenerateProposal={beginLeadCapture}
             />
           </div>
         ) : null}
@@ -362,14 +424,21 @@ function SummaryPanel({
   direction,
   roughLabel,
   result,
+  stage,
+  onGenerateProposal,
 }: {
   selectedFeatures: Array<PlatformBuilderSection["features"][number]>;
   direction: string;
   roughLabel: string;
   result: PlatformBuilderResult | null;
+  stage: BuilderStage;
+  onGenerateProposal: () => void;
 }) {
   return (
-    <div className="sticky top-24 rounded-3xl border border-white/10 bg-white/[0.045] p-5 shadow-2xl backdrop-blur">
+    <div className={[
+      "sticky top-24 rounded-3xl border bg-white/[0.045] p-5 shadow-2xl backdrop-blur transition-all",
+      stage === "reviewing" ? "border-sky-300/45 shadow-[0_0_42px_rgba(56,189,248,0.12)]" : "border-white/10",
+    ].join(" ")}>
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sky-300">Platform Summary</p>
       <h2 className="mt-3 text-xl font-semibold text-white">Your recommendation is ready.</h2>
       <div className="mt-5 grid grid-cols-2 gap-3">
@@ -399,9 +468,14 @@ function SummaryPanel({
         )}
       </div>
       {!result ? (
-        <a href="#proposal-form" className="mt-5 block rounded-full bg-sky-400 px-5 py-3 text-center text-sm font-semibold text-black transition-colors hover:bg-sky-300">
+        <button
+          type="button"
+          onClick={onGenerateProposal}
+          disabled={selectedFeatures.length === 0}
+          className="mt-5 block w-full rounded-full bg-sky-400 px-5 py-3 text-center text-sm font-semibold text-black transition-colors hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-55"
+        >
           Generate My Proposal
-        </a>
+        </button>
       ) : (
         <div className="mt-5 rounded-2xl border border-sky-300/25 bg-sky-300/10 p-4">
           <p className="text-xs text-sky-100/70">Recommended package</p>
