@@ -118,13 +118,13 @@ export const workCatalogSections: WorkCatalogSection[] = [
         featured: true,
       },
       {
-        title: "ArchieonOS",
-        slug: "archieonos",
+        title: "ArcheionOS",
+        slug: "archeionos",
         type: "saas-projects",
         summary:
           "A knowledge and archive operating system concept for organizing records, references, and structured intelligence.",
         tags: ["Knowledge base", "Archive", "AI-ready"],
-        image: "/work/archieonos-card.jpg",
+        image: "/work/archeionos-card.jpg",
       },
       {
         title: "MeterWise",
