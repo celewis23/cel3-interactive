@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Container } from "../layout/Container";
@@ -59,6 +59,13 @@ export function NavBar() {
       : "bg-transparent",
   ].join(" ");
 
+  function handleLogoClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (pathname !== "/") return;
+    event.preventDefault();
+    setOpen(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   return (
     <div className="fixed inset-x-0 top-0 z-50">
       {/* Backdrop (tap to close) — rendered first so it sits below the panel */}
@@ -75,7 +82,7 @@ export function NavBar() {
         <Container>
           <div className="flex items-center justify-between py-4">
             <div className="text-white font-semibold tracking-tight">
-              <Logo href="/" />
+              <Logo href="/" onClick={handleLogoClick} />
             </div>
 
             {/* Desktop nav */}

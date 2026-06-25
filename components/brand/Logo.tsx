@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useScrollState } from "@/components/motion/useScrollState";
-import { PropsWithChildren } from "react";
+import type { MouseEventHandler } from "react";
 
 type LogoProps = {
   /**
@@ -12,9 +12,10 @@ type LogoProps = {
    */
   href?: string;
   className?: string;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
 };
 
-export function Logo({ href, className = "" }: LogoProps) {
+export function Logo({ href, className = "", onClick }: LogoProps) {
   const scrollState = useScrollState(30);
   const activated = scrollState === "activated";
 
@@ -83,6 +84,7 @@ export function Logo({ href, className = "" }: LogoProps) {
       <Link
         href={href}
         aria-label="CEL3 Interactive home"
+        onClick={onClick}
         className="group inline-flex rounded-lg px-2 py-2 -mx-2 -my-2 focus:outline-none focus:ring-2 focus:ring-sky-300/35"
       >
         {Content}
