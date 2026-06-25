@@ -199,6 +199,7 @@ export const workCatalogSections: WorkCatalogSection[] = [
         summary:
           "A sports training brand system built to turn audience attention into programs, inquiries, content, and customer momentum.",
         tags: ["Sports", "Training", "Lead generation"],
+        image: "/work/mr-1-dribble-pull-up-card.jpg",
       },
     ],
   },
