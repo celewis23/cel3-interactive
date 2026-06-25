@@ -160,7 +160,7 @@ export const workCatalogSections: WorkCatalogSection[] = [
         summary:
           "A mystical retail and services experience designed to support discovery, offerings, events, and customer engagement.",
         tags: ["Retail", "Events", "Website"],
-        image: "/work/magdalenas-metaphysical.jpg",
+        image: "/work/magdalenas-metaphysical-card.jpg",
       },
       {
         title: "Haus of Anubis",
@@ -189,7 +189,7 @@ export const workCatalogSections: WorkCatalogSection[] = [
         summary:
           "A calm, content-ready digital presence for a wellness or lifestyle brand built around story, offerings, and customer trust.",
         tags: ["Wellness", "Content", "Website"],
-        image: "/work/blu-lotus-garden.webp",
+        image: "/work/blu-lotus-garden-card.jpg",
       },
       {
         title: "Mr. 1 Dribble Pull Up",
