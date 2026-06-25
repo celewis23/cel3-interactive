@@ -66,6 +66,7 @@ export const workCatalogSections: WorkCatalogSection[] = [
         summary:
           "A business operating workspace for managing projects, systems, client work, and repeatable delivery workflows.",
         tags: ["Workspace", "Internal tools", "Ops platform"],
+        image: "/work/forge.svg",
       },
     ],
   },
@@ -83,6 +84,7 @@ export const workCatalogSections: WorkCatalogSection[] = [
         summary:
           "A modular operating system for builders and service teams that need project, client, and workflow control in one workspace.",
         tags: ["SaaS", "Operations", "Workspace"],
+        image: "/work/forge.svg",
         featured: true,
       },
       {
@@ -92,6 +94,7 @@ export const workCatalogSections: WorkCatalogSection[] = [
         summary:
           "A workflow automation product concept for mapping repeatable processes, triggers, handoffs, and team execution.",
         tags: ["Automation", "Workflow", "Process design"],
+        image: "/work/flowforge-logo.png",
       },
       {
         title: "GriotOS",
@@ -147,6 +150,7 @@ export const workCatalogSections: WorkCatalogSection[] = [
         summary:
           "A wellness brand presence shaped around classes, trust, local discovery, and a calmer customer path from interest to action.",
         tags: ["Wellness", "Website", "Bookings"],
+        image: "/work/sacred-vibes-yoga-card.jpg",
       },
       {
         title: "Magdalenas Metaphysical",
@@ -156,6 +160,7 @@ export const workCatalogSections: WorkCatalogSection[] = [
         summary:
           "A mystical retail and services experience designed to support discovery, offerings, events, and customer engagement.",
         tags: ["Retail", "Events", "Website"],
+        image: "/work/magdalenas-metaphysical.jpg",
       },
       {
         title: "Haus of Anubis",
@@ -165,6 +170,7 @@ export const workCatalogSections: WorkCatalogSection[] = [
         summary:
           "A brand-forward digital system for a specialized business with a strong visual identity and service-driven customer journey.",
         tags: ["Brand system", "Website", "Customer journey"],
+        image: "/work/haus-of-anubis-card.jpg",
       },
       {
         title: "Calm Therapeutic Massage",
@@ -183,6 +189,7 @@ export const workCatalogSections: WorkCatalogSection[] = [
         summary:
           "A calm, content-ready digital presence for a wellness or lifestyle brand built around story, offerings, and customer trust.",
         tags: ["Wellness", "Content", "Website"],
+        image: "/work/blu-lotus-garden.webp",
       },
       {
         title: "Mr. 1 Dribble Pull Up",
