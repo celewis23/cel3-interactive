@@ -60,9 +60,11 @@ function mergeProject(project: WorkCatalogProject, sanityItems: SanityWorkItem[]
     (item.client ? normalize(item.client) === normalize(project.title) : false)
   ));
 
-  const imageUrl = sanityMatch?.heroImage
-    ? urlFor(sanityMatch.heroImage).width(1400).height(900).fit("crop").url()
-    : project.image ?? getWorkHeroFallback(project.slug);
+  const imageUrl = project.image ?? (
+    sanityMatch?.heroImage
+      ? urlFor(sanityMatch.heroImage).width(1400).height(900).fit("crop").url()
+      : getWorkHeroFallback(project.slug)
+  );
 
   return {
     ...project,
