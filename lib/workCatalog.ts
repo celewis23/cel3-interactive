@@ -57,6 +57,7 @@ export const workCatalogSections: WorkCatalogSection[] = [
         summary:
           "A utility intelligence platform concept for tracking usage, accounts, alerts, and customer-facing energy insights.",
         tags: ["Dashboard", "Mobile workflow", "Data product"],
+        image: "/work/meterwise-card.jpg",
         featured: true,
       },
       {
@@ -66,7 +67,7 @@ export const workCatalogSections: WorkCatalogSection[] = [
         summary:
           "A business operating workspace for managing projects, systems, client work, and repeatable delivery workflows.",
         tags: ["Workspace", "Internal tools", "Ops platform"],
-        image: "/work/forge.svg",
+        image: "/work/forgeos-card.jpg",
       },
     ],
   },
@@ -84,7 +85,7 @@ export const workCatalogSections: WorkCatalogSection[] = [
         summary:
           "A modular operating system for builders and service teams that need project, client, and workflow control in one workspace.",
         tags: ["SaaS", "Operations", "Workspace"],
-        image: "/work/forge.svg",
+        image: "/work/forgeos-card.jpg",
         featured: true,
       },
       {
@@ -94,7 +95,7 @@ export const workCatalogSections: WorkCatalogSection[] = [
         summary:
           "A workflow automation product concept for mapping repeatable processes, triggers, handoffs, and team execution.",
         tags: ["Automation", "Workflow", "Process design"],
-        image: "/work/flowforge-logo.png",
+        image: "/work/flowforge-card.jpg",
       },
       {
         title: "GriotOS",
@@ -123,6 +124,7 @@ export const workCatalogSections: WorkCatalogSection[] = [
         summary:
           "A knowledge and archive operating system concept for organizing records, references, and structured intelligence.",
         tags: ["Knowledge base", "Archive", "AI-ready"],
+        image: "/work/archieonos-card.jpg",
       },
       {
         title: "MeterWise",
@@ -131,6 +133,7 @@ export const workCatalogSections: WorkCatalogSection[] = [
         summary:
           "A SaaS platform concept for usage intelligence, customer account workflows, and operational visibility.",
         tags: ["SaaS", "Utilities", "Analytics"],
+        image: "/work/meterwise-card.jpg",
         featured: true,
       },
     ],
