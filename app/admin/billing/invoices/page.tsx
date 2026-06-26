@@ -44,18 +44,19 @@ const STATUS_TABS = [
 export default async function InvoicesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; customerId?: string }>;
 }) {
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_NAME)?.value;
   const session = token ? verifySessionToken(token) : null;
   if (!session || session.step !== "full") redirect("/admin/login");
 
-  const { status } = await searchParams;
+  const { status, customerId } = await searchParams;
   const activeStatus = status ?? "";
 
   const { invoices, hasMore } = await listInvoices({
     status: activeStatus ? (activeStatus as Stripe.Invoice.Status) : undefined,
+    customerId: customerId || undefined,
     limit: 50,
   });
   await Promise.all(invoices.map((invoice) => syncStripeInvoiceToSanity(invoice)));
@@ -66,7 +67,9 @@ export default async function InvoicesPage({
       <div className="mb-8 flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-white">Invoices</h1>
-          <p className="text-sm text-white/40 mt-1">All Stripe invoices</p>
+          <p className="text-sm text-white/40 mt-1">
+            {customerId ? `Stripe invoices for ${customerId}` : "All Stripe invoices"}
+          </p>
         </div>
         <Link
           href="/admin/billing/invoices/new"

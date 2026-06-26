@@ -567,6 +567,93 @@ export function CustomerBillingCard({ customer }: { customer: BillingCustomer })
   );
 }
 
+export function AutoPaySetupCard({ customer }: { customer: BillingCustomer }) {
+  const [loading, setLoading] = useState(false);
+  const [setupUrl, setSetupUrl] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState("");
+
+  async function createSetupLink() {
+    setLoading(true);
+    setError("");
+    setCopied(false);
+    try {
+      const res = await fetch(`/api/admin/billing/customers/${customer.id}/setup-link`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Failed to create setup link.");
+        return;
+      }
+      setSetupUrl(data.url);
+    } catch {
+      setError("Unexpected error creating setup link.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function copyLink() {
+    if (!setupUrl) return;
+    await navigator.clipboard.writeText(setupUrl);
+    setCopied(true);
+  }
+
+  return (
+    <div className="bg-white/3 border border-white/8 rounded-2xl p-5">
+      <h3 className="text-xs font-semibold uppercase tracking-widest text-white/30 mb-3">
+        Auto-pay setup
+      </h3>
+      {customer.defaultPaymentMethodLast4 ? (
+        <div className="mb-3 rounded-xl border border-emerald-400/15 bg-emerald-400/10 px-3 py-2 text-xs text-emerald-300">
+          Saved {customer.defaultPaymentMethodBrand ?? customer.defaultPaymentMethodType} ending in{" "}
+          {customer.defaultPaymentMethodLast4}
+        </div>
+      ) : (
+        <p className="mb-3 text-sm text-white/40">
+          Create a secure Stripe link for this customer to add a saved payment method.
+        </p>
+      )}
+      <button
+        type="button"
+        onClick={createSetupLink}
+        disabled={loading}
+        className="w-full rounded-xl bg-sky-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-sky-400 disabled:opacity-50"
+      >
+        {loading ? "Creating..." : "Create setup link"}
+      </button>
+      {setupUrl && (
+        <div className="mt-3 space-y-2">
+          <input
+            value={setupUrl}
+            readOnly
+            className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-white/60 outline-none"
+          />
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={copyLink}
+              className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/70 transition-colors hover:bg-white/8 hover:text-white"
+            >
+              {copied ? "Copied" : "Copy link"}
+            </button>
+            {customer.email && (
+              <a
+                href={`mailto:${customer.email}?subject=${encodeURIComponent("Secure payment setup")}&body=${encodeURIComponent(`Use this secure link to add your payment method for auto-pay:\n\n${setupUrl}`)}`}
+                className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center text-xs text-white/70 transition-colors hover:bg-white/8 hover:text-white"
+              >
+                Email link
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+      {error && <p className="mt-3 text-xs text-red-400">{error}</p>}
+    </div>
+  );
+}
+
 // ─── Main CustomerDetailClient ────────────────────────────────────────────────
 
 interface Props {
@@ -635,6 +722,7 @@ export default function CustomerDetailClient({ customer, initialLinks }: Props) 
         {/* Right: sidebar */}
         <div className="space-y-4">
           <QuickContactCard customer={customer} />
+          <AutoPaySetupCard customer={customer} />
           <CustomerBillingCard customer={customer} />
         </div>
       </div>

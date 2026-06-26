@@ -6,6 +6,7 @@ import { DateTime } from "luxon";
 import { getInvoice } from "@/lib/stripe/billing";
 import { syncStripeInvoiceToSanity } from "@/lib/stripe/sync";
 import InvoiceActions from "./InvoiceActions";
+import InvoiceManagementPanel from "./InvoiceManagementPanel";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -98,6 +99,8 @@ export default async function InvoicePage({
         </div>
         <InvoiceActions invoiceId={invoice.id} status={invoice.status} />
       </div>
+
+      <InvoiceManagementPanel invoice={invoice} />
 
       {/* Info grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">

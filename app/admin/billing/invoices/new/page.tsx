@@ -8,7 +8,7 @@ const CLS_INPUT =
   "w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/25 focus:outline-none focus:border-sky-400/50 transition-colors";
 const CLS_LABEL = "block text-sm font-medium text-white mb-1.5";
 
-type LineItem = { description: string; amount: string };
+type LineItem = { description: string; amount: string; quantity: string };
 type PipelineContact = {
   _id: string;
   name: string;
@@ -26,9 +26,12 @@ export default function NewInvoicePage() {
   const [customerId, setCustomerId] = useState("");
   const [description, setDescription] = useState("");
   const [daysUntilDue, setDaysUntilDue] = useState(30);
+  const [dueDate, setDueDate] = useState("");
+  const [collectionMethod, setCollectionMethod] = useState<"send_invoice" | "charge_automatically">("send_invoice");
+  const [keepDraft, setKeepDraft] = useState(false);
   const [sendImmediately, setSendImmediately] = useState(false);
   const [lineItems, setLineItems] = useState<LineItem[]>([
-    { description: "", amount: "" },
+    { description: "", amount: "", quantity: "1" },
   ]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -74,7 +77,7 @@ export default function NewInvoicePage() {
   );
 
   function addLineItem() {
-    setLineItems((prev) => [...prev, { description: "", amount: "" }]);
+    setLineItems((prev) => [...prev, { description: "", amount: "", quantity: "1" }]);
   }
 
   function removeLineItem(index: number) {
@@ -121,9 +124,13 @@ export default function NewInvoicePage() {
           description: description.trim() || undefined,
           daysUntilDue: Number(daysUntilDue),
           lineItems: lineItems.map((l) => ({
-            description: l.description.trim(),
-            amount: parseFloat(l.amount),
-          })),
+          description: l.description.trim(),
+          amount: parseFloat(l.amount),
+          quantity: Number(l.quantity) || 1,
+        })),
+          dueDate: collectionMethod === "send_invoice" && dueDate ? dueDate : undefined,
+          collectionMethod,
+          finalize: !keepDraft,
           send: sendImmediately,
         }),
       });
@@ -172,7 +179,9 @@ export default function NewInvoicePage() {
           Back
         </Link>
         <h1 className="text-2xl font-semibold text-white">New Invoice</h1>
-        <p className="text-sm text-white/40 mt-1">Create and optionally send a Stripe invoice</p>
+        <p className="text-sm text-white/40 mt-1">
+          Create a manual invoice, editable draft, or auto-charge invoice
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -242,17 +251,43 @@ export default function NewInvoicePage() {
           />
         </div>
 
-        {/* Days until due */}
-        <div>
-          <label className={CLS_LABEL}>Days Until Due</label>
-          <input
-            type="number"
-            value={daysUntilDue}
-            onChange={(e) => setDaysUntilDue(Number(e.target.value))}
-            min={1}
-            max={365}
-            className={CLS_INPUT}
-          />
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div>
+            <label className={CLS_LABEL}>Collection Method</label>
+            <select
+              value={collectionMethod}
+              onChange={(e) => setCollectionMethod(e.target.value as "send_invoice" | "charge_automatically")}
+              className={CLS_INPUT}
+            >
+              <option value="send_invoice">Send invoice</option>
+              <option value="charge_automatically">Auto-charge saved payment method</option>
+            </select>
+          </div>
+
+          {collectionMethod === "send_invoice" && (
+            <>
+              <div>
+                <label className={CLS_LABEL}>Due Date</label>
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className={CLS_INPUT}
+                />
+              </div>
+              <div>
+                <label className={CLS_LABEL}>Days Until Due</label>
+                <input
+                  type="number"
+                  value={daysUntilDue}
+                  onChange={(e) => setDaysUntilDue(Number(e.target.value))}
+                  min={1}
+                  max={365}
+                  className={CLS_INPUT}
+                />
+              </div>
+            </>
+          )}
         </div>
 
         {/* Line items */}
@@ -260,7 +295,7 @@ export default function NewInvoicePage() {
           <label className={CLS_LABEL}>Line Items</label>
           <div className="space-y-3">
             {lineItems.map((item, index) => (
-              <div key={index} className="flex gap-3 items-start">
+              <div key={index} className="grid gap-3 sm:grid-cols-[1fr_120px_90px_auto]">
                 <div className="flex-1">
                   <input
                     type="text"
@@ -271,7 +306,7 @@ export default function NewInvoicePage() {
                     required
                   />
                 </div>
-                <div className="w-32">
+                <div>
                   <div className="relative">
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-sm pointer-events-none">
                       $
@@ -287,6 +322,18 @@ export default function NewInvoicePage() {
                       required
                     />
                   </div>
+                </div>
+                <div>
+                  <input
+                    type="number"
+                    value={item.quantity}
+                    onChange={(e) => updateLineItem(index, "quantity", e.target.value)}
+                    placeholder="Qty"
+                    step="1"
+                    min="1"
+                    className={CLS_INPUT}
+                    required
+                  />
                 </div>
                 {lineItems.length > 1 && (
                   <button
@@ -316,12 +363,35 @@ export default function NewInvoicePage() {
           </button>
         </div>
 
-        {/* Send immediately */}
-        <div className="flex items-center gap-3 p-4 bg-white/3 border border-white/8 rounded-xl">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="flex items-center gap-3 p-4 bg-white/3 border border-white/8 rounded-xl">
+            <input
+              type="checkbox"
+              id="keepDraft"
+              checked={keepDraft}
+              onChange={(e) => {
+                setKeepDraft(e.target.checked);
+                if (e.target.checked) setSendImmediately(false);
+              }}
+              className="w-4 h-4 rounded accent-sky-400"
+            />
+            <div>
+              <label htmlFor="keepDraft" className="text-sm text-white cursor-pointer">
+                Keep editable draft
+              </label>
+              <p className="text-xs text-white/30 mt-0.5">
+                Draft invoices can be adjusted before finalizing
+              </p>
+            </div>
+          </div>
+
+          {/* Send immediately */}
+          <div className="flex items-center gap-3 p-4 bg-white/3 border border-white/8 rounded-xl">
           <input
             type="checkbox"
             id="sendImmediately"
             checked={sendImmediately}
+            disabled={keepDraft}
             onChange={(e) => setSendImmediately(e.target.checked)}
             className="w-4 h-4 rounded accent-sky-400"
           />
@@ -333,6 +403,7 @@ export default function NewInvoicePage() {
               The invoice will be emailed to the customer right away
             </p>
           </div>
+        </div>
         </div>
 
         {/* Error */}

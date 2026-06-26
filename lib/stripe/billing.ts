@@ -83,6 +83,7 @@ export type BillingInvoice = {
   subtotal: number;
   tax: number | null;
   total: number;
+  collectionMethod: Stripe.Invoice.CollectionMethod | null;
 };
 
 export type BillingInvoiceLine = {
@@ -103,6 +104,11 @@ export type BillingSubscription = {
   currentPeriodEnd: number;
   cancelAtPeriodEnd: boolean;
   canceledAt: number | null;
+  collectionMethod: Stripe.Subscription.CollectionMethod;
+  daysUntilDue: number | null;
+  defaultPaymentMethodBrand: string | null;
+  defaultPaymentMethodLast4: string | null;
+  defaultPaymentMethodType: string | null;
   items: {
     id: string;
     priceId: string;
@@ -110,6 +116,7 @@ export type BillingSubscription = {
     amount: number;
     currency: string;
     interval: string;
+    intervalCount: number;
   }[];
 };
 
@@ -166,6 +173,42 @@ function mapInvoice(inv: Stripe.Invoice): BillingInvoice {
     subtotal: inv.subtotal,
     tax: null,
     total: inv.total,
+    collectionMethod: inv.collection_method ?? null,
+  };
+}
+
+function mapSubscription(sub: Stripe.Subscription): BillingSubscription {
+  const customer =
+    typeof sub.customer === "object" && sub.customer !== null
+      ? (sub.customer as Stripe.Customer)
+      : null;
+  const dpm = sub.default_payment_method;
+  const dpmObj = typeof dpm === "object" && dpm !== null ? (dpm as Stripe.PaymentMethod) : null;
+
+  return {
+    id: sub.id,
+    customerId: typeof sub.customer === "string" ? sub.customer : customer?.id ?? "",
+    customerName: customer?.name ?? null,
+    customerEmail: customer?.email ?? null,
+    status: sub.status,
+    currentPeriodStart: (sub as unknown as Record<string, number>).current_period_start ?? 0,
+    currentPeriodEnd: (sub as unknown as Record<string, number>).current_period_end ?? 0,
+    cancelAtPeriodEnd: sub.cancel_at_period_end,
+    canceledAt: (sub as unknown as Record<string, number | null>).canceled_at ?? null,
+    collectionMethod: sub.collection_method,
+    daysUntilDue: sub.days_until_due ?? null,
+    defaultPaymentMethodBrand: dpmObj?.card?.brand ?? null,
+    defaultPaymentMethodLast4: dpmObj?.card?.last4 ?? null,
+    defaultPaymentMethodType: dpmObj?.type ?? null,
+    items: sub.items.data.map((item) => ({
+      id: item.id,
+      priceId: item.price.id,
+      productName: typeof item.price.product === "object" ? (item.price.product as Stripe.Product).name ?? null : null,
+      amount: item.price.unit_amount ?? 0,
+      currency: item.price.currency,
+      interval: item.price.recurring?.interval ?? "month",
+      intervalCount: item.price.recurring?.interval_count ?? 1,
+    })),
   };
 }
 
@@ -370,15 +413,23 @@ export async function getInvoice(invoiceId: string): Promise<BillingInvoice | nu
 export async function createInvoice(params: {
   customerId: string;
   daysUntilDue?: number;
+  dueDate?: number;
   description?: string;
   lineItems: { description: string; amount: number; quantity?: number }[];
+  collectionMethod?: Stripe.InvoiceCreateParams.CollectionMethod;
+  finalize?: boolean;
   send?: boolean;
 }): Promise<BillingInvoice> {
+  const collectionMethod = params.collectionMethod ?? "send_invoice";
   // Create the invoice
   const inv = await stripe.invoices.create({
     customer: params.customerId,
-    collection_method: "send_invoice",
-    days_until_due: params.daysUntilDue ?? 30,
+    collection_method: collectionMethod,
+    ...(collectionMethod === "send_invoice"
+      ? params.dueDate
+        ? { due_date: params.dueDate }
+        : { days_until_due: params.daysUntilDue ?? 30 }
+      : {}),
     ...(params.description ? { description: params.description } : {}),
     auto_advance: false,
   });
@@ -409,6 +460,11 @@ export async function createInvoice(params: {
     });
   }
 
+  if (params.finalize === false && !params.send) {
+    const draft = await stripe.invoices.retrieve(inv.id, { expand: ["customer"] });
+    return mapInvoice(draft);
+  }
+
   // Finalize
   const finalized = await stripe.invoices.finalizeInvoice(inv.id);
 
@@ -422,13 +478,85 @@ export async function createInvoice(params: {
 }
 
 export async function sendInvoice(invoiceId: string): Promise<BillingInvoice> {
-  const inv = await stripe.invoices.sendInvoice(invoiceId);
+  const current = await stripe.invoices.retrieve(invoiceId);
+  const invoiceToSend = current.status === "draft"
+    ? await stripe.invoices.finalizeInvoice(invoiceId)
+    : current;
+  const inv = await stripe.invoices.sendInvoice(invoiceToSend.id);
   return mapInvoice(inv);
 }
 
 export async function voidInvoice(invoiceId: string): Promise<BillingInvoice> {
   const inv = await stripe.invoices.voidInvoice(invoiceId);
   return mapInvoice(inv);
+}
+
+export async function updateInvoice(invoiceId: string, params: {
+  description?: string | null;
+  dueDate?: number | null;
+  daysUntilDue?: number | null;
+  collectionMethod?: Stripe.InvoiceUpdateParams.CollectionMethod;
+}): Promise<BillingInvoice> {
+  const current = await stripe.invoices.retrieve(invoiceId);
+  if (current.status === "paid" || current.status === "void" || current.status === "uncollectible") {
+    throw new Error("Paid, void, or uncollectible invoices cannot be edited.");
+  }
+
+  const collectionMethod = params.collectionMethod ?? current.collection_method;
+  const updated = await stripe.invoices.update(invoiceId, {
+    ...(params.description !== undefined ? { description: params.description ?? "" } : {}),
+    ...(collectionMethod ? { collection_method: collectionMethod } : {}),
+    ...(collectionMethod === "send_invoice" && params.dueDate !== undefined && params.dueDate !== null
+      ? { due_date: params.dueDate }
+      : {}),
+    ...(collectionMethod === "send_invoice" && params.daysUntilDue !== undefined && params.daysUntilDue !== null
+      ? { days_until_due: params.daysUntilDue }
+      : {}),
+  });
+
+  return mapInvoice(updated);
+}
+
+export async function replaceInvoice(invoiceId: string, params: {
+  description?: string;
+  lineItems: { description: string; amount: number; quantity?: number }[];
+  daysUntilDue?: number;
+  dueDate?: number;
+  collectionMethod?: Stripe.InvoiceCreateParams.CollectionMethod;
+  send?: boolean;
+  voidOriginal?: boolean;
+}): Promise<{ replacement: BillingInvoice; original?: BillingInvoice }> {
+  const current = await stripe.invoices.retrieve(invoiceId);
+  if (current.status === "paid" || current.status === "void" || current.status === "uncollectible") {
+    throw new Error("Paid, void, or uncollectible invoices cannot be replaced.");
+  }
+
+  const customerId =
+    typeof current.customer === "string"
+      ? current.customer
+      : (current.customer as Stripe.Customer | null)?.id;
+  if (!customerId) throw new Error("Invoice has no customer.");
+
+  const replacement = await createInvoice({
+    customerId,
+    description: params.description ?? current.description ?? undefined,
+    lineItems: params.lineItems,
+    daysUntilDue: params.daysUntilDue,
+    dueDate: params.dueDate,
+    collectionMethod: params.collectionMethod ?? current.collection_method ?? "send_invoice",
+    send: params.send,
+  });
+
+  let original: BillingInvoice | undefined;
+  if (params.voidOriginal && (current.status === "open" || current.status === "draft")) {
+    if (current.status === "draft") {
+      await stripe.invoices.del(invoiceId);
+    } else {
+      original = await voidInvoice(invoiceId);
+    }
+  }
+
+  return { replacement, original };
 }
 
 // ─── Subscriptions ────────────────────────────────────────────────────────────
@@ -448,37 +576,165 @@ export async function listSubscriptions(opts?: {
     ...(statusValue ? { status: statusValue as Stripe.SubscriptionListParams.Status } : {}),
     limit: opts?.limit ?? 20,
     ...(opts?.startingAfter ? { starting_after: opts.startingAfter } : {}),
-    expand: ["data.customer"],
+    expand: ["data.customer", "data.default_payment_method", "data.items.data.price.product"],
   });
 
-  const subscriptions: BillingSubscription[] = result.data.map((sub) => {
-    const customer =
-      typeof sub.customer === "object" && sub.customer !== null
-        ? (sub.customer as Stripe.Customer)
-        : null;
-
-    return {
-      id: sub.id,
-      customerId: typeof sub.customer === "string" ? sub.customer : customer?.id ?? "",
-      customerName: customer?.name ?? null,
-      customerEmail: customer?.email ?? null,
-      status: sub.status,
-      currentPeriodStart: (sub as unknown as Record<string, number>).current_period_start ?? 0,
-      currentPeriodEnd: (sub as unknown as Record<string, number>).current_period_end ?? 0,
-      cancelAtPeriodEnd: sub.cancel_at_period_end,
-      canceledAt: (sub as unknown as Record<string, number | null>).canceled_at ?? null,
-      items: sub.items.data.map((item) => ({
-        id: item.id,
-        priceId: item.price.id,
-        productName: typeof item.price.product === "object" ? (item.price.product as Stripe.Product).name ?? null : null,
-        amount: item.price.unit_amount ?? 0,
-        currency: item.price.currency,
-        interval: item.price.recurring?.interval ?? "month",
-      })),
-    };
-  });
+  const subscriptions: BillingSubscription[] = result.data.map(mapSubscription);
 
   return { subscriptions, hasMore: result.has_more };
+}
+
+export async function getSubscription(subscriptionId: string): Promise<BillingSubscription | null> {
+  try {
+    const sub = await stripe.subscriptions.retrieve(subscriptionId, {
+      expand: ["customer", "default_payment_method", "items.data.price.product"],
+    });
+    return mapSubscription(sub);
+  } catch {
+    return null;
+  }
+}
+
+export async function createSubscription(params: {
+  customerId: string;
+  productName: string;
+  amount: number;
+  currency?: string;
+  interval: "day" | "week" | "month" | "year";
+  intervalCount?: number;
+  billingCycleAnchor?: number;
+  collectionMethod?: Stripe.SubscriptionCreateParams.CollectionMethod;
+  daysUntilDue?: number;
+  description?: string;
+}): Promise<BillingSubscription> {
+  const collectionMethod = params.collectionMethod ?? "charge_automatically";
+  const product = await stripe.products.create({
+    name: params.productName,
+    ...(params.description ? { description: params.description } : {}),
+  });
+  const sub = await stripe.subscriptions.create({
+    customer: params.customerId,
+    collection_method: collectionMethod,
+    ...(collectionMethod === "send_invoice" ? { days_until_due: params.daysUntilDue ?? 30 } : {}),
+    ...(params.billingCycleAnchor ? { billing_cycle_anchor: params.billingCycleAnchor } : {}),
+    ...(collectionMethod === "charge_automatically" ? { payment_behavior: "default_incomplete" } : {}),
+    proration_behavior: "none",
+    metadata: params.description ? { description: params.description } : undefined,
+    items: [
+      {
+        price_data: {
+          currency: params.currency ?? "usd",
+          product: product.id,
+          unit_amount: Math.round(params.amount * 100),
+          recurring: {
+            interval: params.interval,
+            interval_count: Math.max(1, Math.round(params.intervalCount ?? 1)),
+          },
+        },
+      },
+    ],
+    expand: ["customer", "default_payment_method", "items.data.price.product"],
+  });
+
+  return mapSubscription(sub);
+}
+
+export async function updateSubscription(subscriptionId: string, params: {
+  productName?: string;
+  amount?: number;
+  currency?: string;
+  interval?: "day" | "week" | "month" | "year";
+  intervalCount?: number;
+  billingCycleAnchor?: number;
+  collectionMethod?: Stripe.SubscriptionUpdateParams.CollectionMethod;
+  daysUntilDue?: number | null;
+  cancelAtPeriodEnd?: boolean;
+}): Promise<BillingSubscription> {
+  const current = await stripe.subscriptions.retrieve(subscriptionId, {
+    expand: ["items.data.price.product"],
+  });
+  const firstItem = current.items.data[0];
+  const currentPrice = firstItem?.price;
+  const currentProduct =
+    typeof currentPrice?.product === "object" && currentPrice.product !== null
+      ? (currentPrice.product as Stripe.Product)
+      : null;
+  const shouldReplacePrice =
+    params.amount !== undefined ||
+    params.interval !== undefined ||
+    params.intervalCount !== undefined ||
+    params.productName !== undefined;
+
+  const updateParams: Stripe.SubscriptionUpdateParams = {
+    proration_behavior: "none",
+    ...(params.collectionMethod !== undefined ? { collection_method: params.collectionMethod } : {}),
+    ...(params.daysUntilDue !== undefined ? { days_until_due: params.daysUntilDue ?? undefined } : {}),
+    ...(params.cancelAtPeriodEnd !== undefined ? { cancel_at_period_end: params.cancelAtPeriodEnd } : {}),
+    expand: ["customer", "default_payment_method", "items.data.price.product"],
+  };
+
+  if (params.billingCycleAnchor) {
+    (updateParams as unknown as Record<string, unknown>).billing_cycle_anchor = params.billingCycleAnchor;
+  }
+
+  if (shouldReplacePrice && firstItem) {
+    const product = await stripe.products.create({
+      name: params.productName ?? currentProduct?.name ?? "Recurring service",
+    });
+    const amountCents = params.amount !== undefined
+      ? Math.round(params.amount * 100)
+      : currentPrice?.unit_amount ?? 0;
+    updateParams.items = [
+      {
+        id: firstItem.id,
+        price_data: {
+          currency: params.currency ?? currentPrice?.currency ?? "usd",
+          product: product.id,
+          unit_amount: amountCents,
+          recurring: {
+            interval: params.interval ?? currentPrice?.recurring?.interval ?? "month",
+            interval_count: Math.max(
+              1,
+              Math.round(params.intervalCount ?? currentPrice?.recurring?.interval_count ?? 1)
+            ),
+          },
+        },
+      } as unknown as Stripe.SubscriptionUpdateParams.Item,
+    ];
+  }
+
+  const updated = await stripe.subscriptions.update(subscriptionId, updateParams);
+  return mapSubscription(updated);
+}
+
+export async function cancelSubscription(subscriptionId: string, params?: {
+  atPeriodEnd?: boolean;
+}): Promise<BillingSubscription> {
+  if (params?.atPeriodEnd) {
+    return updateSubscription(subscriptionId, { cancelAtPeriodEnd: true });
+  }
+
+  const canceled = await stripe.subscriptions.cancel(subscriptionId, {
+    expand: ["customer", "default_payment_method", "items.data.price.product"],
+  });
+  return mapSubscription(canceled);
+}
+
+export async function createCustomerAutoPaySetupLink(params: {
+  customerId: string;
+  successUrl: string;
+  cancelUrl: string;
+}): Promise<{ url: string; id: string }> {
+  const session = await stripe.checkout.sessions.create({
+    mode: "setup",
+    customer: params.customerId,
+    payment_method_types: ["card"],
+    success_url: params.successUrl,
+    cancel_url: params.cancelUrl,
+  });
+
+  if (!session.url) throw new Error("Stripe did not return a setup URL.");
+  return { id: session.id, url: session.url };
 }
 
 // ─── Balance & Payouts ────────────────────────────────────────────────────────

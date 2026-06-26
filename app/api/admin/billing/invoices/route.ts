@@ -43,16 +43,22 @@ export async function POST(req: NextRequest) {
       pipelineContactId: rawPipelineContactId,
       createStripeCustomer,
       daysUntilDue,
+      dueDate,
       description,
       lineItems,
+      collectionMethod,
+      finalize,
       send,
     } = body as {
       customerId?: unknown;
       pipelineContactId?: unknown;
       createStripeCustomer?: unknown;
       daysUntilDue?: unknown;
+      dueDate?: unknown;
       description?: unknown;
       lineItems?: unknown;
+      collectionMethod?: unknown;
+      finalize?: unknown;
       send?: unknown;
     };
     const pipelineContactId =
@@ -69,6 +75,14 @@ export async function POST(req: NextRequest) {
         : 30;
     const normalizedDescription =
       typeof description === "string" && description.trim() ? description.trim() : undefined;
+    const normalizedDueDate =
+      typeof dueDate === "string" && dueDate
+        ? Math.floor(new Date(`${dueDate}T12:00:00Z`).getTime() / 1000)
+        : undefined;
+    const normalizedCollectionMethod =
+      collectionMethod === "charge_automatically" || collectionMethod === "send_invoice"
+        ? collectionMethod
+        : "send_invoice";
     const normalizedLineItems = Array.isArray(lineItems)
       ? lineItems
           .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
@@ -118,8 +132,11 @@ export async function POST(req: NextRequest) {
     const invoice = await createInvoice({
       customerId,
       daysUntilDue: normalizedDaysUntilDue,
+      dueDate: Number.isFinite(normalizedDueDate) ? normalizedDueDate : undefined,
       description: normalizedDescription,
       lineItems: normalizedLineItems,
+      collectionMethod: normalizedCollectionMethod,
+      finalize: finalize === false ? false : true,
       send: Boolean(send),
     });
     await syncStripeInvoiceToSanity(invoice);
