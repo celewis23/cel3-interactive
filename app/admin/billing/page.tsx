@@ -11,6 +11,7 @@ import {
   listSubscriptions,
 } from "@/lib/stripe/billing";
 import { syncStripeInvoiceToSanity } from "@/lib/stripe/sync";
+import PayoutNowButton from "@/components/admin/billing/PayoutNowButton";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -109,6 +110,7 @@ export default async function BillingPage() {
           ) : (
             <div className="mt-3 text-xs text-amber-400">Test mode</div>
           )}
+          <PayoutNowButton available={balance.available} />
         </div>
 
         <div className="bg-white/3 border border-white/8 rounded-2xl p-5">

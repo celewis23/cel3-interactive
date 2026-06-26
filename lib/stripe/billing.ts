@@ -121,8 +121,16 @@ export type BillingSubscription = {
 };
 
 export type BillingBalance = {
-  available: { amount: number; currency: string }[];
-  pending: { amount: number; currency: string }[];
+  available: {
+    amount: number;
+    currency: string;
+    sourceTypes: Record<string, number> | null;
+  }[];
+  pending: {
+    amount: number;
+    currency: string;
+    sourceTypes: Record<string, number> | null;
+  }[];
   livemode: boolean;
 };
 
@@ -135,6 +143,22 @@ export type BillingPayout = {
   description: string | null;
   created: number;
 };
+
+export type CreatedBillingPayout = BillingPayout & {
+  method: string;
+  destination: string | null;
+};
+
+function normalizeSourceTypes(sourceTypes?: {
+  bank_account?: number;
+  card?: number;
+  fpx?: number;
+}): Record<string, number> | null {
+  if (!sourceTypes) return null;
+  return Object.fromEntries(
+    Object.entries(sourceTypes).filter(([, value]) => typeof value === "number")
+  );
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -766,10 +790,12 @@ export async function getBalance(): Promise<BillingBalance> {
     available: balance.available.map((b) => ({
       amount: b.amount,
       currency: b.currency,
+      sourceTypes: normalizeSourceTypes(b.source_types),
     })),
     pending: balance.pending.map((b) => ({
       amount: b.amount,
       currency: b.currency,
+      sourceTypes: normalizeSourceTypes(b.source_types),
     })),
     livemode: balance.livemode,
   };
@@ -786,4 +812,39 @@ export async function listPayouts(limit?: number): Promise<BillingPayout[]> {
     description: p.description ?? null,
     created: p.created,
   }));
+}
+
+export async function createPayout(params: {
+  amount: number;
+  currency?: string;
+  method?: Stripe.PayoutCreateParams.Method;
+  sourceType?: Stripe.PayoutCreateParams.SourceType;
+  description?: string;
+  statementDescriptor?: string;
+}): Promise<CreatedBillingPayout> {
+  const payout = await stripe.payouts.create({
+    amount: Math.round(params.amount * 100),
+    currency: params.currency ?? "usd",
+    ...(params.method ? { method: params.method } : {}),
+    ...(params.sourceType ? { source_type: params.sourceType } : {}),
+    ...(params.description ? { description: params.description } : {}),
+    ...(params.statementDescriptor
+      ? { statement_descriptor: params.statementDescriptor.slice(0, 22) }
+      : {}),
+  });
+
+  return {
+    id: payout.id,
+    amount: payout.amount,
+    currency: payout.currency,
+    arrivalDate: payout.arrival_date,
+    status: payout.status,
+    description: payout.description ?? null,
+    created: payout.created,
+    method: payout.method,
+    destination:
+      typeof payout.destination === "string"
+        ? payout.destination
+        : payout.destination?.id ?? null,
+  };
 }
