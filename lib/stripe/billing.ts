@@ -177,7 +177,7 @@ function mapInvoice(inv: Stripe.Invoice): BillingInvoice {
   };
 }
 
-function mapSubscription(sub: Stripe.Subscription): BillingSubscription {
+function mapSubscription(sub: Stripe.Subscription, productNames?: Record<string, string | null>): BillingSubscription {
   const customer =
     typeof sub.customer === "object" && sub.customer !== null
       ? (sub.customer as Stripe.Customer)
@@ -200,15 +200,22 @@ function mapSubscription(sub: Stripe.Subscription): BillingSubscription {
     defaultPaymentMethodBrand: dpmObj?.card?.brand ?? null,
     defaultPaymentMethodLast4: dpmObj?.card?.last4 ?? null,
     defaultPaymentMethodType: dpmObj?.type ?? null,
-    items: sub.items.data.map((item) => ({
-      id: item.id,
-      priceId: item.price.id,
-      productName: typeof item.price.product === "object" ? (item.price.product as Stripe.Product).name ?? null : null,
-      amount: item.price.unit_amount ?? 0,
-      currency: item.price.currency,
-      interval: item.price.recurring?.interval ?? "month",
-      intervalCount: item.price.recurring?.interval_count ?? 1,
-    })),
+    items: sub.items.data.map((item) => {
+      const product = item.price.product;
+      const productName =
+        typeof product === "object" && product !== null
+          ? (product as Stripe.Product).name ?? null
+          : productNames?.[typeof product === "string" ? product : ""] ?? null;
+      return {
+        id: item.id,
+        priceId: item.price.id,
+        productName,
+        amount: item.price.unit_amount ?? 0,
+        currency: item.price.currency,
+        interval: item.price.recurring?.interval ?? "month",
+        intervalCount: item.price.recurring?.interval_count ?? 1,
+      };
+    }),
   };
 }
 
@@ -576,10 +583,24 @@ export async function listSubscriptions(opts?: {
     ...(statusValue ? { status: statusValue as Stripe.SubscriptionListParams.Status } : {}),
     limit: opts?.limit ?? 20,
     ...(opts?.startingAfter ? { starting_after: opts.startingAfter } : {}),
-    expand: ["data.customer", "data.default_payment_method", "data.items.data.price.product"],
+    // Stripe caps property expansion at 4 levels, so "data.items.data.price.product"
+    // (5 levels) is rejected — expand to price only and resolve product names below.
+    expand: ["data.customer", "data.default_payment_method", "data.items.data.price"],
   });
 
-  const subscriptions: BillingSubscription[] = result.data.map(mapSubscription);
+  const productIds = Array.from(
+    new Set(
+      result.data.flatMap((sub) =>
+        sub.items.data
+          .map((item) => item.price.product)
+          .filter((product): product is string => typeof product === "string")
+      )
+    )
+  );
+  const products = await Promise.all(productIds.map((id) => stripe.products.retrieve(id)));
+  const productNames = Object.fromEntries(products.map((p) => [p.id, p.name ?? null]));
+
+  const subscriptions: BillingSubscription[] = result.data.map((sub) => mapSubscription(sub, productNames));
 
   return { subscriptions, hasMore: result.has_more };
 }
