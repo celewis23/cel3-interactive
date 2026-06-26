@@ -3,6 +3,7 @@ import { sanityServer } from "@/lib/sanityServer";
 import { featuredWorkQuery } from "@/lib/sanity.queries";
 import { urlFor } from "@/lib/sanity.image";
 import { getWorkHeroFallback } from "@/lib/workFallbacks";
+import { getWorkCaseStudyFallback } from "@/lib/workCaseStudies";
 import { workCatalogSections, type WorkCatalogProject } from "@/lib/workCatalog";
 import WorkPreviewClient from "./WorkPreviewClient";
 
@@ -33,16 +34,17 @@ function toPreviewItem(project: WorkCatalogProject, raw: Item[]) {
     normalize(item.title) === normalize(project.title) ||
     (item.client ? normalize(item.client) === normalize(project.title) : false)
   ));
+  const fallback = getWorkCaseStudyFallback(project.slug);
 
   return {
     _id: sanityMatch?._id ?? `catalog-${project.type}-${project.slug}`,
     title: project.title,
-    slug: sanityMatch?.slug ?? project.slug,
-    summary: sanityMatch?.summary ?? project.summary,
+    slug: sanityMatch?.slug ?? fallback?.slug ?? project.slug,
+    summary: sanityMatch?.summary ?? fallback?.summary ?? project.summary,
     client: project.client ?? sanityMatch?.client,
     industry: typeLabel(project.type),
     tags: project.tags,
-    href: sanityMatch ? `/work/${sanityMatch.slug}` : null,
+    href: sanityMatch || fallback ? `/work/${sanityMatch?.slug ?? fallback?.slug ?? project.slug}` : null,
     heroUrl: project.image ?? (
       sanityMatch?.heroImage
         ? urlFor(sanityMatch.heroImage).width(1400).height(900).fit("crop").url()

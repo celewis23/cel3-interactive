@@ -4,6 +4,7 @@ import { sanityServer } from "@/lib/sanityServer";
 import { urlFor } from "@/lib/sanity.image";
 import { allWorkQuery } from "@/lib/sanity.queries";
 import { getWorkHeroFallback } from "@/lib/workFallbacks";
+import { getWorkCaseStudyFallback } from "@/lib/workCaseStudies";
 import { workCatalogSections, type WorkCatalogProject } from "@/lib/workCatalog";
 
 export const metadata: Metadata = {
@@ -59,6 +60,7 @@ function mergeProject(project: WorkCatalogProject, sanityItems: SanityWorkItem[]
     normalize(item.title) === normalize(project.title) ||
     (item.client ? normalize(item.client) === normalize(project.title) : false)
   ));
+  const fallback = getWorkCaseStudyFallback(project.slug);
 
   const imageUrl = project.image ?? (
     sanityMatch?.heroImage
@@ -68,9 +70,9 @@ function mergeProject(project: WorkCatalogProject, sanityItems: SanityWorkItem[]
 
   return {
     ...project,
-    caseStudySlug: sanityMatch?.slug,
+    caseStudySlug: sanityMatch?.slug ?? fallback?.slug,
     caseStudyId: sanityMatch?._id,
-    caseStudySummary: sanityMatch?.summary,
+    caseStudySummary: sanityMatch?.summary ?? fallback?.summary,
     sanityFeatured: sanityMatch?.featured,
     client: project.client ?? sanityMatch?.client,
     imageUrl,

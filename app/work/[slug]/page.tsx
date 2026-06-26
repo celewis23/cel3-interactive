@@ -5,6 +5,7 @@ import { workBySlugQuery, workSlugsQuery } from "@/lib/sanity.queries";
 import type { WorkDetail } from "@/lib/types";
 import { urlFor } from "@/lib/sanity.image";
 import { getWorkGalleryFallback, getWorkHeroFallback } from "@/lib/workFallbacks";
+import { getWorkCaseStudyFallback, workCaseStudyFallbacks } from "@/lib/workCaseStudies";
 import { Portable } from "@/components/sanity/Portable";
 import {
   CaseStudyGalleryPreview,
@@ -30,7 +31,30 @@ const PLATFORM_COMPONENTS = [
 
 export async function generateStaticParams() {
   const slugs = await sanityServer.fetch<{ slug: string }[]>(workSlugsQuery);
-  return slugs.map((s) => ({ slug: s.slug }));
+  const allSlugs = new Set([
+    ...slugs.map((s) => s.slug),
+    ...Object.keys(workCaseStudyFallbacks),
+  ]);
+  return Array.from(allSlugs).map((slug) => ({ slug }));
+}
+
+function mergeWithFallback(data: WorkDetail | null, fallback: WorkDetail | null) {
+  if (!data) return fallback;
+  if (!fallback) return data;
+
+  return {
+    ...fallback,
+    ...data,
+    summary: data.summary ?? fallback.summary,
+    client: data.client ?? fallback.client,
+    industry: data.industry ?? fallback.industry,
+    timeline: data.timeline ?? fallback.timeline,
+    stack: data.stack?.length ? data.stack : fallback.stack,
+    results: data.results?.length ? data.results : fallback.results,
+    gallery: data.gallery?.length ? data.gallery : fallback.gallery,
+    body: data.body?.length ? data.body : fallback.body,
+    services: data.services?.length ? data.services : fallback.services,
+  };
 }
 
 export async function generateMetadata({ params }: PageProps) {
@@ -38,11 +62,13 @@ export async function generateMetadata({ params }: PageProps) {
   if (!slug) return { title: "Case Study" };
 
   const data = await sanityServer.fetch<WorkDetail | null>(workBySlugQuery, { slug });
-  if (!data) return { title: "Case Study" };
+  const fallback = getWorkCaseStudyFallback(slug);
+  const work = mergeWithFallback(data, fallback);
+  if (!work) return { title: "Case Study" };
 
   return {
-    title: `${data.title} | Work`,
-    description: data.summary ?? "Case study",
+    title: `${work.title} | Work`,
+    description: work.summary ?? "Case study",
   };
 }
 
@@ -51,19 +77,21 @@ export default async function WorkDetailPage({ params }: PageProps) {
   if (!slug) return notFound();
 
   const data = await sanityServer.fetch<WorkDetail | null>(workBySlugQuery, { slug });
-  if (!data) return notFound();
+  const fallback = getWorkCaseStudyFallback(slug);
+  const work = mergeWithFallback(data, fallback);
+  if (!work) return notFound();
 
-  const heroUrl = data.heroImage
-    ? urlFor(data.heroImage).width(1600).height(1000).fit("crop").url()
-    : getWorkHeroFallback(data.slug);
+  const heroUrl = work.heroImage
+    ? urlFor(work.heroImage).width(1600).height(1000).fit("crop").url()
+    : getWorkHeroFallback(work.slug);
 
-  const galleryItems = data.gallery?.length
-    ? data.gallery.map((img) => urlFor(img).width(800).height(600).fit("crop").url())
-    : getWorkGalleryFallback(data.slug);
+  const galleryItems = work.gallery?.length
+    ? work.gallery.map((img) => urlFor(img).width(800).height(600).fit("crop").url())
+    : getWorkGalleryFallback(work.slug);
 
   return (
     <main className="min-h-screen bg-black text-white">
-      <CaseStudyGalleryProvider title={data.title} galleryImages={galleryItems}>
+      <CaseStudyGalleryProvider title={work.title} galleryImages={galleryItems}>
         <div className="mx-auto max-w-6xl px-4 pt-24 pb-16">
           <Link href="/work" className="text-sm text-white/60 hover:text-white transition-colors">
             ← Back to Work
@@ -73,34 +101,34 @@ export default async function WorkDetailPage({ params }: PageProps) {
             <div className="lg:col-span-7">
               <p className="text-xs tracking-[0.25em] uppercase text-white/55">Case Study</p>
               <h1 className="mt-3 text-4xl md:text-5xl font-semibold tracking-tight">
-                {data.title}
+                {work.title}
               </h1>
 
-              {data.summary ? (
+              {work.summary ? (
                 <p className="mt-4 text-white/75 text-base md:text-lg max-w-2xl">
-                  {data.summary}
+                  {work.summary}
                 </p>
               ) : null}
 
               <div className="mt-6 flex flex-wrap gap-2 text-xs">
-                {data.client ? (
+                {work.client ? (
                   <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-white/70">
-                    Client: {data.client}
+                    Client: {work.client}
                   </span>
                 ) : null}
-                {data.industry ? (
+                {work.industry ? (
                   <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-white/70">
-                    Industry: {data.industry}
+                    Industry: {work.industry}
                   </span>
                 ) : null}
-                {data.timeline ? (
+                {work.timeline ? (
                   <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-white/70">
-                    Timeline: {data.timeline}
+                    Timeline: {work.timeline}
                   </span>
                 ) : null}
-                {data.services?.length ? (
+                {work.services?.length ? (
                   <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-white/70">
-                    Services: {data.services.map((s) => s.title).join(", ")}
+                    Services: {work.services.map((s) => s.title).join(", ")}
                   </span>
                 ) : null}
               </div>
@@ -113,20 +141,20 @@ export default async function WorkDetailPage({ params }: PageProps) {
                 <div className="aspect-[16/10] bg-black/40">
                   {heroUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={heroUrl} alt={data.title} className="h-full w-full object-cover" />
+                    <img src={heroUrl} alt={work.title} className="h-full w-full object-cover" />
                   ) : (
                     <div className="h-full w-full" />
                   )}
                 </div>
 
                 <div className="p-5">
-                  {data.results?.length ? (
+                  {work.results?.length ? (
                     <>
                       <div className="text-xs tracking-[0.25em] uppercase text-white/55">
                         Outcomes
                       </div>
                       <ul className="mt-3 space-y-2 text-sm text-white/75">
-                        {data.results.map((r, i) => (
+                        {work.results.map((r, i) => (
                           <li key={i} className="flex gap-2">
                             <span className="text-white/40">•</span>
                             <span>{r}</span>
@@ -140,13 +168,13 @@ export default async function WorkDetailPage({ params }: PageProps) {
                     </p>
                   )}
 
-                  {data.stack?.length ? (
+                  {work.stack?.length ? (
                     <div className="mt-6">
                       <div className="text-xs tracking-[0.25em] uppercase text-white/55">
                         Stack
                       </div>
                       <div className="mt-3 flex flex-wrap gap-2">
-                        {data.stack.map((t, i) => (
+                        {work.stack.map((t, i) => (
                           <span
                             key={i}
                             className="rounded-full border border-white/15 bg-black/30 px-3 py-1 text-xs text-white/70"
@@ -165,8 +193,8 @@ export default async function WorkDetailPage({ params }: PageProps) {
           {/* Body */}
           <div className="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-8">
-              {data.body?.length ? (
-                <Portable value={data.body} />
+              {work.body?.length ? (
+                <Portable value={work.body} />
               ) : (
                 <div className="text-white/60">
                   Add your full case study story in Sanity (Problem → Approach → Build → Results).
