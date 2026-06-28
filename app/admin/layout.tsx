@@ -435,8 +435,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return window.localStorage.getItem("cel3-admin-theme") === "light" ? "light" : "dark";
   });
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moreDragging, setMoreDragging] = useState(false);
+  const [moreDragOffset, setMoreDragOffset] = useState(0);
   const menuRef = useRef<HTMLDivElement>(null);
   const closeTimerRef = useRef<number | null>(null);
+  const moreDragStartYRef = useRef<number | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/auth/me")
@@ -490,6 +493,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (moreOpen) return;
+    setMoreDragging(false);
+    setMoreDragOffset(0);
+    moreDragStartYRef.current = null;
+  }, [moreOpen]);
+
+  useEffect(() => {
+    if (!moreOpen) {
+      document.documentElement.style.overflow = "";
+      return;
+    }
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.documentElement.style.overflow = "";
+    };
+  }, [moreOpen]);
 
   useEffect(() => {
     let cancelled = false;
@@ -598,6 +619,52 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </span>
     );
   }
+
+  function closeMoreMenu() {
+    setMoreOpen(false);
+    setMoreDragging(false);
+    setMoreDragOffset(0);
+    moreDragStartYRef.current = null;
+  }
+
+  function handleMoreHandlePointerDown(event: React.PointerEvent<HTMLButtonElement>) {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    moreDragStartYRef.current = event.clientY;
+    setMoreDragging(true);
+    setMoreDragOffset(0);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function handleMoreHandlePointerMove(event: React.PointerEvent<HTMLButtonElement>) {
+    if (moreDragStartYRef.current === null) return;
+    const nextOffset = Math.max(0, event.clientY - moreDragStartYRef.current);
+    setMoreDragOffset(Math.min(nextOffset, 180));
+  }
+
+  function finishMoreHandleDrag(event: React.PointerEvent<HTMLButtonElement>) {
+    if (moreDragStartYRef.current === null) return;
+    const finalOffset = Math.max(0, event.clientY - moreDragStartYRef.current);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    moreDragStartYRef.current = null;
+    setMoreDragging(false);
+    if (finalOffset > 48) {
+      closeMoreMenu();
+      return;
+    }
+    setMoreDragOffset(0);
+  }
+
+  function cancelMoreHandleDrag(event: React.PointerEvent<HTMLButtonElement>) {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    moreDragStartYRef.current = null;
+    setMoreDragging(false);
+    setMoreDragOffset(0);
+  }
+
   const shellClass = theme === "light"
     ? "min-h-screen bg-[#f1efea] text-[#111111] flex"
     : "min-h-screen bg-black text-white flex";
@@ -629,10 +696,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     ? "lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#f8f6f1]/95 backdrop-blur-md border-t border-black/8 flex items-stretch"
     : "lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[#0a0a0a]/95 backdrop-blur-md border-t border-white/8 flex items-stretch";
   const moreSheetClass = theme === "light"
-    ? `fixed bottom-0 inset-x-0 z-50 bg-[#f8f6f1] rounded-t-2xl border-t border-black/10 lg:hidden flex flex-col transition-transform duration-300 ease-out max-h-[85dvh] ${
+    ? `fixed bottom-0 inset-x-0 z-50 bg-[#f8f6f1] rounded-t-2xl border-t border-black/10 lg:hidden flex flex-col ${moreDragging ? "" : "transition-transform duration-300 ease-out"} max-h-[85dvh] ${
         moreOpen ? "translate-y-0" : "translate-y-full"
       }`
-    : `fixed bottom-0 inset-x-0 z-50 bg-[#0f0f0f] rounded-t-2xl border-t border-white/10 lg:hidden flex flex-col transition-transform duration-300 ease-out max-h-[85dvh] ${
+    : `fixed bottom-0 inset-x-0 z-50 bg-[#0f0f0f] rounded-t-2xl border-t border-white/10 lg:hidden flex flex-col ${moreDragging ? "" : "transition-transform duration-300 ease-out"} max-h-[85dvh] ${
         moreOpen ? "translate-y-0" : "translate-y-full"
       }`;
   const navSectionLabelClass = theme === "light" ? "text-black/35" : "text-white/28";
@@ -747,17 +814,36 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {moreOpen && (
         <div
           className="fixed inset-0 z-50 bg-black/70 lg:hidden"
-          onClick={() => setMoreOpen(false)}
+          onClick={closeMoreMenu}
         />
       )}
 
       {/* More sheet — slides up from bottom on mobile */}
       <div
         className={moreSheetClass}
+        style={moreOpen && moreDragOffset > 0 ? { transform: `translateY(${moreDragOffset}px)` } : undefined}
       >
-        {/* Drag handle */}
-        <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
-          <div className={`w-9 h-1 rounded-full ${theme === "light" ? "bg-black/20" : "bg-white/20"}`} />
+        {/* Drag handle / close area */}
+        <div className={`flex items-center justify-between gap-3 px-4 pt-3 pb-2 flex-shrink-0 ${theme === "light" ? "border-b border-black/8" : "border-b border-white/8"}`}>
+          <button
+            type="button"
+            aria-label="Close more menu"
+            onClick={closeMoreMenu}
+            onPointerDown={handleMoreHandlePointerDown}
+            onPointerMove={handleMoreHandlePointerMove}
+            onPointerUp={finishMoreHandleDrag}
+            onPointerCancel={cancelMoreHandleDrag}
+            className="flex min-h-10 flex-1 touch-none items-center justify-center rounded-xl"
+          >
+            <span className={`w-11 h-1.5 rounded-full ${theme === "light" ? "bg-black/25" : "bg-white/25"}`} />
+          </button>
+          <button
+            type="button"
+            onClick={closeMoreMenu}
+            className={`min-h-10 rounded-xl px-3 text-sm font-medium transition-colors ${theme === "light" ? "text-black/55 hover:bg-black/5 hover:text-black" : "text-white/55 hover:bg-white/8 hover:text-white"}`}
+          >
+            Close
+          </button>
         </div>
 
         {/* All nav items */}
@@ -774,7 +860,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <Link
                       key={item.href}
                       href={item.href}
-                      onClick={() => setMoreOpen(false)}
+                      onClick={closeMoreMenu}
                       className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                         isActive
                           ? "bg-sky-500/10 text-sky-400"
@@ -806,7 +892,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           )}
           <button
-            onClick={() => { setMoreOpen(false); handleLogout(); }}
+            onClick={() => { closeMoreMenu(); handleLogout(); }}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm w-full ${
               theme === "light" ? "text-black/60" : "text-white/60"
             }`}
@@ -819,7 +905,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link
             href="/"
             target="_blank"
-            onClick={() => setMoreOpen(false)}
+            onClick={closeMoreMenu}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm ${
               theme === "light" ? "text-black/60" : "text-white/60"
             }`}
