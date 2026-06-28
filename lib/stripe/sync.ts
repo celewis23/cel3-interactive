@@ -60,7 +60,10 @@ export async function syncStripeCustomerToPipelineContact(
 ) {
   let existing = await findPipelineContactByStripeCustomerId(customer.id);
   if (!existing && customer.email) {
-    existing = await findPipelineContactByEmail(customer.email);
+    const emailMatch = await findPipelineContactByEmail(customer.email);
+    if (!emailMatch?.stripeCustomerId || emailMatch.stripeCustomerId === customer.id) {
+      existing = emailMatch;
+    }
   }
 
   const patch = {

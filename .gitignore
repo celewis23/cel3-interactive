@@ -44,3 +44,6 @@ yarn-error.log*
 next-env.d.ts
 
 .claude/
+
+# local data repair backups
+repair-backups/
