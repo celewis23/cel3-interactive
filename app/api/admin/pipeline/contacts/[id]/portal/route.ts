@@ -4,6 +4,7 @@ import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { getOrCreatePortalClientRootFolder, ensureClientDriveFolderAccess } from "@/lib/portal/provision";
 import { buildSiteAccessPatch } from "@/lib/siteAccess";
+import { syncContactProfileFromPipeline } from "@/lib/contacts/unifiedSync";
 
 export const runtime = "nodejs";
 
@@ -210,6 +211,15 @@ export async function PATCH(
     Object.assign(patch, buildPortalSiteAccessPatch(body));
     if (Object.keys(patch).length > 0) {
       await sanityWriteClient.patch(portalUser._id).set(patch).commit();
+    }
+    if ("name" in patch || "company" in patch) {
+      const contactPatch: Record<string, unknown> = {};
+      if ("name" in patch) contactPatch.name = patch.name;
+      if ("company" in patch) contactPatch.company = patch.company;
+      await sanityWriteClient.patch(id).set(contactPatch).commit();
+      await syncContactProfileFromPipeline(id).catch((syncErr) => {
+        console.error("PORTAL_CONTACT_SYNC_ERR:", syncErr);
+      });
     }
 
     const updated = await sanityServer.fetch<PortalUser | null>(

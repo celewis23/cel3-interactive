@@ -8,6 +8,7 @@ import { generateTemporaryPortalPassword } from "@/lib/portal/auth";
 import { sendEmail } from "@/lib/gmail/api";
 import { hashPassword } from "@/lib/admin/staffPassword";
 import { completeOnboardingStepForClient } from "@/lib/onboarding/autoComplete";
+import { syncContactProfileFromPipeline } from "@/lib/contacts/unifiedSync";
 
 export const runtime = "nodejs";
 
@@ -53,8 +54,20 @@ export async function PATCH(
     const updated = await sanityWriteClient.patch(id).set(patch).commit();
     const updatedUser = updated as {
       email?: string | null;
+      name?: string | null;
+      company?: string | null;
+      pipelineContactId?: string | null;
       driveRootFolderId?: string | null;
     };
+    if (updatedUser.pipelineContactId && ("name" in patch || "company" in patch)) {
+      const contactPatch: Record<string, unknown> = {};
+      if ("name" in patch) contactPatch.name = updatedUser.name ?? null;
+      if ("company" in patch) contactPatch.company = updatedUser.company ?? null;
+      await sanityWriteClient.patch(updatedUser.pipelineContactId).set(contactPatch).commit();
+      await syncContactProfileFromPipeline(updatedUser.pipelineContactId).catch((syncErr) => {
+        console.error("ADMIN_PORTAL_USER_CONTACT_SYNC_ERR:", syncErr);
+      });
+    }
     await ensureClientDriveFolderAccess({
       folderId: updatedUser.driveRootFolderId,
       email: updatedUser.email,

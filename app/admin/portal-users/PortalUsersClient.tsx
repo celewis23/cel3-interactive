@@ -50,6 +50,16 @@ export default function PortalUsersClient({ initialUsers }: { initialUsers: Port
   const [inviteResult, setInviteResult] = useState<InvitationResult | null>(null);
   const [inviteErrors, setInviteErrors] = useState<Record<string, string>>({});
   const [resending, setResending] = useState<string | null>(null);
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    company: "",
+    stripeCustomerId: "",
+    pipelineContactId: "",
+    driveRootFolderId: "",
+  });
+  const [editSaving, setEditSaving] = useState(false);
+  const [editError, setEditError] = useState("");
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -135,6 +145,51 @@ export default function PortalUsersClient({ initialUsers }: { initialUsers: Port
     if (!confirm("Delete this portal user? They will lose access immediately.")) return;
     const res = await fetch(`/api/admin/portal-users/${userId}`, { method: "DELETE" });
     if (res.ok) setUsers((prev) => prev.filter((u) => u._id !== userId));
+  }
+
+  function handleEdit(user: PortalUser) {
+    setEditingUserId(user._id);
+    setEditError("");
+    setEditForm({
+      name: user.name ?? "",
+      company: user.company ?? "",
+      stripeCustomerId: user.stripeCustomerId ?? "",
+      pipelineContactId: user.pipelineContactId ?? "",
+      driveRootFolderId: user.driveRootFolderId ?? "",
+    });
+  }
+
+  async function handleSaveEdit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingUserId) return;
+    setEditSaving(true);
+    setEditError("");
+    try {
+      const res = await fetch(`/api/admin/portal-users/${editingUserId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editForm.name.trim() || null,
+          company: editForm.company.trim() || null,
+          stripeCustomerId: editForm.stripeCustomerId.trim() || null,
+          pipelineContactId: editForm.pipelineContactId.trim() || null,
+          driveRootFolderId: editForm.driveRootFolderId.trim() || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setEditError(data.error || "Failed to update portal user");
+        return;
+      }
+      setUsers((prev) => prev.map((user) => (
+        user._id === editingUserId ? { ...user, ...data } : user
+      )));
+      setEditingUserId(null);
+    } catch {
+      setEditError("Failed to update portal user");
+    } finally {
+      setEditSaving(false);
+    }
   }
 
   return (
@@ -247,7 +302,7 @@ export default function PortalUsersClient({ initialUsers }: { initialUsers: Port
               />
             </div>
             <div>
-              <label className="text-xs text-white/50 mb-1.5 block">Company</label>
+              <label className="text-xs text-white/50 mb-1.5 block">Organization</label>
               <input
                 type="text"
                 value={form.company}
@@ -293,6 +348,82 @@ export default function PortalUsersClient({ initialUsers }: { initialUsers: Port
                 className="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:opacity-40 text-black font-semibold text-sm transition-colors"
               >
                 {saving ? "Creating…" : "Create portal access"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {editingUserId && (
+        <div className="bg-white/3 border border-white/8 rounded-2xl p-5">
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div>
+              <h2 className="text-sm font-semibold text-white">Edit portal client</h2>
+              <p className="text-xs text-white/35 mt-1">
+                Organization changes also update the linked pipeline contact, Stripe customer, and Google Contact when linked.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setEditingUserId(null)}
+              className="text-xs text-white/40 hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+          {editError && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl p-3 mb-4">
+              {editError}
+            </div>
+          )}
+          <form onSubmit={handleSaveEdit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-white/50 mb-1.5 block">Display name</label>
+              <input
+                value={editForm.name}
+                onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-white/50 mb-1.5 block">Organization</label>
+              <input
+                value={editForm.company}
+                onChange={(e) => setEditForm((f) => ({ ...f, company: e.target.value }))}
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-white/50 mb-1.5 block">Stripe Customer ID</label>
+              <input
+                value={editForm.stripeCustomerId}
+                onChange={(e) => setEditForm((f) => ({ ...f, stripeCustomerId: e.target.value }))}
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-mono placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-white/50 mb-1.5 block">Pipeline Contact ID</label>
+              <input
+                value={editForm.pipelineContactId}
+                onChange={(e) => setEditForm((f) => ({ ...f, pipelineContactId: e.target.value }))}
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-mono placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="text-xs text-white/50 mb-1.5 block">Drive Folder ID</label>
+              <input
+                value={editForm.driveRootFolderId}
+                onChange={(e) => setEditForm((f) => ({ ...f, driveRootFolderId: e.target.value }))}
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-mono placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <button
+                type="submit"
+                disabled={editSaving}
+                className="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:opacity-40 text-black font-semibold text-sm transition-colors"
+              >
+                {editSaving ? "Saving…" : "Save changes"}
               </button>
             </div>
           </form>
@@ -361,6 +492,12 @@ export default function PortalUsersClient({ initialUsers }: { initialUsers: Port
                     <td className="px-4 py-3 text-right">
                       <div className="flex flex-col items-end gap-1">
                         <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleEdit(u)}
+                            className="text-xs text-white/40 hover:text-white transition-colors"
+                          >
+                            Edit
+                          </button>
                           <button
                             onClick={() => handleResend(u._id)}
                             disabled={resending === u._id || u.status === "suspended"}
