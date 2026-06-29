@@ -9,6 +9,8 @@ type BalanceOption = {
   sourceTypes: Record<string, number> | null;
 };
 
+type PayoutMethod = "standard" | "instant";
+
 const inputClass =
   "w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-sky-400/50";
 const labelClass = "mb-1.5 block text-xs font-medium text-white/50";
@@ -24,15 +26,40 @@ function dollars(cents: number) {
   return (cents / 100).toFixed(2);
 }
 
-export default function PayoutNowButton({ available }: { available: BalanceOption[] }) {
+function positiveBalances(balances: BalanceOption[]) {
+  return balances.filter((item) => item.amount > 0);
+}
+
+function getPreferredBalance(balances: BalanceOption[], currency?: string) {
+  if (currency) {
+    const matching = balances.find((item) => item.currency === currency && item.amount > 0);
+    if (matching) return matching;
+  }
+  return balances.find((item) => item.currency === "usd" && item.amount > 0) ?? balances.find((item) => item.amount > 0) ?? null;
+}
+
+export default function PayoutNowButton({
+  available,
+  instantAvailable = [],
+}: {
+  available: BalanceOption[];
+  instantAvailable?: BalanceOption[];
+}) {
   const router = useRouter();
-  const usdBalance = available.find((item) => item.currency === "usd") ?? available[0] ?? null;
+  const standardBalances = positiveBalances(available);
+  const instantBalances = positiveBalances(instantAvailable);
+  const defaultMethod: PayoutMethod = standardBalances.length > 0 ? "standard" : "instant";
+  const defaultBalance =
+    getPreferredBalance(defaultMethod === "instant" ? instantBalances : standardBalances) ??
+    getPreferredBalance(instantBalances) ??
+    getPreferredBalance(standardBalances);
   const [open, setOpen] = useState(false);
-  const [currency, setCurrency] = useState(usdBalance?.currency ?? "usd");
-  const selectedBalance = available.find((item) => item.currency === currency) ?? usdBalance;
-  const [amount, setAmount] = useState(selectedBalance ? dollars(selectedBalance.amount) : "");
-  const [method, setMethod] = useState<"standard" | "instant">("standard");
+  const [currency, setCurrency] = useState(defaultBalance?.currency ?? "usd");
+  const [method, setMethod] = useState<PayoutMethod>(defaultMethod);
   const [sourceType, setSourceType] = useState("");
+  const selectedBalances = method === "instant" ? instantBalances : standardBalances;
+  const selectedBalance = getPreferredBalance(selectedBalances, currency);
+  const [amount, setAmount] = useState(defaultBalance ? dollars(defaultBalance.amount) : "");
   const [description, setDescription] = useState("Manual admin payout");
   const [statementDescriptor, setStatementDescriptor] = useState("");
   const [loading, setLoading] = useState(false);
@@ -45,7 +72,16 @@ export default function PayoutNowButton({ available }: { available: BalanceOptio
 
   function updateCurrency(nextCurrency: string) {
     setCurrency(nextCurrency);
-    const nextBalance = available.find((item) => item.currency === nextCurrency);
+    const nextBalance = getPreferredBalance(selectedBalances, nextCurrency);
+    setAmount(nextBalance ? dollars(nextBalance.amount) : "");
+    setSourceType("");
+  }
+
+  function updateMethod(nextMethod: PayoutMethod) {
+    setMethod(nextMethod);
+    const nextBalances = nextMethod === "instant" ? instantBalances : standardBalances;
+    const nextBalance = getPreferredBalance(nextBalances, currency) ?? getPreferredBalance(nextBalances);
+    setCurrency(nextBalance?.currency ?? currency);
     setAmount(nextBalance ? dollars(nextBalance.amount) : "");
     setSourceType("");
   }
@@ -63,6 +99,7 @@ export default function PayoutNowButton({ available }: { available: BalanceOptio
           amount,
           currency,
           method,
+          balanceType: method === "instant" ? "instant_available" : "available",
           sourceType: sourceType || undefined,
           description,
           statementDescriptor,
@@ -82,7 +119,7 @@ export default function PayoutNowButton({ available }: { available: BalanceOptio
     }
   }
 
-  if (!usdBalance || available.every((item) => item.amount <= 0)) {
+  if (standardBalances.length === 0 && instantBalances.length === 0) {
     return (
       <button
         type="button"
@@ -106,17 +143,20 @@ export default function PayoutNowButton({ available }: { available: BalanceOptio
 
       {open && (
         <div className="mt-4 rounded-2xl border border-white/10 bg-black/35 p-4">
+          {standardBalances.length === 0 && method === "instant" && (
+            <p className="mb-3 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs leading-5 text-emerald-200">
+              Instant payout is using eligible instant-available funds. Stripe includes eligible pending funds here when they can be paid out to an instant destination.
+            </p>
+          )}
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <label className={labelClass}>Currency</label>
               <select value={currency} onChange={(e) => updateCurrency(e.target.value)} className={inputClass}>
-                {available
-                  .filter((item) => item.amount > 0)
-                  .map((item) => (
+                {selectedBalances.map((item) => (
                     <option key={item.currency} value={item.currency}>
-                      {item.currency.toUpperCase()} available: {money(item.amount, item.currency)}
+                      {item.currency.toUpperCase()} {method === "instant" ? "instant" : "available"}: {money(item.amount, item.currency)}
                     </option>
-                  ))}
+                ))}
               </select>
             </div>
             <div>
@@ -132,9 +172,9 @@ export default function PayoutNowButton({ available }: { available: BalanceOptio
             </div>
             <div>
               <label className={labelClass}>Method</label>
-              <select value={method} onChange={(e) => setMethod(e.target.value as "standard" | "instant")} className={inputClass}>
-                <option value="standard">Standard</option>
-                <option value="instant">Instant, if eligible</option>
+              <select value={method} onChange={(e) => updateMethod(e.target.value as PayoutMethod)} className={inputClass}>
+                <option value="standard" disabled={standardBalances.length === 0}>Standard</option>
+                <option value="instant" disabled={instantBalances.length === 0}>Instant to debit card, if eligible</option>
               </select>
             </div>
             <div>
@@ -183,8 +223,8 @@ export default function PayoutNowButton({ available }: { available: BalanceOptio
           </div>
 
           <p className="mt-3 text-xs leading-5 text-white/35">
-            Stripe will reject the payout if the selected balance, destination, or instant payout
-            eligibility is not available.
+            Standard payouts use available balance. Instant payouts use Stripe's instant-available
+            balance, which can include eligible pending funds for a debit-card payout.
           </p>
           {success && <p className="mt-3 text-xs text-emerald-400">{success}</p>}
           {error && <p className="mt-3 text-xs text-red-400">{error}</p>}

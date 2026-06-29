@@ -17,6 +17,10 @@ export async function POST(req: NextRequest) {
         ? body.currency.trim().toLowerCase()
         : "usd";
     const method = body.method === "instant" ? "instant" : "standard";
+    const balanceType =
+      body.balanceType === "instant_available" && method === "instant"
+        ? "instant_available"
+        : "available";
     const sourceType =
       body.sourceType === "card" ||
       body.sourceType === "bank_account" ||
@@ -48,12 +52,13 @@ export async function POST(req: NextRequest) {
       resourceType: "payout",
       resourceId: payout.id,
       resourceLabel: payout.id,
-      description: `Manual ${method} payout created for ${currency.toUpperCase()} ${amount.toFixed(2)}`,
+      description: `Manual ${method} payout created for ${currency.toUpperCase()} ${amount.toFixed(2)} from ${balanceType.replace("_", " ")}`,
       metadata: {
         payoutId: payout.id,
         amountCents: payout.amount,
         currency: payout.currency,
         method: payout.method,
+        balanceType,
         sourceType: sourceType ?? null,
       },
     });

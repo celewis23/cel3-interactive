@@ -126,6 +126,11 @@ export type BillingBalance = {
     currency: string;
     sourceTypes: Record<string, number> | null;
   }[];
+  instantAvailable: {
+    amount: number;
+    currency: string;
+    sourceTypes: Record<string, number> | null;
+  }[];
   pending: {
     amount: number;
     currency: string;
@@ -788,6 +793,11 @@ export async function getBalance(): Promise<BillingBalance> {
   const balance = await stripe.balance.retrieve();
   return {
     available: balance.available.map((b) => ({
+      amount: b.amount,
+      currency: b.currency,
+      sourceTypes: normalizeSourceTypes(b.source_types),
+    })),
+    instantAvailable: (balance.instant_available ?? []).map((b) => ({
       amount: b.amount,
       currency: b.currency,
       sourceTypes: normalizeSourceTypes(b.source_types),

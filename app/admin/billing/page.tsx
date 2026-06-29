@@ -64,8 +64,11 @@ export default async function BillingPage() {
     balance.available.find((b) => b.currency === "usd")?.amount ?? 0;
   const pendingUsd =
     balance.pending.find((b) => b.currency === "usd")?.amount ?? 0;
+  const instantUsd =
+    balance.instantAvailable.find((b) => b.currency === "usd")?.amount ?? 0;
   const availableOther = balance.available.filter((b) => b.currency !== "usd");
   const pendingOther = balance.pending.filter((b) => b.currency !== "usd");
+  const instantOther = balance.instantAvailable.filter((b) => b.currency !== "usd");
 
   const openInvoicesTotal = invoicesResult.invoices.reduce(
     (sum, inv) => sum + inv.amountDue,
@@ -110,7 +113,7 @@ export default async function BillingPage() {
           ) : (
             <div className="mt-3 text-xs text-amber-400">Test mode</div>
           )}
-          <PayoutNowButton available={balance.available} />
+          <PayoutNowButton available={balance.available} instantAvailable={balance.instantAvailable} />
         </div>
 
         <div className="bg-white/3 border border-white/8 rounded-2xl p-5">
@@ -121,7 +124,18 @@ export default async function BillingPage() {
               {fmt(b.amount, b.currency)} {b.currency.toUpperCase()}
             </div>
           ))}
-          <div className="mt-3 text-xs text-white/25">Processing payouts</div>
+          {instantUsd > 0 || instantOther.some((b) => b.amount > 0) ? (
+            <div className="mt-3 text-xs leading-5 text-emerald-400">
+              Instant payout eligible: {fmt(instantUsd)}
+              {instantOther.map((b) => (
+                <span key={b.currency} className="block">
+                  {fmt(b.amount, b.currency)} {b.currency.toUpperCase()}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-3 text-xs text-white/25">Processing payouts</div>
+          )}
         </div>
 
         <div className="bg-white/3 border border-white/8 rounded-2xl p-5">
