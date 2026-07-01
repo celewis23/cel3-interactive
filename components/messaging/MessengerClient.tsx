@@ -70,6 +70,8 @@ type SelectedImage = {
   previewUrl: string;
 };
 
+type AttachmentUpdate = React.Dispatch<React.SetStateAction<SelectedImage[]>>;
+
 async function readApiJson<T>(res: Response, fallbackMessage: string): Promise<T> {
   const text = await res.text();
   let data: unknown = {};
@@ -172,10 +174,14 @@ function isImageAttachment(attachment: MessageAttachment) {
   return attachment.contentType.startsWith("image/");
 }
 
+function attachmentFileSrc(attachment: MessageAttachment) {
+  if (!attachment.driveFileId) return null;
+  return `/api/messages/attachments/${encodeURIComponent(attachment.driveFileId)}`;
+}
+
 function attachmentImageSrc(attachment: MessageAttachment) {
   if (attachment.localUrl) return attachment.localUrl;
-  if (!attachment.driveFileId) return attachment.thumbnailLink;
-  return `/api/messages/attachments/${encodeURIComponent(attachment.driveFileId)}`;
+  return attachmentFileSrc(attachment) || attachment.thumbnailLink || attachment.webContentLink || attachment.fileUrl;
 }
 
 function revokeImagePreviews(images: SelectedImage[]) {
@@ -198,6 +204,50 @@ function Avatar({ name, email, imageUrl, mine, size = "md" }: { name: string; em
         senderInitial(name, email)
       )}
     </div>
+  );
+}
+
+function AttachmentImage({
+  attachment,
+  src,
+}: {
+  attachment: MessageAttachment;
+  src: string;
+}) {
+  const fallbackSrcs = useMemo(
+    () => [
+      src,
+      attachmentFileSrc(attachment),
+      attachment.thumbnailLink,
+      attachment.webContentLink,
+      attachment.fileUrl,
+    ].filter((value, index, values): value is string => Boolean(value) && values.indexOf(value) === index),
+    [attachment, src]
+  );
+  const [srcIndex, setSrcIndex] = useState(0);
+  const currentSrc = fallbackSrcs[srcIndex] ?? src;
+  const hasPreview = srcIndex < fallbackSrcs.length;
+
+  useEffect(() => {
+    setSrcIndex(0);
+  }, [fallbackSrcs]);
+
+  return (
+    <>
+      {hasPreview ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={currentSrc}
+          alt={attachment.fileName}
+          onError={() => setSrcIndex((current) => Math.min(current + 1, fallbackSrcs.length))}
+          className="max-h-80 w-full min-w-44 max-w-[min(22rem,70vw)] object-contain"
+        />
+      ) : (
+        <span className="block px-3 py-4 text-xs font-medium text-black/55">
+          Preview unavailable. Open or download the file below.
+        </span>
+      )}
+    </>
   );
 }
 
@@ -414,15 +464,15 @@ export default function MessengerClient({
     else router.push("/portal/messages");
   }
 
-  function addImageAttachments(
-    files: FileList | null,
-    update: React.Dispatch<React.SetStateAction<SelectedImage[]>>,
-    inputRef: React.RefObject<HTMLInputElement | null>
-  ) {
-    if (!files) return;
-    const selectedImages = Array.from(files).filter((file) => file.type.startsWith("image/"));
+  function addImageFiles(files: File[], update: AttachmentUpdate) {
+    if (files.length === 0) return;
+    const selectedImages = files.filter((file) => file.type.startsWith("image/"));
     if (selectedImages.length !== files.length) {
       setError("Only image files can be sent in chat messages");
+    }
+    const tooManyImages = selectedImages.length > 0 && selectedImages.length > MAX_IMAGES_PER_MESSAGE;
+    if (tooManyImages) {
+      setError(`Attach ${MAX_IMAGES_PER_MESSAGE} images or fewer per message`);
     }
     update((current) => {
       const available = Math.max(0, MAX_IMAGES_PER_MESSAGE - current.length);
@@ -433,7 +483,38 @@ export default function MessengerClient({
       }));
       return [...current, ...nextImages];
     });
+  }
+
+  function addImageAttachments(
+    files: FileList | null,
+    update: AttachmentUpdate,
+    inputRef: React.RefObject<HTMLInputElement | null>
+  ) {
+    if (!files) return;
+    addImageFiles(Array.from(files), update);
     if (inputRef.current) inputRef.current.value = "";
+  }
+
+  function addPastedImages(
+    event: React.ClipboardEvent<HTMLTextAreaElement>,
+    update: AttachmentUpdate
+  ) {
+    const files = Array.from(event.clipboardData.files);
+    const itemFiles = Array.from(event.clipboardData.items)
+      .filter((item) => item.kind === "file")
+      .map((item) => item.getAsFile())
+      .filter((file): file is File => Boolean(file));
+    const pastedFiles = files.length > 0 ? files : itemFiles;
+    const pastedImages = pastedFiles.filter((file) => file.type.startsWith("image/"));
+    if (pastedImages.length === 0) return;
+
+    event.preventDefault();
+    setError("");
+    addImageFiles(pastedImages.map((file, index) => {
+      if (file.name) return file;
+      const extension = file.type.split("/")[1]?.split("+")[0] || "png";
+      return new File([file], `pasted-image-${Date.now()}-${index}.${extension}`, { type: file.type || "image/png" });
+    }), update);
   }
 
   function removeImageAttachment(
@@ -757,8 +838,7 @@ export default function MessengerClient({
                                         rel="noreferrer"
                                         className="group block overflow-hidden rounded-xl border border-black/10 bg-black/[0.04] text-left"
                                       >
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={imageSrc} alt={attachment.fileName} className="max-h-80 w-full min-w-44 max-w-[min(22rem,70vw)] object-contain" />
+                                        <AttachmentImage attachment={attachment} src={imageSrc} />
                                         <span className="flex items-center justify-between gap-3 border-t border-black/10 px-3 py-2">
                                           <span className="min-w-0 truncate text-xs font-semibold text-black/70">{attachment.fileName}</span>
                                           <span className="shrink-0 text-[11px] text-black/45">{message.pending ? "Sending..." : formatFileSize(attachment.size)}</span>
@@ -836,6 +916,7 @@ export default function MessengerClient({
                   <textarea
                     value={compose}
                     onChange={(event) => setCompose(event.target.value)}
+                    onPaste={(event) => addPastedImages(event, setAttachments)}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" && !event.shiftKey) {
                         event.preventDefault();
@@ -959,6 +1040,7 @@ export default function MessengerClient({
               <textarea
                 value={newBody}
                 onChange={(event) => setNewBody(event.target.value)}
+                onPaste={(event) => addPastedImages(event, setNewAttachments)}
                 rows={4}
                 maxLength={5000}
                 placeholder={mode === "admin" ? "Write the first message..." : "Write your message..."}
