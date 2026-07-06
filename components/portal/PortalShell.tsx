@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import PortalAssistant from "@/components/portal/PortalAssistant";
+import PortalAppControls from "@/components/portal/PortalAppControls";
 
 const NAV = [
   { label: "Get Started", href: "/portal/onboarding" },
@@ -76,6 +77,18 @@ export default function PortalShell({
   }, []);
 
   async function handleLogout() {
+    if ("serviceWorker" in navigator) {
+      const registration = await navigator.serviceWorker.getRegistration("/portal/").catch(() => null);
+      const subscription = await registration?.pushManager.getSubscription().catch(() => null);
+      if (subscription) {
+        await fetch("/api/portal/notifications/push", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ endpoint: subscription.endpoint }),
+        }).catch(() => null);
+        await subscription.unsubscribe().catch(() => null);
+      }
+    }
     await fetch("/api/portal/auth/logout", { method: "POST" });
     router.push("/portal/auth/login");
   }
@@ -272,6 +285,7 @@ export default function PortalShell({
                       </svg>
                       <span>Privacy</span>
                     </Link>
+                    <PortalAppControls rowClass={rowClass} />
                     <div className={`px-4 py-3 border-t mt-2 ${theme === "light" ? "border-black/8" : "border-white/8"}`}>
                       <button
                         type="button"

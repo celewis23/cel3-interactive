@@ -5,6 +5,7 @@ import { sanityWriteClient } from "@/lib/sanity.write";
 import { getOrCreatePortalClientRootFolder, ensureClientDriveFolderAccess } from "@/lib/portal/provision";
 import { buildSiteAccessPatch } from "@/lib/siteAccess";
 import { syncContactProfileFromPipeline } from "@/lib/contacts/unifiedSync";
+import { createPortalNotification } from "@/lib/portal/notifications";
 
 export const runtime = "nodejs";
 
@@ -219,6 +220,17 @@ export async function PATCH(
       await sanityWriteClient.patch(id).set(contactPatch).commit();
       await syncContactProfileFromPipeline(id).catch((syncErr) => {
         console.error("PORTAL_CONTACT_SYNC_ERR:", syncErr);
+      });
+    }
+    if (Object.keys(patch).length > 0) {
+      await createPortalNotification({
+        userId: portalUser._id,
+        title: "Portal profile updated",
+        body: "Your client portal profile was updated.",
+        entityType: "PortalProfile",
+        entityId: portalUser._id,
+        linkUrl: "/portal/settings",
+        pushTag: `portal-profile:${portalUser._id}:${new Date().toISOString()}`,
       });
     }
 

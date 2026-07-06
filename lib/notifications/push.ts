@@ -12,7 +12,10 @@ type StoredSubscription = {
   endpoint: string;
   p256dh: string;
   auth: string;
+  recipientKind?: "admin" | "client" | null;
+  actorId?: string | null;
   staffId: string | null;
+  portalUserId?: string | null;
   roleSlug: string;
   isOwner: boolean;
 };
@@ -111,6 +114,7 @@ export async function upsertPushSubscription(target: SessionTarget, subscription
 
   const serialized = serializeSubscription(subscription);
   const now = new Date().toISOString();
+  const actorId = target.isOwner ? "admin:owner" : `admin:${target.staffId}`;
 
   await sanityWriteClient.createOrReplace({
     _id: subscriptionDocId(serialized.endpoint),
@@ -118,9 +122,35 @@ export async function upsertPushSubscription(target: SessionTarget, subscription
     endpoint: serialized.endpoint,
     p256dh: serialized.keys.p256dh,
     auth: serialized.keys.auth,
+    recipientKind: "admin",
+    actorId,
     staffId: target.staffId,
+    portalUserId: null,
     roleSlug: target.roleSlug,
     isOwner: target.isOwner,
+    createdAt: now,
+    updatedAt: now,
+  });
+}
+
+export async function upsertPortalPushSubscription(userId: string, subscription: PushSubscription) {
+  await configureWebPush();
+
+  const serialized = serializeSubscription(subscription);
+  const now = new Date().toISOString();
+
+  await sanityWriteClient.createOrReplace({
+    _id: subscriptionDocId(serialized.endpoint),
+    _type: "webPushSubscription",
+    endpoint: serialized.endpoint,
+    p256dh: serialized.keys.p256dh,
+    auth: serialized.keys.auth,
+    recipientKind: "client",
+    actorId: `portal:${userId}`,
+    staffId: null,
+    portalUserId: userId,
+    roleSlug: "portal",
+    isOwner: false,
     createdAt: now,
     updatedAt: now,
   });
@@ -142,20 +172,21 @@ export async function sendPushNotificationToAudience(
 
   const subscriptions = await sanityServer.fetch<StoredSubscription[]>(
     `*[_type == "webPushSubscription"]{
-      _id, endpoint, p256dh, auth, staffId, roleSlug, isOwner
+      _id, endpoint, p256dh, auth, recipientKind, actorId, staffId, portalUserId, roleSlug, isOwner
     }`
   );
 
-  if (subscriptions.length === 0) return { sent: 0 };
+  const adminSubscriptions = subscriptions.filter((item) => (item.recipientKind ?? "admin") === "admin");
+  if (adminSubscriptions.length === 0) return { sent: 0 };
 
   const rolePermissions = await getRolePermissions(
-    Array.from(new Set(subscriptions.filter((item) => !item.isOwner).map((item) => item.roleSlug)))
+    Array.from(new Set(adminSubscriptions.filter((item) => !item.isOwner).map((item) => item.roleSlug)))
   );
 
   let sent = 0;
 
   await Promise.all(
-    subscriptions.map(async (subscription) => {
+    adminSubscriptions.map(async (subscription) => {
       if (!canReceive(subscription, rolePermissions, opts?.module, opts?.action)) {
         return;
       }
@@ -182,6 +213,51 @@ export async function sendPushNotificationToAudience(
           return;
         }
         console.error("WEB_PUSH_SEND_ERR:", err);
+      }
+    })
+  );
+
+  return { sent };
+}
+
+export async function sendPushNotificationToClient(userId: string, payload: PushPayload) {
+  await configureWebPush();
+
+  const actorId = `portal:${userId}`;
+  const subscriptions = await sanityServer.fetch<StoredSubscription[]>(
+    `*[_type == "webPushSubscription" && recipientKind == "client" && (portalUserId == $userId || actorId == $actorId)]{
+      _id, endpoint, p256dh, auth, recipientKind, actorId, staffId, portalUserId, roleSlug, isOwner
+    }`,
+    { userId, actorId }
+  );
+
+  if (subscriptions.length === 0) return { sent: 0 };
+
+  let sent = 0;
+  await Promise.all(
+    subscriptions.map(async (subscription) => {
+      try {
+        await webpush.sendNotification(
+          {
+            endpoint: subscription.endpoint,
+            keys: {
+              p256dh: subscription.p256dh,
+              auth: subscription.auth,
+            },
+          },
+          JSON.stringify(payload),
+          { urgency: "high" }
+        );
+        sent += 1;
+      } catch (err) {
+        const statusCode = typeof err === "object" && err !== null && "statusCode" in err
+          ? Number((err as { statusCode?: number }).statusCode)
+          : null;
+        if (statusCode === 401 || statusCode === 404 || statusCode === 410) {
+          await removePushSubscription(subscription.endpoint);
+          return;
+        }
+        console.error("WEB_PUSH_CLIENT_SEND_ERR:", err);
       }
     })
   );

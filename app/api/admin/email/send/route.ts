@@ -4,6 +4,14 @@ export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sendEmail, type MimeAttachment } from "@/lib/gmail/api";
+import { createPortalNotification } from "@/lib/portal/notifications";
+import { sanityServer } from "@/lib/sanityServer";
+
+function extractEmailAddresses(value?: string) {
+  if (!value) return [];
+  const matches = value.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi) ?? [];
+  return Array.from(new Set(matches.map((email) => email.toLowerCase())));
+}
 
 export async function POST(req: NextRequest) {
   const authErr = await requirePermission(req, "email", "edit");
@@ -42,6 +50,25 @@ export async function POST(req: NextRequest) {
       bcc,
       attachments: attachments.length > 0 ? attachments : undefined,
     });
+
+    const recipientEmails = extractEmailAddresses([to, cc, bcc].filter(Boolean).join(","));
+    if (recipientEmails.length > 0) {
+      const portalUsers = await sanityServer.fetch<Array<{ _id: string; email: string; name: string | null }>>(
+        `*[_type == "clientPortalUser" && lower(email) in $emails && status != "suspended"]{ _id, email, name }`,
+        { emails: recipientEmails }
+      );
+      await Promise.all(portalUsers.map((user) =>
+        createPortalNotification({
+          userId: user._id,
+          title: "New email from CEL3",
+          body: subject,
+          entityType: "Email",
+          entityId: result.messageId || subject,
+          linkUrl: "/portal",
+          pushTag: `email:${user._id}:${result.messageId || Date.now()}`,
+        })
+      ));
+    }
 
     return NextResponse.json({ ok: true, ...result }, { status: 201 });
   } catch (err) {

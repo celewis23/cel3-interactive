@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
 import { sql } from "@/lib/postgres";
 import { sanityServer } from "@/lib/sanityServer";
-import { sendPushNotificationToAudience } from "@/lib/notifications/push";
+import { sendPushNotificationToAudience, sendPushNotificationToClient } from "@/lib/notifications/push";
 import { MessagingActor } from "@/lib/messaging/auth";
 import { logAudit } from "@/lib/audit/log";
 import { createFolder, downloadFileContent, listFiles, uploadFile } from "@/lib/google/drive";
@@ -1211,4 +1211,10 @@ async function notifyClientForAdminMessage(conversation: ConversationRecord, act
     entityId: conversation._id,
     linkUrl: `/portal/messages?conversation=${conversation._id}`,
   });
+  await sendPushNotificationToClient(conversation.clientId, {
+    title: `New reply from ${actor.name}`,
+    body: body.slice(0, 140),
+    href: `/portal/messages?conversation=${conversation._id}`,
+    tag: `message:${conversation._id}:${new Date().toISOString()}`,
+  }).catch((err) => console.error("MESSAGING_CLIENT_PUSH_ERR:", err));
 }

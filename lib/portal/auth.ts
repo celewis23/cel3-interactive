@@ -5,7 +5,8 @@ const SECRET =
   ((process.env.ADMIN_SESSION_SECRET ?? "change-me") + "_portal");
 
 export const PORTAL_COOKIE = "cel3_portal_session";
-const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+export const PORTAL_SESSION_MAX_AGE_SECONDS = 365 * 24 * 60 * 60;
+const SESSION_TTL_MS = PORTAL_SESSION_MAX_AGE_SECONDS * 1000;
 
 export type PortalSession = {
   userId: string;

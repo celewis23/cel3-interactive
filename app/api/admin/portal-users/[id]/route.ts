@@ -9,6 +9,7 @@ import { sendEmail } from "@/lib/gmail/api";
 import { hashPassword } from "@/lib/admin/staffPassword";
 import { completeOnboardingStepForClient } from "@/lib/onboarding/autoComplete";
 import { syncContactProfileFromPipeline } from "@/lib/contacts/unifiedSync";
+import { createPortalNotification } from "@/lib/portal/notifications";
 
 export const runtime = "nodejs";
 
@@ -72,6 +73,17 @@ export async function PATCH(
       folderId: updatedUser.driveRootFolderId,
       email: updatedUser.email,
     });
+    if (Object.keys(patch).length > 0) {
+      await createPortalNotification({
+        userId: id,
+        title: "Portal profile updated",
+        body: "Your client portal profile was updated.",
+        entityType: "PortalProfile",
+        entityId: id,
+        linkUrl: "/portal/settings",
+        pushTag: `portal-profile:${id}:${new Date().toISOString()}`,
+      });
+    }
     return NextResponse.json(updated);
   } catch (err) {
     console.error("ADMIN_PORTAL_USER_PATCH_ERR:", err);

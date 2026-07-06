@@ -2,19 +2,26 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "CEL3 Interactive Backoffice",
-    short_name: "CEL3 Backoffice",
-    description: "CEL3 Interactive backoffice workspace",
-    start_url: "/admin",
+    name: "CEL3 Interactive Client Portal",
+    short_name: "CEL3 Portal",
+    description: "CEL3 Interactive client portal",
+    start_url: "/portal",
+    scope: "/portal/",
     display: "standalone",
     background_color: "#000000",
     theme_color: "#000000",
     icons: [
       {
-        src: "/window.svg",
-        sizes: "any",
-        type: "image/svg+xml",
+        src: "/icon-192.png",
+        sizes: "192x192",
+        type: "image/png",
         purpose: "any",
+      },
+      {
+        src: "/icon-192.png",
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "maskable",
       },
     ],
   };
