@@ -1,4 +1,5 @@
 import type { LeadCandidateInput } from "./types";
+import { buildOutreachEmail } from "./emailTemplates";
 
 type GooglePlaceSearchResult = {
   place_id?: string;
@@ -40,17 +41,6 @@ function cityFromAddress(address: string) {
   return parts.length >= 2 ? parts[1] : "Virginia";
 }
 
-function buildGeneratedEmailBody(name: string, niche: string) {
-  return [
-    "<p>Hello,</p>",
-    `<p>I came across ${name} while researching ${niche.toLowerCase()} businesses in Virginia.</p>`,
-    "<p>CEL3 Interactive builds custom web apps, CRMs, client portals, dashboards, and AI-enhanced systems for businesses that need their website and operations to work together.</p>",
-    "<p>I noticed a potential opportunity to tighten the way inquiries, bookings, memberships, or follow-up are handled online. If helpful, I can put together a short assessment of where your digital workflow could be improved.</p>",
-    "<p>Would you be open to a quick conversation?</p>",
-    "<p>Best,<br>CEL3 Interactive</p>",
-  ].join("");
-}
-
 function mapPlaceToLead(place: GooglePlaceDetails, sourceUrl: string): LeadCandidateInput | null {
   if (!place.name || place.business_status !== "OPERATIONAL") return null;
 
@@ -61,11 +51,15 @@ function mapPlaceToLead(place: GooglePlaceDetails, sourceUrl: string): LeadCandi
     .map((type) => type.replace(/_/g, " "))
     .join(", ") || "Local service business";
 
+  const city = address ? cityFromAddress(address) : "Virginia";
+  const region = address ? classifyRegion(address) : "Virginia";
+  const outreach = buildOutreachEmail({ businessName: place.name, city, region, niche });
+
   return {
     businessName: place.name,
     niche,
-    city: address ? cityFromAddress(address) : "Virginia",
-    region: address ? classifyRegion(address) : "Virginia",
+    city,
+    region,
     address,
     phone: place.formatted_phone_number ?? null,
     email: null,
@@ -79,8 +73,8 @@ function mapPlaceToLead(place: GooglePlaceDetails, sourceUrl: string): LeadCandi
     currentSnapshot: "Operational business found through Google Places.",
     gapAssessment: "Review the website and contact flow for opportunities around inquiry capture, scheduling, portals, dashboards, or automation.",
     howCel3CanHelp: "CEL3 can assess the current web presence and recommend a clearer lead, booking, or operations workflow.",
-    emailSubject: `A digital workflow idea for ${place.name}`,
-    emailBodyHtml: buildGeneratedEmailBody(place.name, niche),
+    emailSubject: outreach.subject,
+    emailBodyHtml: outreach.bodyHtml,
     notes: null,
     reviewedAt: null,
     approvedPipelineContactId: null,

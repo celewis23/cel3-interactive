@@ -1,14 +1,11 @@
 import type { LeadCandidateInput } from "./types";
+import { buildOutreachEmail, type OutreachEmailInput } from "./emailTemplates";
 
-function emailBody(name: string, niche: string, help: string) {
-  return [
-    "<p>Hello,</p>",
-    `<p>I was reviewing ${name} and noticed the kind of public-facing ${niche.toLowerCase()} work you are already doing in Virginia.</p>`,
-    `<p>CEL3 Interactive builds custom web applications, client portals, dashboards, and AI-enhanced systems for teams that need their website to do more than display information. ${help}</p>`,
-    "<p>If it is useful, I can put together a short systems assessment showing where your current digital flow could be tightened up and what would have the highest return.</p>",
-    "<p>Would you be open to a quick conversation next week?</p>",
-    "<p>Best,<br>CEL3 Interactive</p>",
-  ].join("");
+// Subject + body from the shared high-signal outreach engine; `angle` is the
+// lead-specific friction observation inserted before the CTA.
+function outreach(input: OutreachEmailInput) {
+  const { subject, bodyHtml } = buildOutreachEmail(input);
+  return { emailSubject: subject, emailBodyHtml: bodyHtml };
 }
 
 const defaults = {
@@ -39,8 +36,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active performing arts organization with school, performances, ticketing, donations, rentals, and news signup.",
     gapAssessment: "Multiple user paths appear spread across tickets, school, donations, rentals, and events.",
     howCel3CanHelp: "A cleaner audience portal and event/school dashboard could connect ticketing, classes, donations, and follow-up in one system.",
-    emailSubject: "Idea for Richmond Ballet's digital audience flow",
-    emailBodyHtml: emailBody("Richmond Ballet", "performing arts", "A unified dashboard could make audience, student, donor, and event interactions easier to track."),
+    ...outreach({
+      businessName: "Richmond Ballet",
+      city: "Richmond",
+      region: "Richmond",
+      niche: "Performing arts, education, memberships, events",
+      angle:
+        "From the outside, one family can be a ticket buyer, a school parent, a donor, and a rental inquiry all at once — and each of those runs through a different door, so reconciling them almost certainly falls on staff.",
+    }),
   },
   {
     _id: "lead-candidate-studio-two-three",
@@ -59,8 +62,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active arts organization with classes, membership, events, shop, and community programs.",
     gapAssessment: "Workshop, member, donor, and retail paths create a strong case for better operational visibility.",
     howCel3CanHelp: "A member/class operations console could centralize signups, attendance, donor touchpoints, and program performance.",
-    emailSubject: "A systems idea for Studio Two Three",
-    emailBodyHtml: emailBody("Studio Two Three", "arts programming", "Your mix of classes, memberships, and community programs is a good fit for a custom operations dashboard."),
+    ...outreach({
+      businessName: "Studio Two Three",
+      city: "Richmond",
+      region: "Richmond",
+      niche: "Arts nonprofit, workshops, memberships, community programs",
+      angle:
+        "Workshops, memberships, the shop, and community programs each leave their own admin trail, which usually means several exports before anyone can see one member clearly.",
+    }),
   },
   {
     _id: "lead-candidate-visual-arts-center-richmond",
@@ -79,8 +88,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active arts center with classes, events, exhibitions, youth programs, and memberships.",
     gapAssessment: "Class discovery and engagement could benefit from more personalized navigation and post-registration follow-up.",
     howCel3CanHelp: "A class/member dashboard could help surface enrollment trends, automate reminders, and clarify program performance.",
-    emailSubject: "Improving class and member flows at VisArts",
-    emailBodyHtml: emailBody("Visual Arts Center of Richmond", "arts education", "A tailored class and membership dashboard could make program operations easier to understand and act on."),
+    ...outreach({
+      businessName: "Visual Arts Center of Richmond",
+      city: "Richmond",
+      region: "Richmond",
+      niche: "Arts education, classes, memberships, exhibitions",
+      angle:
+        "When class registration and post-registration follow-up live in different tools, re-enrollment usually depends on somebody remembering to chase it.",
+    }),
   },
   {
     _id: "lead-candidate-branch-museum",
@@ -99,8 +114,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active museum with exhibitions, design programming, membership, donations, and venue rentals.",
     gapAssessment: "Events, rentals, membership, and donations appear to be separate conversion paths.",
     howCel3CanHelp: "An interactive venue/event inquiry system could improve rental intake and give staff a clearer pipeline.",
-    emailSubject: "A digital intake idea for The Branch",
-    emailBodyHtml: emailBody("The Branch Museum of Design", "museum and venue", "A smarter event and rental intake flow could reduce back-and-forth and expose better lead data."),
+    ...outreach({
+      businessName: "The Branch Museum of Design",
+      city: "Richmond",
+      region: "Richmond",
+      niche: "Museum, design education, venue rentals, events",
+      angle:
+        "Rentals, membership, donations, and event RSVPs converting through separate paths usually means the follow-up queue lives in someone's head.",
+    }),
   },
   {
     _id: "lead-candidate-the-broadberry",
@@ -119,8 +140,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active live music venue with events calendar, ticketing, and private event opportunities.",
     gapAssessment: "Venue, event, and private booking inquiries can become high-value leads if tracked cleanly.",
     howCel3CanHelp: "A private-events lead dashboard and automated follow-up flow could help convert inquiries faster.",
-    emailSubject: "Private event lead flow for The Broadberry",
-    emailBodyHtml: emailBody("The Broadberry", "live events", "A custom inquiry-to-booking dashboard could make private event leads easier to manage."),
+    ...outreach({
+      businessName: "The Broadberry",
+      city: "Richmond",
+      region: "Richmond",
+      niche: "Live music venue, ticketing, private events",
+      angle:
+        "Private-event inquiries are the highest-dollar messages hitting your inbox, and they're usually competing with everything else in it.",
+    }),
   },
   {
     _id: "lead-candidate-the-camel",
@@ -139,8 +166,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active Richmond venue with live shows, food, and event listings.",
     gapAssessment: "Shows, booking requests, and customer engagement are natural candidates for lightweight automation.",
     howCel3CanHelp: "A better booking/request workflow could keep artist, promoter, and private event communication organized.",
-    emailSubject: "Booking workflow idea for The Camel",
-    emailBodyHtml: emailBody("The Camel", "live venue", "A simple booking and follow-up system could help keep event requests from getting buried."),
+    ...outreach({
+      businessName: "The Camel",
+      city: "Richmond",
+      region: "Richmond",
+      niche: "Live music venue, food, events",
+      angle:
+        "Artist, promoter, and private-event requests tend to get buried in shared inboxes precisely because show weeks are the busy ones.",
+    }),
   },
   {
     _id: "lead-candidate-lewis-ginter",
@@ -159,8 +192,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active garden with admission, memberships, events, education, rentals, and donations.",
     gapAssessment: "Large volume of program and visitor data could be clearer through operational dashboards.",
     howCel3CanHelp: "A unified events, member, and education dashboard could reveal trends and improve follow-up.",
-    emailSubject: "A member and events dashboard idea",
-    emailBodyHtml: emailBody("Lewis Ginter Botanical Garden", "visitor experience", "An intelligent dashboard could connect membership, programs, rentals, and visitor engagement."),
+    ...outreach({
+      businessName: "Lewis Ginter Botanical Garden",
+      city: "Richmond",
+      region: "Richmond",
+      niche: "Botanical garden, memberships, events, education",
+      angle:
+        "With admissions, memberships, education, rentals, and donations all in motion, month-end reporting usually means stitching numbers together from five systems by hand.",
+    }),
   },
   {
     _id: "lead-candidate-maymont",
@@ -179,8 +218,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active destination with events, programs, memberships, donations, and rentals.",
     gapAssessment: "Program, rental, and donor experiences likely touch multiple systems and staff workflows.",
     howCel3CanHelp: "A visitor/program operations interface could make inquiries, bookings, and engagement easier to track.",
-    emailSubject: "Systems idea for Maymont's visitor programs",
-    emailBodyHtml: emailBody("Maymont", "visitor programs", "A custom dashboard could help connect events, rentals, programs, and donor engagement."),
+    ...outreach({
+      businessName: "Maymont",
+      city: "Richmond",
+      region: "Richmond",
+      niche: "Museum, park, events, memberships, education",
+      angle:
+        "Programs, rentals, memberships, and donor touchpoints crossing that many systems usually means staff carry the connections between them manually.",
+    }),
   },
   {
     _id: "lead-candidate-art-works-richmond",
@@ -199,8 +244,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active gallery and studio business with exhibitions, events, and artist-facing services.",
     gapAssessment: "Artist inquiries, exhibit submissions, classes, and event promotion are operationally connected.",
     howCel3CanHelp: "A submission and artist relationship dashboard could simplify intake and follow-up.",
-    emailSubject: "Artist intake and event workflow idea",
-    emailBodyHtml: emailBody("Art Works Richmond", "gallery and artist services", "A custom intake system could organize artist submissions, event leads, and follow-up."),
+    ...outreach({
+      businessName: "Art Works Richmond",
+      city: "Richmond",
+      region: "Richmond",
+      niche: "Gallery, artist studios, classes, events",
+      angle:
+        "Artist submissions, studio inquiries, and event leads arriving through the same contact form usually means triage and follow-up happen by hand.",
+    }),
   },
   {
     _id: "lead-candidate-virginia-rep",
@@ -219,8 +270,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active theatre organization with performances, education programs, tickets, and donor engagement.",
     gapAssessment: "Ticket buyers, donors, education families, and group audiences have different journeys.",
     howCel3CanHelp: "A segmented engagement dashboard could help tailor follow-up across tickets, donors, and programs.",
-    emailSubject: "Digital audience flow idea for Virginia Rep",
-    emailBodyHtml: emailBody("Virginia Repertory Theatre", "performing arts", "A data interface could make ticket, donor, and education engagement easier to segment."),
+    ...outreach({
+      businessName: "Virginia Repertory Theatre",
+      city: "Richmond",
+      region: "Richmond",
+      niche: "Theatre, education, tickets, donors",
+      angle:
+        "Ticket buyers, education families, donors, and group sales are four different journeys, and keeping their follow-up straight across separate tools is real staff time.",
+    }),
   },
   {
     _id: "lead-candidate-studio-bamboo",
@@ -239,8 +296,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active yoga studio with class scheduling, workshops, trainings, and membership-style services.",
     gapAssessment: "Wellness studios often need better retention dashboards and automated member journeys.",
     howCel3CanHelp: "A client dashboard could surface class attendance, lapsed members, training leads, and follow-up priorities.",
-    emailSubject: "Member retention idea for Studio Bamboo",
-    emailBodyHtml: emailBody("Studio Bamboo Institute of Yoga", "wellness studio", "A retention-focused dashboard could help spot member patterns and automate thoughtful outreach."),
+    ...outreach({
+      businessName: "Studio Bamboo Institute of Yoga",
+      city: "Virginia Beach",
+      region: "Tidewater",
+      niche: "Yoga studio, memberships, classes, teacher training",
+      angle:
+        "Intro-offer conversion and lapsed-member win-backs are usually where studios leak the most revenue — not for lack of intent, but because nobody has time to work the list by hand.",
+    }),
   },
   {
     _id: "lead-candidate-hot-house-yoga",
@@ -259,8 +322,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active regional yoga brand with multiple locations, classes, workshops, and memberships.",
     gapAssessment: "Multi-location wellness operations benefit from clearer performance and retention data.",
     howCel3CanHelp: "A location-level dashboard could connect attendance, memberships, instructors, and automated reactivation.",
-    emailSubject: "Multi-location retention dashboard idea",
-    emailBodyHtml: emailBody("Hot House Yoga", "multi-location wellness", "A custom dashboard could compare locations, attendance, and member engagement without adding admin overhead."),
+    ...outreach({
+      businessName: "Hot House Yoga",
+      city: "Virginia Beach",
+      region: "Tidewater",
+      niche: "Yoga and fitness studio, memberships, workshops",
+      angle:
+        "Across multiple locations, comparing attendance, retention, and instructor load usually means someone rebuilds the same spreadsheet every month.",
+    }),
   },
   {
     _id: "lead-candidate-the-muse-writers-center",
@@ -279,8 +348,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active writing center with classes, events, memberships, and community programming.",
     gapAssessment: "Class registration, member engagement, and event participation could be connected more clearly.",
     howCel3CanHelp: "A program dashboard could show class demand, student history, and follow-up opportunities.",
-    emailSubject: "A class engagement dashboard idea for The Muse",
-    emailBodyHtml: emailBody("The Muse Writers Center", "creative education", "A class and member dashboard could help connect student journeys across programs and events."),
+    ...outreach({
+      businessName: "The Muse Writers Center",
+      city: "Norfolk",
+      region: "Hampton Roads",
+      niche: "Creative education, classes, memberships, nonprofit",
+      angle:
+        "When class demand, student history, and member follow-up live in separate tools, re-enrollment tends to run on memory instead of signals.",
+    }),
   },
   {
     _id: "lead-candidate-norfolk-botanical-garden",
@@ -299,8 +374,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active garden with tickets, memberships, events, education, and rentals.",
     gapAssessment: "Events, memberships, education, and visitor services create many conversion paths.",
     howCel3CanHelp: "A visitor and events dashboard could consolidate inquiry, membership, and program data.",
-    emailSubject: "A dashboard idea for garden programs and events",
-    emailBodyHtml: emailBody("Norfolk Botanical Garden", "visitor experience", "A custom system could make programs, events, memberships, and visitor follow-up easier to manage."),
+    ...outreach({
+      businessName: "Norfolk Botanical Garden",
+      city: "Norfolk",
+      region: "Hampton Roads",
+      niche: "Botanical garden, memberships, events, education",
+      angle:
+        "Tickets, memberships, education, and rentals each report cleanly on their own; getting one picture of a visitor across all four usually doesn't happen without manual work.",
+    }),
   },
   {
     _id: "lead-candidate-virginia-zoo",
@@ -319,8 +400,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active visitor attraction with admission, memberships, education, events, and donations.",
     gapAssessment: "Membership, event, donor, and education touchpoints could be easier to visualize together.",
     howCel3CanHelp: "A lifecycle dashboard could help staff see visitor-to-member and donor engagement opportunities.",
-    emailSubject: "Visitor-to-member dashboard idea for Virginia Zoo",
-    emailBodyHtml: emailBody("Virginia Zoo", "visitor attraction", "A lifecycle dashboard could clarify how visitors, members, events, and donors connect."),
+    ...outreach({
+      businessName: "Virginia Zoo",
+      city: "Norfolk",
+      region: "Hampton Roads",
+      niche: "Zoo, memberships, education, events",
+      angle:
+        "The visitor-to-member-to-donor path crosses at least three systems, so the natural upgrade moments usually pass by without anyone seeing them.",
+    }),
   },
   {
     _id: "lead-candidate-nauticus",
@@ -339,8 +426,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active maritime museum and attraction with tickets, memberships, events, and education programs.",
     gapAssessment: "Visitor, event, field trip, and membership paths create a strong need for integrated reporting.",
     howCel3CanHelp: "An interactive operations dashboard could tie ticketing, memberships, school groups, and event inquiries together.",
-    emailSubject: "Digital operations idea for Nauticus",
-    emailBodyHtml: emailBody("Nauticus", "museum and attraction", "An intelligent interface could help connect visitor, member, event, and education data."),
+    ...outreach({
+      businessName: "Nauticus",
+      city: "Norfolk",
+      region: "Hampton Roads",
+      niche: "Museum, maritime attraction, events, education",
+      angle:
+        "Field-trip requests, group bookings, and event inquiries are high-value intake that usually gets handled like ordinary email.",
+    }),
   },
   {
     _id: "lead-candidate-hermitage-museum",
@@ -359,8 +452,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active museum and garden with events, education, exhibitions, and wedding/private rental potential.",
     gapAssessment: "Venue rental and program inquiries can be better tracked as leads.",
     howCel3CanHelp: "A rental and program inquiry system could improve response speed and conversion tracking.",
-    emailSubject: "Rental inquiry workflow idea for Hermitage",
-    emailBodyHtml: emailBody("Hermitage Museum and Gardens", "museum and venue", "A custom inquiry workflow could help manage event, rental, and program leads."),
+    ...outreach({
+      businessName: "Hermitage Museum and Gardens",
+      city: "Norfolk",
+      region: "Hampton Roads",
+      niche: "Museum, gardens, classes, venue rentals",
+      angle:
+        "Wedding and rental inquiries age fast — when they sit in a shared inbox, response time quietly decides the booking.",
+    }),
   },
   {
     _id: "lead-candidate-chrysler-museum",
@@ -379,8 +478,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active art museum with exhibitions, memberships, events, education, and glass studio programming.",
     gapAssessment: "Program discovery, member engagement, and event conversion could benefit from connected data.",
     howCel3CanHelp: "A member and program engagement dashboard could expose where audiences are converting or dropping off.",
-    emailSubject: "Member engagement dashboard idea",
-    emailBodyHtml: emailBody("Chrysler Museum of Art", "museum programming", "A tailored dashboard could make membership, program, and event engagement easier to act on."),
+    ...outreach({
+      businessName: "Chrysler Museum of Art",
+      city: "Norfolk",
+      region: "Hampton Roads",
+      niche: "Museum, memberships, events, classes",
+      angle:
+        "Between exhibitions, memberships, classes, and the glass studio, the same person can show up in four datasets — and connecting them usually falls to whoever has time.",
+    }),
   },
   {
     _id: "lead-candidate-zeiders-theater",
@@ -399,8 +504,14 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active theater with performances, classes, rentals, and community programming.",
     gapAssessment: "Ticketing, education, rental inquiries, and donor engagement are related but often live in separate systems.",
     howCel3CanHelp: "A performing arts dashboard could centralize audience, class, rental, and donor signals.",
-    emailSubject: "Audience and program dashboard idea for The Z",
-    emailBodyHtml: emailBody("Zeiders American Dream Theater", "performing arts", "A custom dashboard could connect tickets, education, rentals, and community engagement."),
+    ...outreach({
+      businessName: "Zeiders American Dream Theater",
+      city: "Virginia Beach",
+      region: "Tidewater",
+      niche: "Performing arts, tickets, education, events",
+      angle:
+        "Ticketing, classes, rental inquiries, and donor engagement usually live in separate systems, which means the follow-up between them is a manual job.",
+    }),
   },
   {
     _id: "lead-candidate-mermaid-winery",
@@ -419,7 +530,13 @@ export const researchedSeedLeads: LeadCandidateInput[] = [
     currentSnapshot: "Active winery and restaurant with reservations, events, private dining, and ecommerce-style potential.",
     gapAssessment: "Private event inquiries and customer retention can be easy to lose without a simple lead workflow.",
     howCel3CanHelp: "A private events and VIP follow-up dashboard could help convert inquiries and repeat customers.",
-    emailSubject: "Private event lead flow idea for Mermaid Winery",
-    emailBodyHtml: emailBody("Mermaid Winery", "restaurant and event", "A custom private-event lead flow could help organize inquiries and follow-up."),
+    ...outreach({
+      businessName: "Mermaid Winery",
+      city: "Norfolk",
+      region: "Hampton Roads",
+      niche: "Restaurant, winery, events, private bookings",
+      angle:
+        "Private-dining inquiries and repeat-guest outreach handled from the inbox means the busiest weeks are exactly when follow-up slips.",
+    }),
   },
 ];
