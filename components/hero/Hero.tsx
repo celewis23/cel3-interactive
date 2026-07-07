@@ -2,138 +2,91 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Container } from "../layout/Container";
-import { HeroSystem } from "./HeroSystem";
-import { useScrollState } from "../motion/useScrollState";
-import HeroParallax from "./HeroParallax";
-import { SystemSignalMini } from "./SystemSignalMini";
 import { Suspense } from "react";
+import { Container } from "../layout/Container";
+import { HeroShowcase } from "./HeroShowcase";
 import HomeSuccessBanner from "@/components/homeSuccess/HomeSuccessBanner";
 
+const rise = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
+};
 
 export function Hero() {
-  const scrollState = useScrollState(30);
-  const activated = scrollState === "activated";
+  function scrollToWork(e: React.MouseEvent<HTMLAnchorElement>) {
+    const target = document.getElementById("work");
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: "smooth" });
+    }
+  }
 
   return (
-    <section
-      id="top"
-      className="relative overflow-visible min-h-[92vh] md:min-h-[88vh] lg:min-h-[92vh] pt-24 md:pt-28 pb-16"
-    >
-
-      {/* Background system layer (kept out of 3D transforms) */}
-      <div className="pointer-events-none absolute inset-0 z-0">
-        <HeroSystem />
-      </div>
-        
+    <section id="top" className="relative pt-24 md:pt-28 pb-12 md:pb-16">
       <Container>
         <Suspense fallback={null}>
-          <HomeSuccessBanner/>
+          <HomeSuccessBanner />
         </Suspense>
-        {/* Foreground only gets parallax */}
-        <HeroParallax className="relative">
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            {/* Left: headline */}
-            <div className="lg:col-span-7">
+
+        {/* Light canvas: dark-on-light hero inside the site's dark frame */}
+        <div className="relative overflow-hidden rounded-3xl bg-[#f8f7f4] text-neutral-900 ring-1 ring-white/10 shadow-2xl">
+          <motion.div
+            initial="hidden"
+            animate="show"
+            transition={{ staggerChildren: 0.08 }}
+            className="grid grid-cols-1 items-center gap-12 px-6 py-10 sm:px-10 sm:py-12 lg:grid-cols-12 lg:gap-10 lg:px-14 lg:py-16"
+          >
+            {/* Left: copy + CTA */}
+            <div className="lg:col-span-6">
               <motion.p
-                animate={{
-                  opacity: activated ? 0.55 : 0.8,
-                  y: activated ? -2 : 0,
-                }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                className="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-white/60"
+                variants={rise}
+                className="inline-block border-b border-neutral-300 pb-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-500"
               >
-                Richmond-based. Working locally and remotely with service businesses that need clearer digital operations.
+                Richmond-based &bull; Custom Portals, Dashboards &amp; AI Workflows
               </motion.p>
 
               <motion.h1
-                animate={{
-                  opacity: 1,
-                  y: activated ? -8 : 0,
-                  scale: activated ? 0.92 : 1,
-                }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                className="text-5xl md:text-6xl font-semibold tracking-tight text-white origin-left"
+                variants={rise}
+                className="mt-5 text-3xl font-extrabold uppercase leading-[1.08] tracking-tight text-neutral-950 sm:text-4xl lg:text-[2.6rem]"
               >
-                Websites, portals, dashboards, and AI-ready systems for businesses that have outgrown disconnected tools.
+                Your website is only the front door. We build the business system behind it.
               </motion.h1>
 
               <motion.p
-                animate={{
-                  opacity: activated ? 0.85 : 1,
-                  y: activated ? -2 : 0,
-                }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                className="mt-6 text-base md:text-lg text-white/75 max-w-xl"
+                variants={rise}
+                className="mt-6 max-w-xl text-base leading-relaxed text-neutral-600 md:text-lg"
               >
-                CEL3 Interactive builds custom business platforms that connect your public
-                website to the real work behind it: customers, bookings, payments, content,
-                communication, reporting, and operations.
+                Websites, client portals, dashboards, and AI-ready automated workflows for
+                service businesses that have outgrown disconnected tools and manual
+                spreadsheets.
               </motion.p>
 
-              <motion.p
-                animate={{ opacity: activated ? 0.35 : 0.6 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                className="mt-6 text-sm text-white/55"
-              >
-                Your website is only the front door. We build the business system behind it.
-              </motion.p>
-
-              <div className="mt-10 flex flex-wrap items-center gap-4">
-                <Link
-                  href="/build-your-platform"
-                  className="rounded-full border border-sky-300/60 bg-sky-300 px-6 py-3 text-sm font-semibold text-black hover:bg-sky-200 transition-colors hover:border-sky-200"
-                >
-                  Build Your Platform
-                </Link>
-
+              <motion.div variants={rise} className="mt-9">
                 <Link
                   href="/assessment"
-                  className="rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm text-white hover:bg-[rgb(var(--accent))]/100 transition-colors hover:border-[rgb(var(--accent))]"
+                  className="inline-flex items-center rounded-lg bg-emerald-900 px-7 py-4 text-sm font-bold uppercase tracking-wide text-white shadow-lg shadow-emerald-900/25 transition-colors hover:bg-emerald-800"
                 >
                   Book a $150 Digital Systems Audit
                 </Link>
 
-                <Link
-                  href="/work"
-                  className="text-sm text-white/70 hover:text-[rgb(var(--accent))] transition-colors"
-                >
-                  See Platform Examples
-                </Link>
-              </div>
-              <p className="mt-4 max-w-xl text-sm text-gray-300">
-                Start with a fixed-price assessment before committing to a full build.
-              </p>
-
-            </div>
-
-            {/* Right: system card */}
-            <div className="lg:col-span-5">
-              <motion.div
-                animate={{
-                  opacity: activated ? 0.9 : 1,
-                  y: activated ? 8 : 0,
-                }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                className="relative w-full max-w-[560px] rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur lg:ml-auto"
-              >
-                <p className="text-xs tracking-[0.25em] uppercase text-white/50">
-                  Platform Layer
-                </p>
-
-                <p className="mt-3 text-white/80">
-                  Public website. Intake. Customer records. Bookings and payments.
-                  Staff workflow. Follow-up. Dashboards. AI-assisted admin.
-                </p>
-
-                {/* IMPORTANT: do NOT wrap in h-24, SystemSignalMini already controls its own height */}
-                <div className="mt-6">
-                  <SystemSignalMini />
+                <div className="mt-5">
+                  <Link
+                    href="/#work"
+                    onClick={scrollToWork}
+                    className="text-sm font-medium text-neutral-700 underline decoration-neutral-300 underline-offset-4 transition-colors hover:text-emerald-800 hover:decoration-emerald-800"
+                  >
+                    See Platform Examples ↓
+                  </Link>
                 </div>
               </motion.div>
             </div>
-          </div>
-        </HeroParallax>
+
+            {/* Right: layered system showcase */}
+            <div className="lg:col-span-6">
+              <HeroShowcase />
+            </div>
+          </motion.div>
+        </div>
       </Container>
     </section>
   );
