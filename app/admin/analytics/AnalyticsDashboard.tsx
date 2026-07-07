@@ -721,7 +721,23 @@ export default function AnalyticsDashboard() {
         </Card>
       </div>
 
-      {/* ── GA Link ───────────────────────────────────────────────────────── */}
+      {/* ── Web analytics links ───────────────────────────────────────────── */}
+      <Card className="flex items-center justify-between">
+        <div>
+          <h2 className="text-sm font-semibold text-white">Website Traffic</h2>
+          <p className="text-xs text-white/40 mt-0.5">Built-in first-party analytics — visitors, pages, referrers, devices</p>
+        </div>
+        <Link
+          href="/admin/traffic"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20 text-sm text-sky-300 transition-colors flex-shrink-0"
+        >
+          Open Dashboard
+          <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </Link>
+      </Card>
+
       <Card className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-semibold text-white">Google Analytics</h2>

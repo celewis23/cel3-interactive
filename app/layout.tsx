@@ -3,6 +3,7 @@ import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteChrome } from "@/components/layout/SiteChrome";
+import WebAnalyticsTracker from "@/components/analytics/WebAnalyticsTracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,6 +55,7 @@ export default function RootLayout({
             });
           `}
         </Script>
+        <WebAnalyticsTracker />
         <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
