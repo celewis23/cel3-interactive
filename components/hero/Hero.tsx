@@ -62,7 +62,7 @@ export function Hero() {
             <motion.div variants={rise} className="mt-9">
               <Link
                 href="/assessment"
-                className="inline-flex items-center rounded-lg bg-emerald-500 px-7 py-4 text-sm font-bold uppercase tracking-wide text-neutral-950 shadow-lg shadow-emerald-500/20 transition-colors hover:bg-emerald-400"
+                className="inline-flex items-center rounded-lg bg-[rgb(var(--accent))] px-7 py-4 text-sm font-bold uppercase tracking-wide text-neutral-950 shadow-lg shadow-sky-400/20 transition-colors hover:bg-[rgb(var(--accent-soft))]"
               >
                 Book a $150 Digital Systems Audit
               </Link>
@@ -71,7 +71,7 @@ export function Hero() {
                 <Link
                   href="/#work"
                   onClick={scrollToWork}
-                  className="text-sm font-medium text-white/70 underline decoration-white/25 underline-offset-4 transition-colors hover:text-emerald-300 hover:decoration-emerald-300"
+                  className="text-sm font-medium text-white/70 underline decoration-white/25 underline-offset-4 transition-colors hover:text-[rgb(var(--accent))] hover:decoration-[rgb(var(--accent))]"
                 >
                   See Platform Examples ↓
                 </Link>
