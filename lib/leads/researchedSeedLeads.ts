@@ -11,6 +11,7 @@ function outreach(input: OutreachEmailInput) {
 const defaults = {
   status: "review" as const,
   openStatus: "open" as const,
+  emails: null,
   leadSource: "Researched seed list",
   notes: null,
   reviewedAt: null,

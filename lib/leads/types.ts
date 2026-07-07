@@ -37,6 +37,8 @@ export type LeadCandidate = {
   address: string | null;
   phone: string | null;
   email: string | null;
+  /** All public emails discovered for the business; email is the primary, the rest get CC'd. */
+  emails: string[] | null;
   contactUrl: string | null;
   website: string | null;
   sourceUrl: string;

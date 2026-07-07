@@ -17,7 +17,7 @@ import type {
 
 const LEAD_FIELDS = `{
   _id, _type, _createdAt,
-  businessName, niche, city, region, address, phone, email, contactUrl, website,
+  businessName, niche, city, region, address, phone, email, emails, contactUrl, website,
   sourceUrl, status, openStatus, fitScore, leadSource, currentSnapshot,
   gapAssessment, howCel3CanHelp, emailSubject, emailBodyHtml, notes,
   reviewedAt, approvedPipelineContactId, emailedAt
@@ -29,6 +29,15 @@ function candidateId(input: LeadCandidateInput) {
 }
 
 function normalizeCandidate(input: LeadCandidateInput) {
+  const primaryEmail = input.email?.trim().toLowerCase() || null;
+  const allEmails = Array.from(
+    new Set(
+      [primaryEmail, ...(input.emails ?? [])]
+        .map((e) => e?.trim().toLowerCase() || "")
+        .filter(Boolean)
+    )
+  );
+
   return {
     _id: candidateId(input),
     _type: "leadCandidate",
@@ -38,7 +47,8 @@ function normalizeCandidate(input: LeadCandidateInput) {
     region: input.region,
     address: input.address?.trim() || null,
     phone: input.phone?.trim() || null,
-    email: input.email?.trim().toLowerCase() || null,
+    email: primaryEmail ?? allEmails[0] ?? null,
+    emails: allEmails.length ? allEmails : null,
     contactUrl: input.contactUrl?.trim() || null,
     website: input.website?.trim() || null,
     sourceUrl: input.sourceUrl.trim(),
@@ -90,6 +100,7 @@ export async function updateLeadCandidate(id: string, patch: Partial<LeadCandida
     "address",
     "phone",
     "email",
+    "emails",
     "contactUrl",
     "website",
     "sourceUrl",
@@ -236,8 +247,16 @@ export async function sendLeadCandidateEmail(id: string, opts?: { subject?: stri
   const htmlBody = opts?.htmlBody?.trim() || lead.emailBodyHtml;
   if (!subject || !htmlBody) throw new Error("Email subject and body are required.");
 
+  // CC the other discovered addresses (capped so cold email doesn't read as a blast)
+  const primary = lead.email.toLowerCase();
+  const ccList = (lead.emails ?? [])
+    .map((e) => e.trim().toLowerCase())
+    .filter((e) => e && e !== primary)
+    .slice(0, 3);
+
   const result = await sendEmail({
     to: lead.email,
+    cc: ccList.length ? ccList.join(", ") : undefined,
     subject,
     htmlBody,
   });

@@ -1,5 +1,6 @@
 import type { LeadCandidateInput } from "./types";
 import { buildOutreachEmail } from "./emailTemplates";
+import { discoverLeadEmails } from "./emailDiscovery";
 
 type GooglePlaceSearchResult = {
   place_id?: string;
@@ -63,6 +64,7 @@ function mapPlaceToLead(place: GooglePlaceDetails, sourceUrl: string): LeadCandi
     address,
     phone: place.formatted_phone_number ?? null,
     email: null,
+    emails: null,
     contactUrl: place.website ?? place.url ?? null,
     website: place.website ?? null,
     sourceUrl,
@@ -122,7 +124,16 @@ export async function discoverLeadCandidates(maxPerRun: number) {
 
       const details = await fetchJson<{ result?: GooglePlaceDetails }>(detailsUrl.toString());
       const lead = details.result ? mapPlaceToLead(details.result, details.result.url ?? searchUrl.toString()) : null;
-      if (lead) leads.push(lead);
+      if (lead) {
+        // Places has no email field — crawl the business site for public addresses
+        const emails = await discoverLeadEmails({
+          website: lead.website,
+          contactUrl: lead.contactUrl,
+        });
+        lead.email = emails[0] ?? null;
+        lead.emails = emails.length ? emails : null;
+        leads.push(lead);
+      }
     }
   }
 

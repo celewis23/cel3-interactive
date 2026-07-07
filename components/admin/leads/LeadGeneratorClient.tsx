@@ -534,6 +534,11 @@ export default function LeadGeneratorClient({
                     placeholder="Public email only"
                     className="min-h-11 w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none placeholder:text-white/25 focus:border-sky-400/50"
                   />
+                  {(selected.emails ?? []).filter((e) => e !== selected.email).length > 0 && (
+                    <span className="mt-1 block text-[11px] text-white/35">
+                      Also found: {(selected.emails ?? []).filter((e) => e !== selected.email).join(", ")}
+                    </span>
+                  )}
                 </label>
                 <label className="block lg:col-span-2">
                   <span className="mb-1 block text-xs text-white/45">Address</span>
@@ -612,7 +617,14 @@ export default function LeadGeneratorClient({
                   <div>
                     <h2 className="text-sm font-semibold text-white">Outreach Email</h2>
                     <p className="mt-0.5 text-xs text-white/40">
-                      {selected.email ? `Ready to send to ${selected.email}` : "No public email saved. Use the contact page or add a verified email."}
+                      {selected.email
+                        ? (() => {
+                            const cc = (selected.emails ?? [])
+                              .filter((e) => e && e !== selected.email)
+                              .slice(0, 3);
+                            return `Ready to send to ${selected.email}${cc.length ? ` (CC: ${cc.join(", ")})` : ""}`;
+                          })()
+                        : "No public email saved. Use the contact page or add a verified email."}
                     </p>
                   </div>
                   <button
