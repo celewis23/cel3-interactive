@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion, useTime, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 // Multi-layered "software system" composition: a business-console browser
@@ -14,20 +14,12 @@ const layer = (delay: number) => ({
   transition: { duration: 0.55, ease: "easeOut" as const, delay },
 });
 
-// Perpetual drift after the entrance — each layer hovers on a continuous
-// sine wave (velocity never stops, unlike segmented keyframes, so there is
-// no perceptible "bounce" at the extremes). `phase` offsets each layer's
-// position in its cycle so the stack reads as cards floating independently;
-// a short amplitude ramp-in keeps the wave from popping on mount. Runs on
-// a nested element so it never fights the entrance animation.
-const RAMP_SECONDS = 3;
-const TWO_PI = Math.PI * 2;
-
-function wave(t: number, period: number, phase: number, travel: number) {
-  const ramp = Math.min(t / RAMP_SECONDS, 1);
-  return ramp * (travel / 2) * (1 - Math.cos(((t + phase) / period) * TWO_PI));
-}
-
+// Perpetual drift after the entrance — pure CSS animations (hero-float-y/x
+// in globals.css) so the motion runs on the compositor thread and stays
+// fluid regardless of main-thread work. `phase` maps to a negative
+// animation-delay, starting each card mid-cycle so the stack drifts
+// independently; nested elements give y and x mismatched periods for a
+// soft orbital path. prefers-reduced-motion disables it in CSS.
 function Float({
   children,
   duration,
@@ -41,16 +33,37 @@ function Float({
   distance?: number;
   drift?: number;
 }) {
-  const time = useTime();
-  const reduced = useReducedMotion();
-  const y = useTransform(time, (ms) =>
-    reduced ? 0 : wave(ms / 1000, duration, phase, -distance)
-  );
-  const x = useTransform(time, (ms) =>
-    reduced || !drift ? 0 : wave(ms / 1000, duration * 1.35, phase * 1.7, drift)
+  const inner = drift ? (
+    <div
+      className="hero-float-x"
+      style={
+        {
+          "--float-x": `${drift}px`,
+          animationDuration: `${duration * 1.35}s`,
+          animationDelay: `${-phase * 1.7}s`,
+        } as React.CSSProperties
+      }
+    >
+      {children}
+    </div>
+  ) : (
+    children
   );
 
-  return <motion.div style={{ x, y }}>{children}</motion.div>;
+  return (
+    <div
+      className="hero-float-y"
+      style={
+        {
+          "--float-y": `${-distance}px`,
+          animationDuration: `${duration}s`,
+          animationDelay: `${-phase}s`,
+        } as React.CSSProperties
+      }
+    >
+      {inner}
+    </div>
+  );
 }
 
 const cardShadow = "shadow-[0_24px_48px_-16px_rgba(15,23,42,0.28)]";
@@ -239,14 +252,13 @@ function WorkflowCard() {
           const x2 = x1 + 40;
           return (
             <g key={i} stroke="#059669" strokeWidth="1.5" fill="none">
-              <motion.line
+              <line
                 x1={x1}
                 y1="40"
                 x2={x2}
                 y2="40"
                 strokeDasharray="4 4"
-                animate={{ strokeDashoffset: [0, -16] }}
-                transition={{ duration: 1.6, repeat: Infinity, ease: "linear" }}
+                className="hero-dash"
               />
               <path d={`M${x2 - 4} 36l5 4l-5 4`} strokeLinecap="round" strokeLinejoin="round" />
             </g>
@@ -311,11 +323,7 @@ function StatusBlock() {
 
   return (
     <div className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-white/95 px-3 py-1.5 shadow-md backdrop-blur">
-      <motion.span
-        className="h-1.5 w-1.5 rounded-full bg-emerald-500"
-        animate={{ opacity: [0.35, 1, 0.35] }}
-        transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-      />
+      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
       <span className="text-[8px] uppercase tracking-wider text-neutral-500">
         latency <span className="font-semibold text-neutral-800 tabular-nums">{latency}ms</span>
       </span>

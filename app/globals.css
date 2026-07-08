@@ -533,3 +533,38 @@ body,
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath d='M3 1l3 3-3 3' stroke='%230ea5e9' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E")
     center / 8px no-repeat;
 }
+
+/* ── Hero showcase float ──────────────────────────────────────────────────────
+   Compositor-driven hover for the hero cards: pure CSS transforms stay fluid
+   regardless of main-thread work. Vertical and horizontal waves run on nested
+   elements with mismatched periods, tracing a soft orbital path. Negative
+   animation-delay phase-offsets each card so the stack drifts independently. */
+@keyframes hero-float-y {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, var(--float-y, -6px), 0); }
+}
+@keyframes hero-float-x {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(var(--float-x, 3px), 0, 0); }
+}
+.hero-float-y {
+  animation: hero-float-y 9s ease-in-out infinite;
+  will-change: transform;
+}
+.hero-float-x {
+  animation: hero-float-x 12s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes hero-dash {
+  to { stroke-dashoffset: -16; }
+}
+.hero-dash {
+  animation: hero-dash 1.6s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-float-y,
+  .hero-float-x,
+  .hero-dash {
+    animation: none;
+  }
+}
