@@ -14,6 +14,43 @@ const layer = (delay: number) => ({
   transition: { duration: 0.55, ease: "easeOut" as const, delay },
 });
 
+// Perpetual drift after the entrance — each layer gets its own period,
+// phase, and travel so the stack reads as cards hovering independently.
+// Runs on a nested element so it never fights the entrance animation;
+// framer-motion's reducedMotion config disables it for users who prefer
+// reduced motion.
+function Float({
+  children,
+  duration,
+  delay = 0,
+  distance = 6,
+  drift = 0,
+}: {
+  children: React.ReactNode;
+  duration: number;
+  delay?: number;
+  distance?: number;
+  drift?: number;
+}) {
+  return (
+    <motion.div
+      animate={{
+        y: [0, -distance, 0],
+        ...(drift ? { x: [0, drift, 0] } : {}),
+      }}
+      transition={{
+        duration,
+        delay,
+        repeat: Infinity,
+        ease: "easeInOut",
+        ...(drift ? { x: { duration: duration * 1.35, repeat: Infinity, ease: "easeInOut", delay } } : {}),
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 const cardShadow = "shadow-[0_24px_48px_-16px_rgba(15,23,42,0.28)]";
 
 // ── Back layer: Business Console browser mock ─────────────────────────────────
@@ -296,19 +333,27 @@ export function HeroShowcase() {
   return (
     <div className="relative mx-auto w-full max-w-[600px] aspect-[10/9] sm:aspect-[6/5]">
       <motion.div {...layer(0.1)} className="absolute right-0 top-0 z-10 w-[86%]">
-        <ConsoleMock />
+        <Float duration={9} distance={7}>
+          <ConsoleMock />
+        </Float>
       </motion.div>
 
       <motion.div {...layer(0.3)} className="absolute left-0 top-[36%] z-20 w-[44%] min-w-[168px]">
-        <PortalCard />
+        <Float duration={7} delay={0.9} distance={5} drift={3}>
+          <PortalCard />
+        </Float>
       </motion.div>
 
       <motion.div {...layer(0.45)} className="absolute bottom-[10%] right-[2%] z-30 w-[62%] min-w-[230px]">
-        <WorkflowCard />
+        <Float duration={8} delay={1.7} distance={6} drift={-3}>
+          <WorkflowCard />
+        </Float>
       </motion.div>
 
       <motion.div {...layer(0.6)} className="absolute bottom-0 right-[2%] z-30">
-        <StatusBlock />
+        <Float duration={6} delay={0.5} distance={4}>
+          <StatusBlock />
+        </Float>
       </motion.div>
     </div>
   );
