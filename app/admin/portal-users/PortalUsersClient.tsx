@@ -10,6 +10,8 @@ type PortalUser = {
   stripeCustomerId: string | null;
   pipelineContactId: string | null;
   driveRootFolderId: string | null;
+  siteUrl: string | null;
+  managementUrl: string | null;
   status: string;
   lastLoginAt: string | null;
   invitationSentAt: string | null;
@@ -57,6 +59,8 @@ export default function PortalUsersClient({ initialUsers }: { initialUsers: Port
     stripeCustomerId: "",
     pipelineContactId: "",
     driveRootFolderId: "",
+    siteUrl: "",
+    managementUrl: "",
   });
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState("");
@@ -156,6 +160,8 @@ export default function PortalUsersClient({ initialUsers }: { initialUsers: Port
       stripeCustomerId: user.stripeCustomerId ?? "",
       pipelineContactId: user.pipelineContactId ?? "",
       driveRootFolderId: user.driveRootFolderId ?? "",
+      siteUrl: user.siteUrl ?? "",
+      managementUrl: user.managementUrl ?? "",
     });
   }
 
@@ -174,6 +180,8 @@ export default function PortalUsersClient({ initialUsers }: { initialUsers: Port
           stripeCustomerId: editForm.stripeCustomerId.trim() || null,
           pipelineContactId: editForm.pipelineContactId.trim() || null,
           driveRootFolderId: editForm.driveRootFolderId.trim() || null,
+          siteUrl: editForm.siteUrl.trim() || null,
+          managementUrl: editForm.managementUrl.trim() || null,
         }),
       });
       const data = await res.json();
@@ -416,6 +424,26 @@ export default function PortalUsersClient({ initialUsers }: { initialUsers: Port
                 onChange={(e) => setEditForm((f) => ({ ...f, driveRootFolderId: e.target.value }))}
                 className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-mono placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
               />
+            </div>
+            <div>
+              <label className="text-xs text-white/50 mb-1.5 block">Live Site URL</label>
+              <input
+                value={editForm.siteUrl}
+                onChange={(e) => setEditForm((f) => ({ ...f, siteUrl: e.target.value }))}
+                placeholder="https://clientsite.com"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-mono placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+              <p className="mt-1 text-[11px] text-white/30">Where the portal&apos;s &ldquo;Open Site&rdquo; button points. Changes silently.</p>
+            </div>
+            <div>
+              <label className="text-xs text-white/50 mb-1.5 block">Management URL</label>
+              <input
+                value={editForm.managementUrl}
+                onChange={(e) => setEditForm((f) => ({ ...f, managementUrl: e.target.value }))}
+                placeholder="https://admin.clientsite.com"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-mono placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+              <p className="mt-1 text-[11px] text-white/30">Where the portal&apos;s &ldquo;Manage Site&rdquo; button points. Changes silently.</p>
             </div>
             <div className="sm:col-span-2">
               <button

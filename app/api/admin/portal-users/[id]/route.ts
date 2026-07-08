@@ -15,7 +15,16 @@ export const runtime = "nodejs";
 
 const ALLOWED = [
   "name", "company", "stripeCustomerId", "pipelineContactId", "driveRootFolderId", "status",
+  "siteUrl", "managementUrl",
 ] as const;
+
+// Portal buttons link straight to these; make pasted values clickable
+function normalizeUrl(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
 
 export async function GET(
   req: NextRequest,
@@ -50,6 +59,10 @@ export async function PATCH(
         patch[field] = normalizeDriveId(body[field]) ?? null;
         continue;
       }
+      if (field === "siteUrl" || field === "managementUrl") {
+        patch[field] = normalizeUrl(body[field]);
+        continue;
+      }
       patch[field] = body[field] ?? null;
     }
     const updated = await sanityWriteClient.patch(id).set(patch).commit();
@@ -73,7 +86,12 @@ export async function PATCH(
       folderId: updatedUser.driveRootFolderId,
       email: updatedUser.email,
     });
-    if (Object.keys(patch).length > 0) {
+    // URL swaps stay silent — the client just keeps clicking the same portal
+    // buttons; only profile-level edits notify them.
+    const urlOnlyPatch = Object.keys(patch).every(
+      (key) => key === "siteUrl" || key === "managementUrl"
+    );
+    if (Object.keys(patch).length > 0 && !urlOnlyPatch) {
       await createPortalNotification({
         userId: id,
         title: "Portal profile updated",
