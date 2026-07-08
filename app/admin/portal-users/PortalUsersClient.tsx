@@ -433,7 +433,7 @@ export default function PortalUsersClient({ initialUsers }: { initialUsers: Port
                 placeholder="https://clientsite.com"
                 className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-mono placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
               />
-              <p className="mt-1 text-[11px] text-white/30">Where the portal&apos;s &ldquo;Open Site&rdquo; button points. Changes silently.</p>
+              <p className="mt-1 text-[11px] text-white/30">Where the portal&apos;s &ldquo;Open Site&rdquo; button points. Changes silently and syncs to the contact record.</p>
             </div>
             <div>
               <label className="text-xs text-white/50 mb-1.5 block">Management URL</label>
@@ -443,7 +443,7 @@ export default function PortalUsersClient({ initialUsers }: { initialUsers: Port
                 placeholder="https://admin.clientsite.com"
                 className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-mono placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
               />
-              <p className="mt-1 text-[11px] text-white/30">Where the portal&apos;s &ldquo;Manage Site&rdquo; button points. Changes silently.</p>
+              <p className="mt-1 text-[11px] text-white/30">Where the portal&apos;s &ldquo;Manage Site&rdquo; button points. Changes silently and syncs to the contact record.</p>
             </div>
             <div className="sm:col-span-2">
               <button

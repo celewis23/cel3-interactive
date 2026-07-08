@@ -82,6 +82,26 @@ export async function PATCH(
         console.error("ADMIN_PORTAL_USER_CONTACT_SYNC_ERR:", syncErr);
       });
     }
+    // Keep the linked contact record in step so admin quick-links, portal
+    // provisioning defaults, and the client's portal buttons all agree.
+    if (updatedUser.pipelineContactId && ("siteUrl" in patch || "managementUrl" in patch)) {
+      const urlSync: Record<string, unknown> = {};
+      if ("siteUrl" in patch) {
+        urlSync.siteUrl = patch.siteUrl;
+        urlSync.portalSiteUrl = patch.siteUrl;
+      }
+      if ("managementUrl" in patch) {
+        urlSync.managementUrl = patch.managementUrl;
+        urlSync.portalManagementUrl = patch.managementUrl;
+      }
+      await sanityWriteClient
+        .patch(updatedUser.pipelineContactId)
+        .set(urlSync)
+        .commit()
+        .catch((syncErr) => {
+          console.error("ADMIN_PORTAL_USER_URL_SYNC_ERR:", syncErr);
+        });
+    }
     await ensureClientDriveFolderAccess({
       folderId: updatedUser.driveRootFolderId,
       email: updatedUser.email,
