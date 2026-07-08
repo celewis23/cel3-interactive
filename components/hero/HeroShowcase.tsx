@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion, useTime, useTransform } from "framer-motion";
 import { useEffect, useState } from "react";
 
 // Multi-layered "software system" composition: a business-console browser
@@ -14,41 +14,43 @@ const layer = (delay: number) => ({
   transition: { duration: 0.55, ease: "easeOut" as const, delay },
 });
 
-// Perpetual drift after the entrance — each layer gets its own period,
-// phase, and travel so the stack reads as cards hovering independently.
-// Runs on a nested element so it never fights the entrance animation;
-// framer-motion's reducedMotion config disables it for users who prefer
-// reduced motion.
+// Perpetual drift after the entrance — each layer hovers on a continuous
+// sine wave (velocity never stops, unlike segmented keyframes, so there is
+// no perceptible "bounce" at the extremes). `phase` offsets each layer's
+// position in its cycle so the stack reads as cards floating independently;
+// a short amplitude ramp-in keeps the wave from popping on mount. Runs on
+// a nested element so it never fights the entrance animation.
+const RAMP_SECONDS = 3;
+const TWO_PI = Math.PI * 2;
+
+function wave(t: number, period: number, phase: number, travel: number) {
+  const ramp = Math.min(t / RAMP_SECONDS, 1);
+  return ramp * (travel / 2) * (1 - Math.cos(((t + phase) / period) * TWO_PI));
+}
+
 function Float({
   children,
   duration,
-  delay = 0,
+  phase = 0,
   distance = 6,
   drift = 0,
 }: {
   children: React.ReactNode;
   duration: number;
-  delay?: number;
+  phase?: number;
   distance?: number;
   drift?: number;
 }) {
-  return (
-    <motion.div
-      animate={{
-        y: [0, -distance, 0],
-        ...(drift ? { x: [0, drift, 0] } : {}),
-      }}
-      transition={{
-        duration,
-        delay,
-        repeat: Infinity,
-        ease: "easeInOut",
-        ...(drift ? { x: { duration: duration * 1.35, repeat: Infinity, ease: "easeInOut", delay } } : {}),
-      }}
-    >
-      {children}
-    </motion.div>
+  const time = useTime();
+  const reduced = useReducedMotion();
+  const y = useTransform(time, (ms) =>
+    reduced ? 0 : wave(ms / 1000, duration, phase, -distance)
   );
+  const x = useTransform(time, (ms) =>
+    reduced || !drift ? 0 : wave(ms / 1000, duration * 1.35, phase * 1.7, drift)
+  );
+
+  return <motion.div style={{ x, y }}>{children}</motion.div>;
 }
 
 const cardShadow = "shadow-[0_24px_48px_-16px_rgba(15,23,42,0.28)]";
@@ -333,25 +335,25 @@ export function HeroShowcase() {
   return (
     <div className="relative mx-auto w-full max-w-[600px] aspect-[10/9] sm:aspect-[6/5]">
       <motion.div {...layer(0.1)} className="absolute right-0 top-0 z-10 w-[86%]">
-        <Float duration={9} distance={7}>
+        <Float duration={10} distance={7}>
           <ConsoleMock />
         </Float>
       </motion.div>
 
       <motion.div {...layer(0.3)} className="absolute left-0 top-[36%] z-20 w-[44%] min-w-[168px]">
-        <Float duration={7} delay={0.9} distance={5} drift={3}>
+        <Float duration={8} phase={2.6} distance={5} drift={3}>
           <PortalCard />
         </Float>
       </motion.div>
 
       <motion.div {...layer(0.45)} className="absolute bottom-[10%] right-[2%] z-30 w-[62%] min-w-[230px]">
-        <Float duration={8} delay={1.7} distance={6} drift={-3}>
+        <Float duration={9} phase={5.2} distance={6} drift={-3}>
           <WorkflowCard />
         </Float>
       </motion.div>
 
       <motion.div {...layer(0.6)} className="absolute bottom-0 right-[2%] z-30">
-        <Float duration={6} delay={0.5} distance={4}>
+        <Float duration={7} phase={1.4} distance={4}>
           <StatusBlock />
         </Float>
       </motion.div>
