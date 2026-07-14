@@ -193,6 +193,9 @@ async function fetchSearchPage(apiKey: string, query: string, pageToken?: string
       await sleep(1000);
       continue;
     }
+    if (pageToken && search.status === "INVALID_REQUEST") {
+      return null;
+    }
     return search;
   }
   throw new Error("Google Places page token was not ready.");
@@ -223,8 +226,12 @@ export async function discoverLeadCandidates(maxPerRun: number, options: Discove
       if (pageToken) await sleep(2000);
 
       const search = await fetchSearchPage(apiKey, query, pageToken);
+      if (!search) break;
       if (search.status && !["OK", "ZERO_RESULTS"].includes(search.status)) {
-        throw new Error(search.error_message || `Google Places request failed with status ${search.status}`);
+        throw new Error(
+          search.error_message ||
+            `Google Places request failed with status ${search.status}. Check that the key can use the Places API Text Search endpoint.`
+        );
       }
 
       for (const result of search.results ?? []) {
