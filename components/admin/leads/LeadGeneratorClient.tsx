@@ -416,10 +416,10 @@ export default function LeadGeneratorClient({
                 <label className="mb-1 block text-xs text-white/45">Max per run</label>
                 <input
                   type="number"
-                  min={1}
+                  min={20}
                   max={50}
                   value={settings.maxPerRun}
-                  onChange={(event) => setSettings({ ...settings, maxPerRun: Number(event.target.value) })}
+                  onChange={(event) => setSettings({ ...settings, maxPerRun: Math.max(20, Number(event.target.value)) })}
                   className="w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none"
                 />
               </div>

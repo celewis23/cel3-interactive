@@ -136,7 +136,12 @@ export async function seedResearchedLeadCandidates() {
 
 export async function getLeadGeneratorSettings() {
   const settings = await sanityServer.getDocument<LeadGeneratorSettings>(LEAD_GENERATOR_SETTINGS_ID).catch(() => null);
-  return settings ?? DEFAULT_LEAD_GENERATOR_SETTINGS;
+  const next = settings ?? DEFAULT_LEAD_GENERATOR_SETTINGS;
+  return {
+    ...DEFAULT_LEAD_GENERATOR_SETTINGS,
+    ...next,
+    maxPerRun: Math.max(20, Number(next.maxPerRun) || DEFAULT_LEAD_GENERATOR_SETTINGS.maxPerRun),
+  };
 }
 
 export async function updateLeadGeneratorSettings(patch: Partial<LeadGeneratorSettings>) {
@@ -150,7 +155,10 @@ export async function updateLeadGeneratorSettings(patch: Partial<LeadGeneratorSe
     dayOfMonth: Number.isFinite(Number(patch.dayOfMonth)) ? Number(patch.dayOfMonth) : current.dayOfMonth,
     time: patch.time ?? current.time,
     timezone: patch.timezone ?? current.timezone,
-    maxPerRun: Number.isFinite(Number(patch.maxPerRun)) ? Number(patch.maxPerRun) : current.maxPerRun,
+    maxPerRun: Math.max(
+      20,
+      Number.isFinite(Number(patch.maxPerRun)) ? Number(patch.maxPerRun) : current.maxPerRun
+    ),
     lastRunAt: patch.lastRunAt ?? current.lastRunAt,
     lastRunStatus: patch.lastRunStatus ?? current.lastRunStatus,
     lastRunMessage: patch.lastRunMessage ?? current.lastRunMessage,

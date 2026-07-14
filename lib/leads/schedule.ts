@@ -12,7 +12,7 @@ export const DEFAULT_LEAD_GENERATOR_SETTINGS: LeadGeneratorSettings = {
   dayOfMonth: 1,
   time: "09:00",
   timezone: "America/New_York",
-  maxPerRun: 10,
+  maxPerRun: 20,
   lastRunAt: null,
   lastRunStatus: null,
   lastRunMessage: null,
