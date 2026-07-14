@@ -4,6 +4,7 @@ import { discoverLeadCandidates } from "@/lib/leads/provider";
 import { shouldRunLeadGenerator } from "@/lib/leads/schedule";
 import {
   getLeadGeneratorSettings,
+  listLeadCandidates,
   updateLeadGeneratorSettings,
   upsertLeadCandidate,
 } from "@/lib/leads/service";
@@ -28,7 +29,8 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const discovery = await discoverLeadCandidates(settings.maxPerRun);
+    const existingLeads = await listLeadCandidates("all");
+    const discovery = await discoverLeadCandidates(settings.maxPerRun, { existingLeads });
     let saved = 0;
     for (const lead of discovery.leads) {
       await upsertLeadCandidate(lead);

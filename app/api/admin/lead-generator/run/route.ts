@@ -3,6 +3,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { discoverLeadCandidates } from "@/lib/leads/provider";
 import {
   getLeadGeneratorSettings,
+  listLeadCandidates,
   updateLeadGeneratorSettings,
   upsertLeadCandidate,
 } from "@/lib/leads/service";
@@ -15,7 +16,8 @@ export async function POST(req: NextRequest) {
 
   try {
     const settings = await getLeadGeneratorSettings();
-    const discovery = await discoverLeadCandidates(settings.maxPerRun);
+    const existingLeads = await listLeadCandidates("all");
+    const discovery = await discoverLeadCandidates(settings.maxPerRun, { existingLeads });
     let saved = 0;
     for (const lead of discovery.leads) {
       await upsertLeadCandidate(lead);
