@@ -1,6 +1,7 @@
 import type { LeadCandidateInput } from "./types";
 import { buildOutreachEmail } from "./emailTemplates";
 import { discoverLeadEmails } from "./emailDiscovery";
+import { researchedSeedLeads } from "./researchedSeedLeads";
 
 type GooglePlaceSearchResult = {
   place_id?: string;
@@ -95,10 +96,11 @@ async function fetchJson<T>(url: string) {
 export async function discoverLeadCandidates(maxPerRun: number) {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
   if (!apiKey) {
+    const fallbackCount = Math.min(Math.max(maxPerRun, 0), researchedSeedLeads.length);
     return {
-      ok: false,
-      message: "GOOGLE_PLACES_API_KEY is not configured. Seeded research can still be reviewed manually.",
-      leads: [] as LeadCandidateInput[],
+      ok: true,
+      message: `Google Places is not configured, so loaded ${fallbackCount} researched lead candidate${fallbackCount === 1 ? "" : "s"} instead.`,
+      leads: researchedSeedLeads.slice(0, fallbackCount),
     };
   }
 
