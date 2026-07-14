@@ -1,7 +1,6 @@
 import { createHash } from "crypto";
 import type { LeadCandidateInput } from "./types";
 import { buildOutreachEmail } from "./emailTemplates";
-import { discoverLeadEmails } from "./emailDiscovery";
 import { researchedSeedLeads } from "./researchedSeedLeads";
 
 type GooglePlaceSearchResult = {
@@ -40,11 +39,50 @@ type DiscoverLeadCandidatesOptions = {
 
 const DEFAULT_QUERIES = [
   "yoga studio Richmond VA",
-  "event venue Richmond VA",
+  "fitness studio Richmond VA",
+  "pilates studio Richmond VA",
+  "wellness center Richmond VA",
+  "spa Richmond VA",
+  "med spa Richmond VA",
+  "dance studio Richmond VA",
   "arts education Richmond VA",
+  "music school Richmond VA",
+  "performing arts Richmond VA",
+  "museum Richmond VA",
+  "nonprofit Richmond VA events",
+  "event venue Richmond VA",
+  "wedding venue Richmond VA",
+  "private event venue Richmond VA",
+  "restaurant private events Richmond VA",
+  "catering company Richmond VA",
   "wellness studio Norfolk VA",
+  "fitness studio Norfolk VA",
+  "yoga studio Norfolk VA",
+  "arts education Norfolk VA",
+  "event venue Norfolk VA",
+  "private event venue Norfolk VA",
+  "museum Norfolk VA",
   "fitness studio Virginia Beach VA",
+  "yoga studio Virginia Beach VA",
+  "pilates studio Virginia Beach VA",
+  "wellness center Virginia Beach VA",
+  "dance studio Virginia Beach VA",
+  "event venue Virginia Beach VA",
+  "wedding venue Virginia Beach VA",
   "event venue Hampton Roads VA",
+  "wedding venue Hampton Roads VA",
+  "arts nonprofit Hampton Roads VA",
+  "wellness studio Hampton Roads VA",
+  "fitness studio Hampton Roads VA",
+  "yoga studio Chesapeake VA",
+  "event venue Chesapeake VA",
+  "wellness studio Chesapeake VA",
+  "yoga studio Newport News VA",
+  "event venue Newport News VA",
+  "arts education Newport News VA",
+  "yoga studio Hampton VA",
+  "event venue Hampton VA",
+  "arts education Hampton VA",
 ];
 
 function googlePlaceCandidateId(placeId: string) {
@@ -247,13 +285,6 @@ export async function discoverLeadCandidates(maxPerRun: number, options: Discove
         const details = await fetchJson<{ result?: GooglePlaceDetails }>(detailsUrl.toString());
         const lead = details.result ? mapPlaceToLead(details.result, details.result.url ?? buildSearchUrl(apiKey, query).toString(), result.place_id) : null;
         if (lead && !hasKnownLead(lead, known)) {
-          // Places has no email field - crawl the business site for public addresses.
-          const emails = await discoverLeadEmails({
-            website: lead.website,
-            contactUrl: lead.contactUrl,
-          });
-          lead.email = emails[0] ?? null;
-          lead.emails = emails.length ? emails : null;
           leads.push(lead);
           rememberLead(lead, known);
         }
@@ -266,7 +297,9 @@ export async function discoverLeadCandidates(maxPerRun: number, options: Discove
 
   return {
     ok: true,
-    message: `Discovered ${leads.length} lead candidate${leads.length === 1 ? "" : "s"}.`,
+    message: leads.length >= targetCount
+      ? `Discovered ${leads.length} new lead candidates.`
+      : `Discovered ${leads.length} new lead candidate${leads.length === 1 ? "" : "s"} before the current Places search pool was exhausted.`,
     leads,
   };
 }
