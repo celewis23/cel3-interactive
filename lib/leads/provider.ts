@@ -73,7 +73,8 @@ function normalizeUrl(value: string | null | undefined) {
     const url = new URL(raw);
     const hostname = url.hostname.toLowerCase().replace(/^www\./, "");
     const pathname = url.pathname.replace(/\/+$/, "");
-    return `${hostname}${pathname}`;
+    const search = hostname.endsWith("google.com") && pathname.startsWith("/maps/") ? url.search : "";
+    return `${hostname}${pathname}${search}`;
   } catch {
     return normalizeIdentity(raw).replace(/^https?:\/\/(www\.)?/, "").replace(/\/+$/, "");
   }
