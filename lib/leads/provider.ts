@@ -129,8 +129,24 @@ function cityFromAddress(address: string) {
   return parts.length >= 2 ? parts[1] : "Virginia";
 }
 
+function googleMapsPlaceUrl(placeId: string) {
+  return `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(placeId)}`;
+}
+
+function mergePlaceDetails(searchResult: GooglePlaceSearchResult, details?: GooglePlaceDetails): GooglePlaceDetails {
+  return {
+    ...searchResult,
+    ...details,
+    types: details?.types ?? searchResult.types,
+    business_status: details?.business_status ?? searchResult.business_status,
+    formatted_address: details?.formatted_address ?? searchResult.formatted_address,
+    name: details?.name ?? searchResult.name,
+  };
+}
+
 function mapPlaceToLead(place: GooglePlaceDetails, sourceUrl: string, placeId: string): LeadCandidateInput | null {
-  if (!place.name || place.business_status !== "OPERATIONAL") return null;
+  if (!place.name) return null;
+  if (place.business_status && place.business_status !== "OPERATIONAL") return null;
 
   const address = place.formatted_address ?? null;
   const niche = (place.types ?? [])
@@ -153,7 +169,7 @@ function mapPlaceToLead(place: GooglePlaceDetails, sourceUrl: string, placeId: s
     phone: place.formatted_phone_number ?? null,
     email: null,
     emails: null,
-    contactUrl: place.website ?? place.url ?? null,
+    contactUrl: place.website ?? place.url ?? sourceUrl,
     website: place.website ?? null,
     sourceUrl,
     status: "review",
@@ -210,6 +226,10 @@ function normalizedList(values: string[] | undefined, fallback: string[]) {
   return next.length ? next : fallback;
 }
 
+function googlePlacesApiKey() {
+  return process.env.GOOGLE_PLACES_API_KEY?.trim().replace(/^["']|["']$/g, "") ?? "";
+}
+
 function expandSearchLocations(locations: string[]) {
   const expanded = locations.flatMap((location) => {
     const normalized = normalizeIdentity(location);
@@ -247,7 +267,7 @@ function buildQueries(options: DiscoverLeadCandidatesOptions) {
   const categories = options.searchCategories
     ? normalizedList(options.searchCategories, OPEN_LEAD_SEARCH_CATEGORIES)
     : DEFAULT_LEAD_SEARCH_CATEGORIES;
-  return locations.flatMap((location) => categories.map((category) => `${category} ${location}`));
+  return categories.flatMap((category) => locations.map((location) => `${category} ${location}`));
 }
 
 async function fetchSearchPage(apiKey: string, query: string, pageToken?: string) {
@@ -269,7 +289,7 @@ export async function discoverLeadCandidates(maxPerRun: number, options: Discove
   const startedAt = Date.now();
   const targetCount = Math.max(maxPerRun, 0);
   const known = buildKnownLeadKeys(options.existingLeads);
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  const apiKey = googlePlacesApiKey();
   const queries = buildQueries(options);
 
   if (!apiKey) {
@@ -277,6 +297,15 @@ export async function discoverLeadCandidates(maxPerRun: number, options: Discove
     return {
       ok: true,
       message: `Google Places is not configured, so loaded ${fallbackLeads.length} new researched lead candidate${fallbackLeads.length === 1 ? "" : "s"} instead.`,
+      stats: {
+        queriesPlanned: queries.length,
+        queriesTried: 0,
+        placesSeen: 0,
+        duplicatePlacesSkipped: 0,
+        unusablePlacesSkipped: 0,
+        detailLookupsFailed: 0,
+        mappedFromSearchOnly: 0,
+      },
       leads: fallbackLeads,
     };
   }
@@ -284,6 +313,12 @@ export async function discoverLeadCandidates(maxPerRun: number, options: Discove
   const leads: LeadCandidateInput[] = [];
   const seen = new Set<string>();
   let stoppedForTime = false;
+  let queriesTried = 0;
+  let placesSeen = 0;
+  let duplicatePlacesSkipped = 0;
+  let unusablePlacesSkipped = 0;
+  let detailLookupsFailed = 0;
+  let mappedFromSearchOnly = 0;
 
   for (const query of queries) {
     if (leads.length >= targetCount) break;
@@ -300,6 +335,7 @@ export async function discoverLeadCandidates(maxPerRun: number, options: Discove
       }
       if (pageToken) await sleep(2000);
 
+      queriesTried++;
       const search = await fetchSearchPage(apiKey, query, pageToken);
       if (!search) break;
       if (search.status && !["OK", "ZERO_RESULTS"].includes(search.status)) {
@@ -311,23 +347,38 @@ export async function discoverLeadCandidates(maxPerRun: number, options: Discove
 
       for (const result of search.results ?? []) {
         if (!result.place_id || seen.has(result.place_id) || leads.length >= targetCount) continue;
+        placesSeen++;
         if (Date.now() - startedAt > DISCOVERY_TIME_BUDGET_MS - MIN_DISCOVERY_TIME_REMAINING_MS) {
           stoppedForTime = true;
           break;
         }
         seen.add(result.place_id);
-        if (known.has(`id:${googlePlaceCandidateId(result.place_id)}`)) continue;
+        if (known.has(`id:${googlePlaceCandidateId(result.place_id)}`)) {
+          duplicatePlacesSkipped++;
+          continue;
+        }
 
         const detailsUrl = new URL("https://maps.googleapis.com/maps/api/place/details/json");
         detailsUrl.searchParams.set("place_id", result.place_id);
         detailsUrl.searchParams.set("fields", "name,formatted_address,formatted_phone_number,website,url,business_status,types");
         detailsUrl.searchParams.set("key", apiKey);
 
-        const details = await fetchJson<{ result?: GooglePlaceDetails }>(detailsUrl.toString());
-        const lead = details.result ? mapPlaceToLead(details.result, details.result.url ?? buildSearchUrl(apiKey, query).toString(), result.place_id) : null;
+        let details: GooglePlaceDetails | undefined;
+        try {
+          details = (await fetchJson<{ result?: GooglePlaceDetails }>(detailsUrl.toString())).result;
+        } catch (err) {
+          detailLookupsFailed++;
+          console.warn("LEAD_GENERATOR_PLACE_DETAILS_WARN:", err);
+        }
+
+        const sourceUrl = details?.url ?? googleMapsPlaceUrl(result.place_id);
+        const lead = mapPlaceToLead(mergePlaceDetails(result, details), sourceUrl, result.place_id);
         if (lead && !hasKnownLead(lead, known)) {
+          if (!details) mappedFromSearchOnly++;
           leads.push(lead);
           rememberLead(lead, known);
+        } else {
+          unusablePlacesSkipped++;
         }
       }
 
@@ -341,8 +392,17 @@ export async function discoverLeadCandidates(maxPerRun: number, options: Discove
     message: leads.length >= targetCount
       ? `Discovered ${leads.length} new lead candidates.`
       : stoppedForTime
-        ? `Discovered ${leads.length} new lead candidate${leads.length === 1 ? "" : "s"} before this run hit its time budget. Run it again for more.`
-      : `Discovered ${leads.length} new lead candidate${leads.length === 1 ? "" : "s"} before the current Places search pool was exhausted.`,
+        ? `Discovered ${leads.length} new lead candidate${leads.length === 1 ? "" : "s"} before this run hit its time budget. Checked ${queriesTried} searches and saw ${placesSeen} Places results. Run it again for more.`
+      : `Discovered ${leads.length} new lead candidate${leads.length === 1 ? "" : "s"} before the current Places search pool was exhausted. Checked ${queriesTried} searches and saw ${placesSeen} Places results.`,
+    stats: {
+      queriesPlanned: queries.length,
+      queriesTried,
+      placesSeen,
+      duplicatePlacesSkipped,
+      unusablePlacesSkipped,
+      detailLookupsFailed,
+      mappedFromSearchOnly,
+    },
     leads,
   };
 }

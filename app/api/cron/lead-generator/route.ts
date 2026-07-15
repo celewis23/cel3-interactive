@@ -65,6 +65,7 @@ export async function GET(req: NextRequest) {
       message,
       discovered: discovery.leads.length,
       saved,
+      stats: discovery.stats,
     });
   } catch (err) {
     console.error("CRON_LEAD_GENERATOR_ERR:", err);

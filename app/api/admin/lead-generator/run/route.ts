@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
       message,
       discovered: discovery.leads.length,
       saved,
+      stats: discovery.stats,
     });
   } catch (err) {
     console.error("LEAD_GENERATOR_RUN_ERR:", err);
