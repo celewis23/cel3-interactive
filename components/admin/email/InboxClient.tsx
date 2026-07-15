@@ -91,6 +91,17 @@ function resolveCidReferences(html: string, messageId: string, attachments: Gmai
   });
 }
 
+function markThreadDetailRead(thread: GmailThreadDetail): GmailThreadDetail {
+  return {
+    ...thread,
+    messages: thread.messages.map((message) => ({
+      ...message,
+      isRead: true,
+      labelIds: message.labelIds.filter((labelId) => labelId !== "UNREAD"),
+    })),
+  };
+}
+
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
 function FolderIcon({ folder }: { folder: Label }) {
@@ -277,12 +288,17 @@ function MessageCard({ message, defaultOpen }: { message: GmailMessageParsed; de
 // ─── EmailView ────────────────────────────────────────────────────────────────
 
 function EmailView({
-  threadId, data, loading, onBack,
+  threadId, data, loading, onBack, onRead, onPrevious, onNext, canGoPrevious, canGoNext,
 }: {
   threadId: string;
   data: { thread: GmailThreadDetail; link: GmailThreadLink | null } | null;
   loading: boolean;
   onBack: () => void;
+  onRead: (threadId: string) => void;
+  onPrevious: () => void;
+  onNext: () => void;
+  canGoPrevious: boolean;
+  canGoNext: boolean;
 }) {
   const [replyOpen, setReplyOpen] = useState(false);
   const [replyHtml, setReplyHtml] = useState("");
@@ -290,6 +306,7 @@ function EmailView({
   const [replyError, setReplyError] = useState("");
   const [replySuccess, setReplySuccess] = useState(false);
   const [signature, setSignature] = useState("");
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/email/signature")
@@ -301,14 +318,8 @@ function EmailView({
   useEffect(() => {
     if (!data?.thread) return;
     const hasUnread = data.thread.messages.some((m) => !m.isRead);
-    if (hasUnread) {
-      fetch(`/api/admin/email/threads/${threadId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "markRead" }),
-      }).catch(() => {});
-    }
-  }, [threadId, data]);
+    if (hasUnread) onRead(threadId);
+  }, [threadId, data, onRead]);
 
   useEffect(() => {
     if (replySuccess) {
@@ -362,8 +373,28 @@ function EmailView({
   const lastMessage = messages[messages.length - 1];
   const subject = messages[0]?.headers.subject ?? "(no subject)";
 
+  function handleTouchStart(e: React.TouchEvent<HTMLDivElement>) {
+    const touch = e.touches[0];
+    if (!touch) return;
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  }
+
+  function handleTouchEnd(e: React.TouchEvent<HTMLDivElement>) {
+    const start = touchStartRef.current;
+    const touch = e.changedTouches[0];
+    touchStartRef.current = null;
+    if (!start || !touch) return;
+
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
+
+    if (dx < 0 && canGoNext) onNext();
+    if (dx > 0 && canGoPrevious) onPrevious();
+  }
+
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       <div className="flex items-center justify-between px-4 h-11 border-b border-white/8 shrink-0">
         <div className="flex items-center gap-1">
           <button
@@ -382,6 +413,30 @@ function EmailView({
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
             </svg>
             Reply
+          </button>
+        </div>
+        <div className="hidden lg:flex items-center gap-1">
+          <button
+            onClick={onPrevious}
+            disabled={!canGoPrevious}
+            aria-label="Previous email"
+            title="Previous email"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-white/45 hover:text-white hover:bg-white/5 transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+          >
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+          <button
+            onClick={onNext}
+            disabled={!canGoNext}
+            aria-label="Next email"
+            title="Next email"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-white/45 hover:text-white hover:bg-white/5 transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+          >
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
           </button>
         </div>
       </div>
@@ -996,6 +1051,7 @@ export default function InboxClient({ email, connectedNotice }: Props) {
   const [newCount, setNewCount] = useState<number | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const threadsRef = useRef<GmailThreadSummary[]>([]);
+  const readRequestsRef = useRef<Set<string>>(new Set());
 
   // Selected thread state
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -1035,6 +1091,44 @@ export default function InboxClient({ email, connectedNotice }: Props) {
   const [composeAttachedFiles, setComposeAttachedFiles] = useState<AttachedFile[]>([]);
 
   useEffect(() => { threadsRef.current = threads; }, [threads]);
+
+  const markThreadReadLocally = useCallback((id: string) => {
+    setThreads((prev) => {
+      const next = prev.map((thread) =>
+        thread.id === id
+          ? {
+              ...thread,
+              isRead: true,
+              labelIds: thread.labelIds.filter((labelId) => labelId !== "UNREAD"),
+            }
+          : thread,
+      );
+      threadsRef.current = next;
+      return next;
+    });
+
+    setThreadData((prev) => {
+      if (!prev || prev.thread.id !== id) return prev;
+      return {
+        ...prev,
+        thread: markThreadDetailRead(prev.thread),
+      };
+    });
+  }, []);
+
+  const markThreadRead = useCallback((id: string) => {
+    markThreadReadLocally(id);
+
+    if (readRequestsRef.current.has(id)) return;
+    readRequestsRef.current.add(id);
+    fetch(`/api/admin/email/threads/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "markRead" }),
+    }).finally(() => {
+      readRequestsRef.current.delete(id);
+    }).catch(() => {});
+  }, [markThreadReadLocally]);
 
   const fetchThreads = useCallback(async (lbl: Label, token?: string, silent = false) => {
     if (!silent) setLoading(true);
@@ -1084,6 +1178,8 @@ export default function InboxClient({ email, connectedNotice }: Props) {
   }, [label, currentToken, fetchThreads]);
 
   async function openThread(id: string) {
+    const existing = threadsRef.current.find((thread) => thread.id === id);
+    if (existing && !existing.isRead) markThreadRead(id);
     setSelectedId(id);
     setComposeMode(null);
     setMobileView("thread");
@@ -1091,7 +1187,10 @@ export default function InboxClient({ email, connectedNotice }: Props) {
     setLoadingThread(true);
     try {
       const res = await fetch(`/api/admin/email/threads/${id}`);
-      if (res.ok) setThreadData(await res.json());
+      if (res.ok) {
+        const data: { thread: GmailThreadDetail; link: GmailThreadLink | null } = await res.json();
+        setThreadData(existing && !existing.isRead ? { ...data, thread: markThreadDetailRead(data.thread) } : data);
+      }
     } finally {
       setLoadingThread(false);
     }
@@ -1168,6 +1267,15 @@ export default function InboxClient({ email, connectedNotice }: Props) {
     : threads;
 
   const unreadCount = threads.filter((t) => !t.isRead).length;
+  const selectedIndex = selectedId ? filtered.findIndex((thread) => thread.id === selectedId) : -1;
+  const canGoPrevious = selectedIndex > 0;
+  const canGoNext = selectedIndex >= 0 && selectedIndex < filtered.length - 1;
+
+  function openAdjacentThread(direction: -1 | 1) {
+    if (selectedIndex < 0) return;
+    const nextThread = filtered[selectedIndex + direction];
+    if (nextThread) openThread(nextThread.id);
+  }
 
   // Thread list is hidden on desktop only when compose is in "full" mode
   const threadListClass = composeMode === "full"
@@ -1425,6 +1533,11 @@ export default function InboxClient({ email, connectedNotice }: Props) {
               data={threadData}
               loading={loadingThread}
               onBack={closeThread}
+              onRead={markThreadRead}
+              onPrevious={() => openAdjacentThread(-1)}
+              onNext={() => openAdjacentThread(1)}
+              canGoPrevious={canGoPrevious}
+              canGoNext={canGoNext}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-full gap-4 text-center px-6">
