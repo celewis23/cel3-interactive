@@ -146,7 +146,7 @@ function mergePlaceDetails(searchResult: GooglePlaceSearchResult, details?: Goog
 
 function mapPlaceToLead(place: GooglePlaceDetails, sourceUrl: string, placeId: string): LeadCandidateInput | null {
   if (!place.name) return null;
-  if (place.business_status && place.business_status !== "OPERATIONAL") return null;
+  if (place.business_status === "CLOSED_PERMANENTLY") return null;
 
   const address = place.formatted_address ?? null;
   const niche = (place.types ?? [])
@@ -317,7 +317,7 @@ export async function discoverLeadCandidates(maxPerRun: number, options: Discove
   let placesSeen = 0;
   let duplicatePlacesSkipped = 0;
   let unusablePlacesSkipped = 0;
-  let detailLookupsFailed = 0;
+  const detailLookupsFailed = 0;
   let mappedFromSearchOnly = 0;
 
   for (const query of queries) {
@@ -358,23 +358,10 @@ export async function discoverLeadCandidates(maxPerRun: number, options: Discove
           continue;
         }
 
-        const detailsUrl = new URL("https://maps.googleapis.com/maps/api/place/details/json");
-        detailsUrl.searchParams.set("place_id", result.place_id);
-        detailsUrl.searchParams.set("fields", "name,formatted_address,formatted_phone_number,website,url,business_status,types");
-        detailsUrl.searchParams.set("key", apiKey);
-
-        let details: GooglePlaceDetails | undefined;
-        try {
-          details = (await fetchJson<{ result?: GooglePlaceDetails }>(detailsUrl.toString())).result;
-        } catch (err) {
-          detailLookupsFailed++;
-          console.warn("LEAD_GENERATOR_PLACE_DETAILS_WARN:", err);
-        }
-
-        const sourceUrl = details?.url ?? googleMapsPlaceUrl(result.place_id);
-        const lead = mapPlaceToLead(mergePlaceDetails(result, details), sourceUrl, result.place_id);
+        const sourceUrl = googleMapsPlaceUrl(result.place_id);
+        const lead = mapPlaceToLead(mergePlaceDetails(result), sourceUrl, result.place_id);
         if (lead && !hasKnownLead(lead, known)) {
-          if (!details) mappedFromSearchOnly++;
+          mappedFromSearchOnly++;
           leads.push(lead);
           rememberLead(lead, known);
         } else {
