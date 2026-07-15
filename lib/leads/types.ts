@@ -21,6 +21,8 @@ export type LeadGeneratorSettings = {
   time: string;
   timezone: string;
   maxPerRun: number;
+  searchLocations: string[];
+  searchCategories: string[];
   lastRunAt: string | null;
   lastRunStatus: string | null;
   lastRunMessage: string | null;

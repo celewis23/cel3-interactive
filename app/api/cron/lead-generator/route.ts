@@ -30,7 +30,11 @@ export async function GET(req: NextRequest) {
 
   try {
     const existingLeads = await listLeadCandidates("all");
-    const discovery = await discoverLeadCandidates(settings.maxPerRun, { existingLeads });
+    const discovery = await discoverLeadCandidates(settings.maxPerRun, {
+      existingLeads,
+      searchLocations: settings.searchLocations,
+      searchCategories: settings.searchCategories,
+    });
     let saved = 0;
     for (const lead of discovery.leads) {
       await upsertLeadCandidate(lead);

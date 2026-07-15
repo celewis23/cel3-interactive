@@ -7,6 +7,10 @@ import type {
   LeadCandidateStatus,
   LeadGeneratorSettings,
 } from "@/lib/leads/types";
+import {
+  DEFAULT_LEAD_SEARCH_CATEGORIES,
+  DEFAULT_LEAD_SEARCH_LOCATIONS,
+} from "@/lib/leads/searchCriteria";
 
 const STATUS_OPTIONS: Array<{ id: LeadCandidateStatus | "all"; label: string }> = [
   { id: "review", label: "Review" },
@@ -55,6 +59,19 @@ function leadSearchText(lead: LeadCandidate) {
   ].join(" ").toLowerCase();
 }
 
+function listToText(values: string[]) {
+  return values.join("\n");
+}
+
+function textToList(value: string) {
+  return Array.from(new Set(
+    value
+      .split(/\r?\n|,/)
+      .map((item) => item.trim())
+      .filter(Boolean)
+  ));
+}
+
 export default function LeadGeneratorClient({
   initialLeads,
   initialSettings,
@@ -71,6 +88,7 @@ export default function LeadGeneratorClient({
   const [busyAction, setBusyAction] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [criteriaOpen, setCriteriaOpen] = useState(false);
 
   const filteredLeads = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -265,6 +283,13 @@ export default function LeadGeneratorClient({
         <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
           <button
             type="button"
+            onClick={() => setCriteriaOpen(true)}
+            className="min-h-11 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/70 transition-colors hover:border-white/20 hover:text-white"
+          >
+            Search Criteria
+          </button>
+          <button
+            type="button"
             onClick={seedLeads}
             disabled={busyAction === "seed"}
             className="min-h-11 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/70 transition-colors hover:border-white/20 hover:text-white disabled:opacity-40"
@@ -287,6 +312,101 @@ export default function LeadGeneratorClient({
           error ? "border-red-500/20 bg-red-500/10 text-red-300" : "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
         }`}>
           {error || message}
+        </div>
+      )}
+
+      {criteriaOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6 backdrop-blur-sm">
+          <div className="admin-scroll max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-white/10 bg-[#080808] p-4 shadow-2xl sm:p-5">
+            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-white">Search Criteria</h2>
+                <p className="mt-1 text-sm text-white/40">
+                  Used by Run Finder Now and scheduled lead generation.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCriteriaOpen(false)}
+                className="min-h-10 rounded-xl border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-[220px_1fr_1fr]">
+              <label className="block">
+                <span className="mb-1 block text-xs text-white/45">Leads per run</span>
+                <input
+                  type="number"
+                  min={20}
+                  max={250}
+                  value={settings.maxPerRun}
+                  onChange={(event) => {
+                    const value = Number(event.target.value);
+                    setSettings({ ...settings, maxPerRun: Math.min(Math.max(20, value), 250) });
+                  }}
+                  className="min-h-11 w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none"
+                />
+                <span className="mt-1 block text-xs text-white/30">20 minimum, 250 maximum.</span>
+              </label>
+
+              <label className="block">
+                <span className="mb-1 block text-xs text-white/45">Cities, states, ZIP codes</span>
+                <textarea
+                  value={listToText(settings.searchLocations?.length ? settings.searchLocations : DEFAULT_LEAD_SEARCH_LOCATIONS)}
+                  onChange={(event) => setSettings({ ...settings, searchLocations: textToList(event.target.value) })}
+                  rows={14}
+                  className="admin-scroll w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm leading-relaxed text-white outline-none"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-1 block text-xs text-white/45">Business types</span>
+                <textarea
+                  value={listToText(settings.searchCategories?.length ? settings.searchCategories : DEFAULT_LEAD_SEARCH_CATEGORIES)}
+                  onChange={(event) => setSettings({ ...settings, searchCategories: textToList(event.target.value) })}
+                  rows={14}
+                  className="admin-scroll w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm leading-relaxed text-white outline-none"
+                />
+              </label>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-2 border-t border-white/8 pt-4 sm:flex-row sm:items-center sm:justify-between">
+              <button
+                type="button"
+                onClick={() => setSettings({
+                  ...settings,
+                  maxPerRun: 100,
+                  searchLocations: DEFAULT_LEAD_SEARCH_LOCATIONS,
+                  searchCategories: DEFAULT_LEAD_SEARCH_CATEGORIES,
+                })}
+                className="min-h-10 rounded-xl border border-white/10 px-4 py-2 text-sm text-white/55 transition-colors hover:border-white/20 hover:text-white"
+              >
+                Reset Defaults
+              </button>
+              <div className="grid grid-cols-1 gap-2 sm:flex">
+                <button
+                  type="button"
+                  onClick={() => setCriteriaOpen(false)}
+                  className="min-h-10 rounded-xl border border-white/10 px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await saveSettings();
+                    setCriteriaOpen(false);
+                  }}
+                  disabled={busyAction === "settings"}
+                  className="min-h-10 rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-sky-400 disabled:opacity-40"
+                >
+                  {busyAction === "settings" ? "Saving..." : "Save Criteria"}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -417,9 +537,12 @@ export default function LeadGeneratorClient({
                 <input
                   type="number"
                   min={20}
-                  max={50}
+                  max={250}
                   value={settings.maxPerRun}
-                  onChange={(event) => setSettings({ ...settings, maxPerRun: Math.max(20, Number(event.target.value)) })}
+                  onChange={(event) => {
+                    const value = Number(event.target.value);
+                    setSettings({ ...settings, maxPerRun: Math.min(Math.max(20, value), 250) });
+                  }}
                   className="w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none"
                 />
               </div>

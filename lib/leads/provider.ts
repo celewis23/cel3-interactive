@@ -2,6 +2,10 @@ import { createHash } from "crypto";
 import type { LeadCandidateInput } from "./types";
 import { buildOutreachEmail } from "./emailTemplates";
 import { researchedSeedLeads } from "./researchedSeedLeads";
+import {
+  DEFAULT_LEAD_SEARCH_CATEGORIES,
+  DEFAULT_LEAD_SEARCH_LOCATIONS,
+} from "./searchCriteria";
 
 type GooglePlaceSearchResult = {
   place_id?: string;
@@ -35,55 +39,9 @@ type LeadIdentity = Pick<
 
 type DiscoverLeadCandidatesOptions = {
   existingLeads?: LeadIdentity[];
+  searchLocations?: string[];
+  searchCategories?: string[];
 };
-
-const DEFAULT_QUERIES = [
-  "yoga studio Richmond VA",
-  "fitness studio Richmond VA",
-  "pilates studio Richmond VA",
-  "wellness center Richmond VA",
-  "spa Richmond VA",
-  "med spa Richmond VA",
-  "dance studio Richmond VA",
-  "arts education Richmond VA",
-  "music school Richmond VA",
-  "performing arts Richmond VA",
-  "museum Richmond VA",
-  "nonprofit Richmond VA events",
-  "event venue Richmond VA",
-  "wedding venue Richmond VA",
-  "private event venue Richmond VA",
-  "restaurant private events Richmond VA",
-  "catering company Richmond VA",
-  "wellness studio Norfolk VA",
-  "fitness studio Norfolk VA",
-  "yoga studio Norfolk VA",
-  "arts education Norfolk VA",
-  "event venue Norfolk VA",
-  "private event venue Norfolk VA",
-  "museum Norfolk VA",
-  "fitness studio Virginia Beach VA",
-  "yoga studio Virginia Beach VA",
-  "pilates studio Virginia Beach VA",
-  "wellness center Virginia Beach VA",
-  "dance studio Virginia Beach VA",
-  "event venue Virginia Beach VA",
-  "wedding venue Virginia Beach VA",
-  "event venue Hampton Roads VA",
-  "wedding venue Hampton Roads VA",
-  "arts nonprofit Hampton Roads VA",
-  "wellness studio Hampton Roads VA",
-  "fitness studio Hampton Roads VA",
-  "yoga studio Chesapeake VA",
-  "event venue Chesapeake VA",
-  "wellness studio Chesapeake VA",
-  "yoga studio Newport News VA",
-  "event venue Newport News VA",
-  "arts education Newport News VA",
-  "yoga studio Hampton VA",
-  "event venue Hampton VA",
-  "arts education Hampton VA",
-];
 
 function googlePlaceCandidateId(placeId: string) {
   const hash = createHash("sha1").update(placeId).digest("hex").slice(0, 20);
@@ -224,6 +182,21 @@ function buildSearchUrl(apiKey: string, query: string, pageToken?: string) {
   return searchUrl;
 }
 
+function normalizedList(values: string[] | undefined, fallback: string[]) {
+  const next = Array.from(new Set(
+    (values?.length ? values : fallback)
+      .map((value) => value.trim())
+      .filter(Boolean)
+  ));
+  return next.length ? next : fallback;
+}
+
+function buildQueries(options: DiscoverLeadCandidatesOptions) {
+  const locations = normalizedList(options.searchLocations, DEFAULT_LEAD_SEARCH_LOCATIONS);
+  const categories = normalizedList(options.searchCategories, DEFAULT_LEAD_SEARCH_CATEGORIES);
+  return locations.flatMap((location) => categories.map((category) => `${category} ${location}`));
+}
+
 async function fetchSearchPage(apiKey: string, query: string, pageToken?: string) {
   for (let attempt = 0; attempt < 3; attempt++) {
     const search = await fetchJson<GooglePlaceSearchResponse>(buildSearchUrl(apiKey, query, pageToken).toString());
@@ -243,6 +216,7 @@ export async function discoverLeadCandidates(maxPerRun: number, options: Discove
   const targetCount = Math.max(maxPerRun, 0);
   const known = buildKnownLeadKeys(options.existingLeads);
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  const queries = buildQueries(options);
 
   if (!apiKey) {
     const fallbackLeads = researchedSeedLeads.filter((lead) => !hasKnownLead(lead, known)).slice(0, targetCount);
@@ -256,7 +230,7 @@ export async function discoverLeadCandidates(maxPerRun: number, options: Discove
   const leads: LeadCandidateInput[] = [];
   const seen = new Set<string>();
 
-  for (const query of DEFAULT_QUERIES) {
+  for (const query of queries) {
     if (leads.length >= targetCount) break;
 
     let pageToken: string | undefined;

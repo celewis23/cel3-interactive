@@ -23,6 +23,10 @@ const LEAD_FIELDS = `{
   reviewedAt, approvedPipelineContactId, emailedAt
 }`;
 
+const MIN_LEADS_PER_RUN = 20;
+const DEFAULT_LEADS_PER_RUN = DEFAULT_LEAD_GENERATOR_SETTINGS.maxPerRun;
+const MAX_LEADS_PER_RUN = 250;
+
 function candidateId(input: LeadCandidateInput) {
   if (input._id) return input._id;
   return `lead-candidate-${randomUUID()}`;
@@ -66,6 +70,24 @@ function normalizeCandidate(input: LeadCandidateInput) {
     approvedPipelineContactId: input.approvedPipelineContactId ?? null,
     emailedAt: input.emailedAt ?? null,
   };
+}
+
+function normalizeMaxPerRun(value: unknown, opts: { promoteLegacyDefault?: boolean } = {}) {
+  const parsed = Number(value);
+  const fallback = DEFAULT_LEADS_PER_RUN;
+  const next = Number.isFinite(parsed) ? parsed : fallback;
+  const promoted = opts.promoteLegacyDefault && next <= MIN_LEADS_PER_RUN ? fallback : next;
+  return Math.min(Math.max(promoted, MIN_LEADS_PER_RUN), MAX_LEADS_PER_RUN);
+}
+
+function normalizeSearchList(value: unknown, fallback: string[]) {
+  if (!Array.isArray(value)) return fallback;
+  const next = Array.from(new Set(
+    value
+      .map((item) => typeof item === "string" ? item.trim() : "")
+      .filter(Boolean)
+  ));
+  return next.length ? next : fallback;
 }
 
 export async function listLeadCandidates(status?: LeadCandidateStatus | "all") {
@@ -140,7 +162,9 @@ export async function getLeadGeneratorSettings() {
   return {
     ...DEFAULT_LEAD_GENERATOR_SETTINGS,
     ...next,
-    maxPerRun: Math.max(20, Number(next.maxPerRun) || DEFAULT_LEAD_GENERATOR_SETTINGS.maxPerRun),
+    maxPerRun: normalizeMaxPerRun(next.maxPerRun, { promoteLegacyDefault: true }),
+    searchLocations: normalizeSearchList(next.searchLocations, DEFAULT_LEAD_GENERATOR_SETTINGS.searchLocations),
+    searchCategories: normalizeSearchList(next.searchCategories, DEFAULT_LEAD_GENERATOR_SETTINGS.searchCategories),
   };
 }
 
@@ -155,10 +179,11 @@ export async function updateLeadGeneratorSettings(patch: Partial<LeadGeneratorSe
     dayOfMonth: Number.isFinite(Number(patch.dayOfMonth)) ? Number(patch.dayOfMonth) : current.dayOfMonth,
     time: patch.time ?? current.time,
     timezone: patch.timezone ?? current.timezone,
-    maxPerRun: Math.max(
-      20,
-      Number.isFinite(Number(patch.maxPerRun)) ? Number(patch.maxPerRun) : current.maxPerRun
+    maxPerRun: normalizeMaxPerRun(
+      Number.isFinite(Number(patch.maxPerRun)) ? patch.maxPerRun : current.maxPerRun
     ),
+    searchLocations: normalizeSearchList(patch.searchLocations, current.searchLocations),
+    searchCategories: normalizeSearchList(patch.searchCategories, current.searchCategories),
     lastRunAt: patch.lastRunAt ?? current.lastRunAt,
     lastRunStatus: patch.lastRunStatus ?? current.lastRunStatus,
     lastRunMessage: patch.lastRunMessage ?? current.lastRunMessage,

@@ -17,7 +17,11 @@ export async function POST(req: NextRequest) {
   try {
     const settings = await getLeadGeneratorSettings();
     const existingLeads = await listLeadCandidates("all");
-    const discovery = await discoverLeadCandidates(settings.maxPerRun, { existingLeads });
+    const discovery = await discoverLeadCandidates(settings.maxPerRun, {
+      existingLeads,
+      searchLocations: settings.searchLocations,
+      searchCategories: settings.searchCategories,
+    });
     let saved = 0;
     for (const lead of discovery.leads) {
       await upsertLeadCandidate(lead);

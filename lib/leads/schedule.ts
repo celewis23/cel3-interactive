@@ -1,4 +1,8 @@
 import { DateTime } from "luxon";
+import {
+  DEFAULT_LEAD_SEARCH_CATEGORIES,
+  DEFAULT_LEAD_SEARCH_LOCATIONS,
+} from "./searchCriteria";
 import type { LeadGeneratorSettings } from "./types";
 
 export const LEAD_GENERATOR_SETTINGS_ID = "lead-generator-settings";
@@ -12,7 +16,9 @@ export const DEFAULT_LEAD_GENERATOR_SETTINGS: LeadGeneratorSettings = {
   dayOfMonth: 1,
   time: "09:00",
   timezone: "America/New_York",
-  maxPerRun: 20,
+  maxPerRun: 100,
+  searchLocations: DEFAULT_LEAD_SEARCH_LOCATIONS,
+  searchCategories: DEFAULT_LEAD_SEARCH_CATEGORIES,
   lastRunAt: null,
   lastRunStatus: null,
   lastRunMessage: null,
