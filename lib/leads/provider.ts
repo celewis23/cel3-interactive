@@ -3,9 +3,16 @@ import type { LeadCandidateInput } from "./types";
 import { buildOutreachEmail } from "./emailTemplates";
 import { researchedSeedLeads } from "./researchedSeedLeads";
 import {
+  CANADA_NATIONWIDE_LEAD_SEARCH_MARKETS,
   DEFAULT_LEAD_SEARCH_CATEGORIES,
   DEFAULT_LEAD_SEARCH_LOCATIONS,
   OPEN_LEAD_SEARCH_CATEGORIES,
+  US_MIDWEST_LEAD_SEARCH_MARKETS,
+  US_NATIONWIDE_LEAD_SEARCH_MARKETS,
+  US_NORTHEAST_LEAD_SEARCH_MARKETS,
+  US_SOUTHEAST_LEAD_SEARCH_MARKETS,
+  US_SOUTHWEST_LEAD_SEARCH_MARKETS,
+  US_WEST_LEAD_SEARCH_MARKETS,
 } from "./searchCriteria";
 
 type GooglePlaceSearchResult = {
@@ -203,8 +210,40 @@ function normalizedList(values: string[] | undefined, fallback: string[]) {
   return next.length ? next : fallback;
 }
 
+function expandSearchLocations(locations: string[]) {
+  const expanded = locations.flatMap((location) => {
+    const normalized = normalizeIdentity(location);
+    if (normalized === "united states" || normalized === "usa" || normalized === "us") {
+      return US_NATIONWIDE_LEAD_SEARCH_MARKETS;
+    }
+    if (normalized === "canada") {
+      return CANADA_NATIONWIDE_LEAD_SEARCH_MARKETS;
+    }
+    if (normalized === "north america" || normalized === "us and canada" || normalized === "usa and canada") {
+      return [...US_NATIONWIDE_LEAD_SEARCH_MARKETS, ...CANADA_NATIONWIDE_LEAD_SEARCH_MARKETS];
+    }
+    if (normalized === "northeast us" || normalized === "northeast united states") {
+      return US_NORTHEAST_LEAD_SEARCH_MARKETS;
+    }
+    if (normalized === "southeast us" || normalized === "southeast united states") {
+      return US_SOUTHEAST_LEAD_SEARCH_MARKETS;
+    }
+    if (normalized === "midwest us" || normalized === "midwest united states") {
+      return US_MIDWEST_LEAD_SEARCH_MARKETS;
+    }
+    if (normalized === "southwest us" || normalized === "southwest united states") {
+      return US_SOUTHWEST_LEAD_SEARCH_MARKETS;
+    }
+    if (normalized === "west us" || normalized === "western us" || normalized === "west united states") {
+      return US_WEST_LEAD_SEARCH_MARKETS;
+    }
+    return [location];
+  });
+  return Array.from(new Set(expanded));
+}
+
 function buildQueries(options: DiscoverLeadCandidatesOptions) {
-  const locations = normalizedList(options.searchLocations, DEFAULT_LEAD_SEARCH_LOCATIONS);
+  const locations = expandSearchLocations(normalizedList(options.searchLocations, DEFAULT_LEAD_SEARCH_LOCATIONS));
   const categories = options.searchCategories
     ? normalizedList(options.searchCategories, OPEN_LEAD_SEARCH_CATEGORIES)
     : DEFAULT_LEAD_SEARCH_CATEGORIES;

@@ -11,9 +11,15 @@ import {
   CANADA_LEAD_SEARCH_LOCATIONS,
   DEFAULT_LEAD_SEARCH_CATEGORIES,
   DEFAULT_LEAD_SEARCH_LOCATIONS,
+  NORTH_AMERICA_LEAD_SEARCH_LOCATIONS,
   OPEN_LEAD_SEARCH_CATEGORIES,
   US_CANADA_LEAD_SEARCH_LOCATIONS,
   US_LEAD_SEARCH_LOCATIONS,
+  US_MIDWEST_LEAD_SEARCH_LOCATIONS,
+  US_NORTHEAST_LEAD_SEARCH_LOCATIONS,
+  US_SOUTHEAST_LEAD_SEARCH_LOCATIONS,
+  US_SOUTHWEST_LEAD_SEARCH_LOCATIONS,
+  US_WEST_LEAD_SEARCH_LOCATIONS,
 } from "@/lib/leads/searchCriteria";
 
 const STATUS_OPTIONS: Array<{ id: LeadCandidateStatus | "all"; label: string }> = [
@@ -372,6 +378,13 @@ export default function LeadGeneratorClient({
                 <div className="mb-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
                   <button
                     type="button"
+                    onClick={() => setSettings({ ...settings, searchLocations: NORTH_AMERICA_LEAD_SEARCH_LOCATIONS })}
+                    className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 transition-colors hover:border-white/20 hover:text-white"
+                  >
+                    North America
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setSettings({ ...settings, searchLocations: US_CANADA_LEAD_SEARCH_LOCATIONS })}
                     className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 transition-colors hover:border-white/20 hover:text-white"
                   >
@@ -392,13 +405,52 @@ export default function LeadGeneratorClient({
                     Canada Only
                   </button>
                 </div>
+                <div className="mb-2 grid grid-cols-1 gap-2 sm:grid-cols-5">
+                  <button
+                    type="button"
+                    onClick={() => setSettings({ ...settings, searchLocations: US_NORTHEAST_LEAD_SEARCH_LOCATIONS })}
+                    className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 transition-colors hover:border-white/20 hover:text-white"
+                  >
+                    Northeast
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSettings({ ...settings, searchLocations: US_SOUTHEAST_LEAD_SEARCH_LOCATIONS })}
+                    className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 transition-colors hover:border-white/20 hover:text-white"
+                  >
+                    Southeast
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSettings({ ...settings, searchLocations: US_MIDWEST_LEAD_SEARCH_LOCATIONS })}
+                    className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 transition-colors hover:border-white/20 hover:text-white"
+                  >
+                    Midwest
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSettings({ ...settings, searchLocations: US_SOUTHWEST_LEAD_SEARCH_LOCATIONS })}
+                    className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 transition-colors hover:border-white/20 hover:text-white"
+                  >
+                    Southwest
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSettings({ ...settings, searchLocations: US_WEST_LEAD_SEARCH_LOCATIONS })}
+                    className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 transition-colors hover:border-white/20 hover:text-white"
+                  >
+                    West
+                  </button>
+                </div>
                 <textarea
                   value={listToText(settings.searchLocations?.length ? settings.searchLocations : DEFAULT_LEAD_SEARCH_LOCATIONS)}
                   onChange={(event) => setSettings({ ...settings, searchLocations: textToList(event.target.value) })}
                   rows={14}
                   className="admin-scroll w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm leading-relaxed text-white outline-none"
                 />
-                <span className="mt-1 block text-xs text-white/30">One location per line. Commas are allowed.</span>
+                <span className="mt-1 block text-xs text-white/30">
+                  One location per line. Use countries, regions, states, metros, cities, counties, ZIPs, or postal codes.
+                </span>
               </label>
 
               <label className="block">
