@@ -19,6 +19,30 @@ export const DEFAULT_LEAD_SEARCH_LOCATIONS = [
   "Hampton Roads VA",
 ];
 
+export const US_CANADA_LEAD_SEARCH_LOCATIONS = [
+  "United States",
+  "Canada",
+];
+
+export const US_LEAD_SEARCH_LOCATIONS = [
+  "United States",
+];
+
+export const CANADA_LEAD_SEARCH_LOCATIONS = [
+  "Canada",
+];
+
+export const OPEN_LEAD_SEARCH_CATEGORIES = [
+  "business",
+  "company",
+  "local business",
+  "small business",
+  "service business",
+  "professional services",
+  "home services",
+  "retail business",
+];
+
 export const DEFAULT_LEAD_SEARCH_CATEGORIES = [
   "yoga studio",
   "fitness studio",

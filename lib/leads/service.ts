@@ -80,13 +80,14 @@ function normalizeMaxPerRun(value: unknown, opts: { promoteLegacyDefault?: boole
   return Math.min(Math.max(promoted, MIN_LEADS_PER_RUN), MAX_LEADS_PER_RUN);
 }
 
-function normalizeSearchList(value: unknown, fallback: string[]) {
+function normalizeSearchList(value: unknown, fallback: string[], opts: { allowEmpty?: boolean } = {}) {
   if (!Array.isArray(value)) return fallback;
   const next = Array.from(new Set(
     value
       .map((item) => typeof item === "string" ? item.trim() : "")
       .filter(Boolean)
   ));
+  if (opts.allowEmpty) return next;
   return next.length ? next : fallback;
 }
 
@@ -164,7 +165,9 @@ export async function getLeadGeneratorSettings() {
     ...next,
     maxPerRun: normalizeMaxPerRun(next.maxPerRun, { promoteLegacyDefault: true }),
     searchLocations: normalizeSearchList(next.searchLocations, DEFAULT_LEAD_GENERATOR_SETTINGS.searchLocations),
-    searchCategories: normalizeSearchList(next.searchCategories, DEFAULT_LEAD_GENERATOR_SETTINGS.searchCategories),
+    searchCategories: normalizeSearchList(next.searchCategories, DEFAULT_LEAD_GENERATOR_SETTINGS.searchCategories, {
+      allowEmpty: true,
+    }),
   };
 }
 
@@ -183,7 +186,7 @@ export async function updateLeadGeneratorSettings(patch: Partial<LeadGeneratorSe
       Number.isFinite(Number(patch.maxPerRun)) ? patch.maxPerRun : current.maxPerRun
     ),
     searchLocations: normalizeSearchList(patch.searchLocations, current.searchLocations),
-    searchCategories: normalizeSearchList(patch.searchCategories, current.searchCategories),
+    searchCategories: normalizeSearchList(patch.searchCategories, current.searchCategories, { allowEmpty: true }),
     lastRunAt: patch.lastRunAt ?? current.lastRunAt,
     lastRunStatus: patch.lastRunStatus ?? current.lastRunStatus,
     lastRunMessage: patch.lastRunMessage ?? current.lastRunMessage,

@@ -5,6 +5,7 @@ import { researchedSeedLeads } from "./researchedSeedLeads";
 import {
   DEFAULT_LEAD_SEARCH_CATEGORIES,
   DEFAULT_LEAD_SEARCH_LOCATIONS,
+  OPEN_LEAD_SEARCH_CATEGORIES,
 } from "./searchCriteria";
 
 type GooglePlaceSearchResult = {
@@ -204,7 +205,9 @@ function normalizedList(values: string[] | undefined, fallback: string[]) {
 
 function buildQueries(options: DiscoverLeadCandidatesOptions) {
   const locations = normalizedList(options.searchLocations, DEFAULT_LEAD_SEARCH_LOCATIONS);
-  const categories = normalizedList(options.searchCategories, DEFAULT_LEAD_SEARCH_CATEGORIES);
+  const categories = options.searchCategories
+    ? normalizedList(options.searchCategories, OPEN_LEAD_SEARCH_CATEGORIES)
+    : DEFAULT_LEAD_SEARCH_CATEGORIES;
   return locations.flatMap((location) => categories.map((category) => `${category} ${location}`));
 }
 

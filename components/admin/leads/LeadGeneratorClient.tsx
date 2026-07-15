@@ -8,8 +8,12 @@ import type {
   LeadGeneratorSettings,
 } from "@/lib/leads/types";
 import {
+  CANADA_LEAD_SEARCH_LOCATIONS,
   DEFAULT_LEAD_SEARCH_CATEGORIES,
   DEFAULT_LEAD_SEARCH_LOCATIONS,
+  OPEN_LEAD_SEARCH_CATEGORIES,
+  US_CANADA_LEAD_SEARCH_LOCATIONS,
+  US_LEAD_SEARCH_LOCATIONS,
 } from "@/lib/leads/searchCriteria";
 
 const STATUS_OPTIONS: Array<{ id: LeadCandidateStatus | "all"; label: string }> = [
@@ -66,7 +70,7 @@ function listToText(values: string[]) {
 function textToList(value: string) {
   return Array.from(new Set(
     value
-      .split(/\r?\n|,/)
+      .split(/\r?\n/)
       .map((item) => item.trim())
       .filter(Boolean)
   ));
@@ -365,22 +369,65 @@ export default function LeadGeneratorClient({
 
               <label className="block">
                 <span className="mb-1 block text-xs text-white/45">Cities, states, ZIP codes</span>
+                <div className="mb-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  <button
+                    type="button"
+                    onClick={() => setSettings({ ...settings, searchLocations: US_CANADA_LEAD_SEARCH_LOCATIONS })}
+                    className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 transition-colors hover:border-white/20 hover:text-white"
+                  >
+                    US + Canada
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSettings({ ...settings, searchLocations: US_LEAD_SEARCH_LOCATIONS })}
+                    className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 transition-colors hover:border-white/20 hover:text-white"
+                  >
+                    US Only
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSettings({ ...settings, searchLocations: CANADA_LEAD_SEARCH_LOCATIONS })}
+                    className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 transition-colors hover:border-white/20 hover:text-white"
+                  >
+                    Canada Only
+                  </button>
+                </div>
                 <textarea
                   value={listToText(settings.searchLocations?.length ? settings.searchLocations : DEFAULT_LEAD_SEARCH_LOCATIONS)}
                   onChange={(event) => setSettings({ ...settings, searchLocations: textToList(event.target.value) })}
                   rows={14}
                   className="admin-scroll w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm leading-relaxed text-white outline-none"
                 />
+                <span className="mt-1 block text-xs text-white/30">One location per line. Commas are allowed.</span>
               </label>
 
               <label className="block">
                 <span className="mb-1 block text-xs text-white/45">Business types</span>
+                <div className="mb-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => setSettings({ ...settings, searchCategories: [] })}
+                    className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 transition-colors hover:border-white/20 hover:text-white"
+                  >
+                    Any Business
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSettings({ ...settings, searchCategories: DEFAULT_LEAD_SEARCH_CATEGORIES })}
+                    className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 transition-colors hover:border-white/20 hover:text-white"
+                  >
+                    Default Types
+                  </button>
+                </div>
                 <textarea
-                  value={listToText(settings.searchCategories?.length ? settings.searchCategories : DEFAULT_LEAD_SEARCH_CATEGORIES)}
+                  value={listToText(settings.searchCategories ?? DEFAULT_LEAD_SEARCH_CATEGORIES)}
                   onChange={(event) => setSettings({ ...settings, searchCategories: textToList(event.target.value) })}
                   rows={14}
                   className="admin-scroll w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm leading-relaxed text-white outline-none"
                 />
+                <span className="mt-1 block text-xs text-white/30">
+                  One business type per line. Leave blank to search broadly using: {OPEN_LEAD_SEARCH_CATEGORIES.join(", ")}.
+                </span>
               </label>
             </div>
 
