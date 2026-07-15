@@ -72,6 +72,18 @@ function textToList(value: string) {
   ));
 }
 
+async function parseApiResponse(res: Response) {
+  const contentType = res.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) {
+    return res.json();
+  }
+
+  const text = await res.text();
+  return {
+    error: text.trim() || `Request failed with HTTP ${res.status}`,
+  };
+}
+
 export default function LeadGeneratorClient({
   initialLeads,
   initialSettings,
@@ -108,7 +120,7 @@ export default function LeadGeneratorClient({
 
   async function refreshLeads() {
     const res = await fetch("/api/admin/lead-generator/candidates?status=all");
-    const data = await res.json();
+    const data = await parseApiResponse(res);
     if (res.ok) {
       setLeads(data.leads ?? []);
       if (!selectedId && data.leads?.[0]?._id) setSelectedId(data.leads[0]._id);
@@ -126,7 +138,7 @@ export default function LeadGeneratorClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(selected),
       });
-      const data = await res.json();
+      const data = await parseApiResponse(res);
       if (!res.ok) throw new Error(data.error || "Failed to save lead");
       setLeads((prev) => prev.map((lead) => lead._id === selected._id ? data.lead : lead));
       setMessage("Lead saved.");
@@ -148,7 +160,7 @@ export default function LeadGeneratorClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(patch),
       });
-      const data = await res.json();
+      const data = await parseApiResponse(res);
       if (!res.ok) throw new Error(data.error || "Failed to update lead");
       setLeads((prev) => prev.map((lead) => lead._id === selected._id ? data.lead : lead));
       setMessage(successMessage);
@@ -165,7 +177,7 @@ export default function LeadGeneratorClient({
     setMessage("");
     try {
       const res = await fetch("/api/admin/lead-generator/seed", { method: "POST" });
-      const data = await res.json();
+      const data = await parseApiResponse(res);
       if (!res.ok) throw new Error(data.error || "Failed to seed leads");
       setLeads(data.leads ?? []);
       setSelectedId(data.leads?.[0]?._id ?? "");
@@ -183,12 +195,12 @@ export default function LeadGeneratorClient({
     setMessage("");
     try {
       const res = await fetch("/api/admin/lead-generator/run", { method: "POST" });
-      const data = await res.json();
+      const data = await parseApiResponse(res);
       if (!res.ok) throw new Error(data.error || "Lead search failed");
       setMessage(data.message ?? `Saved ${data.saved ?? 0} leads.`);
       await refreshLeads();
       const settingsRes = await fetch("/api/admin/lead-generator/settings");
-      const settingsData = await settingsRes.json();
+      const settingsData = await parseApiResponse(settingsRes);
       if (settingsRes.ok) setSettings(settingsData.settings);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Lead search failed");
@@ -204,7 +216,7 @@ export default function LeadGeneratorClient({
     setMessage("");
     try {
       const res = await fetch(`/api/admin/lead-generator/candidates/${selected._id}/approve`, { method: "POST" });
-      const data = await res.json();
+      const data = await parseApiResponse(res);
       if (!res.ok) throw new Error(data.error || "Failed to approve lead");
       setLeads((prev) => prev.map((lead) => lead._id === selected._id ? data.lead : lead));
       setMessage("Approved into pipeline.");
@@ -236,7 +248,7 @@ export default function LeadGeneratorClient({
           htmlBody: selected.emailBodyHtml,
         }),
       });
-      const data = await res.json();
+      const data = await parseApiResponse(res);
       if (!res.ok) throw new Error(data.error || "Failed to send email");
       updateSelected({ status: "sent", emailedAt: new Date().toISOString() });
       setMessage("Email sent.");
@@ -257,7 +269,7 @@ export default function LeadGeneratorClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(settings),
       });
-      const data = await res.json();
+      const data = await parseApiResponse(res);
       if (!res.ok) throw new Error(data.error || "Failed to save settings");
       setSettings(data.settings);
       setMessage("Lead generator schedule saved.");

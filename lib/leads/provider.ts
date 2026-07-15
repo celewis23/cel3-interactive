@@ -43,6 +43,11 @@ type DiscoverLeadCandidatesOptions = {
   searchCategories?: string[];
 };
 
+const FETCH_TIMEOUT_MS = 10_000;
+const DISCOVERY_TIME_BUDGET_MS = 180_000;
+const MIN_DISCOVERY_TIME_REMAINING_MS = 15_000;
+const MAX_PAGES_PER_QUERY = 1;
+
 function googlePlaceCandidateId(placeId: string) {
   const hash = createHash("sha1").update(placeId).digest("hex").slice(0, 20);
   return `lead-candidate-google-${hash}`;
@@ -160,11 +165,17 @@ function mapPlaceToLead(place: GooglePlaceDetails, sourceUrl: string, placeId: s
 }
 
 async function fetchJson<T>(url: string) {
-  const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) {
-    throw new Error(`Google Places request failed with HTTP ${res.status}`);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, { cache: "no-store", signal: controller.signal });
+    if (!res.ok) {
+      throw new Error(`Google Places request failed with HTTP ${res.status}`);
+    }
+    return res.json() as Promise<T>;
+  } finally {
+    clearTimeout(timer);
   }
-  return res.json() as Promise<T>;
 }
 
 function sleep(ms: number) {
@@ -213,6 +224,7 @@ async function fetchSearchPage(apiKey: string, query: string, pageToken?: string
 }
 
 export async function discoverLeadCandidates(maxPerRun: number, options: DiscoverLeadCandidatesOptions = {}) {
+  const startedAt = Date.now();
   const targetCount = Math.max(maxPerRun, 0);
   const known = buildKnownLeadKeys(options.existingLeads);
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
@@ -229,12 +241,21 @@ export async function discoverLeadCandidates(maxPerRun: number, options: Discove
 
   const leads: LeadCandidateInput[] = [];
   const seen = new Set<string>();
+  let stoppedForTime = false;
 
   for (const query of queries) {
     if (leads.length >= targetCount) break;
+    if (Date.now() - startedAt > DISCOVERY_TIME_BUDGET_MS - MIN_DISCOVERY_TIME_REMAINING_MS) {
+      stoppedForTime = true;
+      break;
+    }
 
     let pageToken: string | undefined;
-    for (let page = 0; page < 3 && leads.length < targetCount; page++) {
+    for (let page = 0; page < MAX_PAGES_PER_QUERY && leads.length < targetCount; page++) {
+      if (Date.now() - startedAt > DISCOVERY_TIME_BUDGET_MS - MIN_DISCOVERY_TIME_REMAINING_MS) {
+        stoppedForTime = true;
+        break;
+      }
       if (pageToken) await sleep(2000);
 
       const search = await fetchSearchPage(apiKey, query, pageToken);
@@ -248,6 +269,10 @@ export async function discoverLeadCandidates(maxPerRun: number, options: Discove
 
       for (const result of search.results ?? []) {
         if (!result.place_id || seen.has(result.place_id) || leads.length >= targetCount) continue;
+        if (Date.now() - startedAt > DISCOVERY_TIME_BUDGET_MS - MIN_DISCOVERY_TIME_REMAINING_MS) {
+          stoppedForTime = true;
+          break;
+        }
         seen.add(result.place_id);
         if (known.has(`id:${googlePlaceCandidateId(result.place_id)}`)) continue;
 
@@ -273,6 +298,8 @@ export async function discoverLeadCandidates(maxPerRun: number, options: Discove
     ok: true,
     message: leads.length >= targetCount
       ? `Discovered ${leads.length} new lead candidates.`
+      : stoppedForTime
+        ? `Discovered ${leads.length} new lead candidate${leads.length === 1 ? "" : "s"} before this run hit its time budget. Run it again for more.`
       : `Discovered ${leads.length} new lead candidate${leads.length === 1 ? "" : "s"} before the current Places search pool was exhausted.`,
     leads,
   };

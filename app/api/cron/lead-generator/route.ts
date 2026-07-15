@@ -11,6 +11,9 @@ import {
 
 export const runtime = "nodejs";
 
+const RUN_TIME_BUDGET_MS = 285_000;
+const MIN_RUN_TIME_REMAINING_MS = 15_000;
+
 function isAuthorizedCron(req: NextRequest) {
   const secret = req.headers.get("authorization")?.replace("Bearer ", "");
   if (process.env.CRON_SECRET && secret === process.env.CRON_SECRET) return true;
@@ -29,6 +32,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    const startedAt = Date.now();
     const existingLeads = await listLeadCandidates("all");
     const discovery = await discoverLeadCandidates(settings.maxPerRun, {
       existingLeads,
@@ -36,20 +40,29 @@ export async function GET(req: NextRequest) {
       searchCategories: settings.searchCategories,
     });
     let saved = 0;
+    let stoppedForTime = false;
     for (const lead of discovery.leads) {
+      if (Date.now() - startedAt > RUN_TIME_BUDGET_MS - MIN_RUN_TIME_REMAINING_MS) {
+        stoppedForTime = true;
+        break;
+      }
       await upsertLeadCandidate(lead);
       saved++;
     }
 
+    const message = stoppedForTime && saved < discovery.leads.length
+      ? `${discovery.message} Saved ${saved} before this run hit its save time budget. Run it again for more.`
+      : discovery.message;
+
     await updateLeadGeneratorSettings({
       lastRunAt: new Date().toISOString(),
       lastRunStatus: discovery.ok ? "success" : "setup_needed",
-      lastRunMessage: discovery.message,
+      lastRunMessage: message,
     });
 
     return NextResponse.json({
       ok: discovery.ok,
-      message: discovery.message,
+      message,
       discovered: discovery.leads.length,
       saved,
     });
