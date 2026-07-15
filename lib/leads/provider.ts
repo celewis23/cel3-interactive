@@ -222,19 +222,19 @@ function expandSearchLocations(locations: string[]) {
     if (normalized === "north america" || normalized === "us and canada" || normalized === "usa and canada") {
       return [...US_NATIONWIDE_LEAD_SEARCH_MARKETS, ...CANADA_NATIONWIDE_LEAD_SEARCH_MARKETS];
     }
-    if (normalized === "northeast us" || normalized === "northeast united states") {
+    if (normalized === "ne us" || normalized === "northeast us" || normalized === "northeast united states") {
       return US_NORTHEAST_LEAD_SEARCH_MARKETS;
     }
-    if (normalized === "southeast us" || normalized === "southeast united states") {
+    if (normalized === "se us" || normalized === "southeast us" || normalized === "southeast united states") {
       return US_SOUTHEAST_LEAD_SEARCH_MARKETS;
     }
-    if (normalized === "midwest us" || normalized === "midwest united states") {
+    if (normalized === "mw us" || normalized === "midwest us" || normalized === "midwest united states") {
       return US_MIDWEST_LEAD_SEARCH_MARKETS;
     }
-    if (normalized === "southwest us" || normalized === "southwest united states") {
+    if (normalized === "sw us" || normalized === "southwest us" || normalized === "southwest united states") {
       return US_SOUTHWEST_LEAD_SEARCH_MARKETS;
     }
-    if (normalized === "west us" || normalized === "western us" || normalized === "west united states") {
+    if (normalized === "w us" || normalized === "west us" || normalized === "western us" || normalized === "west united states") {
       return US_WEST_LEAD_SEARCH_MARKETS;
     }
     return [location];

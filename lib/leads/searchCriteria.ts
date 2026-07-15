@@ -37,24 +37,88 @@ export const NORTH_AMERICA_LEAD_SEARCH_LOCATIONS = [
 ];
 
 export const US_NORTHEAST_LEAD_SEARCH_LOCATIONS = [
-  "Northeast US",
+  "NE US",
 ];
 
 export const US_SOUTHEAST_LEAD_SEARCH_LOCATIONS = [
-  "Southeast US",
+  "SE US",
 ];
 
 export const US_MIDWEST_LEAD_SEARCH_LOCATIONS = [
-  "Midwest US",
+  "MW US",
 ];
 
 export const US_SOUTHWEST_LEAD_SEARCH_LOCATIONS = [
-  "Southwest US",
+  "SW US",
 ];
 
 export const US_WEST_LEAD_SEARCH_LOCATIONS = [
-  "West US",
+  "W US",
 ];
+
+export const US_REGION_STATE_OPTIONS = {
+  "NE US": [
+    { label: "Connecticut", value: "Connecticut US" },
+    { label: "Maine", value: "Maine US" },
+    { label: "Massachusetts", value: "Massachusetts US" },
+    { label: "New Hampshire", value: "New Hampshire US" },
+    { label: "New Jersey", value: "New Jersey US" },
+    { label: "New York", value: "New York US" },
+    { label: "Pennsylvania", value: "Pennsylvania US" },
+    { label: "Rhode Island", value: "Rhode Island US" },
+    { label: "Vermont", value: "Vermont US" },
+  ],
+  "SE US": [
+    { label: "Alabama", value: "Alabama US" },
+    { label: "Arkansas", value: "Arkansas US" },
+    { label: "Delaware", value: "Delaware US" },
+    { label: "Florida", value: "Florida US" },
+    { label: "Georgia", value: "Georgia US" },
+    { label: "Kentucky", value: "Kentucky US" },
+    { label: "Louisiana", value: "Louisiana US" },
+    { label: "Maryland", value: "Maryland US" },
+    { label: "Mississippi", value: "Mississippi US" },
+    { label: "North Carolina", value: "North Carolina US" },
+    { label: "South Carolina", value: "South Carolina US" },
+    { label: "Tennessee", value: "Tennessee US" },
+    { label: "Virginia", value: "Virginia US" },
+    { label: "Washington DC", value: "Washington DC" },
+    { label: "West Virginia", value: "West Virginia US" },
+  ],
+  "MW US": [
+    { label: "Illinois", value: "Illinois US" },
+    { label: "Indiana", value: "Indiana US" },
+    { label: "Iowa", value: "Iowa US" },
+    { label: "Kansas", value: "Kansas US" },
+    { label: "Michigan", value: "Michigan US" },
+    { label: "Minnesota", value: "Minnesota US" },
+    { label: "Missouri", value: "Missouri US" },
+    { label: "Nebraska", value: "Nebraska US" },
+    { label: "North Dakota", value: "North Dakota US" },
+    { label: "Ohio", value: "Ohio US" },
+    { label: "South Dakota", value: "South Dakota US" },
+    { label: "Wisconsin", value: "Wisconsin US" },
+  ],
+  "SW US": [
+    { label: "Arizona", value: "Arizona US" },
+    { label: "New Mexico", value: "New Mexico US" },
+    { label: "Oklahoma", value: "Oklahoma US" },
+    { label: "Texas", value: "Texas US" },
+  ],
+  "W US": [
+    { label: "Alaska", value: "Alaska US" },
+    { label: "California", value: "California US" },
+    { label: "Colorado", value: "Colorado US" },
+    { label: "Hawaii", value: "Hawaii US" },
+    { label: "Idaho", value: "Idaho US" },
+    { label: "Montana", value: "Montana US" },
+    { label: "Nevada", value: "Nevada US" },
+    { label: "Oregon", value: "Oregon US" },
+    { label: "Utah", value: "Utah US" },
+    { label: "Washington", value: "Washington US" },
+    { label: "Wyoming", value: "Wyoming US" },
+  ],
+} as const;
 
 export const US_NORTHEAST_LEAD_SEARCH_MARKETS = [
   "New York NY",

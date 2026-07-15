@@ -17,6 +17,7 @@ import {
   US_LEAD_SEARCH_LOCATIONS,
   US_MIDWEST_LEAD_SEARCH_LOCATIONS,
   US_NORTHEAST_LEAD_SEARCH_LOCATIONS,
+  US_REGION_STATE_OPTIONS,
   US_SOUTHEAST_LEAD_SEARCH_LOCATIONS,
   US_SOUTHWEST_LEAD_SEARCH_LOCATIONS,
   US_WEST_LEAD_SEARCH_LOCATIONS,
@@ -82,6 +83,14 @@ function textToList(value: string) {
   ));
 }
 
+type UsRegionKey = keyof typeof US_REGION_STATE_OPTIONS;
+
+const US_REGION_KEYS = Object.keys(US_REGION_STATE_OPTIONS) as UsRegionKey[];
+
+function getInitialStatePickerRegion(locations: string[]): UsRegionKey {
+  return US_REGION_KEYS.find((region) => locations.includes(region)) ?? "SE US";
+}
+
 async function parseApiResponse(res: Response) {
   const contentType = res.headers.get("content-type") ?? "";
   if (contentType.includes("application/json")) {
@@ -111,6 +120,7 @@ export default function LeadGeneratorClient({
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [criteriaOpen, setCriteriaOpen] = useState(false);
+  const [statePickerRegion, setStatePickerRegion] = useState<UsRegionKey>(() => getInitialStatePickerRegion(initialSettings.searchLocations));
 
   const filteredLeads = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -126,6 +136,12 @@ export default function LeadGeneratorClient({
   function updateSelected(patch: Partial<LeadCandidate>) {
     if (!selected) return;
     setLeads((prev) => prev.map((lead) => lead._id === selected._id ? { ...lead, ...patch } : lead));
+  }
+
+  function selectRegion(locations: string[]) {
+    const region = US_REGION_KEYS.find((key) => key === locations[0]);
+    if (region) setStatePickerRegion(region);
+    setSettings({ ...settings, searchLocations: locations });
   }
 
   async function refreshLeads() {
@@ -408,39 +424,61 @@ export default function LeadGeneratorClient({
                 <div className="mb-2 grid grid-cols-1 gap-2 sm:grid-cols-5">
                   <button
                     type="button"
-                    onClick={() => setSettings({ ...settings, searchLocations: US_NORTHEAST_LEAD_SEARCH_LOCATIONS })}
+                    onClick={() => selectRegion(US_NORTHEAST_LEAD_SEARCH_LOCATIONS)}
                     className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 transition-colors hover:border-white/20 hover:text-white"
                   >
-                    Northeast
+                    NE
                   </button>
                   <button
                     type="button"
-                    onClick={() => setSettings({ ...settings, searchLocations: US_SOUTHEAST_LEAD_SEARCH_LOCATIONS })}
+                    onClick={() => selectRegion(US_SOUTHEAST_LEAD_SEARCH_LOCATIONS)}
                     className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 transition-colors hover:border-white/20 hover:text-white"
                   >
-                    Southeast
+                    SE
                   </button>
                   <button
                     type="button"
-                    onClick={() => setSettings({ ...settings, searchLocations: US_MIDWEST_LEAD_SEARCH_LOCATIONS })}
+                    onClick={() => selectRegion(US_MIDWEST_LEAD_SEARCH_LOCATIONS)}
                     className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 transition-colors hover:border-white/20 hover:text-white"
                   >
-                    Midwest
+                    MW
                   </button>
                   <button
                     type="button"
-                    onClick={() => setSettings({ ...settings, searchLocations: US_SOUTHWEST_LEAD_SEARCH_LOCATIONS })}
+                    onClick={() => selectRegion(US_SOUTHWEST_LEAD_SEARCH_LOCATIONS)}
                     className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 transition-colors hover:border-white/20 hover:text-white"
                   >
-                    Southwest
+                    SW
                   </button>
                   <button
                     type="button"
-                    onClick={() => setSettings({ ...settings, searchLocations: US_WEST_LEAD_SEARCH_LOCATIONS })}
+                    onClick={() => selectRegion(US_WEST_LEAD_SEARCH_LOCATIONS)}
                     className="min-h-9 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/55 transition-colors hover:border-white/20 hover:text-white"
                   >
-                    West
+                    W
                   </button>
+                </div>
+                <div className="mb-2">
+                  <span className="mb-1 block text-xs text-white/45">States in {statePickerRegion}</span>
+                  <select
+                    multiple
+                    value={settings.searchLocations.filter((location) => US_REGION_STATE_OPTIONS[statePickerRegion].some((state) => state.value === location))}
+                    onChange={(event) => {
+                      const selectedStates = Array.from(event.currentTarget.selectedOptions).map((option) => option.value);
+                      setSettings({
+                        ...settings,
+                        searchLocations: selectedStates.length ? selectedStates : [statePickerRegion],
+                      });
+                    }}
+                    className="admin-scroll h-36 w-full rounded-xl border border-white/10 bg-black px-3 py-2 text-sm leading-relaxed text-white outline-none"
+                  >
+                    {US_REGION_STATE_OPTIONS[statePickerRegion].map((state) => (
+                      <option key={state.value} value={state.value}>
+                        {state.label}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="mt-1 block text-xs text-white/30">Hold Ctrl on Windows or Cmd on Mac to select multiple states.</span>
                 </div>
                 <textarea
                   value={listToText(settings.searchLocations?.length ? settings.searchLocations : DEFAULT_LEAD_SEARCH_LOCATIONS)}
