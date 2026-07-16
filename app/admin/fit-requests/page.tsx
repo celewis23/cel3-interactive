@@ -154,8 +154,8 @@ export default function FitRequestsPage() {
               <h1 className="text-base font-semibold text-white">Fit Requests</h1>
               <p className="mt-0.5 text-xs text-white/35">{requests.length} shown</p>
             </div>
-            <Link href="/admin/analytics" className="text-xs text-white/35 hover:text-sky-300">
-              Analytics
+            <Link href="/admin" className="text-xs text-white/35 hover:text-sky-300">
+              Dashboard
             </Link>
           </div>
           <input
