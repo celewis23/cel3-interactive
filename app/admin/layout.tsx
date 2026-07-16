@@ -59,12 +59,12 @@ const NAV: NavItem[] = [
     ),
   },
   {
-    label: "Lead Generator",
-    href: "/admin/lead-generator",
+    label: "Lead Intelligence",
+    href: "/admin/lead-intelligence",
     icon: (
       <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v3.75m5.303-.053-2.652 2.652M21 12h-3.75m.053 5.303-2.652-2.652M12 17.25V21m-5.303-3.697 2.652-2.652M6.75 12H3m3.697-5.303 2.652 2.652" />
-        <circle cx="12" cy="12" r="2.25" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 5.25h16.5M3.75 12h16.5M3.75 18.75h16.5" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 5.25v13.5M16.5 5.25v13.5M9.75 12a2.25 2.25 0 104.5 0 2.25 2.25 0 00-4.5 0z" />
       </svg>
     ),
   },
@@ -371,7 +371,7 @@ const NAV_SECTION_DEFS = [
     title: "Clients",
     hrefs: [
       "/admin/pipeline",
-      "/admin/lead-generator",
+      "/admin/lead-intelligence",
       "/admin/leads/platform-builder",
       "/admin/fit-requests",
       "/admin/contacts",
@@ -1104,4 +1104,3 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </div>
   );
 }
-
