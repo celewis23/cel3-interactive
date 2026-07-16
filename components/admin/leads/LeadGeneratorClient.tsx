@@ -9,17 +9,24 @@ import type {
 } from "@/lib/leads/types";
 import {
   CANADA_LEAD_SEARCH_LOCATIONS,
+  CANADA_NATIONWIDE_LEAD_SEARCH_MARKETS,
   DEFAULT_LEAD_SEARCH_CATEGORIES,
   DEFAULT_LEAD_SEARCH_LOCATIONS,
   NORTH_AMERICA_LEAD_SEARCH_LOCATIONS,
   OPEN_LEAD_SEARCH_CATEGORIES,
   US_CANADA_LEAD_SEARCH_LOCATIONS,
   US_LEAD_SEARCH_LOCATIONS,
+  US_MIDWEST_LEAD_SEARCH_MARKETS,
   US_MIDWEST_LEAD_SEARCH_LOCATIONS,
+  US_NATIONWIDE_LEAD_SEARCH_MARKETS,
+  US_NORTHEAST_LEAD_SEARCH_MARKETS,
   US_NORTHEAST_LEAD_SEARCH_LOCATIONS,
   US_REGION_STATE_OPTIONS,
+  US_SOUTHEAST_LEAD_SEARCH_MARKETS,
   US_SOUTHEAST_LEAD_SEARCH_LOCATIONS,
+  US_SOUTHWEST_LEAD_SEARCH_MARKETS,
   US_SOUTHWEST_LEAD_SEARCH_LOCATIONS,
+  US_WEST_LEAD_SEARCH_MARKETS,
   US_WEST_LEAD_SEARCH_LOCATIONS,
 } from "@/lib/leads/searchCriteria";
 
@@ -45,6 +52,9 @@ const WEEKDAYS = [
   { id: 6, label: "Saturday" },
   { id: 7, label: "Sunday" },
 ];
+
+const ESTIMATED_TEXT_SEARCH_USD_PER_1000 = 32;
+const GOOGLE_MAPS_FREE_CALLS_PER_PRO_SKU = 5000;
 
 function statusClass(status: string) {
   if (status === "review") return "bg-amber-400/10 text-amber-300";
@@ -91,6 +101,61 @@ function getInitialStatePickerRegion(locations: string[]): UsRegionKey {
   return US_REGION_KEYS.find((region) => locations.includes(region)) ?? "SE US";
 }
 
+function normalizeCriteriaValue(value: string) {
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function uniqueList(values: string[]) {
+  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
+}
+
+function expandEstimatedLocations(locations: string[]) {
+  const expanded = uniqueList(locations.length ? locations : DEFAULT_LEAD_SEARCH_LOCATIONS).flatMap((location) => {
+    const normalized = normalizeCriteriaValue(location);
+    if (normalized === "united states" || normalized === "usa" || normalized === "us") {
+      return US_NATIONWIDE_LEAD_SEARCH_MARKETS;
+    }
+    if (normalized === "canada") {
+      return CANADA_NATIONWIDE_LEAD_SEARCH_MARKETS;
+    }
+    if (normalized === "north america" || normalized === "us and canada" || normalized === "usa and canada") {
+      return [...US_NATIONWIDE_LEAD_SEARCH_MARKETS, ...CANADA_NATIONWIDE_LEAD_SEARCH_MARKETS];
+    }
+    if (normalized === "ne us" || normalized === "northeast us" || normalized === "northeast united states") {
+      return US_NORTHEAST_LEAD_SEARCH_MARKETS;
+    }
+    if (normalized === "se us" || normalized === "southeast us" || normalized === "southeast united states") {
+      return US_SOUTHEAST_LEAD_SEARCH_MARKETS;
+    }
+    if (normalized === "mw us" || normalized === "midwest us" || normalized === "midwest united states") {
+      return US_MIDWEST_LEAD_SEARCH_MARKETS;
+    }
+    if (normalized === "sw us" || normalized === "southwest us" || normalized === "southwest united states") {
+      return US_SOUTHWEST_LEAD_SEARCH_MARKETS;
+    }
+    if (normalized === "w us" || normalized === "west us" || normalized === "western us" || normalized === "west united states") {
+      return US_WEST_LEAD_SEARCH_MARKETS;
+    }
+    return [location];
+  });
+  return uniqueList(expanded);
+}
+
+function estimateLeadSearchCost(settings: LeadGeneratorSettings) {
+  const locationCount = expandEstimatedLocations(settings.searchLocations).length;
+  const categories = settings.searchCategories?.length ? settings.searchCategories : OPEN_LEAD_SEARCH_CATEGORIES;
+  const categoryCount = uniqueList(categories).length;
+  const plannedCalls = locationCount * categoryCount;
+  const estimatedUsd = (plannedCalls / 1000) * ESTIMATED_TEXT_SEARCH_USD_PER_1000;
+
+  return {
+    locationCount,
+    categoryCount,
+    plannedCalls,
+    estimatedUsd,
+  };
+}
+
 async function parseApiResponse(res: Response) {
   const contentType = res.headers.get("content-type") ?? "";
   if (contentType.includes("application/json")) {
@@ -132,6 +197,7 @@ export default function LeadGeneratorClient({
   }, [leads, query, statusFilter]);
 
   const selected = leads.find((lead) => lead._id === selectedId) ?? filteredLeads[0] ?? leads[0] ?? null;
+  const costEstimate = useMemo(() => estimateLeadSearchCost(settings), [settings]);
 
   function updateSelected(patch: Partial<LeadCandidate>) {
     if (!selected) return;
@@ -519,6 +585,28 @@ export default function LeadGeneratorClient({
                   One business type per line. Leave blank to search broadly using: {OPEN_LEAD_SEARCH_CATEGORIES.join(", ")}.
                 </span>
               </label>
+            </div>
+
+            <div className="mt-5 grid gap-3 border-t border-white/8 pt-4 sm:grid-cols-4">
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+                <p className="text-[11px] uppercase tracking-[0.16em] text-white/30">Locations</p>
+                <p className="mt-1 text-lg font-semibold text-white">{costEstimate.locationCount.toLocaleString()}</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+                <p className="text-[11px] uppercase tracking-[0.16em] text-white/30">Types</p>
+                <p className="mt-1 text-lg font-semibold text-white">{costEstimate.categoryCount.toLocaleString()}</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+                <p className="text-[11px] uppercase tracking-[0.16em] text-white/30">API Searches</p>
+                <p className="mt-1 text-lg font-semibold text-white">{costEstimate.plannedCalls.toLocaleString()}</p>
+              </div>
+              <div className="rounded-xl border border-amber-300/20 bg-amber-300/[0.06] px-3 py-2">
+                <p className="text-[11px] uppercase tracking-[0.16em] text-amber-200/50">Est. Cost</p>
+                <p className="mt-1 text-lg font-semibold text-amber-100">${costEstimate.estimatedUsd.toFixed(2)}</p>
+              </div>
+              <p className="text-xs leading-relaxed text-white/35 sm:col-span-4">
+                Estimate uses planned Google Places Text Search calls at about ${ESTIMATED_TEXT_SEARCH_USD_PER_1000}/1K calls before the first {GOOGLE_MAPS_FREE_CALLS_PER_PRO_SKU.toLocaleString()} free monthly calls for eligible Pro SKUs, discounts, taxes, or billing-plan differences. Actual cost can be lower if the run reaches the lead target before checking every search.
+              </p>
             </div>
 
             <div className="mt-5 flex flex-col gap-2 border-t border-white/8 pt-4 sm:flex-row sm:items-center sm:justify-between">
