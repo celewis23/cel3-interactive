@@ -407,7 +407,7 @@ const MOBILE_PRIMARY_TABS = [
   "/admin",
   "/admin/projects",
   "/admin/email",
-  "/admin/announcements",
+  "/admin/messages",
 ].map((href) => NAV_ITEMS.find((item) => item.href === href)).filter((item): item is NavItem => Boolean(item));
 
 const NAV_SECTIONS = NAV_SECTION_DEFS.map((section) => ({
