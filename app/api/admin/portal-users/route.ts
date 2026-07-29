@@ -4,6 +4,7 @@ import { normalizeDriveId } from "@/lib/google/drive";
 import { ensureClientDriveFolderAccess, getOrCreatePortalClientRootFolder } from "@/lib/portal/provision";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
+import { buildSiteAccessPatch } from "@/lib/siteAccess";
 
 export const runtime = "nodejs";
 
@@ -15,7 +16,7 @@ export async function GET(req: NextRequest) {
     const users = await sanityServer.fetch(
       `*[_type == "clientPortalUser"] | order(_createdAt desc) {
         _id, email, name, company, stripeCustomerId, pipelineContactId,
-        driveRootFolderId, status, lastLoginAt, invitationSentAt, mustChangePassword, _createdAt
+        driveRootFolderId, siteUrl, managementUrl, status, lastLoginAt, invitationSentAt, mustChangePassword, _createdAt
       }`
     );
     return NextResponse.json(users);
@@ -58,6 +59,10 @@ export async function POST(req: NextRequest) {
       driveRootFolderId = folder.id;
     }
     await ensureClientDriveFolderAccess({ folderId: driveRootFolderId, email });
+    const siteAccessPatch = buildSiteAccessPatch({
+      siteUrl: body.siteUrl,
+      managementUrl: body.managementUrl,
+    });
 
     const user = await sanityWriteClient.create({
       _type: "clientPortalUser",
@@ -74,6 +79,7 @@ export async function POST(req: NextRequest) {
       status: "ready",
       createdAt: new Date().toISOString(),
       lastLoginAt: null,
+      ...siteAccessPatch,
     });
 
     return NextResponse.json(user, { status: 201 });

@@ -21,5 +21,13 @@ export default async function AdminPortalUsersPage() {
     }`
   );
 
-  return <PortalUsersClient initialUsers={users} />;
+  const clients = await sanityServer.fetch(
+    `*[_type == "pipelineContact" && email != null] | order(coalesce(company, name, email) asc) {
+      _id, name, email, company, stripeCustomerId,
+      siteUrl, managementUrl, portalSiteUrl, portalManagementUrl,
+      "portalUserId": *[_type == "clientPortalUser" && pipelineContactId == ^._id][0]._id
+    }`
+  );
+
+  return <PortalUsersClient initialUsers={users} clientOptions={clients} />;
 }

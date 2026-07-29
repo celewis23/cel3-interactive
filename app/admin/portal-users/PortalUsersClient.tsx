@@ -19,6 +19,19 @@ type PortalUser = {
   _createdAt: string;
 };
 
+type ClientOption = {
+  _id: string;
+  name: string | null;
+  email: string | null;
+  company: string | null;
+  stripeCustomerId: string | null;
+  siteUrl: string | null;
+  managementUrl: string | null;
+  portalSiteUrl: string | null;
+  portalManagementUrl: string | null;
+  portalUserId: string | null;
+};
+
 const STATUS_BADGE: Record<string, string> = {
   ready: "bg-white/10 text-white/60",
   active: "bg-green-500/10 text-green-400",
@@ -33,19 +46,36 @@ type InvitationResult = {
   emailSent: boolean;
 };
 
-export default function PortalUsersClient({ initialUsers }: { initialUsers: PortalUser[] }) {
-  const searchParams = useSearchParams();
-  const shouldShowForm = searchParams.get("showForm") === "1";
-  const [users, setUsers] = useState<PortalUser[]>(initialUsers);
-  const [showForm, setShowForm] = useState(shouldShowForm);
-  const [form, setForm] = useState({
+function emptyForm(searchParams: ReturnType<typeof useSearchParams>) {
+  return {
     email: searchParams.get("clientEmail") ?? "",
     name: searchParams.get("clientName") ?? "",
     company: searchParams.get("clientCompany") ?? "",
     stripeCustomerId: searchParams.get("stripeCustomerId") ?? "",
     pipelineContactId: searchParams.get("pipelineContactId") ?? "",
     driveRootFolderId: "",
-  });
+    siteUrl: "",
+    managementUrl: "",
+  };
+}
+
+function clientLabel(client: ClientOption) {
+  return [client.company, client.name, client.email].filter(Boolean).join(" - ");
+}
+
+export default function PortalUsersClient({
+  initialUsers,
+  clientOptions,
+}: {
+  initialUsers: PortalUser[];
+  clientOptions: ClientOption[];
+}) {
+  const searchParams = useSearchParams();
+  const shouldShowForm = searchParams.get("showForm") === "1";
+  const [users, setUsers] = useState<PortalUser[]>(initialUsers);
+  const [showForm, setShowForm] = useState(shouldShowForm);
+  const [selectedClientId, setSelectedClientId] = useState(searchParams.get("pipelineContactId") ?? "");
+  const [form, setForm] = useState(() => emptyForm(searchParams));
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
   const [createResult, setCreateResult] = useState<string | null>(null);
@@ -65,6 +95,27 @@ export default function PortalUsersClient({ initialUsers }: { initialUsers: Port
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState("");
 
+  const usedPipelineContactIds = new Set(users.map((user) => user.pipelineContactId).filter(Boolean));
+
+  function handleClientSelect(clientId: string) {
+    setSelectedClientId(clientId);
+    if (!clientId) return;
+
+    const client = clientOptions.find((option) => option._id === clientId);
+    if (!client) return;
+
+    setForm((current) => ({
+      ...current,
+      email: client.email ?? "",
+      name: client.name ?? "",
+      company: client.company ?? "",
+      stripeCustomerId: client.stripeCustomerId ?? "",
+      pipelineContactId: client._id,
+      siteUrl: client.portalSiteUrl ?? client.siteUrl ?? "",
+      managementUrl: client.portalManagementUrl ?? client.managementUrl ?? "",
+    }));
+  }
+
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!form.email.trim()) return;
@@ -83,6 +134,8 @@ export default function PortalUsersClient({ initialUsers }: { initialUsers: Port
           stripeCustomerId: form.stripeCustomerId.trim() || undefined,
           pipelineContactId: form.pipelineContactId.trim() || undefined,
           driveRootFolderId: form.driveRootFolderId.trim() || undefined,
+          siteUrl: form.siteUrl.trim() || undefined,
+          managementUrl: form.managementUrl.trim() || undefined,
         }),
       });
       const data = await res.json();
@@ -92,7 +145,8 @@ export default function PortalUsersClient({ initialUsers }: { initialUsers: Port
       }
       setUsers((prev) => [data, ...prev]);
       setCreateResult("Portal access is ready. Send the portal invitation when you're ready for the client to log in.");
-      setForm({ email: "", name: "", company: "", stripeCustomerId: "", pipelineContactId: "", driveRootFolderId: "" });
+      setSelectedClientId("");
+      setForm({ email: "", name: "", company: "", stripeCustomerId: "", pipelineContactId: "", driveRootFolderId: "", siteUrl: "", managementUrl: "" });
     } catch {
       setFormError("Failed to create user");
     } finally {
@@ -288,6 +342,27 @@ export default function PortalUsersClient({ initialUsers }: { initialUsers: Port
             </div>
           )}
           <form onSubmit={handleCreate} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
+              <label className="text-xs text-white/50 mb-1.5 block">Select existing client</label>
+              <select
+                value={selectedClientId}
+                onChange={(e) => handleClientSelect(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm outline-none focus:border-sky-500/50 [color-scheme:dark]"
+              >
+                <option value="">Manual entry</option>
+                {clientOptions.map((client) => {
+                  const alreadyLinked = Boolean(client.portalUserId) || usedPipelineContactIds.has(client._id);
+                  return (
+                    <option key={client._id} value={client._id} disabled={alreadyLinked}>
+                      {clientLabel(client)}{alreadyLinked ? " (portal access exists)" : ""}
+                    </option>
+                  );
+                })}
+              </select>
+              <p className="mt-1 text-[11px] text-white/30">
+                Choosing a client fills name, email, organization, Stripe ID, client ID, and portal site links when saved.
+              </p>
+            </div>
             <div>
               <label className="text-xs text-white/50 mb-1.5 block">Email <span className="text-red-400">*</span></label>
               <input
@@ -346,6 +421,26 @@ export default function PortalUsersClient({ initialUsers }: { initialUsers: Port
                 value={form.driveRootFolderId}
                 onChange={(e) => setForm((f) => ({ ...f, driveRootFolderId: e.target.value }))}
                 placeholder="Google Drive folder ID"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors font-mono"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-white/50 mb-1.5 block">Live Site URL</label>
+              <input
+                type="url"
+                value={form.siteUrl}
+                onChange={(e) => setForm((f) => ({ ...f, siteUrl: e.target.value }))}
+                placeholder="https://clientsite.com"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors font-mono"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-white/50 mb-1.5 block">Management URL</label>
+              <input
+                type="url"
+                value={form.managementUrl}
+                onChange={(e) => setForm((f) => ({ ...f, managementUrl: e.target.value }))}
+                placeholder="https://admin.clientsite.com"
                 className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors font-mono"
               />
             </div>
