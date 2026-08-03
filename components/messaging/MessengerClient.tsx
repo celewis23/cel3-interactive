@@ -958,7 +958,7 @@ export default function MessengerClient({
       </div>
 
       {showNewConversation && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/65 px-4 pt-24 backdrop-blur-sm md:justify-start md:pl-[max(1rem,calc((100vw-1120px)/2+1rem))]">
+        <div className="fixed inset-0 z-50 flex w-[100dvw] max-w-full items-start justify-center overflow-x-hidden overflow-y-auto bg-black/65 px-3 py-4 backdrop-blur-sm sm:px-4 sm:pt-24 md:justify-start md:pl-[max(1rem,calc((100vw-1120px)/2+1rem))]">
           <button
             type="button"
             className="absolute inset-0 cursor-default"
@@ -967,10 +967,10 @@ export default function MessengerClient({
           />
           <form
             onSubmit={startConversation}
-            className="relative w-full max-w-md origin-top-left animate-[chatModalIn_180ms_ease-out] rounded-2xl border border-white/10 bg-[#07090c] p-5 shadow-2xl shadow-black/50"
+            className="relative w-full min-w-0 max-w-md origin-top-left animate-[chatModalIn_180ms_ease-out] overflow-hidden rounded-2xl border border-white/10 bg-[#07090c] p-4 shadow-2xl shadow-black/50 sm:p-5"
           >
-            <div className="mb-4 flex items-start justify-between gap-3">
-              <div>
+            <div className="mb-4 flex min-w-0 items-start justify-between gap-3">
+              <div className="min-w-0">
                 <h2 className="text-base font-semibold text-white">{mode === "admin" ? "New client chat" : "New conversation"}</h2>
                 <p className="mt-1 text-xs text-white/40">
                   {mode === "admin" ? "Choose a portal user, add a subject, and send the first message." : "Start a thread with the CEL3 team."}
@@ -986,16 +986,16 @@ export default function MessengerClient({
               </button>
             </div>
 
-            <div className="grid gap-3">
+            <div className="grid min-w-0 gap-3">
               {mode === "admin" && (
-                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                <div className="min-w-0 rounded-xl border border-white/10 bg-white/[0.03] p-3">
                   <input
                     value={portalUserSearch}
                     onChange={(event) => setPortalUserSearch(event.target.value)}
                     placeholder="Search people"
                     className="mb-3 w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white outline-none placeholder:text-white/25 focus:border-sky-500/50"
                   />
-                  <div className="max-h-48 overflow-y-auto pr-1">
+                  <div className="max-h-48 min-w-0 overflow-y-auto overflow-x-hidden pr-1">
                     {loadingPortalUsers ? (
                       <div className="p-3 text-sm text-white/35">Loading portal users...</div>
                     ) : filteredPortalUsers.length === 0 ? (
@@ -1008,7 +1008,7 @@ export default function MessengerClient({
                             key={user._id}
                             type="button"
                             onClick={() => setSelectedPortalUserId(user._id)}
-                            className={`mb-2 flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${active ? "border-sky-500/45 bg-sky-500/10" : "border-white/8 bg-black/15 hover:border-white/20"}`}
+                            className={`mb-2 flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-xl border p-3 text-left transition ${active ? "border-sky-500/45 bg-sky-500/10" : "border-white/8 bg-black/15 hover:border-white/20"}`}
                           >
                             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/8 text-xs font-semibold text-white/70">
                               {user.profileImageUrl ? (
@@ -1018,7 +1018,7 @@ export default function MessengerClient({
                                 (user.name || user.email).slice(0, 1).toUpperCase()
                               )}
                             </span>
-                            <span className="min-w-0">
+                            <span className="min-w-0 flex-1 overflow-hidden">
                               <span className="block truncate text-sm font-medium text-white">{user.name || user.email}</span>
                               <span className="block truncate text-xs text-white/35">{[user.company, user.email].filter(Boolean).join(" - ")}</span>
                             </span>
@@ -1067,7 +1067,7 @@ export default function MessengerClient({
                   ))}
                 </div>
               )}
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <input
                   ref={newFileInputRef}
                   type="file"
@@ -1088,18 +1088,18 @@ export default function MessengerClient({
                 </button>
                 <span className="text-xs text-white/30">{newAttachments.length}/{MAX_IMAGES_PER_MESSAGE}</span>
               </div>
-              <div className="flex items-center justify-end gap-2">
+              <div className="flex flex-wrap items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowNewConversation(false)}
-                  className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/55 transition hover:text-white"
+                  className="min-w-0 rounded-xl border border-white/10 px-4 py-2 text-sm text-white/55 transition hover:text-white"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={starting || (!newBody.trim() && newAttachments.length === 0) || (mode === "admin" && (!selectedPortalUserId || loadingPortalUsers))}
-                  className="rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-sky-400 disabled:opacity-40"
+                  className="min-w-0 rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-sky-400 disabled:opacity-40"
                 >
                   {starting ? "Starting..." : "Chat"}
                 </button>
