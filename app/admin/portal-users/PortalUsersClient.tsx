@@ -489,7 +489,7 @@ export default function PortalUsersClient({
             </div>
           </div>
           <p className="text-xs text-white/35 mt-3">
-            This link expires {new Date(loginLinkResult.expiresAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })} and can only be used once.
+            This link expires {new Date(loginLinkResult.expiresAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} and can only be used once.
           </p>
         </div>
       )}

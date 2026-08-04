@@ -17,6 +17,7 @@ const ALLOWED = [
   "name", "company", "stripeCustomerId", "pipelineContactId", "driveRootFolderId", "status",
   "siteUrl", "managementUrl",
 ] as const;
+const ADMIN_LOGIN_LINK_TTL_MS = 24 * 60 * 60 * 1000;
 
 // Portal buttons link straight to these; make pasted values clickable
 function normalizeUrl(value: unknown): string | null {
@@ -182,8 +183,8 @@ export async function POST(
     if (body.action === "login-link") {
       const shouldSendEmail = body.delivery !== "copy";
       const token = generateMagicToken();
-      const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-      const loginUrl = `${siteUrl}/api/portal/auth/verify?token=${token}`;
+      const expiresAt = new Date(Date.now() + ADMIN_LOGIN_LINK_TTL_MS).toISOString();
+      const loginUrl = `${siteUrl}/portal/auth/verify?token=${token}`;
 
       await sanityWriteClient.create({
         _type: "clientPortalToken",
@@ -211,7 +212,7 @@ export async function POST(
                   Sign in to portal
                 </a>
                 <p style="font-size:13px;color:#aaa;margin:28px 0 0;line-height:1.6">
-                  This link is valid for 15 minutes and can only be used once.
+                  This link is valid for 24 hours and can only be used once.
                 </p>
               </div>
             `,
