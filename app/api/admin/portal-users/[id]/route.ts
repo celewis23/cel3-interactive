@@ -4,7 +4,7 @@ import { normalizeDriveId } from "@/lib/google/drive";
 import { ensureClientDriveFolderAccess } from "@/lib/portal/provision";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
-import { generateTemporaryPortalPassword } from "@/lib/portal/auth";
+import { generateMagicToken, generateTemporaryPortalPassword } from "@/lib/portal/auth";
 import { sendEmail } from "@/lib/gmail/api";
 import { hashPassword } from "@/lib/admin/staffPassword";
 import { completeOnboardingStepForClient } from "@/lib/onboarding/autoComplete";
@@ -159,6 +159,7 @@ export async function POST(
   if (authErr) return authErr;
   const { id } = await params;
   try {
+    const body = await req.json().catch(() => ({})) as { action?: string };
     const user = await sanityServer.fetch<{
       email: string;
       name: string | null;
@@ -177,9 +178,59 @@ export async function POST(
       return NextResponse.json({ error: "Restore this portal user before sending an invitation" }, { status: 409 });
     }
 
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(req.url).origin;
+    if (body.action === "login-link") {
+      const token = generateMagicToken();
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+      const loginUrl = `${siteUrl}/portal/auth/verify?token=${token}`;
+
+      await sanityWriteClient.create({
+        _type: "clientPortalToken",
+        email: user.email,
+        userId: id,
+        token,
+        expiresAt,
+        used: false,
+      });
+
+      let emailSent = false;
+      try {
+        await sendEmail({
+          to: user.email,
+          subject: "Your CEL3 Interactive Portal Sign-In Link",
+          htmlBody: `
+            <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;">
+              <p style="font-size:13px;color:#888;margin:0 0 6px;text-transform:uppercase;letter-spacing:0.08em">CEL3 Interactive</p>
+              <h1 style="font-size:22px;font-weight:700;color:#000;margin:0 0 16px;line-height:1.3">Sign in to your client portal</h1>
+              <p style="font-size:15px;color:#444;margin:0 0 28px;line-height:1.6">
+                ${user.name ? `Hi ${user.name},` : "Hi,"} use the secure link below to sign in to your CEL3 Interactive client portal.
+              </p>
+              <a href="${loginUrl}" style="display:inline-block;padding:13px 28px;background:#0ea5e9;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:15px;">
+                Sign in to portal
+              </a>
+              <p style="font-size:13px;color:#aaa;margin:28px 0 0;line-height:1.6">
+                This link is valid for 15 minutes and can only be used once.
+              </p>
+            </div>
+          `,
+        });
+        emailSent = true;
+      } catch (emailErr) {
+        console.error("PORTAL_ADMIN_LOGIN_LINK_EMAIL_ERR:", emailErr);
+      }
+
+      return NextResponse.json({
+        ok: true,
+        emailSent,
+        loginUrl,
+        loginEmail: user.email,
+        expiresAt,
+      });
+    }
+
     const temporaryPassword = generateTemporaryPortalPassword();
     const { hash, salt } = hashPassword(temporaryPassword);
-    const portalLoginUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? new URL(req.url).origin}/portal/auth/login`;
+    const portalLoginUrl = `${siteUrl}/portal/auth/login`;
     const invitationSentAt = new Date().toISOString();
 
     await sanityWriteClient.patch(id).set({

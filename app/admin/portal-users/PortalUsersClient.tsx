@@ -46,6 +46,13 @@ type InvitationResult = {
   emailSent: boolean;
 };
 
+type LoginLinkResult = {
+  loginEmail: string;
+  loginUrl: string;
+  expiresAt: string;
+  emailSent: boolean;
+};
+
 function emptyForm(searchParams: ReturnType<typeof useSearchParams>) {
   return {
     email: searchParams.get("clientEmail") ?? "",
@@ -61,6 +68,12 @@ function emptyForm(searchParams: ReturnType<typeof useSearchParams>) {
 
 function clientLabel(client: ClientOption) {
   return [client.company, client.name, client.email].filter(Boolean).join(" - ");
+}
+
+function formatDate(value: string | null) {
+  return value
+    ? new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    : null;
 }
 
 export default function PortalUsersClient({
@@ -80,8 +93,11 @@ export default function PortalUsersClient({
   const [formError, setFormError] = useState("");
   const [createResult, setCreateResult] = useState<string | null>(null);
   const [inviteResult, setInviteResult] = useState<InvitationResult | null>(null);
+  const [loginLinkResult, setLoginLinkResult] = useState<LoginLinkResult | null>(null);
   const [inviteErrors, setInviteErrors] = useState<Record<string, string>>({});
+  const [loginLinkErrors, setLoginLinkErrors] = useState<Record<string, string>>({});
   const [resending, setResending] = useState<string | null>(null);
+  const [sendingLoginLink, setSendingLoginLink] = useState<string | null>(null);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     name: "",
@@ -123,6 +139,7 @@ export default function PortalUsersClient({
     setFormError("");
     setCreateResult(null);
     setInviteResult(null);
+    setLoginLinkResult(null);
     try {
       const res = await fetch("/api/admin/portal-users", {
         method: "POST",
@@ -157,6 +174,7 @@ export default function PortalUsersClient({
   async function handleResend(userId: string) {
     setResending(userId);
     setInviteErrors((prev) => ({ ...prev, [userId]: "" }));
+    setLoginLinkResult(null);
     try {
       const res = await fetch(`/api/admin/portal-users/${userId}`, { method: "POST" });
       const data = await res.json();
@@ -182,6 +200,32 @@ export default function PortalUsersClient({
       }
     } finally {
       setResending(null);
+    }
+  }
+
+  async function handleSendLoginLink(userId: string) {
+    setSendingLoginLink(userId);
+    setLoginLinkErrors((prev) => ({ ...prev, [userId]: "" }));
+    setInviteResult(null);
+    try {
+      const res = await fetch(`/api/admin/portal-users/${userId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "login-link" }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setLoginLinkResult({
+          loginEmail: data.loginEmail,
+          loginUrl: data.loginUrl,
+          expiresAt: data.expiresAt,
+          emailSent: data.emailSent,
+        });
+      } else {
+        setLoginLinkErrors((prev) => ({ ...prev, [userId]: data.error || "Failed to send portal login link" }));
+      }
+    } finally {
+      setSendingLoginLink(null);
     }
   }
 
@@ -254,6 +298,70 @@ export default function PortalUsersClient({
     }
   }
 
+  function renderUserActions(user: PortalUser, layout: "card" | "table") {
+    const inviteError = inviteErrors[user._id];
+    const loginLinkError = loginLinkErrors[user._id];
+    const alignClass = layout === "table" ? "items-end text-right" : "items-stretch";
+    const rowClass = layout === "table" ? "justify-end" : "justify-start";
+    const buttonBase = "rounded-lg border border-white/10 px-3 py-2 text-xs transition-colors disabled:opacity-40";
+
+    return (
+      <div className={`flex flex-col gap-2 ${alignClass}`}>
+        <div className={`flex flex-wrap gap-2 ${rowClass}`}>
+          <button
+            onClick={() => handleEdit(user)}
+            className={`${buttonBase} bg-white/5 text-white/65 hover:border-white/20 hover:text-white`}
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => handleSendLoginLink(user._id)}
+            disabled={sendingLoginLink === user._id || user.status === "suspended"}
+            className={`${buttonBase} bg-sky-500/10 text-sky-300 hover:border-sky-400/40 hover:text-sky-200`}
+          >
+            {sendingLoginLink === user._id ? "Sending..." : "Resend login link"}
+          </button>
+          <button
+            onClick={() => handleResend(user._id)}
+            disabled={resending === user._id || user.status === "suspended"}
+            className={`${buttonBase} bg-white/5 text-white/55 hover:border-white/20 hover:text-white`}
+          >
+            {resending === user._id
+              ? "Sending..."
+              : user.invitationSentAt
+                ? "Reset password"
+                : "Send invitation"}
+          </button>
+          <button
+            onClick={() => handleStatusToggle(user)}
+            className={`${buttonBase} ${user.status === "suspended" ? "bg-green-500/10 text-green-400 hover:border-green-500/30" : "bg-yellow-500/10 text-yellow-400 hover:border-yellow-500/30"}`}
+          >
+            {user.status === "suspended" ? "Restore" : "Suspend"}
+          </button>
+          <button
+            onClick={() => handleDelete(user._id)}
+            className={`${buttonBase} bg-red-500/10 text-red-300/80 hover:border-red-500/30 hover:text-red-300`}
+          >
+            Delete
+          </button>
+        </div>
+        {loginLinkError && (
+          <span className="text-xs text-red-400">{loginLinkError}</span>
+        )}
+        {inviteError && (
+          <span className="text-xs text-red-400">{inviteError}</span>
+        )}
+        {user.mustChangePassword && user.status !== "suspended" && (
+          <span className="text-xs text-white/25">Will be prompted to change password on first login</span>
+        )}
+      </div>
+    );
+  }
+
+  function detailValue(value: string | null, fallback = "-") {
+    return value?.trim() ? value : fallback;
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -264,7 +372,7 @@ export default function PortalUsersClient({
           </p>
         </div>
         <button
-          onClick={() => { setShowForm(!showForm); setInviteResult(null); setCreateResult(null); setFormError(""); }}
+          onClick={() => { setShowForm(!showForm); setInviteResult(null); setLoginLinkResult(null); setCreateResult(null); setFormError(""); }}
           className="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-semibold text-sm transition-colors"
         >
           {showForm ? "Cancel" : "+ Add portal access"}
@@ -322,6 +430,44 @@ export default function PortalUsersClient({
           </div>
           <p className="text-xs text-white/35 mt-3">
             The client will be asked to change this password the first time they sign in.
+          </p>
+        </div>
+      )}
+
+      {loginLinkResult && (
+        <div className="bg-sky-500/10 border border-sky-500/20 rounded-2xl p-5">
+          <p className="text-sm text-sky-300 mb-3">
+            {loginLinkResult.emailSent
+              ? "Portal login link sent. You can also copy the one-use link below."
+              : "Email delivery failed, but the one-use login link is ready to share manually."}
+          </p>
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)]">
+            <div>
+              <p className="text-xs text-white/35 mb-1">Login email</p>
+              <div className="break-words px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white">
+                {loginLinkResult.loginEmail}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-white/35 mb-1">One-use login link</p>
+              <div className="flex min-w-0 items-center gap-2">
+                <input
+                  readOnly
+                  value={loginLinkResult.loginUrl}
+                  className="min-w-0 flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white outline-none"
+                  onClick={(e) => (e.target as HTMLInputElement).select()}
+                />
+                <button
+                  onClick={() => navigator.clipboard.writeText(loginLinkResult.loginUrl)}
+                  className="shrink-0 text-xs text-white/40 hover:text-white transition-colors"
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+          </div>
+          <p className="text-xs text-white/35 mt-3">
+            This link expires {new Date(loginLinkResult.expiresAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })} and can only be used once.
           </p>
         </div>
       )}
@@ -558,106 +704,144 @@ export default function PortalUsersClient({
           <p className="text-white/40 text-sm">No portal users yet. Invite your first client above.</p>
         </div>
       ) : (
-        <div className="bg-white/3 border border-white/8 rounded-2xl overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-white/8">
-                <th className="px-4 py-3 text-left text-xs text-white/40 font-medium">Client</th>
-                <th className="px-4 py-3 text-left text-xs text-white/40 font-medium hidden md:table-cell">Linked to</th>
-                <th className="px-4 py-3 text-left text-xs text-white/40 font-medium">Status</th>
-                <th className="px-4 py-3 text-left text-xs text-white/40 font-medium hidden lg:table-cell">Invitation</th>
-                <th className="px-4 py-3 text-left text-xs text-white/40 font-medium hidden lg:table-cell">Last login</th>
-                <th className="px-4 py-3 text-right text-xs text-white/40 font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {users.map((u) => {
-                const inviteError = inviteErrors[u._id];
-                return (
-                  <tr key={u._id} className="hover:bg-white/2 transition-colors">
+        <div className="space-y-3">
+          <div className="grid gap-3 lg:hidden">
+            {users.map((u) => (
+              <article key={u._id} className="min-w-0 rounded-2xl border border-white/8 bg-white/3 p-4">
+                <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="break-words text-sm font-medium text-white">{u.name || u.email}</p>
+                    {u.name && <p className="mt-0.5 break-words text-xs text-white/45">{u.email}</p>}
+                    {u.company && <p className="mt-0.5 break-words text-xs text-white/35">{u.company}</p>}
+                  </div>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs ${STATUS_BADGE[u.status] || "text-white/30"}`}>
+                    {u.status}
+                  </span>
+                </div>
+
+                <dl className="mt-4 grid min-w-0 gap-3 text-xs sm:grid-cols-2">
+                  <div className="min-w-0">
+                    <dt className="text-white/35">Stripe customer</dt>
+                    <dd className="mt-1 break-all font-mono text-white/60">{detailValue(u.stripeCustomerId)}</dd>
+                  </div>
+                  <div className="min-w-0">
+                    <dt className="text-white/35">Pipeline contact</dt>
+                    <dd className="mt-1 break-all font-mono text-white/60">{detailValue(u.pipelineContactId)}</dd>
+                  </div>
+                  <div className="min-w-0">
+                    <dt className="text-white/35">Drive folder</dt>
+                    <dd className="mt-1 break-all font-mono text-white/60">{detailValue(u.driveRootFolderId)}</dd>
+                  </div>
+                  <div className="min-w-0">
+                    <dt className="text-white/35">Created</dt>
+                    <dd className="mt-1 text-white/60">{formatDate(u._createdAt) ?? "-"}</dd>
+                  </div>
+                  <div className="min-w-0">
+                    <dt className="text-white/35">Invitation</dt>
+                    <dd className="mt-1 text-white/60">{formatDate(u.invitationSentAt) ?? "Not sent"}</dd>
+                  </div>
+                  <div className="min-w-0">
+                    <dt className="text-white/35">Last login</dt>
+                    <dd className="mt-1 text-white/60">{formatDate(u.lastLoginAt) ?? "Never"}</dd>
+                  </div>
+                  <div className="min-w-0 sm:col-span-2">
+                    <dt className="text-white/35">Live site</dt>
+                    <dd className="mt-1 min-w-0">
+                      {u.siteUrl ? (
+                        <a href={u.siteUrl} target="_blank" rel="noopener noreferrer" className="break-all text-sky-300 hover:text-sky-200">
+                          {u.siteUrl}
+                        </a>
+                      ) : (
+                        <span className="text-white/25">-</span>
+                      )}
+                    </dd>
+                  </div>
+                  <div className="min-w-0 sm:col-span-2">
+                    <dt className="text-white/35">Management URL</dt>
+                    <dd className="mt-1 min-w-0">
+                      {u.managementUrl ? (
+                        <a href={u.managementUrl} target="_blank" rel="noopener noreferrer" className="break-all text-sky-300 hover:text-sky-200">
+                          {u.managementUrl}
+                        </a>
+                      ) : (
+                        <span className="text-white/25">-</span>
+                      )}
+                    </dd>
+                  </div>
+                </dl>
+
+                <div className="mt-4 border-t border-white/8 pt-4">
+                  {renderUserActions(u, "card")}
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="hidden overflow-x-auto rounded-2xl border border-white/8 bg-white/3 lg:block">
+            <table className="w-full min-w-[1040px]">
+              <thead>
+                <tr className="border-b border-white/8">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white/40">Client</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white/40">Links</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white/40">IDs</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white/40">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white/40">Activity</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-white/40">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {users.map((u) => (
+                  <tr key={u._id} className="align-top transition-colors hover:bg-white/2">
                     <td className="px-4 py-3">
-                      <p className="text-sm text-white">{u.name || u.email}</p>
-                      {u.name && <p className="text-xs text-white/40">{u.email}</p>}
-                      {u.company && <p className="text-xs text-white/30">{u.company}</p>}
+                      <p className="max-w-[220px] break-words text-sm text-white">{u.name || u.email}</p>
+                      {u.name && <p className="mt-0.5 max-w-[220px] break-words text-xs text-white/40">{u.email}</p>}
+                      {u.company && <p className="mt-0.5 max-w-[220px] break-words text-xs text-white/30">{u.company}</p>}
                     </td>
-                    <td className="px-4 py-3 hidden md:table-cell">
-                      <div className="flex flex-col gap-0.5">
-                        {u.stripeCustomerId && (
-                          <span className="text-xs text-white/30 font-mono">{u.stripeCustomerId}</span>
+                    <td className="px-4 py-3">
+                      <div className="flex max-w-[220px] flex-col gap-1 text-xs">
+                        {u.siteUrl ? (
+                          <a href={u.siteUrl} target="_blank" rel="noopener noreferrer" className="truncate text-sky-300 hover:text-sky-200">
+                            Open site
+                          </a>
+                        ) : (
+                          <span className="text-white/20">No live site</span>
                         )}
-                        {u.pipelineContactId && (
-                          <span className="text-xs text-white/20 font-mono">{u.pipelineContactId.slice(0, 16)}…</span>
-                        )}
-                        {!u.stripeCustomerId && !u.pipelineContactId && (
-                          <span className="text-xs text-white/20">—</span>
+                        {u.managementUrl ? (
+                          <a href={u.managementUrl} target="_blank" rel="noopener noreferrer" className="truncate text-sky-300 hover:text-sky-200">
+                            Manage site
+                          </a>
+                        ) : (
+                          <span className="text-white/20">No management URL</span>
                         )}
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_BADGE[u.status] || "text-white/30"}`}>
+                      <div className="flex max-w-[230px] flex-col gap-1 text-xs">
+                        <span className="break-all font-mono text-white/35">Stripe: {detailValue(u.stripeCustomerId)}</span>
+                        <span className="break-all font-mono text-white/25">Pipeline: {detailValue(u.pipelineContactId)}</span>
+                        <span className="break-all font-mono text-white/25">Drive: {detailValue(u.driveRootFolderId)}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_BADGE[u.status] || "text-white/30"}`}>
                         {u.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 hidden lg:table-cell">
-                      <span className="text-xs text-white/40">
-                        {u.invitationSentAt
-                          ? new Date(u.invitationSentAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-                          : "Not sent"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 hidden lg:table-cell">
-                      <span className="text-xs text-white/40">
-                        {u.lastLoginAt
-                          ? new Date(u.lastLoginAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-                          : "Never"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex flex-col items-end gap-1">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleEdit(u)}
-                            className="text-xs text-white/40 hover:text-white transition-colors"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleResend(u._id)}
-                            disabled={resending === u._id || u.status === "suspended"}
-                            className="text-xs text-white/40 hover:text-white transition-colors disabled:opacity-40"
-                          >
-                            {resending === u._id
-                              ? "Sending…"
-                              : u.invitationSentAt
-                                ? "Reset password & resend"
-                                : "Send invitation"}
-                          </button>
-                          <button
-                            onClick={() => handleStatusToggle(u)}
-                            className={`text-xs transition-colors ${u.status === "suspended" ? "text-green-400 hover:text-green-300" : "text-yellow-400 hover:text-yellow-300"}`}
-                          >
-                            {u.status === "suspended" ? "Restore" : "Suspend"}
-                          </button>
-                          <button
-                            onClick={() => handleDelete(u._id)}
-                            className="text-xs text-red-400/60 hover:text-red-400 transition-colors"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                        {inviteError && (
-                          <span className="text-xs text-red-400">{inviteError}</span>
-                        )}
-                        {u.mustChangePassword && u.status !== "suspended" && (
-                          <span className="text-xs text-white/25">Will be prompted to change password on first login</span>
-                        )}
+                    <td className="px-4 py-3">
+                      <div className="flex min-w-[130px] flex-col gap-1 text-xs text-white/40">
+                        <span>Invite: {formatDate(u.invitationSentAt) ?? "Not sent"}</span>
+                        <span>Login: {formatDate(u.lastLoginAt) ?? "Never"}</span>
+                        <span>Created: {formatDate(u._createdAt) ?? "-"}</span>
                       </div>
                     </td>
+                    <td className="px-4 py-3">
+                      {renderUserActions(u, "table")}
+                    </td>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
