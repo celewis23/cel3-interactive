@@ -51,6 +51,7 @@ type LoginLinkResult = {
   loginUrl: string;
   expiresAt: string;
   emailSent: boolean;
+  copiedToClipboard: boolean;
 };
 
 function emptyForm(searchParams: ReturnType<typeof useSearchParams>) {
@@ -98,6 +99,7 @@ export default function PortalUsersClient({
   const [loginLinkErrors, setLoginLinkErrors] = useState<Record<string, string>>({});
   const [resending, setResending] = useState<string | null>(null);
   const [sendingLoginLink, setSendingLoginLink] = useState<string | null>(null);
+  const [copyingLoginLink, setCopyingLoginLink] = useState<string | null>(null);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     name: "",
@@ -203,29 +205,40 @@ export default function PortalUsersClient({
     }
   }
 
-  async function handleSendLoginLink(userId: string) {
-    setSendingLoginLink(userId);
+  async function handleSendLoginLink(userId: string, copyOnly = false) {
+    if (copyOnly) setCopyingLoginLink(userId);
+    else setSendingLoginLink(userId);
     setLoginLinkErrors((prev) => ({ ...prev, [userId]: "" }));
     setInviteResult(null);
     try {
       const res = await fetch(`/api/admin/portal-users/${userId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "login-link" }),
+        body: JSON.stringify({ action: "login-link", delivery: copyOnly ? "copy" : "email" }),
       });
       const data = await res.json();
       if (res.ok) {
+        if (copyOnly) {
+          await navigator.clipboard.writeText(data.loginUrl);
+        }
         setLoginLinkResult({
           loginEmail: data.loginEmail,
           loginUrl: data.loginUrl,
           expiresAt: data.expiresAt,
           emailSent: data.emailSent,
+          copiedToClipboard: copyOnly,
         });
       } else {
         setLoginLinkErrors((prev) => ({ ...prev, [userId]: data.error || "Failed to send portal login link" }));
       }
+    } catch {
+      setLoginLinkErrors((prev) => ({
+        ...prev,
+        [userId]: copyOnly ? "Failed to copy portal login link" : "Failed to send portal login link",
+      }));
     } finally {
-      setSendingLoginLink(null);
+      if (copyOnly) setCopyingLoginLink(null);
+      else setSendingLoginLink(null);
     }
   }
 
@@ -320,6 +333,13 @@ export default function PortalUsersClient({
             className={`${buttonBase} bg-sky-500/10 text-sky-300 hover:border-sky-400/40 hover:text-sky-200`}
           >
             {sendingLoginLink === user._id ? "Sending..." : "Resend login link"}
+          </button>
+          <button
+            onClick={() => handleSendLoginLink(user._id, true)}
+            disabled={copyingLoginLink === user._id || user.status === "suspended"}
+            className={`${buttonBase} bg-white/5 text-sky-200/80 hover:border-sky-400/40 hover:text-sky-100`}
+          >
+            {copyingLoginLink === user._id ? "Copying..." : "Copy login link"}
           </button>
           <button
             onClick={() => handleResend(user._id)}
@@ -437,7 +457,9 @@ export default function PortalUsersClient({
       {loginLinkResult && (
         <div className="bg-sky-500/10 border border-sky-500/20 rounded-2xl p-5">
           <p className="text-sm text-sky-300 mb-3">
-            {loginLinkResult.emailSent
+            {loginLinkResult.copiedToClipboard
+              ? "Portal login link copied. You can copy it again below if needed."
+              : loginLinkResult.emailSent
               ? "Portal login link sent. You can also copy the one-use link below."
               : "Email delivery failed, but the one-use login link is ready to share manually."}
           </p>
