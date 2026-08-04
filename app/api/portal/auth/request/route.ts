@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     });
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(req.url).origin;
-    const link = `${siteUrl}/portal/auth/verify?token=${token}`;
+    const link = `${siteUrl}/api/portal/auth/verify?token=${token}`;
 
     try {
       await sendEmail({

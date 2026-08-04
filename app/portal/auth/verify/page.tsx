@@ -1,4 +1,16 @@
+"use client";
+
+import { useEffect } from "react";
+
 export default function PortalVerifyPage() {
+  useEffect(() => {
+    const token = new URLSearchParams(window.location.search).get("token");
+    const target = token
+      ? `/api/portal/auth/verify?token=${encodeURIComponent(token)}`
+      : "/portal/auth/login?error=invalid";
+    window.location.replace(target);
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#0d0d0d] flex items-center justify-center px-4">
       <div className="text-center">

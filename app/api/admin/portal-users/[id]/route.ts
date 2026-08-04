@@ -183,7 +183,7 @@ export async function POST(
       const shouldSendEmail = body.delivery !== "copy";
       const token = generateMagicToken();
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-      const loginUrl = `${siteUrl}/portal/auth/verify?token=${token}`;
+      const loginUrl = `${siteUrl}/api/portal/auth/verify?token=${token}`;
 
       await sanityWriteClient.create({
         _type: "clientPortalToken",
