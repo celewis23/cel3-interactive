@@ -278,6 +278,30 @@ body,
   color-scheme: light;
 }
 
+[data-admin-theme="dark"] .admin-shell input[type="date"],
+[data-admin-theme="dark"] .admin-shell input[type="datetime-local"],
+[data-admin-theme="dark"] .admin-shell input[type="month"],
+[data-admin-theme="dark"] .admin-shell input[type="week"],
+[data-portal-theme="dark"] .portal-shell input[type="date"],
+[data-portal-theme="dark"] .portal-shell input[type="datetime-local"],
+[data-portal-theme="dark"] .portal-shell input[type="month"],
+[data-portal-theme="dark"] .portal-shell input[type="week"] {
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+[data-admin-theme="light"] .admin-shell input[type="date"],
+[data-admin-theme="light"] .admin-shell input[type="datetime-local"],
+[data-admin-theme="light"] .admin-shell input[type="month"],
+[data-admin-theme="light"] .admin-shell input[type="week"],
+[data-portal-theme="light"] .portal-shell input[type="date"],
+[data-portal-theme="light"] .portal-shell input[type="datetime-local"],
+[data-portal-theme="light"] .portal-shell input[type="month"],
+[data-portal-theme="light"] .portal-shell input[type="week"] {
+  color-scheme: light;
+  cursor: pointer;
+}
+
 [data-admin-theme="dark"] .admin-shell,
 [data-admin-theme="dark"] .admin-shell * {
   scrollbar-width: thin;

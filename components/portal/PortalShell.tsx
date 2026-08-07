@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import PortalAssistant from "@/components/portal/PortalAssistant";
 import PortalAppControls from "@/components/portal/PortalAppControls";
+import DateInputAutoPicker from "@/components/shared/DateInputAutoPicker";
 
 const NAV = [
   { label: "Get Started", href: "/portal/onboarding" },
@@ -174,6 +175,8 @@ export default function PortalShell({
 
   return (
     <div className={`portal-shell ${shellClass}`}>
+      <DateInputAutoPicker />
+
       {/* Top bar */}
       <header className={headerClass}>
         <div className="max-w-6xl mx-auto px-4 lg:px-8 h-14 flex items-center justify-between">

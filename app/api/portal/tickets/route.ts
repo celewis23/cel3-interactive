@@ -3,6 +3,7 @@ import { verifyPortalSessionToken, PORTAL_COOKIE } from "@/lib/portal/auth";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { createPortalTicketArtifacts } from "@/lib/portal/provision";
+import { sendPushNotificationToAudience } from "@/lib/notifications/push";
 import { Resend } from "resend";
 
 export const runtime = "nodejs";
@@ -10,6 +11,7 @@ export const runtime = "nodejs";
 const resend = new Resend(process.env.RESEND_API_KEY);
 const ADMIN_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL ?? "cel3media@gmail.com";
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "noreply@cel3interactive.com";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "https://cel3interactive.com";
 
 async function getPortalContext(userId: string) {
   return sanityServer.fetch<{
@@ -124,6 +126,8 @@ export async function POST(req: NextRequest) {
       updatedAt: new Date().toISOString(),
     }).commit();
 
+    const adminRequestHref = `/admin/portal-requests?requestId=${encodeURIComponent(created._id)}`;
+
     // Notify admin of new request (fire-and-forget)
     resend.emails.send({
       from: FROM_EMAIL,
@@ -140,7 +144,7 @@ export async function POST(req: NextRequest) {
             <tr><td style="padding:6px 0;color:#888">Priority</td><td style="padding:6px 0;text-transform:capitalize">${priority}</td></tr>
             <tr><td style="padding:6px 0;color:#888;vertical-align:top">Description</td><td style="padding:6px 0;white-space:pre-wrap">${description}</td></tr>
           </table>
-          <a href="${process.env.NEXT_PUBLIC_APP_URL ?? "https://cel3interactive.com"}/admin/portal-requests"
+          <a href="${APP_URL}${adminRequestHref}"
              style="display:inline-block;margin-top:20px;padding:10px 20px;background:#0ea5e9;color:#fff;text-decoration:none;border-radius:8px;font-size:13px;font-weight:600">
             View in Admin Console
           </a>
@@ -148,6 +152,16 @@ export async function POST(req: NextRequest) {
       `,
       text: `New client request from ${user.email}\n\nTitle: ${title}\nPriority: ${priority}\n\n${description}`,
     }).catch((e) => console.error("TICKET_EMAIL_ERR:", e));
+
+    await sendPushNotificationToAudience(
+      {
+        title: "New client request",
+        body: `${user.email}: ${title}`,
+        href: adminRequestHref,
+        tag: `client-request:${created._id}`,
+      },
+      { module: "clients", action: "view" }
+    ).catch((e) => console.error("TICKET_PUSH_ERR:", e));
 
     return NextResponse.json(updated, { status: 201 });
   } catch (err) {

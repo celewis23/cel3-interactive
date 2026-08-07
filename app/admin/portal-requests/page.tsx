@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
 type TicketNote = { _key: string; text: string; createdAt: string };
 type TicketAttachment = { _key?: string; name: string; webViewLink?: string | null };
@@ -43,9 +44,21 @@ const PRIORITY_DOT: Record<string, string> = {
 };
 
 export default function AdminPortalRequestsPage() {
+  return (
+    <Suspense fallback={<div className="text-sm text-white/35">Loading requests...</div>}>
+      <AdminPortalRequestsContent />
+    </Suspense>
+  );
+}
+
+function AdminPortalRequestsContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const requestedId = searchParams.get("requestId") ?? searchParams.get("id");
   const [tickets, setTickets] = useState<AdminPortalTicket[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
   const [error, setError] = useState("");
 
   async function load() {
@@ -56,7 +69,12 @@ export default function AdminPortalRequestsPage() {
       if (!res.ok) throw new Error(data.error || "Failed to load requests");
       const list: AdminPortalTicket[] = data.tickets ?? [];
       setTickets(list);
-      if (list.length > 0 && !selectedId) setSelectedId(list[0]._id);
+      if (requestedId && list.some((ticket) => ticket._id === requestedId)) {
+        setSelectedId(requestedId);
+        setMobileDetailOpen(true);
+      } else if (list.length > 0 && !selectedId) {
+        setSelectedId(list[0]._id);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load requests");
     } finally {
@@ -66,16 +84,42 @@ export default function AdminPortalRequestsPage() {
 
   useEffect(() => { void load(); }, []);
 
+  useEffect(() => {
+    if (!requestedId) return;
+    if (!tickets.some((ticket) => ticket._id === requestedId)) return;
+    setSelectedId(requestedId);
+    setMobileDetailOpen(true);
+  }, [requestedId, tickets]);
+
   function handleTicketUpdate(updated: AdminPortalTicket) {
     setTickets((prev) => prev.map((t) => (t._id === updated._id ? updated : t)));
   }
 
   const selected = tickets.find((t) => t._id === selectedId) ?? null;
 
+  function selectTicket(id: string) {
+    setSelectedId(id);
+    setMobileDetailOpen(true);
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("requestId", id);
+    router.replace(`/admin/portal-requests?${params.toString()}`, { scroll: false });
+  }
+
+  function returnToList() {
+    setMobileDetailOpen(false);
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("requestId");
+    params.delete("id");
+    const query = params.toString();
+    router.replace(query ? `/admin/portal-requests?${query}` : "/admin/portal-requests", { scroll: false });
+  }
+
   return (
-    <div className="flex h-full min-h-[600px] gap-0 -m-8 overflow-hidden" style={{ height: "calc(100dvh - 4rem)" }}>
+    <div className="flex h-[calc(100dvh-9.75rem)] min-h-[420px] gap-0 -m-4 overflow-hidden lg:-m-8 lg:h-[calc(100dvh-4rem)] lg:min-h-[600px]">
       {/* Left list */}
-      <div className="flex w-72 shrink-0 flex-col border-r border-white/8">
+      <div className={`${mobileDetailOpen ? "hidden" : "flex"} w-full shrink-0 flex-col border-white/8 lg:flex lg:w-72 lg:border-r`}>
         <div className="border-b border-white/8 px-4 py-4">
           <h1 className="text-base font-semibold text-white">Client Requests</h1>
           <p className="mt-0.5 text-xs text-white/35">{tickets.length} total</p>
@@ -95,8 +139,8 @@ export default function AdminPortalRequestsPage() {
               <button
                 key={ticket._id}
                 type="button"
-                onClick={() => setSelectedId(ticket._id)}
-                className={`w-full px-4 py-3 text-left transition-colors border-l-2 ${
+                onClick={() => selectTicket(ticket._id)}
+                className={`w-full border-l-2 px-4 py-3 text-left transition-colors lg:py-3 ${
                   selectedId === ticket._id
                     ? "bg-white/6 border-sky-400"
                     : "border-transparent hover:bg-white/3"
@@ -124,12 +168,13 @@ export default function AdminPortalRequestsPage() {
       </div>
 
       {/* Right detail */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className={`${mobileDetailOpen ? "flex" : "hidden"} flex-1 flex-col overflow-hidden lg:flex`}>
         {selected ? (
           <RequestDetail
             key={selected._id}
             ticket={selected}
             onUpdate={handleTicketUpdate}
+            onBack={returnToList}
           />
         ) : (
           <div className="flex flex-1 items-center justify-center text-sm text-white/30">
@@ -144,9 +189,11 @@ export default function AdminPortalRequestsPage() {
 function RequestDetail({
   ticket,
   onUpdate,
+  onBack,
 }: {
   ticket: AdminPortalTicket;
   onUpdate: (updated: AdminPortalTicket) => void;
+  onBack: () => void;
 }) {
   const [status, setStatus] = useState(ticket.status);
   const [noteText, setNoteText] = useState("");
@@ -203,9 +250,19 @@ function RequestDetail({
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* Header */}
-      <div className="shrink-0 border-b border-white/8 px-6 py-4">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
+      <div className="shrink-0 border-b border-white/8 px-4 py-4 lg:px-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <button
+              type="button"
+              onClick={onBack}
+              className="mb-3 inline-flex items-center gap-2 rounded-lg px-0 py-1 text-sm font-medium text-white/55 transition-colors hover:text-white lg:hidden"
+            >
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+              </svg>
+              Client Requests
+            </button>
             <h2 className="text-lg font-semibold text-white">{ticket.title}</h2>
             <p className="mt-0.5 text-xs text-white/40">
               {ticket.clientEmail ?? "Unknown client"}
@@ -213,7 +270,7 @@ function RequestDetail({
               {` · ${new Date(ticket.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-white/8 px-2 py-0.5 text-xs text-white/50 capitalize">{ticket.priority}</span>
             <select
               value={status}
@@ -238,9 +295,9 @@ function RequestDetail({
       </div>
 
       {/* Scrollable body */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
         {/* Description + attachments */}
-        <div className="flex-1 overflow-y-auto px-6 py-5">
+        <div className="shrink-0 px-4 py-5 lg:flex-1 lg:overflow-y-auto lg:px-6">
           <p className="text-sm text-white/65 whitespace-pre-wrap leading-relaxed">{ticket.description}</p>
 
           {ticket.attachments?.length ? (
@@ -261,7 +318,7 @@ function RequestDetail({
         </div>
 
         {/* Notes panel */}
-        <div className="flex w-80 shrink-0 flex-col border-l border-white/8">
+        <div className="flex min-h-[280px] w-full shrink-0 flex-col border-t border-white/8 lg:w-80 lg:border-l lg:border-t-0">
           <div className="shrink-0 border-b border-white/8 px-4 py-3">
             <p className="text-xs font-semibold uppercase tracking-wider text-white/40">Progress Notes</p>
           </div>

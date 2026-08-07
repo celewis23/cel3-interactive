@@ -8,7 +8,7 @@ import { listUnreadMessageNotifications } from "@/lib/messaging/service";
 
 type NotificationItem = {
   key: string;
-  kind: "email" | "form_submission" | "lead" | "booking" | "announcement" | "message";
+  kind: "email" | "form_submission" | "lead" | "booking" | "announcement" | "message" | "client_request";
   title: string;
   body: string;
   href: string;
@@ -160,6 +160,35 @@ export async function GET(req: NextRequest) {
         }
       } catch (err) {
         console.error("NOTIFICATIONS_FEED_MESSAGES_ERR:", err);
+      }
+    })());
+
+    jobs.push((async () => {
+      try {
+        const requests = await sanityServer.fetch<Array<{
+          _id: string;
+          title: string;
+          clientEmail: string | null;
+          createdAt: string;
+          updatedAt: string;
+        }>>(
+          `*[_type == "clientPortalTicket"] | order(createdAt desc)[0...8]{
+            _id, title, clientEmail, createdAt, updatedAt
+          }`
+        );
+
+        for (const request of requests) {
+          notifications.push({
+            key: `client_request:${request._id}:${request.createdAt}`,
+            kind: "client_request",
+            title: "New client request",
+            body: truncate(`${request.clientEmail || "Client"}: ${request.title || "Untitled request"}`),
+            href: `/admin/portal-requests?requestId=${encodeURIComponent(request._id)}`,
+            timestamp: request.createdAt || request.updatedAt,
+          });
+        }
+      } catch (err) {
+        console.error("NOTIFICATIONS_FEED_CLIENT_REQUESTS_ERR:", err);
       }
     })());
   }

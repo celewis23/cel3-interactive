@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 type NotificationItem = {
   key: string;
-  kind: "email" | "form_submission" | "lead" | "booking" | "announcement" | "message";
+  kind: "email" | "form_submission" | "lead" | "booking" | "announcement" | "message" | "client_request";
   title: string;
   body: string;
   href: string;

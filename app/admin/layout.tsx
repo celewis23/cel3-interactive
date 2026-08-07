@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import LiveTimer from "@/components/admin/time/LiveTimer";
 import AIAssistant from "@/components/admin/ai/AIAssistant";
 import AdminNotificationManager from "@/components/admin/notifications/AdminNotificationManager";
+import DateInputAutoPicker from "@/components/shared/DateInputAutoPicker";
 
 interface CurrentUser {
   name: string;
@@ -495,13 +496,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, []);
 
   useEffect(() => {
-    if (moreOpen) return;
-    setMoreDragging(false);
-    setMoreDragOffset(0);
-    moreDragStartYRef.current = null;
-  }, [moreOpen]);
-
-  useEffect(() => {
     if (!moreOpen) {
       document.documentElement.style.overflow = "";
       return;
@@ -726,6 +720,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className={`admin-shell ${shellClass}`}>
+      <DateInputAutoPicker />
+
       {/* Sidebar — desktop only */}
       <aside className={sidebarClass}>
         {/* Logo */}
