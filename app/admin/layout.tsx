@@ -375,7 +375,7 @@ const NAV_ITEMS: NavItem[] = [...NAV, TEAM_NAV];
 const NAV_SECTION_DEFS = [
   {
     title: "Overview",
-    hrefs: ["/admin", "/admin/announcements", "/admin/traffic"],
+    hrefs: ["/admin", "/admin/announcements", "/admin/traffic", "/admin/meterwise"],
   },
   {
     title: "Clients",
@@ -409,7 +409,7 @@ const NAV_SECTION_DEFS = [
   },
   {
     title: "Operations",
-    hrefs: ["/admin/expenses", "/admin/staff", "/admin/automations", "/admin/integrations", "/admin/meterwise", "/admin/api-access", "/admin/audit"],
+    hrefs: ["/admin/expenses", "/admin/staff", "/admin/automations", "/admin/integrations", "/admin/api-access", "/admin/audit"],
   },
 ];
 
