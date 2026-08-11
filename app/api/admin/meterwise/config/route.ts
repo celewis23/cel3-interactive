@@ -30,7 +30,12 @@ export async function POST(req: NextRequest) {
 
   // Save first so getOverview() (which reads from storage) can use it for the test call.
   const session = getSessionInfo(req);
-  await saveMeterwiseConfig({ baseUrl, apiKey, connectedBy: session?.staffId ?? "owner" });
+  try {
+    await saveMeterwiseConfig({ baseUrl, apiKey, connectedBy: session?.staffId ?? "owner" });
+  } catch (err) {
+    console.error("[meterwise] failed to save config", err);
+    return NextResponse.json({ error: "Failed to save the connection (database error)" }, { status: 500 });
+  }
 
   try {
     await getOverview();
@@ -39,6 +44,7 @@ export async function POST(req: NextRequest) {
     if (err instanceof MeterwiseApiError) {
       return NextResponse.json({ error: `Meterwise rejected the request (${err.status})` }, { status: 400 });
     }
+    console.error("[meterwise] test call failed", err);
     return NextResponse.json({ error: "Could not reach Meterwise at that base URL" }, { status: 400 });
   }
 
