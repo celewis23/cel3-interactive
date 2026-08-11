@@ -77,7 +77,7 @@ function buildProviderColors(keys: string[]): Record<string, string> {
 
 function StatTile({ label, value, alert }: { label: string; value: string; alert?: boolean }) {
   return (
-    <div className="rounded-2xl border border-white/8 bg-white/3 p-5">
+    <div className="min-w-0 rounded-2xl border border-white/8 bg-white/3 p-5">
       <div className="text-xs text-white/40">{label}</div>
       <div className={`mt-1 text-xl font-semibold ${alert ? "text-amber-400" : "text-white"}`}>{value}</div>
     </div>
@@ -204,7 +204,7 @@ export default function MeterwiseDashboardPage() {
 
           <div className="grid gap-4 lg:grid-cols-2">
             {/* Cost by provider */}
-            <div className="rounded-2xl border border-white/8 bg-white/3 p-5">
+            <div className="min-w-0 rounded-2xl border border-white/8 bg-white/3 p-5">
               <h2 className="text-sm font-semibold text-white">Cost by provider</h2>
               <p className="mb-4 mt-1 text-xs text-white/40">Month-to-date, by connected service</p>
               {sortedProviders.length === 0 ? (
@@ -216,12 +216,12 @@ export default function MeterwiseDashboardPage() {
                     const color = providerColors[p.providerKey];
                     return (
                       <div key={p.providerKey}>
-                        <div className="mb-1 flex items-center justify-between text-sm">
-                          <span className="flex items-center gap-2 text-white/80">
+                        <div className="mb-1 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
+                          <span className="flex min-w-0 items-center gap-2 text-white/80">
                             <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: color }} />
-                            {p.providerName}
+                            <span className="truncate">{p.providerName}</span>
                           </span>
-                          <span className="flex items-center gap-2">
+                          <span className="flex shrink-0 items-center gap-2">
                             <span className={`text-xs ${deltaClass(p.changePercent)}`}>{fmtPercent(p.changePercent)}</span>
                             <span className="font-medium text-white">{fmtMoney(p.mtdCost)}</span>
                           </span>
@@ -237,7 +237,7 @@ export default function MeterwiseDashboardPage() {
             </div>
 
             {/* Top projects */}
-            <div className="rounded-2xl border border-white/8 bg-white/3 p-5">
+            <div className="min-w-0 rounded-2xl border border-white/8 bg-white/3 p-5">
               <h2 className="text-sm font-semibold text-white">Top projects by spend</h2>
               <p className="mb-4 mt-1 text-xs text-white/40">Month-to-date vs. previous month</p>
               {topProjects.length === 0 ? (
@@ -250,13 +250,17 @@ export default function MeterwiseDashboardPage() {
                       ? ((project.mtdCost - project.prevMonthCost) / project.prevMonthCost) * 100
                       : (project.mtdCost > 0 ? 100 : 0);
                     return (
-                      <div key={project.id} className="flex items-center gap-3">
-                        <div className="w-28 shrink-0 truncate text-sm text-white/80 sm:w-36" title={project.name}>{project.name}</div>
-                        <div className="h-2 flex-1 rounded-full bg-white/5">
+                      <div key={project.id} className="flex flex-col gap-1.5">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="min-w-0 flex-1 truncate text-sm text-white/80" title={project.name}>{project.name}</span>
+                          <span className="flex shrink-0 items-center gap-2">
+                            <span className={`text-xs tabular-nums ${deltaClass(changePercent)}`}>{fmtPercent(changePercent)}</span>
+                            <span className="text-sm font-medium tabular-nums text-white">{fmtMoney(project.mtdCost)}</span>
+                          </span>
+                        </div>
+                        <div className="h-2 rounded-full bg-white/5">
                           <div className="h-2 rounded-full bg-sky-500" style={{ width: `${pct}%` }} />
                         </div>
-                        <div className="w-16 shrink-0 text-right text-sm font-medium tabular-nums text-white">{fmtMoney(project.mtdCost)}</div>
-                        <div className={`w-12 shrink-0 text-right text-xs tabular-nums ${deltaClass(changePercent)}`}>{fmtPercent(changePercent)}</div>
                       </div>
                     );
                   })}
@@ -270,7 +274,7 @@ export default function MeterwiseDashboardPage() {
 
           <div className="grid gap-4 lg:grid-cols-2">
             {/* Sync activity */}
-            <div className="rounded-2xl border border-white/8 bg-white/3 p-5">
+            <div className="min-w-0 rounded-2xl border border-white/8 bg-white/3 p-5">
               <h2 className="text-sm font-semibold text-white">Sync activity</h2>
               {recentSyncLogs.length === 0 ? (
                 <p className="mt-4 text-sm text-white/40">No sync activity yet.</p>
@@ -279,14 +283,18 @@ export default function MeterwiseDashboardPage() {
                   {recentSyncLogs.map((log) => {
                     const meta = statusMeta(log.status);
                     return (
-                      <div key={log.id} className="flex items-center gap-3 py-2.5 text-sm">
-                        <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: meta.color }} />
-                        <span className="w-20 shrink-0 truncate text-white/80">{log.provider.name}</span>
-                        <span className="w-14 shrink-0 text-xs font-medium" style={{ color: meta.color }}>{meta.label}</span>
-                        <span className="flex-1 truncate text-xs text-white/40">
+                      <div key={log.id} className="min-w-0 flex flex-col gap-1 py-2.5">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="flex min-w-0 items-center gap-2">
+                            <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: meta.color }} />
+                            <span className="truncate text-sm text-white/80">{log.provider.name}</span>
+                            <span className="shrink-0 text-xs font-medium" style={{ color: meta.color }}>{meta.label}</span>
+                          </span>
+                          <span className="shrink-0 text-xs text-white/35">{fmtRelativeTime(log.startedAt)}</span>
+                        </div>
+                        <p className="min-w-0 truncate pl-4 text-xs text-white/40">
                           {log.errorCount > 0 ? (log.errors?.[0] ?? `${log.errorCount} error(s)`) : `${log.recordsIngested.toLocaleString()} records`}
-                        </span>
-                        <span className="w-14 shrink-0 text-right text-xs text-white/35">{fmtRelativeTime(log.startedAt)}</span>
+                        </p>
                       </div>
                     );
                   })}
@@ -295,7 +303,7 @@ export default function MeterwiseDashboardPage() {
             </div>
 
             {/* Connected accounts */}
-            <div className="rounded-2xl border border-white/8 bg-white/3 p-5">
+            <div className="min-w-0 rounded-2xl border border-white/8 bg-white/3 p-5">
               <h2 className="text-sm font-semibold text-white">Connected accounts</h2>
               {ready.providerAccounts.length === 0 ? (
                 <p className="mt-4 text-sm text-white/40">No connected accounts yet.</p>
