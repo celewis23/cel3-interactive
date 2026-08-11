@@ -36,17 +36,76 @@ async function meterwiseFetch<T = unknown>(path: string, init?: RequestInit): Pr
   const text = await res.text();
   const body = text ? JSON.parse(text) : null;
   if (!res.ok) throw new MeterwiseApiError(res.status, body);
-  return body as T;
+  return (body as { data?: T })?.data ?? (body as T);
 }
 
 // ── Phase 1 read-only endpoints ─────────────────────────────────────────────
 
+export interface MeterwiseProviderBreakdown {
+  providerKey: string;
+  providerName: string;
+  mtdCost: number;
+  prevPeriodCost: number;
+  changePercent: number;
+  confidence: string;
+}
+
+export interface MeterwiseProjectBreakdown {
+  projectId: string;
+  projectName: string;
+  mtdCost: number;
+  prevPeriodCost: number;
+  changePercent: number;
+}
+
+export interface MeterwiseOverview {
+  mtdCost: number;
+  mtdCostConfidence: string;
+  projectedMonthlyCost: number;
+  projectedConfidence: string;
+  daysElapsed: number;
+  daysInMonth: number;
+  providerBreakdown: MeterwiseProviderBreakdown[];
+  projectBreakdown: MeterwiseProjectBreakdown[];
+}
+
+export interface MeterwiseProject {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  color: string | null;
+  mtdCost: number;
+  prevMonthCost: number;
+}
+
+export interface MeterwiseSyncLog {
+  id: string;
+  status: string;
+  startedAt: string;
+  completedAt: string | null;
+  recordsIngested: number;
+  errorCount: number;
+  errors: string[] | null;
+  provider: { key: string; name: string };
+  account: { id: string; displayName: string };
+}
+
+export interface MeterwiseProviderAccount {
+  id: string;
+  displayName: string;
+  credentialStatus: string;
+  lastValidatedAt: string | null;
+  createdAt: string;
+  provider: { key: string; name: string; category: string; logoUrl: string | null };
+}
+
 export function getOverview() {
-  return meterwiseFetch("/overview");
+  return meterwiseFetch<MeterwiseOverview>("/overview");
 }
 
 export function listProjects() {
-  return meterwiseFetch("/projects");
+  return meterwiseFetch<MeterwiseProject[]>("/projects");
 }
 
 export function getProjectSummary(projectId: string) {
@@ -60,9 +119,9 @@ export function getProjectTimeseries(projectId: string, params?: Record<string, 
 
 export function listSyncLogs(params?: Record<string, string>) {
   const qs = params ? `?${new URLSearchParams(params).toString()}` : "";
-  return meterwiseFetch(`/sync-logs${qs}`);
+  return meterwiseFetch<MeterwiseSyncLog[]>(`/sync-logs${qs}`);
 }
 
 export function listProviderAccounts() {
-  return meterwiseFetch("/provider-accounts");
+  return meterwiseFetch<MeterwiseProviderAccount[]>("/provider-accounts");
 }

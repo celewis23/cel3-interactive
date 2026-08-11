@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
-import { getOverview, listProjects, listSyncLogs, MeterwiseNotConfiguredError, MeterwiseApiError } from "@/lib/meterwise/client";
+import { getOverview, listProjects, listSyncLogs, listProviderAccounts, MeterwiseNotConfiguredError, MeterwiseApiError } from "@/lib/meterwise/client";
 
 export const runtime = "nodejs";
 
@@ -9,12 +9,13 @@ export async function GET(req: NextRequest) {
   if (authErr) return authErr;
 
   try {
-    const [overview, projects, syncLogs] = await Promise.all([
+    const [overview, projects, syncLogs, providerAccounts] = await Promise.all([
       getOverview(),
       listProjects(),
       listSyncLogs(),
+      listProviderAccounts(),
     ]);
-    return NextResponse.json({ overview, projects, syncLogs });
+    return NextResponse.json({ overview, projects, syncLogs, providerAccounts });
   } catch (err) {
     if (err instanceof MeterwiseNotConfiguredError) {
       return NextResponse.json({ error: "not_configured" }, { status: 409 });
