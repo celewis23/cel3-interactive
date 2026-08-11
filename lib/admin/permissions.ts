@@ -33,6 +33,7 @@ export const MODULES = {
   aiAssistant:      ["view"],
   automations:      ["view", "edit", "delete", "manage"],
   notes:            ["view", "edit", "delete"],
+  meterwise:        ["view", "manage"],
 } as const;
 
 export type Module = keyof typeof MODULES;

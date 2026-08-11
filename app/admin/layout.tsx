@@ -351,6 +351,15 @@ const NAV: NavItem[] = [
     ),
   },
   {
+    label: "Meterwise",
+    href: "/admin/meterwise",
+    icon: (
+      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.5h3.75l2.25-7.5 4.5 15 2.25-7.5H21" />
+      </svg>
+    ),
+  },
+  {
     label: "Bookings",
     href: "/admin/bookings",
     icon: (
@@ -400,7 +409,7 @@ const NAV_SECTION_DEFS = [
   },
   {
     title: "Operations",
-    hrefs: ["/admin/expenses", "/admin/staff", "/admin/automations", "/admin/integrations", "/admin/api-access", "/admin/audit"],
+    hrefs: ["/admin/expenses", "/admin/staff", "/admin/automations", "/admin/integrations", "/admin/meterwise", "/admin/api-access", "/admin/audit"],
   },
 ];
 
@@ -430,6 +439,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [unreadAnnouncements, setUnreadAnnouncements] = useState(0);
   const [newRequestsCount, setNewRequestsCount] = useState(0);
+  const [meterwiseConfigured, setMeterwiseConfigured] = useState(false);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [theme, setTheme] = useState<"dark" | "light">(() => {
     if (typeof window === "undefined") return "dark";
@@ -563,6 +573,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
     fetchNewRequests();
     const id = setInterval(fetchNewRequests, 60_000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchMeterwiseStatus() {
+      try {
+        const res = await fetch("/api/admin/meterwise/config");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) setMeterwiseConfigured(Boolean(data.configured));
+      } catch { /* ignore */ }
+    }
+    fetchMeterwiseStatus();
+    const id = setInterval(fetchMeterwiseStatus, 60_000);
     return () => { cancelled = true; clearInterval(id); };
   }, []);
 
@@ -738,7 +763,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 {section.title}
               </div>
               <div className="space-y-0.5">
-                {section.items.map((item) => {
+                {section.items.filter((item) => item.href !== "/admin/meterwise" || meterwiseConfigured).map((item) => {
                   const isActive = isNavItemActive(pathname, item.href);
                   return (
                     <Link
@@ -850,7 +875,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 {section.title}
               </div>
               <div className="space-y-0.5">
-                {section.items.map((item) => {
+                {section.items.filter((item) => item.href !== "/admin/meterwise" || meterwiseConfigured).map((item) => {
                   const isActive = isNavItemActive(pathname, item.href);
                   return (
                     <Link

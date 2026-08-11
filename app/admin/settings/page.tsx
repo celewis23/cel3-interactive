@@ -29,6 +29,13 @@ export default function AdminSettingsPage() {
           <h2 className="text-sm font-semibold text-white">Integrations</h2>
           <p className="text-sm text-white/50 mt-2">Manage Google, Stripe, and other connected services used across the workspace.</p>
         </Link>
+        <Link
+          href="/admin/settings/meterwise"
+          className="bg-white/3 border border-white/8 rounded-2xl p-5 hover:border-white/15 transition-colors"
+        >
+          <h2 className="text-sm font-semibold text-white">Meterwise</h2>
+          <p className="text-sm text-white/50 mt-2">Connect your Meterwise API key to bring its dashboard into the backoffice.</p>
+        </Link>
       </div>
     </div>
   );
