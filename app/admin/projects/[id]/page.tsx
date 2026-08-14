@@ -2,7 +2,9 @@ import { cookies } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
 import { sanityServer } from "@/lib/sanityServer";
+import { listTaskItemsByProject } from "@/lib/tasks/db";
 import KanbanBoard from "@/components/admin/projects/KanbanBoard";
+import ProjectTaskItemsPanel from "@/components/admin/projects/ProjectTaskItemsPanel";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -41,12 +43,18 @@ export default async function ProjectBoardPage({ params }: { params: Promise<{ i
 
   const { id } = await params;
 
-  const [project, tasks] = await Promise.all([
+  const [project, tasks, linkedItems] = await Promise.all([
     sanityServer.fetch<PmProject | null>(`*[_type == "pmProject" && _id == $id][0]`, { id }),
     sanityServer.fetch<PmTask[]>(`*[_type == "pmTask" && projectId == $id]`, { id }),
+    listTaskItemsByProject(id),
   ]);
 
   if (!project) notFound();
 
-  return <KanbanBoard project={project} initialTasks={tasks} />;
+  return (
+    <div className="space-y-6">
+      <KanbanBoard project={project} initialTasks={tasks} />
+      <ProjectTaskItemsPanel projectId={id} initialItems={linkedItems} />
+    </div>
+  );
 }

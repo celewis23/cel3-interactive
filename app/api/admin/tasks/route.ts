@@ -1,83 +1,62 @@
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
-import { requirePermission } from "@/lib/admin/permissions";
-import { listTasks, createTask } from "@/lib/google/tasks";
+import { requirePermission, getSessionInfo } from "@/lib/admin/permissions";
+import { listTaskItems, createTaskItem, type TaskKind } from "@/lib/tasks/db";
+import { upsertCalendarEventForItem } from "@/lib/tasks/calendarSync";
 
 export async function GET(req: NextRequest) {
-  const authErr = await requirePermission(req, "calendar", "view");
+  const authErr = await requirePermission(req, "tasks", "view");
   if (authErr) return authErr;
 
-  const { searchParams } = new URL(req.url);
-  const taskListId = searchParams.get("taskListId") ?? "";
-  const q = searchParams.get("q") ?? undefined;
-  const status = searchParams.get("status") ?? "all";
-  const dueMin = searchParams.get("dueMin") ?? undefined;
-  const dueMax = searchParams.get("dueMax") ?? undefined;
-
-  if (!taskListId) {
-    return NextResponse.json({ error: "taskListId is required" }, { status: 400 });
-  }
-
-  try {
-    const tasks = await listTasks({
-      taskListId,
-      query: q,
-      dueMin,
-      dueMax,
-      showCompleted: status !== "open",
-      showHidden: false,
-      showDeleted: false,
-      maxResults: 200,
-    });
-
-    const filtered = status === "done"
-      ? tasks.filter((task) => task.status === "completed")
-      : status === "open"
-      ? tasks.filter((task) => task.status !== "completed")
-      : tasks;
-
-    return NextResponse.json(filtered);
-  } catch (err) {
-    console.error("TASKS_LIST_ERROR:", err);
-    const message = err instanceof Error ? err.message : "Failed to list tasks";
-    const lower = message.toLowerCase();
-    const needsReconnect =
-      lower.includes("insufficient authentication scopes") ||
-      lower.includes("invalid credentials") ||
-      lower.includes("not authenticated");
-    const apiDisabled =
-      lower.includes("tasks api") && (lower.includes("not been used") || lower.includes("disabled"));
-
-    return NextResponse.json(
-      {
-        error: needsReconnect
-          ? "Google Tasks needs new permissions. Reconnect your Google account from Email or Integrations to grant Tasks access."
-          : apiDisabled
-          ? "Google Tasks API is not enabled in your Google Cloud project yet."
-          : message,
-      },
-      { status: 500 }
-    );
-  }
+  const items = await listTaskItems();
+  return NextResponse.json(items);
 }
 
 export async function POST(req: NextRequest) {
-  const authErr = await requirePermission(req, "calendar", "edit");
+  const authErr = await requirePermission(req, "tasks", "edit");
   if (authErr) return authErr;
 
-  try {
-    const body = await req.json();
-    const task = await createTask(body.taskListId, {
-      title: body.title,
-      notes: body.notes,
-      due: body.due,
-      status: body.status,
-    });
-    return NextResponse.json(task, { status: 201 });
-  } catch (err) {
-    console.error("TASK_CREATE_ERROR:", err);
-    const message = err instanceof Error ? err.message : "Failed to create task";
-    return NextResponse.json({ error: message }, { status: 500 });
+  const body = await req.json().catch(() => null);
+  const kind: TaskKind = body?.kind === "reminder" ? "reminder" : "task";
+  const title = typeof body?.title === "string" ? body.title.trim() : "";
+
+  if (!title) {
+    return NextResponse.json({ error: "Title is required" }, { status: 400 });
   }
+  if (kind === "reminder" && !body?.remindAt) {
+    return NextResponse.json({ error: "remindAt is required for reminders" }, { status: 400 });
+  }
+
+  const notes = typeof body?.notes === "string" ? body.notes.trim() || null : null;
+  const dueDate = kind === "task" && typeof body?.dueDate === "string" ? body.dueDate : null;
+  const notifyTime = kind === "task" ? (typeof body?.notifyTime === "string" && body.notifyTime ? body.notifyTime : "09:00") : null;
+  const remindAt = kind === "reminder" ? body.remindAt : null;
+  const addToCalendar = body?.addToCalendar !== false;
+  const projectId = typeof body?.projectId === "string" && body.projectId ? body.projectId : null;
+
+  const calendarFields = addToCalendar
+    ? await upsertCalendarEventForItem({
+        kind, title, notes, dueDate, notifyTime, remindAt,
+        calendarId: null, calendarEventId: null,
+      })
+    : null;
+
+  const session = getSessionInfo(req);
+  const item = await createTaskItem({
+    kind,
+    title,
+    notes,
+    dueDate,
+    notifyTime,
+    remindAt,
+    keepUntilCleared: body?.keepUntilCleared !== false,
+    createdBy: session?.staffId ?? "owner",
+    projectId,
+    calendarId: calendarFields?.calendarId ?? null,
+    calendarEventId: calendarFields?.calendarEventId ?? null,
+    calendarEventLink: calendarFields?.calendarEventLink ?? null,
+  });
+
+  return NextResponse.json(item, { status: 201 });
 }

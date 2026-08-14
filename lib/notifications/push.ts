@@ -25,6 +25,7 @@ type PushPayload = {
   body: string;
   href: string;
   tag?: string;
+  requireInteraction?: boolean;
 };
 
 const VAPID_DOC_ID = "web-push-vapid-keys";

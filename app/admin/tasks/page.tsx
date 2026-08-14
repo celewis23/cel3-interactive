@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
+import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { COOKIE_NAME, verifySessionToken } from "@/lib/admin/auth";
@@ -12,5 +13,9 @@ export default async function TasksPage() {
   const session = token ? verifySessionToken(token) : null;
   if (!session || session.step !== "full") redirect("/admin/login");
 
-  return <TasksClient />;
+  return (
+    <Suspense fallback={null}>
+      <TasksClient />
+    </Suspense>
+  );
 }

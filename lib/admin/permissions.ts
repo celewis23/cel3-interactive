@@ -34,6 +34,7 @@ export const MODULES = {
   automations:      ["view", "edit", "delete", "manage"],
   notes:            ["view", "edit", "delete"],
   meterwise:        ["view", "manage"],
+  tasks:            ["view", "edit", "delete"],
 } as const;
 
 export type Module = keyof typeof MODULES;
@@ -118,6 +119,7 @@ export const DEFAULT_ROLES: Array<{
       aiAssistant:   { view: true },
       automations:   { view: true, edit: true, delete: false, manage: true },
       notes:         { view: true, edit: true, delete: true },
+      tasks:         { view: true, edit: true, delete: true },
     }),
   },
   {
@@ -136,6 +138,7 @@ export const DEFAULT_ROLES: Array<{
       aiAssistant:   { view: true },
       automations:   { view: true, edit: false, delete: false, manage: false },
       notes:         { view: true, edit: true, delete: true },
+      tasks:         { view: true, edit: true, delete: true },
     }),
   },
   {

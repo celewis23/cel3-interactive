@@ -17,6 +17,7 @@ self.addEventListener("push", (event) => {
       url: payload.href || "/admin",
     },
     tag: payload.tag || undefined,
+    requireInteraction: payload.requireInteraction === true,
   };
 
   event.waitUntil(self.registration.showNotification(title, options));
