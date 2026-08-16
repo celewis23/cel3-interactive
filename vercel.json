@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/task-reminders",
       "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/billing-enforcement",
+      "schedule": "0 13 * * *"
     }
   ]
 }

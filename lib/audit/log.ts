@@ -208,6 +208,8 @@ export const AuditAction = {
   LEAD_STAGE_CHANGED:      "lead.stage_changed",
   LEAD_CONVERTED:          "lead.converted",
   LEAD_DELETED:            "lead.deleted",
+  CLIENT_WEBSITE_SUSPENDED: "client.website_suspended",
+  CLIENT_WEBSITE_RESTORED:  "client.website_restored",
 
   // Staff
   STAFF_INVITED:           "staff.invited",

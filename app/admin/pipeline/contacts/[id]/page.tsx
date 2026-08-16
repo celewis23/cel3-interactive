@@ -36,6 +36,11 @@ type PipelineContact = {
   portalManagementUrl: string | null;
   portalManagementUsername: string | null;
   hasPortalManagementPassword: boolean;
+  websiteStatus?: string | null;
+  websiteStatusReason?: string | null;
+  websiteSuspendedAt?: string | null;
+  websiteRestoredAt?: string | null;
+  websiteAutoSuspendExempt?: boolean | null;
 };
 
 type PipelineActivity = {
@@ -96,7 +101,8 @@ export default async function ContactDetailPage({
         closedAt, driveFileUrl, driveFileName, followUpEventId,
         siteUrl, managementUrl, managementUsername,
         portalSiteUrl, portalManagementUrl, portalManagementUsername,
-        "hasPortalManagementPassword": defined(portalManagementPasswordEncrypted)
+        "hasPortalManagementPassword": defined(portalManagementPasswordEncrypted),
+        websiteStatus, websiteStatusReason, websiteSuspendedAt, websiteRestoredAt, websiteAutoSuspendExempt
       }`,
       { id }
     ),

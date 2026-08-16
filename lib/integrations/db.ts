@@ -5,6 +5,7 @@ import { sql } from "@/lib/postgres";
 export const APP_TYPES = [
   "ClientAdminPortal",
   "WebsiteAdmin",
+  "ClientWebsite",
   "MobileApp",
   "Other",
 ] as const;
@@ -18,6 +19,7 @@ export const ALL_SCOPES = [
   "conversations:read",
   "conversations:write",
   "users:read:minimal",
+  "site:status:read",
 ] as const;
 export type Scope = (typeof ALL_SCOPES)[number];
 

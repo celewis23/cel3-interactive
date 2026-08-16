@@ -49,6 +49,11 @@ type PipelineContact = {
   portalManagementUrl: string | null;
   portalManagementUsername: string | null;
   hasPortalManagementPassword: boolean;
+  websiteStatus?: string | null;
+  websiteStatusReason?: string | null;
+  websiteSuspendedAt?: string | null;
+  websiteRestoredAt?: string | null;
+  websiteAutoSuspendExempt?: boolean | null;
 };
 
 type PipelineActivity = {
@@ -152,6 +157,25 @@ export default function ContactDetailClient({
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [converting, setConverting] = useState(false);
+  const [websiteStatusSaving, setWebsiteStatusSaving] = useState(false);
+
+  async function handleWebsiteStatusToggle() {
+    const nextStatus = contact.websiteStatus === "suspended" ? "active" : "suspended";
+    if (nextStatus === "suspended" && !confirm(`Suspend ${contact.name}'s website? This blocks their admin console login and puts the site into maintenance mode.`)) return;
+    setWebsiteStatusSaving(true);
+    try {
+      const res = await fetch(`/api/admin/pipeline/contacts/${contact._id}/website-status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      if (res.ok) {
+        setContact((c) => ({ ...c, websiteStatus: nextStatus, websiteStatusReason: nextStatus === "suspended" ? "manual" : null }));
+      }
+    } finally {
+      setWebsiteStatusSaving(false);
+    }
+  }
 
   // Activity
   const [activity, setActivity] = useState<PipelineActivity[]>(initialActivity);
@@ -633,7 +657,7 @@ export default function ContactDetailClient({
           </div>
 
           {(contact.siteUrl || contact.managementUrl) && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {contact.siteUrl && (
                 <a
                   href={contact.siteUrl}
@@ -654,6 +678,19 @@ export default function ContactDetailClient({
                   Manage Site
                 </a>
               )}
+              <span className={`px-2 py-1 rounded-full text-xs ${contact.websiteStatus === "suspended" ? "bg-red-500/10 text-red-400" : "bg-green-500/10 text-green-400"}`}>
+                {contact.websiteStatus === "suspended"
+                  ? `Suspended${contact.websiteStatusReason === "auto_nonpayment" ? " (auto)" : ""}`
+                  : "Active"}
+              </span>
+              <button
+                type="button"
+                onClick={handleWebsiteStatusToggle}
+                disabled={websiteStatusSaving}
+                className={`px-3 py-2 rounded-xl text-sm transition-colors disabled:opacity-40 ${contact.websiteStatus === "suspended" ? "bg-green-500/10 text-green-400 hover:bg-green-500/15" : "bg-red-500/10 text-red-300 hover:bg-red-500/15"}`}
+              >
+                {websiteStatusSaving ? "Saving…" : contact.websiteStatus === "suspended" ? "Restore Website" : "Suspend Website"}
+              </button>
             </div>
           )}
 

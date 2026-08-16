@@ -30,6 +30,7 @@ const ALLOWED_FIELDS = [
   "portalSiteUrl",
   "portalManagementUrl",
   "portalManagementUsername",
+  "websiteAutoSuspendExempt",
 ] as const;
 
 function buildPortalDraftAccessPatch(body: Record<string, unknown>) {
@@ -73,7 +74,8 @@ export async function GET(
         closedAt, driveFileUrl, driveFileName, followUpEventId,
         siteUrl, managementUrl, managementUsername,
         portalSiteUrl, portalManagementUrl, portalManagementUsername,
-        "hasPortalManagementPassword": defined(portalManagementPasswordEncrypted)
+        "hasPortalManagementPassword": defined(portalManagementPasswordEncrypted),
+        websiteStatus, websiteStatusReason, websiteSuspendedAt, websiteRestoredAt, websiteAutoSuspendExempt
       }`,
       { id }
     );
@@ -155,7 +157,8 @@ export async function PATCH(
         closedAt, driveFileUrl, driveFileName, followUpEventId,
         siteUrl, managementUrl, managementUsername,
         portalSiteUrl, portalManagementUrl, portalManagementUsername,
-        "hasPortalManagementPassword": defined(portalManagementPasswordEncrypted)
+        "hasPortalManagementPassword": defined(portalManagementPasswordEncrypted),
+        websiteStatus, websiteStatusReason, websiteSuspendedAt, websiteRestoredAt, websiteAutoSuspendExempt
       }`,
       { id }
     );

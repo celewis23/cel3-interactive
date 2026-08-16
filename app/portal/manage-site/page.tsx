@@ -33,16 +33,32 @@ export default async function PortalManageSitePage() {
           portalManagementUsername: string | null;
           portalManagementPasswordEncrypted: string | null;
           portalManagementPasswordIv: string | null;
+          websiteStatus: string | null;
         } | null>(
           `*[_type == "pipelineContact" && _id == $id][0]{
             name, siteUrl, managementUrl,
             portalSiteUrl, portalManagementUrl, portalManagementUsername,
-            portalManagementPasswordEncrypted, portalManagementPasswordIv
+            portalManagementPasswordEncrypted, portalManagementPasswordIv,
+            websiteStatus
           }`,
           { id: user.pipelineContactId }
         )
       : Promise.resolve(null),
   ]);
+
+  if (pipelineContact?.websiteStatus === "suspended") {
+    return (
+      <div className="flex flex-col gap-4">
+        <h1 className="text-2xl font-semibold text-white">Manage Site</h1>
+        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-6">
+          <p className="text-sm text-amber-300">
+            Site management is temporarily unavailable for your account. Please contact us to resolve this, or
+            visit <a href="/portal/invoices" className="underline hover:text-amber-200">Invoices</a> to review and pay any outstanding balance.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const details = getManagementLaunchDetails({
     siteUrl: portalUser?.siteUrl ?? pipelineContact?.portalSiteUrl ?? pipelineContact?.siteUrl ?? null,

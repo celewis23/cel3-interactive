@@ -36,6 +36,13 @@ export default function AdminSettingsPage() {
           <h2 className="text-sm font-semibold text-white">Meterwise</h2>
           <p className="text-sm text-white/50 mt-2">Connect your Meterwise API key to bring its dashboard into the backoffice.</p>
         </Link>
+        <Link
+          href="/admin/settings/billing-enforcement"
+          className="bg-white/3 border border-white/8 rounded-2xl p-5 hover:border-white/15 transition-colors"
+        >
+          <h2 className="text-sm font-semibold text-white">Website suspension</h2>
+          <p className="text-sm text-white/50 mt-2">Set the auto-suspend threshold for clients who fall behind on payment.</p>
+        </Link>
       </div>
     </div>
   );

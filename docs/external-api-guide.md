@@ -149,8 +149,66 @@ Requires scope `messaging:notifications:read`.
 | `conversations:read` | List and retrieve conversation details |
 | `conversations:write` | Start new conversations |
 | `messaging:notifications:read` | Read notification feed |
+| `site:status:read` | Read the client's website suspension status (see below) |
 
 Request only the scopes your app actually needs.
+
+---
+
+## Site Status API
+
+Lets a client's own website check whether the back office has suspended it for non-payment, so the site can render a maintenance page and block its own admin console while leaving the rest of the site alone.
+
+Create an integration with **App Type** `ClientWebsite` and scope `site:status:read` for the client's portal user, same as any other integration (see Step 1). Embed the credentials in that site's own environment.
+
+```
+GET /api/ext/site/status
+Authorization: Bearer <access_token>
+```
+
+**Response:**
+```json
+{
+  "status": "active",
+  "maintenanceMode": false,
+  "adminLoginBlocked": false,
+  "reason": null,
+  "suspendedAt": null
+}
+```
+
+When suspended, `status` is `"suspended"` and both `maintenanceMode` and `adminLoginBlocked` are `true` — the client's site should show a maintenance page and refuse admin logins until it flips back. `reason` is `"manual"` or `"auto_nonpayment"`.
+
+Responses are cacheable for a short period (`Cache-Control: private, max-age=60`) — poll from middleware rather than on every request, e.g.:
+
+```ts
+// middleware.ts on the client site
+import { NextResponse } from "next/server";
+
+let cached: { status: string; expires: number } | null = null;
+
+async function getSiteStatus() {
+  if (cached && cached.expires > Date.now()) return cached.status;
+  const token = await getCachedAccessToken(); // fetch/cache from /api/integrations/token
+  const res = await fetch("https://your-cel3-domain.com/api/ext/site/status", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json();
+  cached = { status: data.status, expires: Date.now() + 60_000 };
+  return data.status;
+}
+
+export async function middleware(req: Request) {
+  const status = await getSiteStatus();
+  if (status === "suspended") {
+    if (new URL(req.url).pathname.startsWith("/admin")) {
+      return NextResponse.redirect(new URL("/maintenance", req.url));
+    }
+    return NextResponse.rewrite(new URL("/maintenance", req.url));
+  }
+  return NextResponse.next();
+}
+```
 
 ---
 
