@@ -18,15 +18,30 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const autoSuspendEnabled = Boolean(body.autoSuspendEnabled);
-    const daysLateThreshold = Number(body.daysLateThreshold);
-    if (!Number.isFinite(daysLateThreshold) || daysLateThreshold < 1) {
-      return NextResponse.json({ error: "daysLateThreshold must be a positive number" }, { status: 400 });
+    const fields = {
+      firstNoticeDays: Number(body.firstNoticeDays),
+      secondNoticeDays: Number(body.secondNoticeDays),
+      finalNoticeDays: Number(body.finalNoticeDays),
+      suspendDays: Number(body.suspendDays),
+      lateFeeCents: Number(body.lateFeeCents),
+    };
+    for (const [key, value] of Object.entries(fields)) {
+      if (!Number.isFinite(value) || value < 0) {
+        return NextResponse.json({ error: `${key} must be a non-negative number` }, { status: 400 });
+      }
+    }
+    if (!(fields.firstNoticeDays < fields.secondNoticeDays && fields.secondNoticeDays < fields.finalNoticeDays && fields.finalNoticeDays < fields.suspendDays)) {
+      return NextResponse.json({ error: "Stages must be in increasing order: first < second < final < suspend" }, { status: 400 });
     }
 
     const session = getSessionInfo(req);
     const settings = await saveEnforcementSettings({
       autoSuspendEnabled,
-      daysLateThreshold: Math.round(daysLateThreshold),
+      firstNoticeDays: Math.round(fields.firstNoticeDays),
+      secondNoticeDays: Math.round(fields.secondNoticeDays),
+      finalNoticeDays: Math.round(fields.finalNoticeDays),
+      suspendDays: Math.round(fields.suspendDays),
+      lateFeeCents: Math.round(fields.lateFeeCents),
       updatedBy: session?.staffId ?? (session?.isOwner ? "owner" : null),
     });
     return NextResponse.json(settings);
