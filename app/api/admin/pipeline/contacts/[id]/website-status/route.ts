@@ -4,6 +4,7 @@ import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 import { automationEngine } from "@/lib/automations/engine";
+import { syncVercelWebsiteStatus } from "@/lib/billing/websiteStatusSync";
 
 export const runtime = "nodejs";
 
@@ -22,8 +23,12 @@ export async function PATCH(
       return NextResponse.json({ error: "status must be 'suspended' or 'active'" }, { status: 400 });
     }
 
-    const current = await sanityServer.fetch<{ name: string | null } | null>(
-      `*[_type == "pipelineContact" && _id == $id][0]{ name }`,
+    const current = await sanityServer.fetch<{
+      name: string | null;
+      vercelProjectId: string | null;
+      vercelDomain: string | null;
+    } | null>(
+      `*[_type == "pipelineContact" && _id == $id][0]{ name, vercelProjectId, vercelDomain }`,
       { id }
     );
     if (!current) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -35,6 +40,8 @@ export async function PATCH(
         : { websiteStatus: "active", websiteStatusReason: null, websiteRestoredAt: now };
 
     await sanityWriteClient.patch(id).set(patch).commit();
+
+    const vercelSync = await syncVercelWebsiteStatus(current, status);
 
     logAudit(req, {
       action: status === "suspended" ? AuditAction.CLIENT_WEBSITE_SUSPENDED : AuditAction.CLIENT_WEBSITE_RESTORED,
@@ -48,7 +55,7 @@ export async function PATCH(
 
     automationEngine.fire("default", "client_status_changed", { websiteStatus: status }, "contact", id, id);
 
-    return NextResponse.json({ ok: true, websiteStatus: status });
+    return NextResponse.json({ ok: true, websiteStatus: status, vercelSync });
   } catch (err) {
     console.error("PIPELINE_CONTACT_WEBSITE_STATUS_ERR:", err);
     return NextResponse.json({ error: "Failed to update website status" }, { status: 500 });

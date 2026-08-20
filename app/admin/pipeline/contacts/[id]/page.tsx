@@ -41,6 +41,8 @@ type PipelineContact = {
   websiteSuspendedAt?: string | null;
   websiteRestoredAt?: string | null;
   websiteAutoSuspendExempt?: boolean | null;
+  vercelProjectId?: string | null;
+  vercelDomain?: string | null;
 };
 
 type PipelineActivity = {
@@ -102,7 +104,8 @@ export default async function ContactDetailPage({
         siteUrl, managementUrl, managementUsername,
         portalSiteUrl, portalManagementUrl, portalManagementUsername,
         "hasPortalManagementPassword": defined(portalManagementPasswordEncrypted),
-        websiteStatus, websiteStatusReason, websiteSuspendedAt, websiteRestoredAt, websiteAutoSuspendExempt
+        websiteStatus, websiteStatusReason, websiteSuspendedAt, websiteRestoredAt, websiteAutoSuspendExempt,
+        vercelProjectId, vercelDomain
       }`,
       { id }
     ),

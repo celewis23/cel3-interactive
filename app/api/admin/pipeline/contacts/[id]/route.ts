@@ -31,6 +31,8 @@ const ALLOWED_FIELDS = [
   "portalManagementUrl",
   "portalManagementUsername",
   "websiteAutoSuspendExempt",
+  "vercelProjectId",
+  "vercelDomain",
 ] as const;
 
 function buildPortalDraftAccessPatch(body: Record<string, unknown>) {
@@ -75,7 +77,8 @@ export async function GET(
         siteUrl, managementUrl, managementUsername,
         portalSiteUrl, portalManagementUrl, portalManagementUsername,
         "hasPortalManagementPassword": defined(portalManagementPasswordEncrypted),
-        websiteStatus, websiteStatusReason, websiteSuspendedAt, websiteRestoredAt, websiteAutoSuspendExempt
+        websiteStatus, websiteStatusReason, websiteSuspendedAt, websiteRestoredAt, websiteAutoSuspendExempt,
+        vercelProjectId, vercelDomain
       }`,
       { id }
     );
@@ -158,7 +161,8 @@ export async function PATCH(
         siteUrl, managementUrl, managementUsername,
         portalSiteUrl, portalManagementUrl, portalManagementUsername,
         "hasPortalManagementPassword": defined(portalManagementPasswordEncrypted),
-        websiteStatus, websiteStatusReason, websiteSuspendedAt, websiteRestoredAt, websiteAutoSuspendExempt
+        websiteStatus, websiteStatusReason, websiteSuspendedAt, websiteRestoredAt, websiteAutoSuspendExempt,
+        vercelProjectId, vercelDomain
       }`,
       { id }
     );

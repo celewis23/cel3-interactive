@@ -54,6 +54,8 @@ type PipelineContact = {
   websiteSuspendedAt?: string | null;
   websiteRestoredAt?: string | null;
   websiteAutoSuspendExempt?: boolean | null;
+  vercelProjectId?: string | null;
+  vercelDomain?: string | null;
 };
 
 type PipelineActivity = {
@@ -153,24 +155,34 @@ export default function ContactDetailClient({
     managementUrl: initialContact.managementUrl ?? "",
     managementUsername: initialContact.managementUsername ?? "",
     managementPassword: "",
+    vercelProjectId: initialContact.vercelProjectId ?? "",
+    vercelDomain: initialContact.vercelDomain ?? "",
   });
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [converting, setConverting] = useState(false);
   const [websiteStatusSaving, setWebsiteStatusSaving] = useState(false);
+  const [websiteStatusError, setWebsiteStatusError] = useState<string | null>(null);
 
   async function handleWebsiteStatusToggle() {
     const nextStatus = contact.websiteStatus === "suspended" ? "active" : "suspended";
     if (nextStatus === "suspended" && !confirm(`Suspend ${contact.name}'s website? This blocks their admin console login and puts the site into maintenance mode.`)) return;
     setWebsiteStatusSaving(true);
+    setWebsiteStatusError(null);
     try {
       const res = await fetch(`/api/admin/pipeline/contacts/${contact._id}/website-status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: nextStatus }),
       });
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setContact((c) => ({ ...c, websiteStatus: nextStatus, websiteStatusReason: nextStatus === "suspended" ? "manual" : null }));
+        if (data.vercelSync && data.vercelSync.ok === false) {
+          setWebsiteStatusError(`Status updated, but the live site wasn't updated: ${data.vercelSync.error}`);
+        }
+      } else {
+        setWebsiteStatusError(data.error || "Failed to update website status");
       }
     } finally {
       setWebsiteStatusSaving(false);
@@ -248,6 +260,8 @@ export default function ContactDetailClient({
           managementUrl: form.managementUrl.trim() || null,
           managementUsername: form.managementUsername.trim() || null,
           managementPassword: form.managementPassword,
+          vercelProjectId: form.vercelProjectId.trim() || null,
+          vercelDomain: form.vercelDomain.trim() || null,
         }),
       });
       if (res.ok) {
@@ -656,6 +670,30 @@ export default function ContactDetailClient({
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-white/50 mb-1.5">Vercel Project ID</label>
+              <input
+                value={form.vercelProjectId}
+                onChange={(e) => setForm({ ...form, vercelProjectId: e.target.value })}
+                placeholder="prj_..."
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-mono placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-white/50 mb-1.5">Vercel Domain</label>
+              <input
+                value={form.vercelDomain}
+                onChange={(e) => setForm({ ...form, vercelDomain: e.target.value })}
+                placeholder="clientsite.com"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm font-mono placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors"
+              />
+            </div>
+            <p className="col-span-2 text-[11px] text-white/30">
+              Required for Suspend Website to actually redirect the live site to a maintenance page. Find the project ID in Vercel → Project Settings → General.
+            </p>
+          </div>
+
           {(contact.siteUrl || contact.managementUrl) && (
             <div className="flex flex-wrap items-center gap-2">
               {contact.siteUrl && (
@@ -691,6 +729,9 @@ export default function ContactDetailClient({
               >
                 {websiteStatusSaving ? "Saving…" : contact.websiteStatus === "suspended" ? "Restore Website" : "Suspend Website"}
               </button>
+              {websiteStatusError && (
+                <span className="w-full text-xs text-amber-400">{websiteStatusError}</span>
+              )}
             </div>
           )}
 

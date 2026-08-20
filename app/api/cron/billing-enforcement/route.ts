@@ -14,6 +14,7 @@ import { getEnforcementSettings } from "@/lib/billing/enforcementSettings";
 import { automationEngine } from "@/lib/automations/engine";
 import { sendPushNotificationToAudience } from "@/lib/notifications/push";
 import { logAudit, AuditAction } from "@/lib/audit/log";
+import { syncVercelWebsiteStatus } from "@/lib/billing/websiteStatusSync";
 
 function isAuthorizedCron(req: NextRequest) {
   const secret = req.headers.get("authorization")?.replace("Bearer ", "");
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const results = { suspended: 0, restored: 0 };
+  const results = { suspended: 0, restored: 0, vercelSyncFailed: 0 };
 
   try {
     const settings = await getEnforcementSettings();
@@ -63,8 +64,10 @@ export async function GET(req: NextRequest) {
         name: string | null;
         websiteStatus?: string;
         websiteAutoSuspendExempt?: boolean;
+        vercelProjectId: string | null;
+        vercelDomain: string | null;
       }>>(
-        `*[_type == "pipelineContact" && _id in $ids]{ _id, name, websiteStatus, websiteAutoSuspendExempt }`,
+        `*[_type == "pipelineContact" && _id in $ids]{ _id, name, websiteStatus, websiteAutoSuspendExempt, vercelProjectId, vercelDomain }`,
         { ids: eligibleClientIds }
       );
 
@@ -76,6 +79,12 @@ export async function GET(req: NextRequest) {
           websiteStatusReason: "auto_nonpayment",
           websiteSuspendedAt: now,
         }).commit();
+
+        const vercelSync = await syncVercelWebsiteStatus(client, "suspended");
+        if (!vercelSync.ok) {
+          console.error(`BILLING_ENFORCEMENT_VERCEL_SYNC_ERR (${client._id}):`, vercelSync.error);
+          results.vercelSyncFailed++;
+        }
 
         logAudit(req, {
           action: AuditAction.CLIENT_WEBSITE_SUSPENDED,
@@ -102,8 +111,13 @@ export async function GET(req: NextRequest) {
     }
 
     // ── Restore clients that were auto-suspended and are now current ──────────
-    const autoSuspended = await sanityServer.fetch<Array<{ _id: string; name: string | null }>>(
-      `*[_type == "pipelineContact" && websiteStatus == "suspended" && websiteStatusReason == "auto_nonpayment"]{ _id, name }`
+    const autoSuspended = await sanityServer.fetch<Array<{
+      _id: string;
+      name: string | null;
+      vercelProjectId: string | null;
+      vercelDomain: string | null;
+    }>>(
+      `*[_type == "pipelineContact" && websiteStatus == "suspended" && websiteStatusReason == "auto_nonpayment"]{ _id, name, vercelProjectId, vercelDomain }`
     );
 
     for (const client of autoSuspended) {
@@ -114,6 +128,12 @@ export async function GET(req: NextRequest) {
         websiteStatusReason: null,
         websiteRestoredAt: now,
       }).commit();
+
+      const vercelSync = await syncVercelWebsiteStatus(client, "active");
+      if (!vercelSync.ok) {
+        console.error(`BILLING_ENFORCEMENT_VERCEL_SYNC_ERR (${client._id}):`, vercelSync.error);
+        results.vercelSyncFailed++;
+      }
 
       logAudit(req, {
         action: AuditAction.CLIENT_WEBSITE_RESTORED,
