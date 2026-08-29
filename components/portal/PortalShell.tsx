@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import PortalAssistant from "@/components/portal/PortalAssistant";
 import PortalAppControls from "@/components/portal/PortalAppControls";
+import IosPushPrompt from "@/components/portal/IosPushPrompt";
 import DateInputAutoPicker from "@/components/shared/DateInputAutoPicker";
 
 const NAV = [
@@ -343,6 +344,7 @@ export default function PortalShell({
 
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 lg:px-8 py-8">{children}</main>
       <PortalAssistant />
+      <IosPushPrompt />
     </div>
   );
 }
