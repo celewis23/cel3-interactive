@@ -50,6 +50,24 @@ export interface NewsletterEmailSend {
   sentAt: string;
 }
 
+export interface NewsletterTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  headerHtml: string;
+  bodyHtml: string;
+  footerHtml: string;
+  primaryColor: string;
+  accentColor: string;
+  backgroundColor: string;
+  textColor: string;
+  fontFamily: string;
+  backgroundImageUrl: string | null;
+  videoUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type NewsletterInput = {
   title: string;
   subject: string;
@@ -68,6 +86,21 @@ export type NewsletterInput = {
   videoUrl?: string | null;
   sendEmail?: boolean;
   createdByAdminId?: string | null;
+};
+
+export type NewsletterTemplateInput = {
+  name: string;
+  description?: string | null;
+  headerHtml?: string;
+  bodyHtml?: string;
+  footerHtml?: string;
+  primaryColor?: string;
+  accentColor?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  fontFamily?: string;
+  backgroundImageUrl?: string | null;
+  videoUrl?: string | null;
 };
 
 function rowToNewsletter(r: Record<string, unknown>): Newsletter {
@@ -98,6 +131,26 @@ function rowToNewsletter(r: Record<string, unknown>): Newsletter {
     portalDeliveryCount: Number(r.portal_delivery_count ?? 0),
     emailSentCount: Number(r.email_sent_count ?? 0),
     emailErrorCount: Number(r.email_error_count ?? 0),
+  };
+}
+
+function rowToTemplate(r: Record<string, unknown>): NewsletterTemplate {
+  return {
+    id: r.id as string,
+    name: r.name as string,
+    description: (r.description as string | null) ?? null,
+    headerHtml: r.header_html as string,
+    bodyHtml: r.body_html as string,
+    footerHtml: r.footer_html as string,
+    primaryColor: r.primary_color as string,
+    accentColor: r.accent_color as string,
+    backgroundColor: r.background_color as string,
+    textColor: r.text_color as string,
+    fontFamily: r.font_family as string,
+    backgroundImageUrl: (r.background_image_url as string | null) ?? null,
+    videoUrl: (r.video_url as string | null) ?? null,
+    createdAt: r.created_at as string,
+    updatedAt: r.updated_at as string,
   };
 }
 
@@ -329,4 +382,90 @@ export async function markPortalNewsletterRead(userId: string, newsletterId: str
      WHERE portal_user_id = $1 AND newsletter_id = $2`,
     [userId, newsletterId]
   );
+}
+
+export async function listNewsletterTemplates(): Promise<NewsletterTemplate[]> {
+  const rows = await sql.query<Record<string, unknown>>(
+    `SELECT * FROM newsletter_templates ORDER BY updated_at DESC, name ASC`
+  );
+  return rows.map(rowToTemplate);
+}
+
+export async function getNewsletterTemplateById(id: string): Promise<NewsletterTemplate | null> {
+  const rows = await sql.query<Record<string, unknown>>(
+    `SELECT * FROM newsletter_templates WHERE id = $1 LIMIT 1`,
+    [id]
+  );
+  return rows[0] ? rowToTemplate(rows[0]) : null;
+}
+
+export async function createNewsletterTemplate(input: NewsletterTemplateInput): Promise<NewsletterTemplate> {
+  const rows = await sql.query<Record<string, unknown>>(
+    `INSERT INTO newsletter_templates (
+      id, name, description, header_html, body_html, footer_html,
+      primary_color, accent_color, background_color, text_color, font_family,
+      background_image_url, video_url
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+    RETURNING *`,
+    [
+      randomUUID(),
+      input.name,
+      input.description ?? null,
+      input.headerHtml ?? "",
+      input.bodyHtml ?? "",
+      input.footerHtml ?? "",
+      input.primaryColor ?? "#0ea5e9",
+      input.accentColor ?? "#111827",
+      input.backgroundColor ?? "#f8fafc",
+      input.textColor ?? "#111827",
+      input.fontFamily ?? "Inter, Arial, sans-serif",
+      input.backgroundImageUrl ?? null,
+      input.videoUrl ?? null,
+    ]
+  );
+  return rowToTemplate(rows[0]);
+}
+
+export async function updateNewsletterTemplate(
+  id: string,
+  input: NewsletterTemplateInput
+): Promise<NewsletterTemplate | null> {
+  const rows = await sql.query<Record<string, unknown>>(
+    `UPDATE newsletter_templates
+     SET name = $1,
+         description = $2,
+         header_html = $3,
+         body_html = $4,
+         footer_html = $5,
+         primary_color = $6,
+         accent_color = $7,
+         background_color = $8,
+         text_color = $9,
+         font_family = $10,
+         background_image_url = $11,
+         video_url = $12,
+         updated_at = now()
+     WHERE id = $13
+     RETURNING *`,
+    [
+      input.name,
+      input.description ?? null,
+      input.headerHtml ?? "",
+      input.bodyHtml ?? "",
+      input.footerHtml ?? "",
+      input.primaryColor ?? "#0ea5e9",
+      input.accentColor ?? "#111827",
+      input.backgroundColor ?? "#f8fafc",
+      input.textColor ?? "#111827",
+      input.fontFamily ?? "Inter, Arial, sans-serif",
+      input.backgroundImageUrl ?? null,
+      input.videoUrl ?? null,
+      id,
+    ]
+  );
+  return rows[0] ? rowToTemplate(rows[0]) : null;
+}
+
+export async function deleteNewsletterTemplate(id: string): Promise<void> {
+  await sql.query(`DELETE FROM newsletter_templates WHERE id = $1`, [id]);
 }
