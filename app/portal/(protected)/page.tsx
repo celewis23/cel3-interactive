@@ -4,6 +4,7 @@ import { sanityServer } from "@/lib/sanityServer";
 import { listPortalAppointmentsWithResponses } from "@/lib/portal/appointments";
 import { getUnreadCount } from "@/lib/messaging/service";
 import { getRecentSentCampaigns } from "@/lib/campaigns/db";
+import { listPortalNewsletters } from "@/lib/newsletters/db";
 import type { MessagingActor } from "@/lib/messaging/auth";
 import Link from "next/link";
 
@@ -60,7 +61,7 @@ export default async function PortalDashboard() {
 
   const refs = [user.stripeCustomerId, user.pipelineContactId].filter(Boolean) as string[];
 
-  const [invoiceData, projects, estimates, siteAccess, allAppointments, recentCampaigns, unsignedContracts, unreadMessages] =
+  const [invoiceData, projects, estimates, siteAccess, allAppointments, recentCampaigns, recentNewsletters, unsignedContracts, unreadMessages] =
     await Promise.all([
       user.stripeCustomerId
         ? listInvoices({ customerId: user.stripeCustomerId, status: "open", limit: 50 }).catch(() => ({ invoices: [] }))
@@ -91,6 +92,7 @@ export default async function PortalDashboard() {
         : Promise.resolve(null),
       listPortalAppointmentsWithResponses(user.email).catch(() => []),
       getRecentSentCampaigns(3).catch(() => []),
+      listPortalNewsletters(user._id, 3).catch(() => []),
       sanityServer
         .fetch<Array<{ _id: string; number: string; signingToken: string; templateName: string | null }>>(
           `*[_type == "contract" && status in ["sent","viewed"] && (
@@ -375,6 +377,42 @@ export default async function PortalDashboard() {
           )}
         </Link>
       </div>
+
+      {/* ── Newsletters ─────────────────────────────────── */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Newsletter</h2>
+          <Link href="/portal/newsletters" className="text-xs text-sky-400 hover:text-sky-300 transition-colors">
+            View all newsletters →
+          </Link>
+        </div>
+        {recentNewsletters.length > 0 ? (
+          <div className="grid gap-3 md:grid-cols-3">
+            {recentNewsletters.map((newsletter) => (
+              <Link
+                key={newsletter.id}
+                href={`/portal/newsletters/${newsletter.id}`}
+                className="rounded-2xl border border-white/8 bg-white/3 p-4 transition-colors hover:border-sky-500/35 hover:bg-sky-500/5"
+              >
+                <div className="flex items-center gap-2">
+                  {!newsletter.readAt && <span className="h-2 w-2 rounded-full bg-sky-400" />}
+                  <p className="line-clamp-2 text-sm font-semibold leading-5 text-white">{newsletter.subject}</p>
+                </div>
+                {newsletter.summary && (
+                  <p className="mt-2 line-clamp-2 text-xs leading-5 text-white/45">{newsletter.summary}</p>
+                )}
+                <p className="mt-3 text-xs text-white/30">
+                  {new Date(newsletter.deliveredAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                </p>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-white/8 bg-white/3 px-5 py-5 text-sm text-white/35">
+            No newsletters yet.
+          </div>
+        )}
+      </section>
 
       {/* ── Projects ─────────────────────────────────────── */}
       {projects.length > 0 && (

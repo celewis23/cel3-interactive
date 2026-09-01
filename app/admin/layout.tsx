@@ -170,6 +170,16 @@ const NAV: NavItem[] = [
     ),
   },
   {
+    label: "Newsletters",
+    href: "/admin/newsletters",
+    icon: (
+      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 5.25A2.25 2.25 0 016.75 3h10.5a2.25 2.25 0 012.25 2.25v13.5A2.25 2.25 0 0117.25 21H6.75a2.25 2.25 0 01-2.25-2.25V5.25z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 7.5h7.5M8.25 11.25h7.5M8.25 15h4.5" />
+      </svg>
+    ),
+  },
+  {
     label: "Campaigns",
     href: "/admin/campaigns",
     icon: (
@@ -411,7 +421,7 @@ const NAV_SECTION_DEFS = [
   },
   {
     title: "Communication",
-    hrefs: ["/admin/email", "/admin/messages", "/admin/campaigns", "/admin/chat", "/admin/meet"],
+    hrefs: ["/admin/email", "/admin/messages", "/admin/newsletters", "/admin/campaigns", "/admin/chat", "/admin/meet"],
   },
   {
     title: "Content",
