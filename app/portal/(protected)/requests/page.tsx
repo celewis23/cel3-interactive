@@ -35,7 +35,7 @@ const PRIORITY_DOT: Record<string, string> = {
   low: "bg-white/30",
 };
 
-type RightPanel = "new" | "detail";
+type RequestPanel = "list" | "new" | "detail";
 
 export default function PortalRequestsPage() {
   const [tickets, setTickets] = useState<PortalTicket[]>([]);
@@ -43,7 +43,7 @@ export default function PortalRequestsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [panel, setPanel] = useState<RightPanel>("new");
+  const [panel, setPanel] = useState<RequestPanel>("list");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
@@ -107,12 +107,17 @@ export default function PortalRequestsPage() {
     setPanel("detail");
   }
 
+  function startNewRequest() {
+    setSelectedId(null);
+    setPanel("new");
+  }
+
   const selectedTicket = tickets.find((t) => t._id === selectedId) ?? null;
 
   return (
-    <div className="flex gap-0 -m-8 overflow-hidden" style={{ height: "calc(100dvh - 4rem)" }}>
+    <div className="flex min-h-[calc(100dvh-7rem)] flex-col gap-0 -mx-4 -my-8 overflow-hidden md:-m-8 md:h-[calc(100dvh-4rem)] md:flex-row">
       {/* Left: request list */}
-      <div className="flex w-64 shrink-0 flex-col border-r border-white/8 bg-white/[0.015]">
+      <div className={`${panel === "list" ? "flex" : "hidden"} w-full flex-1 flex-col bg-white/[0.015] md:flex md:w-64 md:flex-none md:border-r md:border-white/8`}>
         <div className="shrink-0 border-b border-white/8 px-4 py-4">
           <h1 className="text-sm font-semibold text-white">Your Requests</h1>
           <p className="mt-0.5 text-xs text-white/35">{tickets.length} request{tickets.length !== 1 ? "s" : ""}</p>
@@ -122,7 +127,7 @@ export default function PortalRequestsPage() {
         <div className="shrink-0 px-3 py-2.5 border-b border-white/8">
           <button
             type="button"
-            onClick={() => { setPanel("new"); setSelectedId(null); }}
+            onClick={startNewRequest}
             className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
               panel === "new"
                 ? "bg-sky-500/15 text-sky-300"
@@ -174,7 +179,7 @@ export default function PortalRequestsPage() {
       </div>
 
       {/* Right: new request form or detail view */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className={`${panel === "list" ? "hidden" : "flex"} min-h-0 flex-1 flex-col overflow-hidden md:flex`}>
         {panel === "new" ? (
           <NewRequestPanel
             form={form}
@@ -184,9 +189,10 @@ export default function PortalRequestsPage() {
             saving={saving}
             error={error}
             onSubmit={handleSubmit}
+            onBack={() => setPanel("list")}
           />
         ) : selectedTicket ? (
-          <TicketDetailPanel ticket={selectedTicket} onNewRequest={() => setPanel("new")} />
+          <TicketDetailPanel ticket={selectedTicket} onBack={() => setPanel("list")} onNewRequest={startNewRequest} />
         ) : (
           <div className="flex flex-1 items-center justify-center text-sm text-white/30">
             Select a request or create a new one.
@@ -205,6 +211,7 @@ function NewRequestPanel({
   saving,
   error,
   onSubmit,
+  onBack,
 }: {
   form: { title: string; description: string; projectId: string; priority: string };
   setForm: React.Dispatch<React.SetStateAction<{ title: string; description: string; projectId: string; priority: string }>>;
@@ -213,10 +220,21 @@ function NewRequestPanel({
   saving: boolean;
   error: string;
   onSubmit: (e: React.FormEvent) => void;
+  onBack: () => void;
 }) {
   return (
-    <div className="flex-1 overflow-y-auto px-8 py-8">
+    <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-8">
       <div className="max-w-2xl">
+        <button
+          type="button"
+          onClick={onBack}
+          className="mb-5 inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm font-medium text-white/65 transition-colors hover:bg-white/5 hover:text-white md:hidden"
+        >
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+            <path d="M9.25 3.25L5 7.5l4.25 4.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Requests
+        </button>
         <h2 className="text-xl font-semibold text-white mb-1">New Request</h2>
         <p className="text-sm text-white/40 mb-6">Submit updates, fixes, content changes, product additions, or anything you need us to handle.</p>
 
@@ -296,9 +314,11 @@ function NewRequestPanel({
 
 function TicketDetailPanel({
   ticket,
+  onBack,
   onNewRequest,
 }: {
   ticket: PortalTicket;
+  onBack: () => void;
   onNewRequest: () => void;
 }) {
   const notes: TicketNote[] = ticket.ticketNotes ?? [];
@@ -308,16 +328,26 @@ function TicketDetailPanel({
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* Header */}
-      <div className="shrink-0 border-b border-white/8 px-8 py-5">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
+      <div className="shrink-0 border-b border-white/8 px-4 py-4 md:px-8 md:py-5">
+        <button
+          type="button"
+          onClick={onBack}
+          className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm font-medium text-white/65 transition-colors hover:bg-white/5 hover:text-white md:hidden"
+        >
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+            <path d="M9.25 3.25L5 7.5l4.25 4.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Requests
+        </button>
+        <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:gap-4">
+          <div className="min-w-0">
+            <div className="mb-1 flex flex-wrap items-center gap-2">
               <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_STYLES[ticket.status] ?? "bg-white/10 text-white/50"}`}>
                 {ticket.status.replaceAll("_", " ")}
               </span>
               <span className="text-xs text-white/30 capitalize">{ticket.priority} priority</span>
             </div>
-            <h2 className="text-xl font-semibold text-white">{ticket.title}</h2>
+            <h2 className="break-words text-xl font-semibold text-white">{ticket.title}</h2>
             <p className="mt-1 text-xs text-white/35">
               {ticket.projectName ? `${ticket.projectName} · ` : ""}
               Submitted {new Date(ticket.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
@@ -334,9 +364,9 @@ function TicketDetailPanel({
       </div>
 
       {/* Body */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-y-auto md:flex-row md:overflow-hidden">
         {/* Description + attachments */}
-        <div className="flex-1 overflow-y-auto px-8 py-6">
+        <div className="flex-none px-4 py-5 md:flex-1 md:overflow-y-auto md:px-8 md:py-6">
           <p className="text-sm font-medium text-white/50 uppercase tracking-wider mb-3 text-[11px]">Description</p>
           <p className="text-sm text-white/70 whitespace-pre-wrap leading-relaxed">{ticket.description}</p>
 
@@ -361,7 +391,7 @@ function TicketDetailPanel({
         </div>
 
         {/* Team notes */}
-        <div className="flex w-72 shrink-0 flex-col border-l border-white/8">
+        <div className="flex w-full shrink-0 flex-col border-t border-white/8 md:w-72 md:border-l md:border-t-0">
           <div className="shrink-0 border-b border-white/8 px-4 py-3">
             <p className="text-xs font-semibold uppercase tracking-wider text-white/40">Team Notes</p>
           </div>
