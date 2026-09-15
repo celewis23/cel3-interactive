@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frith Yorkies &amp; More | Portsmouth, Virginia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream: #FCF7EE;
+    --sand: #F3E6D3;
+    --chocolate: #35201A;
+    --chocolate-soft: #5A3E33;
+    --honey: #D9A441;
+    --honey-deep: #B87F26;
+    --blush: #E2919C;
+    --blush-soft: #F3D3D7;
+    --line: rgba(53,32,26,0.12);
+    --shadow: 0 18px 40px rgba(53,32,26,0.12);
+    --radius-lg: 32px;
+    --radius-md: 20px;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    margin:0;
+    background: var(--cream);
+    color: var(--chocolate);
+    font-family: 'Figtree', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  h1,h2,h3{
+    font-family: 'Fraunces', serif;
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--chocolate);
+  }
+  p{ margin:0; line-height: 1.65; color: var(--chocolate-soft); }
+  a{ color: inherit; text-decoration: none; }
+  img{ max-width:100%; display:block; }
+  section{ position: relative; }
+  .wrap{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+
+  /* Buttons */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding: 15px 28px;
+    border-radius: 999px;
+    font-family:'Figtree', sans-serif;
+    font-weight: 600;
+    font-size: 15.5px;
+    cursor:pointer;
+    border: 1.5px solid transparent;
+    white-space: nowrap;
+    transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+  }
+  .btn:focus-visible{ outline: 3px solid var(--honey-deep); outline-offset: 3px; }
+  .btn-primary{
+    background: var(--chocolate);
+    color: var(--cream);
+    box-shadow: 0 10px 24px rgba(53,32,26,0.22);
+  }
+  .btn-primary:hover{ transform: translateY(-2px); box-shadow: 0 14px 30px rgba(53,32,26,0.28); }
+  .btn-ghost{
+    background: transparent;
+    color: var(--chocolate);
+    border-color: var(--chocolate);
+  }
+  .btn-ghost:hover{ background: var(--chocolate); color: var(--cream); }
+
+  /* NAV */
+  .nav{
+    position: sticky; top:0; z-index: 50;
+    background: rgba(252,247,238,0.86);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 18px 32px;
+    max-width: 1180px; margin: 0 auto;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; min-width:0; }
+  .brand-mark{ width:38px; height:38px; flex-shrink:0; }
+  .brand-word{ font-family:'Fraunces', serif; font-size: clamp(16px, 4.2vw, 21px); font-weight:600; line-height:1.05; white-space: nowrap; }
+  .brand-word span{ display:block; font-family:'Figtree',sans-serif; font-size:11.5px; font-weight:600; color: var(--honey-deep); letter-spacing: 0.03em; white-space: nowrap; }
+  .nav-links{ display:flex; align-items:center; gap:34px; }
+  .nav-links a{ font-size: 15px; font-weight:600; color: var(--chocolate-soft); position:relative; }
+  .nav-links a:hover{ color: var(--chocolate); }
+  .nav-cta{ display:flex; align-items:center; gap:22px; flex-shrink:0; }
+  .nav-cta-btn{ padding: 12px 22px; font-size: 14.5px; }
+  .cta-short{ display: none; }
+  .nav-right{ display:flex; align-items:center; gap: 16px; }
+  .nav-toggle{
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 34px; height: 34px;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .nav-toggle-bar{
+    display:block; height: 2px; width: 100%;
+    background: var(--chocolate);
+    border-radius: 2px;
+    transition: transform .25s ease, opacity .25s ease;
+  }
+  .nav-toggle.is-open .nav-toggle-bar:nth-child(1){ transform: translateY(7px) rotate(45deg); }
+  .nav-toggle.is-open .nav-toggle-bar:nth-child(2){ opacity: 0; }
+  .nav-toggle.is-open .nav-toggle-bar:nth-child(3){ transform: translateY(-7px) rotate(-45deg); }
+  .mobile-menu{
+    display: none;
+    flex-direction: column;
+    padding: 6px 20px 18px;
+    border-top: 1px solid var(--line);
+  }
+  .mobile-menu a{
+    padding: 13px 4px;
+    font-size: 16px; font-weight:600;
+    color: var(--chocolate);
+    border-bottom: 1px solid var(--line);
+  }
+  .mobile-menu a:last-child{ border-bottom: none; }
+  .mobile-menu.is-open{ display: flex; }
+
+  /* HERO */
+  .hero{ padding: 76px 0 90px; overflow: visible; }
+  .hero-grid{
+    display:grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 56px;
+    align-items:center;
+  }
+  .eyebrow-dot{
+    display:inline-flex; align-items:center; gap:9px;
+    font-size: 14.5px; font-weight:600; color: var(--honey-deep);
+    margin-bottom: 22px;
+  }
+  .eyebrow-dot::before{ content:''; width:8px; height:8px; border-radius:50%; background: var(--blush); }
+  .hero-actions{ display:flex; gap:16px; margin-top:34px; flex-wrap:wrap; }
+  .hero-meta{
+    margin-top: 44px;
+    display:flex; gap:34px;
+    flex-wrap: wrap;
+  }
+  .hero-meta div{ display:flex; flex-direction:column; gap:2px; }
+  .hero-meta strong{ font-family:'Fraunces', serif; font-size: 24px; font-weight:600; }
+  .hero-meta span{ font-size: 13.5px; color: var(--chocolate-soft); }
+
+  /* HERO — full-bleed photo */
+  .hero-b{
+    display: flex;
+    position: relative;
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: 0;
+    overflow: hidden;
+    align-items: flex-end;
+  }
+  .hero-b-bg{
+    position: absolute;
+    left: 0; right: 0;
+    top: -20%;
+    height: 140%;
+    background-image: url('https://images.pexels.com/photos/163602/dog-puppy-yorkshire-terrier-yorkshire-terrier-puppy-163602.jpeg?auto=compress&cs=tinysrgb&w=2400');
+    background-size: cover;
+    background-position: center 42%;
+    will-change: transform;
+  }
+  .hero-b-overlay{
+    position: absolute; inset: 0;
+    background: linear-gradient(0deg, rgba(20,12,8,0.92) 0%, rgba(20,12,8,0.55) 38%, rgba(20,12,8,0.18) 65%, rgba(20,12,8,0.06) 100%);
+    pointer-events: none;
+  }
+  .hero-b-content{
+    position: relative; z-index: 1;
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 5vw, 64px) clamp(48px, 8vh, 96px);
+  }
+  .hero-b-content > *{
+    max-width: 640px;
+  }
+  .eyebrow-dot--light{ color: var(--honey); }
+  .eyebrow-dot--light::before{ background: var(--blush); }
+  .hero-b-h1{
+    font-family:'Fraunces', serif;
+    font-size: clamp(32px, 6vw, 58px);
+    line-height: 1.08; font-weight: 600;
+    color: var(--cream);
+    text-shadow: 0 2px 20px rgba(0,0,0,0.55);
+  }
+  .hero-b-h1 em{ font-style: italic; font-weight: 500; color: var(--honey); }
+  .lede--light{
+    color: #ffffff !important;
+    text-shadow: 0 1px 12px rgba(0,0,0,0.65);
+    margin-top: clamp(14px, 2.5vw, 20px);
+    font-size: clamp(15.5px, 2vw, 18px);
+    line-height: 1.55;
+  }
+  .btn-ghost--light{ border-color: var(--cream); color: var(--cream); }
+  .btn-ghost--light:hover{ background: var(--cream); color: var(--chocolate); }
+  .hero-meta--light strong{ color: var(--cream); text-shadow: 0 1px 10px rgba(0,0,0,0.5); }
+  .hero-meta--light span{ color: rgba(252,247,238,0.85); text-shadow: 0 1px 8px rgba(0,0,0,0.5); }
+
+  /* STORY */
+  .story{ padding: 70px 0 100px; }
+  .story-grid{
+    display:grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 64px;
+    align-items:start;
+  }
+  .story-tag{
+    font-size: 14.5px; font-weight:600; color: var(--honey-deep); margin-bottom:14px; display:block;
+  }
+  .story-photo{
+    width:100%; aspect-ratio: 3/4; border-radius: var(--radius-lg);
+    overflow:hidden; margin-top:26px; box-shadow: var(--shadow);
+  }
+  .story-photo img{ width:100%; height:100%; object-fit:cover; }
+  .story h2{ font-size: clamp(30px, 3.4vw, 40px); line-height:1.12; }
+  .story-copy p{ font-size: 17px; margin-bottom: 18px; }
+  .story-copy p:last-child{ margin-bottom:0; }
+  .story-signature{
+    margin-top: 26px; display:flex; align-items:center; gap:14px;
+  }
+  .sig-mark{ width:44px; height:44px; }
+  .story-signature strong{ display:block; font-family:'Fraunces', serif; font-size:17px; }
+  .story-signature span{ font-size: 13.5px; color: var(--chocolate-soft); }
+
+  /* SERVICES */
+  .services{ padding: 20px 0 100px; }
+  .section-head{ max-width: 620px; margin-bottom: 48px; }
+  .section-head .story-tag{ margin-bottom: 12px; }
+  .section-head h2{ font-size: clamp(30px, 3.4vw, 40px); line-height:1.1; }
+  .service-grid{
+    display:grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px;
+  }
+  .service-card{
+    border-radius: var(--radius-lg);
+    padding: 34px;
+    position: relative;
+    border: 1px solid var(--line);
+  }
+  .service-card h3{ font-size: 22px; margin-bottom:10px; }
+  .service-card p{ font-size: 15px; }
+  .service-icon{ width:44px; height:44px; margin-bottom: 20px; }
+  .service-large{ grid-column: span 4; background: var(--chocolate); color: var(--cream); padding: 40px; }
+  .service-large h3, .service-large .breed-pill{ color: var(--cream); }
+  .service-large p{ color: rgba(252,247,238,0.78); }
+  .breed-pills{ display:flex; flex-wrap:wrap; gap:9px; margin-top:22px; }
+  .breed-pill{
+    font-size: 13px; font-weight:600;
+    padding: 7px 14px; border-radius: 999px;
+    border: 1px solid rgba(252,247,238,0.35);
+  }
+  .service-small{ grid-column: span 2; background: var(--sand); }
+  .service-small:nth-of-type(3){ background: var(--blush-soft); }
+  .service-wide{ grid-column: span 3; background: var(--cream); }
+
+  /* PROCESS */
+  .process{ padding: 30px 0 100px; }
+  .process-grid{
+    display:grid; grid-template-columns: repeat(4,1fr); gap: 28px;
+    counter-reset: step;
+  }
+  .step{ position:relative; padding-top: 62px; }
+  .step::before{
+    counter-increment: step;
+    content: counter(step, decimal-leading-zero);
+    position:absolute; top:0; left:0;
+    font-family:'Fraunces', serif; font-size: 40px; font-weight:600;
+    color: var(--blush);
+  }
+  .step h3{ font-size: 19px; margin-bottom: 10px; }
+  .step p{ font-size: 15px; }
+  .step:not(:last-child)::after{
+    content:'';
+    position:absolute; top: 24px; right: -14px;
+    width: 20px; height: 1px; background: var(--line);
+  }
+
+  /* LITTERS */
+  .litters{ padding: 20px 0 100px; }
+  .litter-grid{ display:grid; grid-template-columns: repeat(3,1fr); gap: 22px; }
+  .litter-card{
+    border-radius: var(--radius-md);
+    border: 1px solid var(--line);
+    padding: 26px;
+    background: var(--cream);
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .litter-card:hover{ transform: translateY(-4px); box-shadow: var(--shadow); }
+  .litter-photo{
+    width:100%; aspect-ratio: 4/3; border-radius: 14px;
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+  .litter-photo img{ width:100%; height:100%; object-fit: cover; transition: transform .5s ease; }
+  .litter-card:hover .litter-photo img{ transform: scale(1.04); }
+  .litter-card h3{ font-size: 18px; margin-bottom: 4px; }
+  .litter-status{ font-size: 12.5px; font-weight:700; color: var(--honey-deep); text-transform: none; letter-spacing:0.02em; margin-bottom:8px; display:block;}
+  .litter-card p{ font-size: 14.5px; }
+  .litter-card .btn{ margin-top:18px; padding: 11px 20px; font-size:14px; width: 100%; justify-content:center; }
+
+  /* QUOTE */
+  .quote-section{ padding: 40px 0 110px; }
+  .quote-panel{
+    background: var(--chocolate);
+    border-radius: 40px;
+    padding: 70px 60px;
+    display:grid; grid-template-columns: auto 1fr; gap: 40px; align-items:center;
+  }
+  .quote-mark{ width: 54px; height:54px; }
+  blockquote{
+    margin:0; color: var(--cream);
+    font-family:'Fraunces', serif; font-style: italic; font-weight:500;
+    font-size: clamp(24px, 2.6vw, 32px); line-height: 1.4;
+  }
+  .quote-cite{ margin-top: 22px; font-family:'Figtree'; font-style:normal; font-size:15px; font-weight:600; color: var(--honey); display:block; }
+
+  /* CONTACT */
+  .contact{ padding: 0 0 100px; }
+  .contact-panel{
+    background: linear-gradient(155deg, var(--blush-soft), var(--sand) 55%, var(--honey) 150%);
+    border-radius: var(--radius-lg);
+    padding: 64px 60px;
+    display:grid; grid-template-columns: 1.1fr 0.9fr; gap: 50px;
+  }
+  .contact-panel h2{ font-size: clamp(28px,3vw,36px); margin-bottom:16px; }
+  .contact-panel > div:first-child p{ max-width: 420px; font-size: 16.5px; }
+  .contact-form{ display:flex; flex-direction:column; gap:12px; }
+  .contact-form input, .contact-form textarea{
+    border: none; border-radius: 14px; padding: 15px 18px;
+    font-family:'Figtree'; font-size: 15px; background: rgba(252,247,238,0.85);
+    color: var(--chocolate);
+  }
+  .contact-form textarea{ resize: vertical; min-height: 90px; }
+  .contact-form ::placeholder{ color: var(--chocolate-soft); }
+  .contact-form input:focus, .contact-form textarea:focus{ outline: 2.5px solid var(--chocolate); }
+  .contact-form .btn{ align-self:flex-start; margin-top:4px; }
+
+  /* FOOTER */
+  footer{ padding: 40px 0 50px; border-top: 1px solid var(--line); }
+  .footer-inner{ display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap: 30px; }
+  .footer-brand{ display:flex; align-items:center; gap:10px; }
+  .footer-brand .brand-mark{ width:30px; height:30px; }
+  .footer-cols{ display:flex; gap: 60px; flex-wrap:wrap; }
+  .footer-col h4{ font-size: 13px; font-weight:700; color: var(--chocolate); margin-bottom: 12px; }
+  .footer-col a, .footer-col p{ display:block; font-size: 14.5px; color: var(--chocolate-soft); margin-bottom:8px; }
+  .footer-col a:hover{ color: var(--chocolate); }
+  .footer-bottom{ margin-top: 40px; font-size: 13px; color: var(--chocolate-soft); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+
+  @media (max-width: 980px){
+    .nav-links{ display:none; }
+    .nav-toggle{ display:flex; }
+    .hero-grid{ grid-template-columns: 1fr; }
+    .hero-b{ min-height: 82vh; min-height: 82svh; }
+    .hero-b-bg{ background-position: center 32%; }
+    .hero-b-content{ padding-bottom: clamp(36px, 6vh, 60px); }
+    .story-grid{ grid-template-columns: 1fr; }
+    .service-grid{ grid-template-columns: repeat(2,1fr); }
+    .service-large{ grid-column: span 2; }
+    .service-small{ grid-column: span 1; }
+    .service-wide{ grid-column: span 2; }
+    .process-grid{ grid-template-columns: repeat(2,1fr); row-gap: 40px; }
+    .litter-grid{ grid-template-columns: 1fr; }
+    .quote-panel{ grid-template-columns: 1fr; padding: 46px 34px; }
+    .contact-panel{ grid-template-columns: 1fr; padding: 40px 30px; }
+  }
+  @media (max-width: 560px){
+    .wrap{ padding: 0 20px; }
+    .hero{ padding: 50px 0 60px; }
+    .hero-b{ min-height: 74vh; min-height: 74svh; }
+    .process-grid{ grid-template-columns: 1fr; }
+    .nav-inner{ padding: 14px 18px; gap: 10px; }
+    .brand-word span{ display: none; }
+    .nav-cta-btn{ padding: 10px 16px; font-size: 13px; }
+    .cta-full{ display: none; }
+    .cta-short{ display: inline; }
+  }
+</style>
+</head>
+<body>
+
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#top">
+      <svg class="brand-mark" viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="23" fill="var(--honey)"/>
+        <path d="M15 20c0-2 1.5-5 4-6 1 2 1 4 0 6" stroke="var(--chocolate)" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M33 20c0-2-1.5-5-4-6-1 2-1 4 0 6" stroke="var(--chocolate)" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <ellipse cx="24" cy="27" rx="9" ry="8" fill="var(--cream)"/>
+        <circle cx="20.5" cy="26" r="1.6" fill="var(--chocolate)"/>
+        <circle cx="27.5" cy="26" r="1.6" fill="var(--chocolate)"/>
+        <path d="M22 30c.7.8 3.3.8 4 0" stroke="var(--chocolate)" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <path d="M24 28v1.4" stroke="var(--chocolate)" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-word">Frith Yorkies<span>&amp; More · Portsmouth, VA</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="#story">Our Story</a>
+      <a href="#services">Services</a>
+      <a href="#litters">Available Pups</a>
+      <a href="#process">How It Works</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="nav-right">
+      <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+      <div class="nav-cta">
+        <a class="btn btn-primary nav-cta-btn" href="#contact">
+          <span class="cta-full">Book a Meet &amp; Greet</span>
+          <span class="cta-short">Book Now</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#story">Our Story</a>
+    <a href="#services">Services</a>
+    <a href="#litters">Available Pups</a>
+    <a href="#process">How It Works</a>
+    <a href="#contact">Contact</a>
+  </div>
+
+</nav>
+
+<header class="hero hero-b" id="top">
+  <div class="hero-b-bg" id="heroBBg"></div>
+  <div class="hero-b-overlay"></div>
+
+  <div class="hero-b-content">
+    <span class="eyebrow-dot eyebrow-dot--light">Portsmouth, Virginia · Family-run since Honey's first litter</span>
+    <h1 class="hero-b-h1">Every good dog<br>starts with <em>Honey.</em></h1>
+    <p class="lede lede--light">We raise Yorkies, Toy Poodles and designer companions with the same love we raised our own girl's first puppy — plus stud and whelping services for owners and breeders who want it done gently.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#litters">See who's expecting</a>
+      <a class="btn btn-ghost btn-ghost--light" href="#story">Read our story</a>
+    </div>
+    <div class="hero-meta hero-meta--light">
+      <div><strong>5</strong><span>Breeds &amp; mixes raised</span></div>
+      <div><strong>1</strong><span>Honey, where it all began</span></div>
+      <div><strong>100%</strong><span>Home-raised, never kenneled</span></div>
+    </div>
+  </div>
+</header>
+
+<section class="story" id="story">
+  <div class="wrap story-grid">
+    <div>
+      <span class="story-tag">Our story</span>
+      <h2>It started with one Yorkie, and a daughter leaving home.</h2>
+      <div class="story-photo">
+        <img src="https://images.pexels.com/photos/35386961/pexels-photo-35386961.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Yorkshire Terrier puppy resting indoors">
+      </div>
+    </div>
+    <div class="story-copy">
+      <p>When our daughter moved into her own place, we wanted to send a piece of home with her — so she got a Yorkie puppy of her own. We named her Honey. What we didn't expect was how much peace that one small dog would bring into a big life change, for her and for us.</p>
+      <p>Word got around. Friends wanted their own Honey. Then friends of friends. What began as a gift became Frith Yorkies — a small, family-run operation raising Yorkies, Toy Poodles, Corkies, Yorkipoos and Spaniels with the same care we gave our first girl. Every litter is raised underfoot in our home, not in a kennel, so your puppy already knows what it's like to be loved.</p>
+      <div class="story-signature">
+        <svg class="sig-mark" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="21" fill="var(--blush-soft)"/><path d="M13 24c1-6 4-10 9-10s8 4 9 10" stroke="var(--chocolate)" stroke-width="2.4" stroke-linecap="round" fill="none"/><circle cx="18.5" cy="20" r="1.6" fill="var(--chocolate)"/><circle cx="25.5" cy="20" r="1.6" fill="var(--chocolate)"/></svg>
+        <div><strong>The Frith Family</strong><span>Portsmouth, Virginia</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="services" id="services">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="story-tag">What we offer</span>
+      <h2>Everything your Honey pup needs, and a little extra.</h2>
+    </div>
+    <div class="service-grid">
+      <div class="service-card service-large">
+        <svg class="service-icon" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="21" fill="var(--honey)"/><path d="M14 20c0-3 2-6 5-7" stroke="var(--chocolate)" stroke-width="2" stroke-linecap="round"/><path d="M30 20c0-3-2-6-5-7" stroke="var(--chocolate)" stroke-width="2" stroke-linecap="round"/><ellipse cx="22" cy="25" rx="8" ry="7" fill="var(--cream)"/><circle cx="19" cy="24" r="1.4" fill="var(--chocolate)"/><circle cx="25" cy="24" r="1.4" fill="var(--chocolate)"/></svg>
+        <h3>Companion Puppies</h3>
+        <p>Home-raised babies ready to become the calmest, silliest part of your day.</p>
+        <div class="breed-pills">
+          <span class="breed-pill">Yorkies</span>
+          <span class="breed-pill">Corkies</span>
+          <span class="breed-pill">Yorkipoos</span>
+          <span class="breed-pill">Toy Poodles</span>
+          <span class="breed-pill">Spaniels</span>
+        </div>
+      </div>
+      <div class="service-card service-small">
+        <svg class="service-icon" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="21" fill="var(--chocolate)"/><path d="M14 27c2-9 6-14 8-14s6 5 8 14" stroke="var(--cream)" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg>
+        <h3>Stud Services</h3>
+        <p>Well-tempered, health-tested sires, with boarding available through your dame's cycle.</p>
+      </div>
+      <div class="service-card service-small">
+        <svg class="service-icon" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="21" fill="var(--blush)"/><path d="M22 13c5 5 9 9 9 14a9 9 0 1 1-18 0c0-5 4-9 9-14Z" fill="var(--cream)"/></svg>
+        <h3>Whelping Services</h3>
+        <p>A quiet, home-like space for private owners and breeders to safely welcome a litter.</p>
+      </div>
+      <div class="service-card service-wide">
+        <svg class="service-icon" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="21" fill="var(--sand)"/><path d="M14 22h16M22 14v16" stroke="var(--chocolate)" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <h3>Grooming &amp; Little Outfits</h3>
+        <p>Baths, trims and pamper days, plus bows, bandannas, harnesses and small-dog clothing from our shop.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="process" id="process">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="story-tag">How it works</span>
+      <h2>From "tell us about you" to take-home day.</h2>
+    </div>
+    <div class="process-grid">
+      <div class="step">
+        <h3>Reach out</h3>
+        <p>Tell us the size, breed and personality you're dreaming of, and whether it's a companion, stud or whelping inquiry.</p>
+      </div>
+      <div class="step">
+        <h3>Meet &amp; greet</h3>
+        <p>Visit us in Portsmouth or hop on a video call to meet available pups and ask us anything.</p>
+      </div>
+      <div class="step">
+        <h3>Reserve your pup</h3>
+        <p>A deposit holds your Honey pup while we finish their vet checks, shots and early socializing.</p>
+      </div>
+      <div class="step">
+        <h3>Take-home day</h3>
+        <p>Go home with your puppy, a care guide, health guarantee, and our number for every question after.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="litters" id="litters">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="story-tag">Available &amp; upcoming</span>
+      <h2>Who's here, and who's on the way.</h2>
+    </div>
+    <div class="litter-grid">
+      <div class="litter-card">
+        <div class="litter-photo">
+          <img src="https://images.pexels.com/photos/34232426/pexels-photo-34232426.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Yorkshire Terrier puppy with a top knot resting indoors">
+        </div>
+        <span class="litter-status">Ready now</span>
+        <h3>Honey's Yorkie litter</h3>
+        <p>Two girls, one boy — 9 weeks, vet-checked and ready to meet their people.</p>
+        <a class="btn btn-primary" href="#contact">Ask about this litter</a>
+      </div>
+      <div class="litter-card">
+        <div class="litter-photo">
+          <img src="https://images.pexels.com/photos/940797/pexels-photo-940797.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Long coated toy breed puppy resting on a cozy bed">
+        </div>
+        <span class="litter-status">Expecting · Due in 3 weeks</span>
+        <h3>Toy Poodle litter</h3>
+        <p>Reserve now to be first in line when this litter is ready for meet &amp; greets.</p>
+        <a class="btn btn-primary" href="#contact">Join the waitlist</a>
+      </div>
+      <div class="litter-card">
+        <div class="litter-photo">
+          <img src="https://images.pexels.com/photos/36196052/pexels-photo-36196052.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Yorkshire Terrier puppy with a blue bow">
+        </div>
+        <span class="litter-status">Planned litter</span>
+        <h3>Yorkipoo litter</h3>
+        <p>Planning a spring litter — let us know what you're hoping for and we'll keep you posted.</p>
+        <a class="btn btn-primary" href="#contact">Get on the list</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="quote-section">
+  <div class="wrap">
+    <div class="quote-panel">
+      <svg class="quote-mark" viewBox="0 0 54 54" fill="none"><path d="M18 14c-8 4-13 12-13 21s6 13 12 13 10-4 10-10-4-9-9-9c-1-6 2-11 8-13z" fill="var(--honey)"/><path d="M42 14c-8 4-13 12-13 21s6 13 12 13 10-4 10-10-4-9-9-9c-1-6 2-11 8-13z" fill="var(--honey)"/></svg>
+      <div>
+        <blockquote>"Our Honey pup settled in like she'd always lived here. You can tell these puppies grew up surrounded by people, not just other dogs."</blockquote>
+        <span class="quote-cite">— A Frith Yorkies family, Chesapeake, VA</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <div class="wrap">
+    <div class="contact-panel">
+      <div>
+        <span class="story-tag">Get in touch</span>
+        <h2>Ready to meet your Honey pup?</h2>
+        <p>Tell us a little about what you're looking for — companion, stud service, or whelping support — and we'll get back to you within a day.</p>
+        <div class="footer-cols" style="margin-top:34px; gap:44px;">
+          <div class="footer-col">
+            <h4>Reach us</h4>
+            <p>Portsmouth, VA 23704</p>
+            <a href="mailto:Frithyorkies@gmail.com">Frithyorkies@gmail.com</a>
+            <a href="tel:7577997476">757-799-7476</a>
+          </div>
+        </div>
+      </div>
+      <form class="contact-form" onsubmit="return false;">
+        <input type="text" placeholder="Your name" required>
+        <input type="email" placeholder="Email address" required>
+        <input type="text" placeholder="What are you interested in? (puppy, stud, whelping...)">
+        <textarea placeholder="Tell us a bit more"></textarea>
+        <button class="btn btn-primary" type="submit">Send message</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div>
+      <a class="footer-brand" href="#top">
+        <svg class="brand-mark" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="23" fill="var(--honey)"/><ellipse cx="24" cy="27" rx="9" ry="8" fill="var(--cream)"/><circle cx="20.5" cy="26" r="1.6" fill="var(--chocolate)"/><circle cx="27.5" cy="26" r="1.6" fill="var(--chocolate)"/></svg>
+        <span class="brand-word">Frith Yorkies<span>&amp; More</span></span>
+      </a>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <a href="#story">Our Story</a>
+        <a href="#services">Services</a>
+        <a href="#litters">Available Pups</a>
+      </div>
+      <div class="footer-col">
+        <h4>Policies</h4>
+        <a href="#">Health Guarantee</a>
+        <a href="#">Shipping &amp; Pickup</a>
+        <a href="#">Privacy Policy</a>
+      </div>
+      <div class="footer-col">
+        <h4>Follow along</h4>
+        <a href="#">Facebook</a>
+        <a href="#">Instagram</a>
+      </div>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    <span>© 2026 Frith Yorkies, LLC · Portsmouth, Virginia</span>
+    <span>Every litter raised in our home, underfoot, with love.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var bg = document.getElementById('heroBBg');
+  var hero = document.getElementById('top');
+  if(!bg || !hero) return;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce) return;
+
+  var ticking = false;
+  var speed = 0.25;
+
+  function update(){
+    var rect = hero.getBoundingClientRect();
+    if(rect.bottom > 0 && rect.top < window.innerHeight){
+      bg.style.transform = 'translateY(' + (rect.top * -speed) + 'px)';
+    }
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', function(){
+    if(!ticking){
+      window.requestAnimationFrame(update);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  update();
+})();
+</script>
+<script>
+(function(){
+  var toggle = document.getElementById('navToggle');
+  var menu = document.getElementById('mobileMenu');
+  if(!toggle || !menu) return;
+
+  function closeMenu(){
+    toggle.classList.remove('is-open');
+    menu.classList.remove('is-open');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', 'Open menu');
+  }
+
+  function openMenu(){
+    toggle.classList.add('is-open');
+    menu.classList.add('is-open');
+    toggle.setAttribute('aria-expanded', 'true');
+    toggle.setAttribute('aria-label', 'Close menu');
+  }
+
+  toggle.addEventListener('click', function(){
+    if(menu.classList.contains('is-open')){
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  menu.querySelectorAll('a').forEach(function(link){
+    link.addEventListener('click', closeMenu);
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') closeMenu();
+  });
+
+  window.addEventListener('resize', function(){
+    if(window.innerWidth > 980) closeMenu();
+  });
+})();
+</script>
+</body>
+</html>
