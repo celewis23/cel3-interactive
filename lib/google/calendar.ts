@@ -19,6 +19,8 @@ export type CalendarEvent = {
   };
   allDay: boolean;
   calendarId: string;
+  canSendInvites: boolean;
+  invitesSentAt?: string;
 };
 
 export type GoogleCalendar = {
@@ -41,7 +43,9 @@ function mapEvent(
     status?: string | null;
     htmlLink?: string | null;
     colorId?: string | null;
-    attendees?: { email?: string | null; displayName?: string | null; responseStatus?: string | null }[] | null;
+    organizer?: { self?: boolean | null } | null;
+    attendees?: { email?: string | null; displayName?: string | null; responseStatus?: string | null; organizer?: boolean | null }[] | null;
+    extendedProperties?: { private?: { [key: string]: string } | null } | null;
     reminders?: {
       useDefault?: boolean | null;
       overrides?: { method?: string | null; minutes?: number | null }[] | null;
@@ -89,6 +93,9 @@ function mapEvent(
       : undefined,
     allDay: !e.start?.dateTime,
     calendarId,
+    canSendInvites: e.status !== "cancelled" && e.organizer?.self === true &&
+      !!e.attendees?.some((attendee) => attendee.email && !attendee.organizer),
+    invitesSentAt: e.extendedProperties?.private?.cel3InvitesSentAt,
   };
 }
 
@@ -219,6 +226,65 @@ export async function updateEvent(
     calendarId,
     eventId,
     requestBody: params,
+  });
+
+  return mapEvent(res.data, calendarId);
+}
+
+export class CalendarInviteError extends Error {
+  constructor(message: string, public status: number) {
+    super(message);
+    this.name = "CalendarInviteError";
+  }
+}
+
+export async function sendEventInvites(
+  calendarId: string,
+  eventId: string
+): Promise<CalendarEvent> {
+  const auth = await getAuthenticatedClient();
+  if (!auth) throw new CalendarInviteError("Connect Google Calendar before sending invites.", 409);
+
+  const calendar = google.calendar({ version: "v3", auth: auth.oauth2Client });
+  // Read the saved event so the browser cannot substitute recipients or meeting details.
+  const { data: event } = await calendar.events.get({ calendarId, eventId });
+  if (event.status === "cancelled") {
+    throw new CalendarInviteError("Invites cannot be sent for a cancelled event.", 409);
+  }
+  if (!event.organizer?.self) {
+    throw new CalendarInviteError("Send invites from the calendar that organizes this event.", 403);
+  }
+  if (!event.attendees?.some((attendee) => attendee.email && !attendee.organizer)) {
+    throw new CalendarInviteError("Add an attendee to this event before sending invites.", 400);
+  }
+  if (!event.etag) {
+    throw new CalendarInviteError("Unable to verify the event. Refresh the calendar and try again.", 409);
+  }
+
+  const lastSent = event.extendedProperties?.private?.cel3InvitesSentAt;
+  if (lastSent && Date.now() - Date.parse(lastSent) < 30_000) {
+    throw new CalendarInviteError("Invites were just sent. Wait a moment before sending again.", 429);
+  }
+
+  const res = await calendar.events.patch({
+    calendarId,
+    eventId,
+    sendUpdates: "all",
+    requestBody: {
+      // Advance the iCalendar revision when explicitly sending an invitation/update.
+      // Leave meeting details, conference links and attendee responses intact.
+      sequence: (event.sequence ?? 0) + 1,
+      extendedProperties: {
+        private: {
+          ...event.extendedProperties?.private,
+          cel3InvitesSentAt: new Date().toISOString(),
+        },
+      },
+    },
+  }, {
+    headers: { "If-Match": event.etag },
+    // Do not automatically repeat an operation that emails guests.
+    retry: false,
   });
 
   return mapEvent(res.data, calendarId);

@@ -3,21 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { DateTime } from "luxon";
-
-type CalendarEvent = {
-  id: string;
-  summary: string;
-  description?: string;
-  location?: string;
-  start: { dateTime?: string; date?: string; timeZone?: string };
-  end: { dateTime?: string; date?: string; timeZone?: string };
-  status: string;
-  htmlLink?: string;
-  colorId?: string;
-  attendees?: { email: string; displayName?: string; responseStatus?: string }[];
-  allDay: boolean;
-  calendarId: string;
-};
+import type { CalendarEvent } from "@/lib/google/calendar";
 
 type GoogleCalendar = {
   id: string;
@@ -106,6 +92,14 @@ export default function CalendarClient() {
   const [showNewEvent, setShowNewEvent] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [sendingInvites, setSendingInvites] = useState(false);
+  const invitePendingRef = useRef(false);
+  const [inviteFeedback, setInviteFeedback] = useState<{
+    eventId: string;
+    calendarId: string;
+    error?: string;
+    sent?: boolean;
+  } | null>(null);
   const [newEventForm, setNewEventForm] = useState<NewEventForm>({
     summary: "",
     date: today.toISODate() ?? "",
@@ -273,6 +267,10 @@ export default function CalendarClient() {
       const created = await res.json();
       setEvents((prev) => [...prev, created]);
       setShowNewEvent(false);
+      if (created.attendees?.length) {
+        setInviteFeedback(null);
+        setSelectedEvent(created);
+      }
       setNewEventForm((prev) => ({
         ...prev,
         summary: "",
@@ -285,6 +283,37 @@ export default function CalendarClient() {
       setError((e as Error).message);
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleSendInvites(event: CalendarEvent) {
+    if (invitePendingRef.current) return;
+    invitePendingRef.current = true;
+    setSendingInvites(true);
+    setInviteFeedback(null);
+    try {
+      const res = await fetch(
+        `/api/admin/calendar/events/${encodeURIComponent(event.id)}/invite?calendarId=${encodeURIComponent(event.calendarId)}`,
+        { method: "POST" }
+      );
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Failed to send invites.");
+      setEvents((prev) => prev.map((item) =>
+        item.id === event.id && item.calendarId === event.calendarId ? data : item
+      ));
+      setSelectedEvent((current) =>
+        current?.id === event.id && current.calendarId === event.calendarId ? data : current
+      );
+      setInviteFeedback({ eventId: event.id, calendarId: event.calendarId, sent: true });
+    } catch (err) {
+      setInviteFeedback({
+        eventId: event.id,
+        calendarId: event.calendarId,
+        error: err instanceof Error ? err.message : "Failed to send invites.",
+      });
+    } finally {
+      invitePendingRef.current = false;
+      setSendingInvites(false);
     }
   }
 
@@ -425,7 +454,10 @@ export default function CalendarClient() {
                       {dateEvents.map((event) => (
                         <button
                           key={event.id}
-                          onClick={() => setSelectedEvent(event)}
+                          onClick={() => {
+                            setInviteFeedback(null);
+                            setSelectedEvent(event);
+                          }}
                           className="w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors group"
                         >
                           <div
@@ -611,6 +643,9 @@ export default function CalendarClient() {
                   placeholder="email@example.com, ..."
                   className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/30 outline-none focus:border-sky-500/50"
                 />
+                <p className="mt-2 text-xs text-white/40">
+                  After creating the event, click Send invites to email your attendees.
+                </p>
               </div>
             </div>
 
@@ -682,9 +717,41 @@ export default function CalendarClient() {
                 <div className="text-xs text-white/30 uppercase tracking-wider mb-1">Attendees</div>
                 <div className="space-y-1">
                   {selectedEvent.attendees.map((a) => (
-                    <div key={a.email} className="text-sm text-white/50">{a.displayName ?? a.email}</div>
+                    <div key={a.email} className="text-sm text-white/50 break-words">
+                      {a.displayName ? `${a.displayName} (${a.email})` : a.email}
+                    </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {selectedEvent.canSendInvites && (
+              <div className="mt-4">
+                <button
+                  onClick={() => handleSendInvites(selectedEvent)}
+                  disabled={sendingInvites || (inviteFeedback?.sent === true && inviteFeedback.eventId === selectedEvent.id && inviteFeedback.calendarId === selectedEvent.calendarId)}
+                  className="w-full px-3 py-2 rounded-xl text-sm text-white bg-sky-500 hover:bg-sky-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {sendingInvites ? "Sending…" : selectedEvent.invitesSentAt ? "Resend invites" : "Send invites"}
+                </button>
+                <p className="mt-2 text-xs text-white/40">
+                  Emails a Google Calendar invitation or update to all attendees.
+                </p>
+              </div>
+            )}
+
+            {selectedEvent.invitesSentAt && (
+              <p className="mt-2 text-xs text-white/40">
+                Last sent from this app: {DateTime.fromISO(selectedEvent.invitesSentAt).toFormat("MMM d, yyyy · h:mm a")}
+              </p>
+            )}
+
+            {inviteFeedback?.eventId === selectedEvent.id && inviteFeedback.calendarId === selectedEvent.calendarId && (
+              <div
+                role={inviteFeedback.error ? "alert" : "status"}
+                className={`mt-3 px-3 py-2 rounded-lg text-sm ${inviteFeedback.error ? "bg-red-500/10 text-red-400" : "bg-emerald-500/10 text-emerald-400"}`}
+              >
+                {inviteFeedback.error || "Invites sent through Google Calendar."}
               </div>
             )}
 
@@ -701,7 +768,8 @@ export default function CalendarClient() {
               )}
               <button
                 onClick={() => handleDeleteEvent(selectedEvent)}
-                className="px-3 py-2 rounded-xl text-sm text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 transition-colors"
+                disabled={sendingInvites}
+                className="px-3 py-2 rounded-xl text-sm text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 disabled:opacity-50 transition-colors"
               >
                 Delete
               </button>

@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:calendar": "node --test scripts/calendar-invites.test.mjs",
     "seed:griotos-case-study": "node scripts/seed-griotos-case-study.mjs",
     "seed:biobox-case-study": "node scripts/seed-biobox-case-study.mjs"
   },
