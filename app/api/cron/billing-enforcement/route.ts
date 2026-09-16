@@ -27,8 +27,7 @@ import { automationEngine } from "@/lib/automations/engine";
 import { sendPushNotificationToAudience } from "@/lib/notifications/push";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 import { syncVercelWebsiteStatus } from "@/lib/billing/websiteStatusSync";
-import { createInvoice } from "@/lib/stripe/billing";
-import { syncStripeInvoiceToSanity } from "@/lib/stripe/sync";
+import { ensureLateFeeInvoice } from "@/lib/billing/lateFee";
 import {
   sendFirstNoticeEmail,
   sendSecondNoticeEmail,
@@ -155,29 +154,16 @@ export async function GET(req: NextRequest) {
             }
             results.firstNotice++;
           } else if (nextStage === 2) {
-            if (!lateFeeInvoiceId) {
-              const feeInvoice = await createInvoice({
-                customerId: inv.stripeCustomerId,
-                daysUntilDue: 7,
-                collectionMethod: "send_invoice",
-                description: `Late payment fee — Invoice ${inv.number}`,
-                lineItems: [{ description: "Late payment fee", amount: settings.lateFeeCents / 100 }],
-                send: true,
-              });
-              await syncStripeInvoiceToSanity(feeInvoice);
-              await sanityWriteClient.createOrReplace({
-                _id: `dunning:${feeInvoice.id}`,
-                _type: "invoiceDunningState",
-                invoiceId: feeInvoice.id,
-                dunningStage: 0,
-                isLateFee: true,
-                lateFeeInvoiceId: null,
-                lastDunningEmailAt: null,
-              });
-              lateFeeInvoiceId = feeInvoice.id;
-            }
+            const feeInvoice = await ensureLateFeeInvoice({
+              invoiceId: inv._id,
+              invoiceNumber: inv.number,
+              customerId: inv.stripeCustomerId,
+              amountCents: settings.lateFeeCents,
+              existingFeeInvoiceId: lateFeeInvoiceId,
+            });
+            lateFeeInvoiceId = feeInvoice.id;
             if (inv.clientEmail) {
-              await sendSecondNoticeEmail(dunningInvoice, settings.lateFeeCents, addDays(inv.dueDate, settings.finalNoticeDays));
+              await sendSecondNoticeEmail(dunningInvoice, feeInvoice.total, addDays(inv.dueDate, settings.finalNoticeDays));
             }
             results.secondNotice++;
           } else if (nextStage === 3) {
@@ -225,7 +211,7 @@ export async function GET(req: NextRequest) {
           }
 
           await sanityWriteClient.createOrReplace({
-            _id: `dunning:${inv._id}`,
+            _id: `dunning.${inv._id}`,
             _type: "invoiceDunningState",
             invoiceId: inv._id,
             dunningStage: nextStage,

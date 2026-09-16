@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:calendar": "node --test scripts/calendar-invites.test.mjs",
+    "test:billing": "node --test scripts/billing-late-fee.test.mjs",
     "seed:griotos-case-study": "node scripts/seed-griotos-case-study.mjs",
     "seed:biobox-case-study": "node scripts/seed-biobox-case-study.mjs"
   },
