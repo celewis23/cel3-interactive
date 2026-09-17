@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -22,11 +23,11 @@ function parseFrom(from: string): { name: string; email: string } {
   return { name: from, email: from };
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   return handleNotificationCheck(req);
 }
 
-export async function GET(req: NextRequest) {
+async function handleActivityGET(req: NextRequest) {
   return handleNotificationCheck(req);
 }
 
@@ -129,3 +130,7 @@ async function handleNotificationCheck(req: NextRequest) {
     ...(errors.length ? { errors } : {}),
   });
 }
+
+export const POST = withActivity("/api/admin/notifications/email", "POST", handleActivityPOST);
+
+export const GET = withActivity("/api/admin/notifications/email", "GET", handleActivityGET);

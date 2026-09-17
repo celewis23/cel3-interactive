@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission, getSessionInfo } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
@@ -43,7 +44,7 @@ export async function GET(req: NextRequest) {
 // ---------------------------------------------------------------------------
 // POST — create a new integration (returns secret once)
 // ---------------------------------------------------------------------------
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "settings", "edit");
   if (authErr) return authErr;
 
@@ -113,3 +114,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = withActivity("/api/admin/integrations", "POST", handleActivityPOST);

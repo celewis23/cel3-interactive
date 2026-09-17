@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { verifyPortalSessionToken, PORTAL_COOKIE } from "@/lib/portal/auth";
@@ -133,7 +134,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const token = req.cookies.get(PORTAL_COOKIE)?.value;
   const session = token ? verifyPortalSessionToken(token) : null;
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -216,3 +217,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to save appointment response" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/portal/appointments", "POST", handleActivityPOST);

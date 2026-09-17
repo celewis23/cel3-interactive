@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -6,7 +7,7 @@ import type { AutomationNode, AutomationSuggestion } from "@/lib/automations/typ
 import { TRIGGER_LABELS, ACTION_LABELS, summariseNode, generateNodeId } from "@/lib/automations/types";
 import Anthropic from "@anthropic-ai/sdk";
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "automations", "view");
   if (authErr) return authErr;
 
@@ -93,3 +94,5 @@ Make sure action_config fields match these shapes:
     return NextResponse.json({ suggestions: [] });
   }
 }
+
+export const POST = withActivity("/api/admin/automations/suggest", "POST", handleActivityPOST);

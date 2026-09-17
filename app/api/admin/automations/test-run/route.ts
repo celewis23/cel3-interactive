@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -6,7 +7,7 @@ import { sanityServer } from "@/lib/sanityServer";
 import { AutomationEngine } from "@/lib/automations/engine";
 import type { AutomationTriggerType } from "@/lib/automations/types";
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "automations", "view");
   if (authErr) return authErr;
 
@@ -69,3 +70,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err instanceof Error ? err.message : "Test run failed" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/automations/test-run", "POST", handleActivityPOST);

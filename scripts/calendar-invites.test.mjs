@@ -16,6 +16,7 @@ function loadModule(path, dependencies) {
   });
   const loadedModule = { exports: {} };
   const load = (name) => {
+    if (name === "@/lib/audit/withActivity") return { withActivity: (_route, _method, handler) => handler };
     if (Object.hasOwn(dependencies, name)) return dependencies[name];
     if (name === "luxon" || name === "next/server") return require(name);
     throw new Error(`Unexpected dependency: ${name}`);

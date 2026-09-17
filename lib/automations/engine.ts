@@ -8,6 +8,8 @@
 
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
+import { after } from "next/server";
+import { writeAudit } from "@/lib/audit/log";
 import { sendPushNotificationToAudience } from "@/lib/notifications/push";
 import {
   type AutomationNode,
@@ -20,7 +22,6 @@ import {
   type ConditionConfig,
   type ActionType,
   type AutomationNodeGraph,
-  generateNodeId,
   summariseNode,
 } from "./types";
 
@@ -55,9 +56,14 @@ export class AutomationEngine {
     entityId: string,
     clientId?: string
   ): void {
-    this._fire(orgId, triggerType, triggerConfig, entityType, entityId, clientId).catch((err) => {
+    const work = this._fire(orgId, triggerType, triggerConfig, entityType, entityId, clientId).catch(async (err) => {
       console.error(`[AutomationEngine] fire() error for trigger ${triggerType}:`, err?.message ?? err);
+      await writeAudit(null, { action: "automation.trigger_failed", source: "automatic", status: "failed",
+        resourceType: entityType, resourceId: entityId, description: `Automation trigger ${triggerType} failed`,
+        metadata: { error: err instanceof Error ? err.message : "Processing failed" },
+      });
     });
+    try { after(work); } catch { /* Outside a request, work remains scheduled on the active event loop. */ }
   }
 
   private async _fire(
@@ -83,8 +89,13 @@ export class AutomationEngine {
 
     for (const automation of automations) {
       const ctx: TriggerContext = { orgId, triggerType, triggerConfig, entityType, entityId, clientId };
-      await this._evaluate(automation, ctx).catch((err) => {
+      await this._evaluate(automation, ctx).catch(async (err) => {
         console.error(`[AutomationEngine] evaluate error for ${automation._id}:`, err?.message ?? err);
+        await writeAudit(null, { action: "automation.trigger_failed", source: "automatic", status: "failed",
+          resourceType: "automation", resourceId: automation._id, resourceLabel: automation.name,
+          description: `Automation could not finish: ${automation.name}`,
+          metadata: { error: err instanceof Error ? err.message : "Processing failed" },
+        });
       });
     }
   }
@@ -121,18 +132,24 @@ export class AutomationEngine {
       data: {},
     };
 
-    // Pre-fetch entity data
-    await this._hydrateContext(execCtx);
-
-    // Find trigger node and start
-    const nodes = automation.nodes.nodes;
-    const triggerNode = nodes.find((n) => n.type === "trigger");
-    if (!triggerNode) {
-      await this._failRun(run._id, "No trigger node found");
-      return run._id;
-    }
+    await writeAudit(null, { action: "automation.started", source: "automatic", status: "running", runId: run._id,
+      resourceType: "automation", resourceId: automation._id, resourceLabel: automation.name,
+      description: `${isDryRun ? "Test run" : "Automation"} started: ${automation.name}`,
+      metadata: { triggerType: triggerCtx.triggerType, entityId: triggerCtx.entityId, isDryRun },
+    });
 
     try {
+      // Pre-fetch entity data
+      await this._hydrateContext(execCtx);
+
+      // Find trigger node and start
+      const nodes = automation.nodes.nodes;
+      const triggerNode = nodes.find((n) => n.type === "trigger");
+      if (!triggerNode) {
+        await this._failRun(run._id, "No trigger node found");
+        return run._id;
+      }
+
       await this._processNode(triggerNode.next ? nodes.find((n) => n.id === triggerNode.next) ?? null : null, nodes, execCtx);
 
       // Complete run
@@ -147,6 +164,18 @@ export class AutomationEngine {
         .inc({ runCount: 1 })
         .set({ lastRunAt: new Date().toISOString() })
         .commit();
+
+      const summary = await sanityServer.fetch<{ pending: number; errors: number }>(
+        `{"pending": count(*[_type == "automationRunStep" && runId == $runId && status in ["pending", "awaiting_approval"]]),
+          "errors": count(*[_type == "auditEvent" && runId == $runId && action == "automation.action_processed" && status == "failed"])}`,
+        { runId: run._id },
+      ).catch(() => null);
+      await writeAudit(null, { action: summary && !summary.pending ? "automation.completed" : "automation.waiting", source: "automatic",
+        status: summary?.errors ? "partial" : !summary || summary.pending ? "accepted" : "success", runId: run._id,
+        resourceType: "automation", resourceId: automation._id, resourceLabel: automation.name,
+        description: `${automation.name}: ${!summary ? "steps processed; pending-step status unavailable" : summary.pending ? "waiting for a delayed step or approval" : summary.errors ? "completed with action errors" : "completed"}`,
+        metadata: { isDryRun, pendingSteps: summary?.pending ?? null, failedActions: summary?.errors ?? null },
+      });
     } catch (err) {
       await this._failRun(run._id, err instanceof Error ? err.message : String(err));
     }
@@ -213,11 +242,26 @@ export class AutomationEngine {
       data: {},
     };
 
-    await this._hydrateContext(execCtx);
-
-    // Continue from the node AFTER the delay (next pointer)
-    const nextNode = node.next ? nodes.find((n) => n.id === node.next) ?? null : null;
-    await this._processNode(nextNode, nodes, execCtx);
+    await writeAudit(null, { action: "automation.resumed", source: "automatic", status: "running", runId,
+      resourceType: "automation", resourceId: automationId, resourceLabel: automation.name,
+      description: `Automation resumed: ${automation.name}`, metadata: { nodeId, isDryRun },
+    });
+    try {
+      await this._hydrateContext(execCtx);
+      // Continue from the node AFTER the delay (next pointer)
+      const nextNode = node.next ? nodes.find((n) => n.id === node.next) ?? null : null;
+      await this._processNode(nextNode, nodes, execCtx);
+      await writeAudit(null, { action: "automation.resume_processed", source: "automatic", status: "success", runId,
+        resourceType: "automation", resourceId: automationId, resourceLabel: automation.name,
+        description: `Resumed steps processed: ${automation.name}`, metadata: { nodeId, isDryRun },
+      });
+    } catch (error) {
+      await writeAudit(null, { action: "automation.resume_failed", source: "automatic", status: "failed", runId,
+        resourceType: "automation", resourceId: automationId, resourceLabel: automation.name,
+        description: `Resumed automation failed: ${automation.name}`, metadata: { nodeId, error: error instanceof Error ? error.message : "Processing failed" },
+      });
+      throw error;
+    }
   }
 
   /**
@@ -401,6 +445,13 @@ export class AutomationEngine {
     stepId: string
   ): Promise<void> {
     const cfg = node.config as ActionNodeConfig;
+    const auditAction = async (status: "success" | "failed" | "skipped" | "accepted", reason?: string) => {
+      await writeAudit(null, { action: "automation.action_processed", source: "automatic", status, runId: ctx.runId,
+        resourceType: ctx.entityType, resourceId: ctx.entityId,
+        description: `${ctx.isDryRun ? "Test action" : "Automation action"}: ${cfg.action_type.replace(/_/g, " ")} — ${status}`,
+        metadata: { nodeId: node.id, isDryRun: ctx.isDryRun, ...(reason ? { reason } : {}) },
+      });
+    };
 
     // Check if approval required
     if (cfg.require_approval && !ctx.isDryRun) {
@@ -420,14 +471,18 @@ export class AutomationEngine {
         requestedAt: new Date().toISOString(),
         status: "pending",
       });
+      await auditAction("accepted", "Waiting for approval");
       return; // Pause — resume after approval
     }
 
     try {
       const output = await this._executeAction(cfg, ctx);
       await this._completeStep(stepId, output ?? {});
+      await auditAction(output?.error || output?.ok === false ? "failed" : output?.skipped ? "skipped" : "success",
+        typeof output?.error === "string" ? output.error : typeof output?.reason === "string" ? output.reason : undefined);
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : String(err);
+      await auditAction("failed", errMsg);
       if (cfg.on_error === "skip") {
         await sanityWriteClient.patch(stepId).set({ status: "skipped", error: errMsg }).commit();
       } else {
@@ -687,6 +742,9 @@ export class AutomationEngine {
       error,
       completedAt: new Date().toISOString(),
     }).commit();
+    await writeAudit(null, { action: "automation.failed", source: "automatic", status: "failed", runId,
+      resourceType: "automation", resourceId: runId, description: "Automation run failed", metadata: { error },
+    });
   }
 }
 

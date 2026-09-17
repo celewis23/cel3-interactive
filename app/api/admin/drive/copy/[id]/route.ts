@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -7,7 +8,7 @@ import { logAudit, AuditAction } from "@/lib/audit/log";
 
 type Params = { params: Promise<{ id: string }> };
 
-export async function POST(req: NextRequest, { params }: Params) {
+async function handleActivityPOST(req: NextRequest, { params }: Params) {
   const authErr = await requirePermission(req, "drive", "edit");
   if (authErr) return authErr;
 
@@ -31,3 +32,5 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Failed to copy file" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/drive/copy/[id]", "POST", handleActivityPOST);

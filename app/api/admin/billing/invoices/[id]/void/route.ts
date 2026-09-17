@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { voidInvoice } from "@/lib/stripe/billing";
@@ -6,7 +7,7 @@ import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
-export async function POST(
+async function handleActivityPOST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -35,3 +36,5 @@ export async function POST(
     );
   }
 }
+
+export const POST = withActivity("/api/admin/billing/invoices/[id]/void", "POST", handleActivityPOST);

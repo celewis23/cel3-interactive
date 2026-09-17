@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { DateTime } from "luxon";
 import { listDueTasks, listDueReminders, markTaskNotified, markReminderNotified } from "@/lib/tasks/db";
@@ -13,7 +14,7 @@ function isAuthorizedCron(req: NextRequest) {
   return req.headers.get("x-vercel-cron") === "1";
 }
 
-export async function GET(req: NextRequest) {
+async function handleActivityGET(req: NextRequest) {
   if (!isAuthorizedCron(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -61,3 +62,5 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({ tasksNotified: dueTasks.length, remindersNotified: dueReminders.length, sent });
 }
+
+export const GET = withActivity("/api/cron/task-reminders", "GET", handleActivityGET);

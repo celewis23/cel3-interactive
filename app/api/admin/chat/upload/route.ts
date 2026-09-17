@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -39,7 +40,7 @@ function normalizeMessage(m: {
   };
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "chat", "edit");
   if (authErr) return authErr;
 
@@ -162,3 +163,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/chat/upload", "POST", handleActivityPOST);

@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { PlatformBuilderValidationError, updatePlatformBuilderLeadStatus } from "@/lib/platformBuilder/service";
@@ -5,7 +6,7 @@ import { PlatformBuilderValidationError, updatePlatformBuilderLeadStatus } from 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function PATCH(
+async function handleActivityPATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -25,3 +26,5 @@ export async function PATCH(
     return NextResponse.json({ error: "Failed to update lead status" }, { status: 500 });
   }
 }
+
+export const PATCH = withActivity("/api/admin/leads/platform-builder/[id]", "PATCH", handleActivityPATCH);

@@ -1,380 +1,204 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useState } from "react";
 
-interface AuditEvent {
-  _id: string;
-  timestamp: string;
-  userId: string | null;
-  userName: string;
-  userEmail: string;
-  isOwner: boolean;
-  action: string;
-  resourceType: string;
-  resourceId: string | null;
-  resourceLabel: string | null;
-  description: string;
-  ipAddress: string | null;
-  before: Record<string, unknown> | null;
-  after: Record<string, unknown> | null;
-  metadata: Record<string, unknown> | null;
-}
-
+type ActivityEvent = {
+  _id: string; timestamp: string; userName: string; userEmail: string; action: string;
+  description: string; resourceLabel?: string; resourceId?: string; source: string; status: string;
+  runId?: string; durationMs?: number; before?: Record<string, unknown>; after?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
+};
+type Job = {
+  id: string; name: string; description: string; schedule: string | null; health: string;
+  collectionsEnabled?: boolean | null; lastRun: ActivityEvent | null;
+};
+type Filters = { q: string; source: string; status: string; from: string; to: string; runId: string; resourceId: string; hideRoutine: boolean };
+const EMPTY: Filters = { q: "", source: "", status: "", from: "", to: "", runId: "", resourceId: "", hideRoutine: true };
 const LIMIT = 50;
+const inputClass = "w-full rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-sm text-white outline-none focus:border-sky-400";
+const buttonClass = "rounded-lg border border-white/15 px-3 py-2 text-sm text-white/80 transition hover:bg-white/10 disabled:opacity-40";
+const labels: Record<string, string> = {
+  success: "Succeeded", failed: "Failed", partial: "Completed with errors", skipped: "Skipped / no work due",
+  running: "Running", accepted: "Accepted for processing", recorded: "Recorded · outcome unavailable",
+  unobserved: "No run recorded", overdue: "Expected run missing", unfinished: "Completion not recorded",
+};
 
-function formatTs(ts: string) {
-  const d = new Date(ts);
-  return d.toLocaleString(undefined, {
-    year: "numeric", month: "short", day: "numeric",
-    hour: "2-digit", minute: "2-digit", second: "2-digit",
-  });
+function timestamp(value: string) { return new Date(value).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "medium" }); }
+function Badge({ status }: { status: string }) {
+  const color = status === "success" ? "bg-emerald-500/15 text-emerald-300" : status === "failed" ? "bg-red-500/15 text-red-300"
+    : ["partial", "overdue", "unfinished"].includes(status) ? "bg-amber-500/15 text-amber-200"
+    : ["running", "accepted"].includes(status) ? "bg-sky-500/15 text-sky-300" : "bg-white/8 text-white/60";
+  return <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-medium ${color}`}>{labels[status] ?? status}</span>;
 }
-
-function actionBadgeColor(action: string) {
-  if (action.startsWith("auth")) return "bg-purple-500/15 text-purple-300";
-  if (action.startsWith("billing") || action.startsWith("invoice") || action.startsWith("estimate")) return "bg-emerald-500/15 text-emerald-300";
-  if (action.startsWith("contract")) return "bg-amber-500/15 text-amber-300";
-  if (action.startsWith("staff") || action.startsWith("role")) return "bg-sky-500/15 text-sky-300";
-  if (action.includes("delete") || action.includes("deleted") || action.includes("void")) return "bg-red-500/15 text-red-300";
-  return "bg-white/8 text-white/60";
+function scheduleLabel(schedule: string | null) {
+  if (schedule === "* * * * *") return "Checks every minute";
+  if (schedule === "0 13 * * *") {
+    const date = new Date(); date.setUTCHours(13, 0, 0, 0);
+    const local = date.toLocaleTimeString("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit", timeZoneName: "short" });
+    return `Daily at ${local} (13:00 UTC)`;
+  }
+  return schedule ?? "Not scheduled here";
 }
-
-function DiffViewer({ before, after }: { before: Record<string, unknown> | null; after: Record<string, unknown> | null }) {
-  if (!before && !after) return null;
-
-  const allKeys = Array.from(new Set([
-    ...Object.keys(before ?? {}),
-    ...Object.keys(after ?? {}),
-  ]));
-
-  if (allKeys.length === 0) return null;
-
-  return (
-    <div className="mt-3 rounded-lg overflow-hidden border border-white/8 text-xs font-mono">
-      <div className="flex text-white/40 bg-white/4 px-3 py-1.5">
-        <span className="flex-1">Field</span>
-        <span className="w-[40%] text-red-400/70">Before</span>
-        <span className="w-[40%] text-emerald-400/70">After</span>
-      </div>
-      {allKeys.map((key) => {
-        const bVal = before?.[key];
-        const aVal = after?.[key];
-        const changed = JSON.stringify(bVal) !== JSON.stringify(aVal);
-        return (
-          <div
-            key={key}
-            className={`flex px-3 py-1.5 border-t border-white/5 ${changed ? "bg-amber-500/5" : ""}`}
-          >
-            <span className="flex-1 text-white/50">{key}</span>
-            <span className="w-[40%] text-red-300/80 truncate pr-2">
-              {bVal === undefined ? "—" : JSON.stringify(bVal)}
-            </span>
-            <span className="w-[40%] text-emerald-300/80 truncate">
-              {aVal === undefined ? "—" : JSON.stringify(aVal)}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
+function queryParams(filters: Filters) {
+  const params = new URLSearchParams();
+  for (const key of ["q", "source", "status", "runId", "resourceId"] as const) if (filters[key]) params.set(key, filters[key]);
+  for (const key of ["from", "to"] as const) {
+    if (!filters[key]) continue;
+    const date = new Date(`${filters[key]}T00:00:00`);
+    if (key === "to") date.setHours(23, 59, 59, 999);
+    if (Number.isFinite(date.getTime())) params.set(key, date.toISOString());
+  }
+  params.set("hideRoutine", String(filters.hideRoutine));
+  return params;
 }
 
 export default function AuditLogView() {
-  const [events, setEvents] = useState<AuditEvent[]>([]);
-  const [total, setTotal] = useState(0);
+  const [filters, setFilters] = useState<Filters>(EMPTY);
+  const [applied, setApplied] = useState<Filters>(EMPTY);
   const [offset, setOffset] = useState(0);
+  const [events, setEvents] = useState<ActivityEvent[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [error, setError] = useState("");
+  const [jobError, setJobError] = useState("");
+  const [refreshedAt, setRefreshedAt] = useState("");
+  const [refresh, setRefresh] = useState(0);
+  const [automaticRefresh, setAutomaticRefresh] = useState(true);
   const [exporting, setExporting] = useState(false);
 
-  // Filters
-  const [userId, setUserId] = useState("");
-  const [action, setAction] = useState("");
-  const [resourceType, setResourceType] = useState("");
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
-
-  // Applied filters (committed on search)
-  const [applied, setApplied] = useState({ userId: "", action: "", resourceType: "", from: "", to: "" });
-
-  const fetchEvents = useCallback(async (filters: typeof applied, page: number) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({ limit: String(LIMIT), offset: String(page) });
-      if (filters.userId) params.set("userId", filters.userId);
-      if (filters.action) params.set("action", filters.action);
-      if (filters.resourceType) params.set("resourceType", filters.resourceType);
-      if (filters.from) params.set("from", filters.from);
-      if (filters.to) params.set("to", filters.to);
-
-      const res = await fetch(`/api/admin/audit?${params}`);
-      if (!res.ok) throw new Error("Failed");
-      const data = await res.json();
-      setEvents(data.events ?? []);
-      setTotal(data.total ?? 0);
-    } catch {
-      setEvents([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  useEffect(() => {
+    if (!automaticRefresh) return;
+    const timer = setInterval(() => { if (!document.hidden) setRefresh((value) => value + 1); }, 30_000);
+    return () => clearInterval(timer);
+  }, [automaticRefresh]);
 
   useEffect(() => {
-    fetchEvents(applied, offset);
-  }, [applied, offset, fetchEvents]);
+    const controller = new AbortController();
+    async function load() {
+      const params = queryParams(applied);
+      params.set("offset", String(offset)); params.set("limit", String(LIMIT));
+      try {
+        const response = await fetch(`/api/admin/audit?${params}`, { cache: "no-store", signal: controller.signal });
+        if (!response.ok) throw new Error(response.status === 403 ? "You do not have permission to view the activity log." : "Activity history could not be loaded. Your previous results are still shown.");
+        const data = await response.json();
+        if (controller.signal.aborted) return;
+        setEvents(data.events ?? []); setTotal(data.total ?? 0); setError(""); setRefreshedAt(new Date().toISOString());
+      } catch (err) {
+        if (!controller.signal.aborted) setError(err instanceof Error ? err.message : "Activity history could not be loaded.");
+      } finally { if (!controller.signal.aborted) setLoading(false); }
+    }
+    void load();
+    return () => controller.abort();
+  }, [applied, offset, refresh]);
 
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    const next = { userId, action, resourceType, from, to };
-    setApplied(next);
-    setOffset(0);
-    setExpanded(new Set());
-  }
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetch("/api/admin/audit/jobs", { cache: "no-store", signal: controller.signal })
+      .then(async (response) => { if (!response.ok) throw new Error("Job status could not be loaded."); return response.json(); })
+      .then((data) => { if (!controller.signal.aborted) { setJobs(data.jobs ?? []); setJobError(""); } })
+      .catch((err) => { if (!controller.signal.aborted) setJobError(err.message); });
+    return () => controller.abort();
+  }, [refresh]);
 
-  function handleClear() {
-    setUserId(""); setAction(""); setResourceType(""); setFrom(""); setTo("");
-    setApplied({ userId: "", action: "", resourceType: "", from: "", to: "" });
-    setOffset(0);
-    setExpanded(new Set());
-  }
-
-  function toggleExpanded(id: string) {
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  }
-
-  async function handleExport() {
+  function apply(next: Filters) { setFilters(next); setApplied(next); setOffset(0); setLoading(true); }
+  async function exportCsv() {
     setExporting(true);
     try {
-      const params = new URLSearchParams({ format: "csv" });
-      if (applied.userId) params.set("userId", applied.userId);
-      if (applied.action) params.set("action", applied.action);
-      if (applied.resourceType) params.set("resourceType", applied.resourceType);
-      if (applied.from) params.set("from", applied.from);
-      if (applied.to) params.set("to", applied.to);
-
-      const res = await fetch(`/api/admin/audit?${params}`);
-      if (!res.ok) throw new Error("Failed");
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `audit-log-${new Date().toISOString().slice(0, 10)}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      alert("Export failed");
-    } finally {
-      setExporting(false);
-    }
+      const params = queryParams(applied); params.set("format", "csv");
+      const response = await fetch(`/api/admin/audit?${params}`);
+      if (!response.ok) throw new Error("Export failed. Please try again.");
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement("a"); link.href = url;
+      link.download = `activity-log-${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click(); URL.revokeObjectURL(url);
+    } catch (err) { setError(err instanceof Error ? err.message : "Export failed."); }
+    finally { setExporting(false); }
   }
 
-  const totalPages = Math.ceil(total / LIMIT);
-  const currentPage = Math.floor(offset / LIMIT) + 1;
+  return <div className="space-y-7">
+    <section aria-labelledby="automatic-jobs-title">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <div><h2 id="automatic-jobs-title" className="font-semibold text-white">Automatic jobs</h2>
+          <p className="mt-1 text-xs text-white/45">A schedule shows what is expected. A recorded run confirms what actually happened.</p></div>
+        <button className={buttonClass} onClick={() => setRefresh((value) => value + 1)}>Refresh</button>
+      </div>
+      {jobError && <p role="alert" className="mb-3 text-sm text-amber-300">{jobError}</p>}
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {jobs.map((job) => <article key={job.id} className="rounded-xl border border-white/10 bg-white/3 p-4">
+          <div className="mb-2 font-medium text-white">{job.name}</div>
+          <Badge status={job.health} />
+          <p className="mt-3 text-xs text-white/65">{scheduleLabel(job.schedule)}</p>
+          <p className="mt-1 text-xs text-white/45">{job.description}</p>
+          {job.id === "billing-enforcement" && <p className={`mt-2 text-xs ${job.collectionsEnabled ? "text-emerald-300" : "text-amber-200"}`}>
+            {job.collectionsEnabled === null ? "Collections setting unavailable" : job.collectionsEnabled ? "Automatic collections enabled" : "Automatic collections off"}
+            {" · "}<a className="underline" href="/admin/settings/billing-enforcement">Billing settings</a>
+          </p>}
+          <p className="mt-3 text-xs text-white/60">{job.lastRun ? `Last attempt: ${timestamp(job.lastRun.timestamp)}` : "No run has been recorded since tracking was added."}</p>
+          {job.lastRun && <p className="mt-1 text-xs text-white/45">{job.lastRun.description}</p>}
+          <button className="mt-3 text-xs text-sky-300 hover:underline" onClick={() => apply({ ...EMPTY, resourceId: job.id, hideRoutine: false })}>View run history →</button>
+        </article>)}
+      </div>
+      <p className="mt-3 text-xs text-white/35">“Not scheduled here” means this deployment has no built-in schedule for that job. External schedulers are visible when they call it.</p>
+    </section>
 
-  return (
-    <div className="space-y-5">
-      {/* Filter bar */}
-      <form
-        onSubmit={handleSearch}
-        className="bg-white/3 border border-white/8 rounded-xl p-4 space-y-3"
-      >
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          <input
-            type="text"
-            placeholder="User ID"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-sky-500/50"
-          />
-          <input
-            type="text"
-            placeholder="Action (e.g. contract.*)"
-            value={action}
-            onChange={(e) => setAction(e.target.value)}
-            className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-sky-500/50"
-          />
-          <input
-            type="text"
-            placeholder="Resource type"
-            value={resourceType}
-            onChange={(e) => setResourceType(e.target.value)}
-            className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-sky-500/50"
-          />
-          <input
-            type="date"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-            className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/70 focus:outline-none focus:border-sky-500/50"
-          />
-          <input
-            type="date"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white/70 focus:outline-none focus:border-sky-500/50"
-          />
+    <section aria-labelledby="activity-history-title" className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 id="activity-history-title" className="font-semibold text-white">Activity history</h2>
+        <label className="flex items-center gap-2 text-xs text-white/60"><input type="checkbox" checked={automaticRefresh} onChange={(e) => setAutomaticRefresh(e.target.checked)} />Refresh every 30 seconds</label>
+      </div>
+      <form className="space-y-3 rounded-xl border border-white/10 bg-white/3 p-4" onSubmit={(e) => { e.preventDefault(); apply(filters); }}>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <label className="text-xs text-white/60">Search<input className={`${inputClass} mt-1`} placeholder="Client, invoice, action, or person" value={filters.q} onChange={(e) => setFilters({ ...filters, q: e.target.value })} /></label>
+          <label className="text-xs text-white/60">Source<select className={`${inputClass} mt-1`} value={filters.source} onChange={(e) => setFilters({ ...filters, source: e.target.value })}>
+            <option value="">All sources</option><option value="manual">Manual</option><option value="automatic">Automatic</option><option value="external">External integration</option>
+          </select></label>
+          <label className="text-xs text-white/60">Outcome<select className={`${inputClass} mt-1`} value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value, hideRoutine: e.target.value === "skipped" ? false : filters.hideRoutine })}>
+            <option value="">All outcomes</option>{["success", "failed", "partial", "skipped", "running", "accepted", "recorded"].map((status) => <option key={status} value={status}>{labels[status]}</option>)}
+          </select></label>
+          <label className="text-xs text-white/60">From<input type="date" className={`${inputClass} mt-1`} value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} /></label>
+          <label className="text-xs text-white/60">Through<input type="date" className={`${inputClass} mt-1`} value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} /></label>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="submit"
-            className="px-4 py-2 bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium rounded-lg transition-colors"
-          >
-            Search
-          </button>
-          <button
-            type="button"
-            onClick={handleClear}
-            className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-sm rounded-lg transition-colors"
-          >
-            Clear
-          </button>
-          <div className="flex-1" />
-          <button
-            type="button"
-            onClick={handleExport}
-            disabled={exporting}
-            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-sm rounded-lg transition-colors disabled:opacity-50"
-          >
-            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-            </svg>
-            {exporting ? "Exporting…" : "Export CSV"}
-          </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <button type="submit" className="rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-black hover:bg-sky-400">Search</button>
+          <button type="button" className={buttonClass} onClick={() => apply(EMPTY)}>Clear</button>
+          <label className="flex items-center gap-2 text-xs text-white/60"><input type="checkbox" checked={filters.hideRoutine} onChange={(e) => setFilters({ ...filters, hideRoutine: e.target.checked })} />Hide routine checks with no work</label>
+          <button type="button" className={`${buttonClass} sm:ml-auto`} disabled={exporting} onClick={exportCsv}>{exporting ? "Exporting…" : "Export CSV"}</button>
         </div>
+        {(applied.runId || applied.resourceId) && <p className="text-xs text-sky-300">Showing {applied.runId ? "one run and its related actions" : "history for the selected job"}. <button type="button" className="underline" onClick={() => apply(EMPTY)}>Show all activity</button></p>}
       </form>
-
-      {/* Results count */}
-      <div className="flex items-center justify-between text-sm text-white/40">
-        <span>
-          {loading ? "Loading…" : `${total.toLocaleString()} event${total !== 1 ? "s" : ""}`}
-          {total > 0 && !loading && ` — page ${currentPage} of ${totalPages}`}
-        </span>
+      {error && <p role="alert" className="rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-200">{error}</p>}
+      <div className="flex flex-wrap justify-between gap-2 text-xs text-white/45">
+        <span>{loading ? "Loading…" : `${total.toLocaleString()} recorded events`}</span>
+        {refreshedAt && <span>Updated {timestamp(refreshedAt)} · times shown in your local timezone</span>}
       </div>
-
-      {/* Table */}
-      <div className="rounded-xl border border-white/8 overflow-hidden">
-        {loading ? (
-          <div className="py-16 text-center text-white/30 text-sm">Loading…</div>
-        ) : events.length === 0 ? (
-          <div className="py-16 text-center text-white/30 text-sm">No events found</div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/8 text-white/40 text-xs">
-                <th className="px-4 py-3 text-left font-medium w-8"></th>
-                <th className="px-4 py-3 text-left font-medium">Timestamp</th>
-                <th className="px-4 py-3 text-left font-medium">User</th>
-                <th className="px-4 py-3 text-left font-medium">Action</th>
-                <th className="px-4 py-3 text-left font-medium">Resource</th>
-                <th className="px-4 py-3 text-left font-medium hidden lg:table-cell">Description</th>
-                <th className="px-4 py-3 text-left font-medium hidden xl:table-cell">IP</th>
-              </tr>
-            </thead>
-            <tbody>
-              {events.map((ev) => {
-                const isExpanded = expanded.has(ev._id);
-                const hasDiff = ev.before !== null || ev.after !== null || ev.metadata !== null;
-                return (
-                  <>
-                    <tr
-                      key={ev._id}
-                      className={`border-b border-white/5 hover:bg-white/2 transition-colors ${hasDiff ? "cursor-pointer" : ""}`}
-                      onClick={() => hasDiff && toggleExpanded(ev._id)}
-                    >
-                      <td className="px-4 py-3 text-white/30">
-                        {hasDiff && (
-                          <svg
-                            width="12" height="12"
-                            fill="none" stroke="currentColor" strokeWidth="2"
-                            viewBox="0 0 24 24"
-                            className={`transition-transform ${isExpanded ? "rotate-90" : ""}`}
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                          </svg>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-white/50 whitespace-nowrap font-mono text-xs">
-                        {formatTs(ev.timestamp)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="text-white/80 font-medium truncate max-w-[120px]">{ev.userName}</div>
-                        <div className="text-white/35 text-xs truncate max-w-[120px]">{ev.isOwner ? "Owner" : ev.userEmail}</div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-mono ${actionBadgeColor(ev.action)}`}>
-                          {ev.action}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="text-white/70 text-xs">{ev.resourceType}</div>
-                        {ev.resourceLabel && (
-                          <div className="text-white/40 text-xs truncate max-w-[120px]">{ev.resourceLabel}</div>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-white/50 text-xs hidden lg:table-cell max-w-[200px] truncate">
-                        {ev.description}
-                      </td>
-                      <td className="px-4 py-3 text-white/30 text-xs hidden xl:table-cell font-mono">
-                        {ev.ipAddress ?? "—"}
-                      </td>
-                    </tr>
-                    {isExpanded && (
-                      <tr key={`${ev._id}-exp`} className="border-b border-white/5 bg-white/2">
-                        <td colSpan={7} className="px-6 pb-4 pt-1">
-                          <p className="text-xs text-white/40 mb-1">
-                            <strong className="text-white/60">Description:</strong> {ev.description}
-                          </p>
-                          {ev.resourceId && (
-                            <p className="text-xs text-white/40 mb-1">
-                              <strong className="text-white/60">Resource ID:</strong>{" "}
-                              <span className="font-mono">{ev.resourceId}</span>
-                            </p>
-                          )}
-                          {(ev.before !== null || ev.after !== null) && (
-                            <DiffViewer before={ev.before} after={ev.after} />
-                          )}
-                          {ev.metadata && (
-                            <div className="mt-3 p-3 rounded-lg bg-white/3 border border-white/8">
-                              <p className="text-xs text-white/40 mb-1 font-semibold">Metadata</p>
-                              <pre className="text-xs text-white/50 overflow-x-auto">
-                                {JSON.stringify(ev.metadata, null, 2)}
-                              </pre>
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
+      <div className="divide-y divide-white/8 overflow-hidden rounded-xl border border-white/10">
+        {!events.length && <p className="p-10 text-center text-sm text-white/45">{loading ? "Loading activity…" : error ? "History is unavailable." : "No recorded activity matches these filters."}</p>}
+        {events.map((event) => <article key={event._id} className="p-4 sm:p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0 flex-1"><p className="break-words text-sm font-medium text-white/90">{event.description}</p>
+              <p className="mt-1 text-xs text-white/50">{event.userName} · {event.source === "automatic" ? "Automatic" : event.source === "external" ? "External integration" : "Manual"} · {timestamp(event.timestamp)}</p>
+            </div><Badge status={event.status} />
+          </div>
+          {event.resourceLabel && <p className="mt-2 text-xs text-white/45">{event.resourceLabel}{event.durationMs != null ? ` · ${(event.durationMs / 1000).toFixed(1)}s` : ""}</p>}
+          <details className="mt-3 text-xs text-white/55"><summary className="cursor-pointer select-none hover:text-white">Details</summary>
+            <div className="mt-2 space-y-2">
+              <p>Action: {event.action}</p>
+              {event.resourceId && <p>Record: {event.resourceId}</p>}
+              {event.before && <div>Before<pre className="mt-1 overflow-auto rounded bg-black/30 p-3">{JSON.stringify(event.before, null, 2)}</pre></div>}
+              {event.after && <div>After<pre className="mt-1 overflow-auto rounded bg-black/30 p-3">{JSON.stringify(event.after, null, 2)}</pre></div>}
+              {event.metadata && <pre className="overflow-auto rounded bg-black/30 p-3">{JSON.stringify(event.metadata, null, 2)}</pre>}
+              {event.runId && <button className="text-sky-300 hover:underline" onClick={() => apply({ ...EMPTY, runId: event.runId!, hideRoutine: false })}>View all activity from this run →</button>}
+            </div>
+          </details>
+        </article>)}
       </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm">
-          <button
-            onClick={() => setOffset(Math.max(0, offset - LIMIT))}
-            disabled={offset === 0}
-            className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-lg transition-colors disabled:opacity-30 disabled:pointer-events-none"
-          >
-            Previous
-          </button>
-          <span className="text-white/40 text-xs">{currentPage} / {totalPages}</span>
-          <button
-            onClick={() => setOffset(offset + LIMIT)}
-            disabled={offset + LIMIT >= total}
-            className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-lg transition-colors disabled:opacity-30 disabled:pointer-events-none"
-          >
-            Next
-          </button>
-        </div>
-      )}
-    </div>
-  );
+      <div className="flex items-center justify-between">
+        <button className={buttonClass} disabled={loading || offset === 0} onClick={() => { setOffset(Math.max(0, offset - LIMIT)); setLoading(true); }}>Previous</button>
+        <span className="text-xs text-white/45">Page {Math.floor(offset / LIMIT) + 1} of {Math.max(1, Math.ceil(total / LIMIT))}</span>
+        <button className={buttonClass} disabled={loading || offset + LIMIT >= total} onClick={() => { setOffset(offset + LIMIT); setLoading(true); }}>Next</button>
+      </div>
+      <p className="text-xs text-white/35">Older entries may not include an outcome. A successful send means the service accepted the message; it does not confirm delivery or that the recipient read it. CSV export includes up to 5,000 matching events.</p>
+    </section>
+  </div>;
 }

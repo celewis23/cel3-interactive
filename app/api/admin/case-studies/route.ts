@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/lib/admin/permissions";
@@ -35,7 +36,7 @@ export async function GET(req: NextRequest) {
 }
 
 // POST create new case study
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "settings", "manage");
   if (authErr) return authErr;
 
@@ -61,3 +62,5 @@ export async function POST(req: NextRequest) {
   revalidatePath("/work/[slug]", "page");
   return NextResponse.json(created, { status: 201 });
 }
+
+export const POST = withActivity("/api/admin/case-studies", "POST", handleActivityPOST);

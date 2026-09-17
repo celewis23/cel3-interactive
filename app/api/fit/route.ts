@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextResponse } from "next/server";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { Resend } from "resend";
@@ -71,7 +72,7 @@ function threadKeyFromSanityId(id: string) {
   return key || "FIT";
 }
 
-export async function POST(req: Request) {
+async function handleActivityPOST(req: Request) {
   try {
     const body = (await req.json()) as FitPayload;
 
@@ -346,3 +347,5 @@ ${SITE_URL}
     return NextResponse.json({ ok: false, error: "Server error" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/fit", "POST", handleActivityPOST);

@@ -1,9 +1,10 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { unsubscribeByTrackToken } from "@/lib/campaigns/db";
 
 export const runtime = "nodejs";
 
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
+async function handleActivityGET(_req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   try {
     const result = await unsubscribeByTrackToken(token);
@@ -45,3 +46,5 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
     return new NextResponse("Something went wrong.", { status: 500 });
   }
 }
+
+export const GET = withActivity("/api/campaign/unsubscribe/[token]", "GET", handleActivityGET);

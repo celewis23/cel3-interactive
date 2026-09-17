@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { normalizeDriveId } from "@/lib/google/drive";
@@ -44,7 +45,7 @@ export async function GET(
   }
 }
 
-export async function PATCH(
+async function handleActivityPATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -130,7 +131,7 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
+async function handleActivityDELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -152,7 +153,7 @@ export async function DELETE(
 }
 
 // Send or resend invitation email with temporary credentials
-export async function POST(
+async function handleActivityPOST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -300,3 +301,9 @@ export async function POST(
     return NextResponse.json({ error: "Failed to send portal invitation" }, { status: 500 });
   }
 }
+
+export const PATCH = withActivity("/api/admin/portal-users/[id]", "PATCH", handleActivityPATCH);
+
+export const DELETE = withActivity("/api/admin/portal-users/[id]", "DELETE", handleActivityDELETE);
+
+export const POST = withActivity("/api/admin/portal-users/[id]", "POST", handleActivityPOST);

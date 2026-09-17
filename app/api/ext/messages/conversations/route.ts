@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { extGuard } from "@/lib/integrations/extMiddleware";
 import { handlePreflight } from "@/lib/integrations/cors";
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const ctx = await extGuard(req, "conversations:write");
   if (ctx instanceof NextResponse) return ctx;
   const { actor, payload, corsHeaders } = ctx;
@@ -81,3 +82,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = withActivity("/api/ext/messages/conversations", "POST", handleActivityPOST);

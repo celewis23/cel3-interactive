@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(doc || {});
 }
 
-export async function PATCH(req: NextRequest) {
+async function handleActivityPATCH(req: NextRequest) {
   const authErr = await requirePermission(req, "settings", "manage");
   if (authErr) return authErr;
 
@@ -40,3 +41,5 @@ export async function PATCH(req: NextRequest) {
 
   return NextResponse.json(result);
 }
+
+export const PATCH = withActivity("/api/admin/content", "PATCH", handleActivityPATCH);

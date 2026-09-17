@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -289,7 +290,7 @@ async function duplicateWorkspace(workspaceId: string, scope: SessionScope) {
   return created;
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "notes", "edit");
   if (authErr) return authErr;
 
@@ -394,3 +395,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to create note" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/notes", "POST", handleActivityPOST);

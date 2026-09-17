@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 // GET: OAuth callback — exchange code for tokens and store
 export const runtime = "nodejs";
 
@@ -5,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createOAuthClient, storeTokens } from "@/lib/gmail/client";
 import { google } from "googleapis";
 
-export async function GET(req: NextRequest) {
+async function handleActivityGET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
   const state = searchParams.get("state");
@@ -57,3 +58,5 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+export const GET = withActivity("/api/admin/email/auth/callback", "GET", handleActivityGET);

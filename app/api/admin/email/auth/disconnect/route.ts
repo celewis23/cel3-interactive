@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 // POST: Remove stored Gmail tokens
 export const runtime = "nodejs";
 
@@ -12,7 +13,7 @@ function requireAuth(req: NextRequest) {
   return session?.step === "full";
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   if (!requireAuth(req))
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
@@ -26,3 +27,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = withActivity("/api/admin/email/auth/disconnect", "POST", handleActivityPOST);

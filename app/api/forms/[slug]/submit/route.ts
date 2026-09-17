@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
@@ -37,7 +38,7 @@ function isAllowed(mimeType: string, accepted: string): boolean {
   return false;
 }
 
-export async function POST(
+async function handleActivityPOST(
   req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
@@ -201,3 +202,5 @@ async function sendNotifications(
     }).catch(console.error);
   }
 }
+
+export const POST = withActivity("/api/forms/[slug]/submit", "POST", handleActivityPOST);

@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -7,7 +8,7 @@ import { logAudit, AuditAction } from "@/lib/audit/log";
 
 type Params = { params: Promise<{ id: string }> };
 
-export async function PATCH(req: NextRequest, { params }: Params) {
+async function handleActivityPATCH(req: NextRequest, { params }: Params) {
   const authErr = await requirePermission(req, "drive", "edit");
   if (authErr) return authErr;
 
@@ -39,7 +40,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: Params) {
+async function handleActivityDELETE(req: NextRequest, { params }: Params) {
   const authErr = await requirePermission(req, "drive", "edit");
   if (authErr) return authErr;
   const { id } = await params;
@@ -58,3 +59,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Failed to delete file" }, { status: 500 });
   }
 }
+
+export const PATCH = withActivity("/api/admin/drive/files/[id]", "PATCH", handleActivityPATCH);
+
+export const DELETE = withActivity("/api/admin/drive/files/[id]", "DELETE", handleActivityDELETE);

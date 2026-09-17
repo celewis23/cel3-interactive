@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -26,7 +27,7 @@ async function getOrCreateFolder(name: string, parentId?: string): Promise<strin
   return folder.id;
 }
 
-export async function POST(req: NextRequest, { params }: Params) {
+async function handleActivityPOST(req: NextRequest, { params }: Params) {
   const authErr = await requirePermission(req, "expenses", "edit");
   if (authErr) return authErr;
 
@@ -95,7 +96,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: Params) {
+async function handleActivityDELETE(req: NextRequest, { params }: Params) {
   const authErr = await requirePermission(req, "expenses", "edit");
   if (authErr) return authErr;
 
@@ -111,3 +112,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Failed to remove receipt" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/expenses/[id]/receipt", "POST", handleActivityPOST);
+
+export const DELETE = withActivity("/api/admin/expenses/[id]/receipt", "DELETE", handleActivityDELETE);

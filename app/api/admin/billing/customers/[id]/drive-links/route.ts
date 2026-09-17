@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -21,7 +22,7 @@ export async function GET(
   }
 }
 
-export async function POST(
+async function handleActivityPOST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -42,3 +43,5 @@ export async function POST(
     return NextResponse.json({ error: "Failed to add drive link" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/billing/customers/[id]/drive-links", "POST", handleActivityPOST);

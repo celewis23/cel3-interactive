@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
@@ -18,7 +19,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(roles);
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "staffManagement", "manage");
   if (authErr) return authErr;
 
@@ -56,3 +57,5 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json(role, { status: 201 });
 }
+
+export const POST = withActivity("/api/admin/roles", "POST", handleActivityPOST);

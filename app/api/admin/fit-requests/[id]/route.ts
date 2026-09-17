@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
@@ -28,7 +29,7 @@ const FIT_REQUEST_PROJECTION = `{
   pipelineContactId
 }`;
 
-export async function PATCH(
+async function handleActivityPATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -86,3 +87,5 @@ export async function PATCH(
     return NextResponse.json({ error: "Failed to update fit request" }, { status: 500 });
   }
 }
+
+export const PATCH = withActivity("/api/admin/fit-requests/[id]", "PATCH", handleActivityPATCH);

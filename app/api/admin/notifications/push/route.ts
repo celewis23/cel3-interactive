@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -40,7 +41,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ publicKey });
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const session = requireFullSession(req);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -58,7 +59,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true });
 }
 
-export async function DELETE(req: NextRequest) {
+async function handleActivityDELETE(req: NextRequest) {
   const session = requireFullSession(req);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -70,3 +71,7 @@ export async function DELETE(req: NextRequest) {
   await removePushSubscription(body.endpoint);
   return NextResponse.json({ ok: true });
 }
+
+export const POST = withActivity("/api/admin/notifications/push", "POST", handleActivityPOST);
+
+export const DELETE = withActivity("/api/admin/notifications/push", "DELETE", handleActivityDELETE);

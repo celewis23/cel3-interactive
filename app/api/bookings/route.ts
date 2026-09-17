@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextResponse } from "next/server";
 import { DateTime } from "luxon";
 import { stripe } from "@/lib/stripe";
@@ -25,7 +26,7 @@ function sessionDocId(sessionId: string) {
   return `assessmentSession_${sessionId}`;
 }
 
-export async function POST(req: Request) {
+async function handleActivityPOST(req: Request) {
   try {
     const body = await req.json();
 
@@ -211,3 +212,5 @@ function escapeHtml(input: string) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
+
+export const POST = withActivity("/api/bookings", "POST", handleActivityPOST);

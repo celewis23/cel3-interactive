@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { extGuard } from "@/lib/integrations/extMiddleware";
 import { handlePreflight } from "@/lib/integrations/cors";
@@ -10,7 +11,7 @@ export async function OPTIONS(req: NextRequest) {
   return handlePreflight(req, ["*"]);
 }
 
-export async function POST(
+async function handleActivityPOST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -56,3 +57,5 @@ export async function POST(
     );
   }
 }
+
+export const POST = withActivity("/api/ext/messages/conversations/[id]/messages", "POST", handleActivityPOST);

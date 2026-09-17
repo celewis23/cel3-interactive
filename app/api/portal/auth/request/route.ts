@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
@@ -6,7 +7,7 @@ import { sendEmail } from "@/lib/gmail/api";
 
 export const runtime = "nodejs";
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   try {
     const { email } = await req.json();
     if (!email?.trim()) {
@@ -69,3 +70,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to process request" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/portal/auth/request", "POST", handleActivityPOST);

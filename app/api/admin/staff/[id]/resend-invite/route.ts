@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
@@ -6,7 +7,7 @@ import { randomBytes } from "crypto";
 
 export const runtime = "nodejs";
 
-export async function POST(
+async function handleActivityPOST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -60,3 +61,5 @@ export async function POST(
 
   return NextResponse.json({ ok: true, inviteUrl });
 }
+
+export const POST = withActivity("/api/admin/staff/[id]/resend-invite", "POST", handleActivityPOST);

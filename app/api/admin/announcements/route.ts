@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "announcements", "post");
   if (authErr) return authErr;
 
@@ -122,3 +123,5 @@ async function notifyChat(title: string, body: string, urgent: boolean) {
     await sendMessage(chatSpace, `${prefix}\n*${title}*\n${snippet}\n${siteUrl}/admin/announcements`);
   } catch { /* degrade gracefully */ }
 }
+
+export const POST = withActivity("/api/admin/announcements", "POST", handleActivityPOST);

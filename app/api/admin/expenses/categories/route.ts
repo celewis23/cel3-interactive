@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -57,7 +58,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "expenses", "edit");
   if (authErr) return authErr;
 
@@ -87,3 +88,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to create category" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/expenses/categories", "POST", handleActivityPOST);

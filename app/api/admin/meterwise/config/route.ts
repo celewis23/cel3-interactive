@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission, getSessionInfo } from "@/lib/admin/permissions";
 import { getMeterwiseConfigStatus, saveMeterwiseConfig, clearMeterwiseConfig } from "@/lib/meterwise/config";
@@ -13,7 +14,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(status);
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "meterwise", "manage");
   if (authErr) return authErr;
 
@@ -52,10 +53,14 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(status);
 }
 
-export async function DELETE(req: NextRequest) {
+async function handleActivityDELETE(req: NextRequest) {
   const authErr = await requirePermission(req, "meterwise", "manage");
   if (authErr) return authErr;
 
   await clearMeterwiseConfig();
   return NextResponse.json({ configured: false });
 }
+
+export const POST = withActivity("/api/admin/meterwise/config", "POST", handleActivityPOST);
+
+export const DELETE = withActivity("/api/admin/meterwise/config", "DELETE", handleActivityDELETE);

@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import {
   getIntegrationByClientId,
@@ -27,7 +28,7 @@ export async function OPTIONS(req: NextRequest) {
 // Body: { clientId, clientSecret }
 // Returns: { accessToken, tokenType, expiresIn, scopes }
 // ---------------------------------------------------------------------------
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const corsHeaders = tokenEndpointCorsHeaders(req);
 
   let body: { clientId?: string; clientSecret?: string } = {};
@@ -155,3 +156,5 @@ export async function POST(req: NextRequest) {
     { headers: corsHeaders }
   );
 }
+
+export const POST = withActivity("/api/integrations/token", "POST", handleActivityPOST);

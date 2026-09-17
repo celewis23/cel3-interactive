@@ -1,10 +1,11 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { updateEvent, deleteEvent } from "@/lib/google/calendar";
 
-export async function PUT(
+async function handleActivityPUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -24,7 +25,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
+async function handleActivityDELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -42,3 +43,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Failed to delete event" }, { status: 500 });
   }
 }
+
+export const PUT = withActivity("/api/admin/calendar/events/[id]", "PUT", handleActivityPUT);
+
+export const DELETE = withActivity("/api/admin/calendar/events/[id]", "DELETE", handleActivityDELETE);

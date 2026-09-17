@@ -15,8 +15,8 @@ export default async function AuditLogPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-white">Audit Log</h1>
-        <p className="text-sm text-white/40 mt-1">Full activity history across all modules</p>
+        <h1 className="text-2xl font-semibold text-white">Activity Log</h1>
+        <p className="text-sm text-white/40 mt-1">Manual actions, automatic jobs, and their outcomes. Earlier actions appear where they were already recorded.</p>
       </div>
       <AuditLogView />
     </div>

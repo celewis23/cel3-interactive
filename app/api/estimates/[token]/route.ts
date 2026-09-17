@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
@@ -79,7 +80,7 @@ export async function GET(req: NextRequest, { params }: Params) {
   }
 }
 
-export async function POST(req: NextRequest, { params }: Params) {
+async function handleActivityPOST(req: NextRequest, { params }: Params) {
   try {
     const { token } = await params;
     const body = await req.json();
@@ -124,3 +125,5 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Failed to process action" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/estimates/[token]", "POST", handleActivityPOST);

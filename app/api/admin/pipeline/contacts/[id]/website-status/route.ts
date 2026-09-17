@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
@@ -8,7 +9,7 @@ import { syncVercelWebsiteStatus } from "@/lib/billing/websiteStatusSync";
 
 export const runtime = "nodejs";
 
-export async function PATCH(
+async function handleActivityPATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -61,3 +62,5 @@ export async function PATCH(
     return NextResponse.json({ error: "Failed to update website status" }, { status: 500 });
   }
 }
+
+export const PATCH = withActivity("/api/admin/pipeline/contacts/[id]/website-status", "PATCH", handleActivityPATCH);

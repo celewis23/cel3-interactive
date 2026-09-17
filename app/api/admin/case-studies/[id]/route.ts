@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/lib/admin/permissions";
@@ -36,7 +37,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 // PATCH update case study
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function handleActivityPATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authErr = await requirePermission(req, "settings", "manage");
   if (authErr) return authErr;
   const { id } = await params;
@@ -62,7 +63,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 // DELETE case study
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function handleActivityDELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authErr = await requirePermission(req, "settings", "manage");
   if (authErr) return authErr;
   const { id } = await params;
@@ -73,3 +74,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   revalidatePath("/work/[slug]", "page");
   return NextResponse.json({ ok: true });
 }
+
+export const PATCH = withActivity("/api/admin/case-studies/[id]", "PATCH", handleActivityPATCH);
+
+export const DELETE = withActivity("/api/admin/case-studies/[id]", "DELETE", handleActivityDELETE);

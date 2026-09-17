@@ -1,9 +1,10 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextResponse } from "next/server";
 import { sanityServer } from "@/lib/sanityServer";
 
 export const runtime = "nodejs";
 
-export async function POST(req: Request) {
+async function handleActivityPOST(req: Request) {
   const form = await req.formData();
   const key = String(form.get("key") || "");
   const bookingId = String(form.get("bookingId") || "");
@@ -22,3 +23,5 @@ export async function POST(req: Request) {
   // redirect back to admin list (preserve key)
   return NextResponse.redirect(new URL(`/admin/bookings?key=${encodeURIComponent(key)}`, req.url));
 }
+
+export const POST = withActivity("/api/admin/cancel-booking", "POST", handleActivityPOST);

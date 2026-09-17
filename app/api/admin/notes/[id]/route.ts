@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -37,7 +38,7 @@ function targetFromRequest(req: NextRequest, body?: { targetType?: TargetType | 
   return raw === "workspace" || raw === "section" ? raw : "page";
 }
 
-export async function PATCH(
+async function handleActivityPATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -102,7 +103,7 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
+async function handleActivityDELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -127,3 +128,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Failed to delete note" }, { status: 500 });
   }
 }
+
+export const PATCH = withActivity("/api/admin/notes/[id]", "PATCH", handleActivityPATCH);
+
+export const DELETE = withActivity("/api/admin/notes/[id]", "DELETE", handleActivityDELETE);

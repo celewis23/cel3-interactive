@@ -1,10 +1,11 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { removeMember } from "@/lib/google/chat";
 
-export async function DELETE(
+async function handleActivityDELETE(
   req: NextRequest,
   { params }: { params: Promise<{ name: string }> }
 ) {
@@ -21,3 +22,5 @@ export async function DELETE(
     return NextResponse.json({ error: "Failed to remove member" }, { status: 500 });
   }
 }
+
+export const DELETE = withActivity("/api/admin/chat/members/[name]", "DELETE", handleActivityDELETE);

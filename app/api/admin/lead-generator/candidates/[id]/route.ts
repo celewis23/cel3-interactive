@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { getLeadCandidate, updateLeadCandidate } from "@/lib/leads/service";
@@ -17,7 +18,7 @@ export async function GET(
   return NextResponse.json({ lead });
 }
 
-export async function PATCH(
+async function handleActivityPATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -35,3 +36,5 @@ export async function PATCH(
     return NextResponse.json({ error: "Failed to update lead candidate" }, { status: 500 });
   }
 }
+
+export const PATCH = withActivity("/api/admin/lead-generator/candidates/[id]", "PATCH", handleActivityPATCH);

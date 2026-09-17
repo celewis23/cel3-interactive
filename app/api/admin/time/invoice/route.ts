@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
@@ -8,7 +9,7 @@ import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "timeTracking", "edit");
   if (authErr) return authErr;
   try {
@@ -90,3 +91,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to generate invoice from time entries" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/time/invoice", "POST", handleActivityPOST);

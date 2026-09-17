@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -18,7 +19,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function DELETE(req: NextRequest) {
+async function handleActivityDELETE(req: NextRequest) {
   const authErr = await requirePermission(req, "chat", "edit");
   if (authErr) return authErr;
 
@@ -35,7 +36,7 @@ export async function DELETE(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "chat", "edit");
   if (authErr) return authErr;
 
@@ -53,3 +54,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
+
+export const DELETE = withActivity("/api/admin/chat/spaces", "DELETE", handleActivityDELETE);
+
+export const POST = withActivity("/api/admin/chat/spaces", "POST", handleActivityPOST);

@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { createSubscription, listSubscriptions } from "@/lib/stripe/billing";
@@ -32,7 +33,7 @@ function unixFromDate(value: unknown) {
   return Number.isFinite(time) ? Math.floor(time / 1000) : undefined;
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "billing", "edit");
   if (authErr) return authErr;
 
@@ -98,3 +99,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = withActivity("/api/admin/billing/subscriptions", "POST", handleActivityPOST);

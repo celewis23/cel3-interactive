@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import {
@@ -8,7 +9,7 @@ import {
 
 export const runtime = "nodejs";
 
-export async function PATCH(
+async function handleActivityPATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -47,3 +48,5 @@ export async function PATCH(
     return NextResponse.json({ error: "Failed to update integration" }, { status: 500 });
   }
 }
+
+export const PATCH = withActivity("/api/admin/integrations/[id]", "PATCH", handleActivityPATCH);

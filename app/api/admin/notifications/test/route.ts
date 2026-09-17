@@ -1,10 +1,11 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sendPushNotificationToAudience } from "@/lib/notifications/push";
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "dashboard", "view");
   if (authErr) return authErr;
 
@@ -21,3 +22,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/notifications/test", "POST", handleActivityPOST);

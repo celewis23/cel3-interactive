@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -5,7 +6,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 
-export async function PATCH(
+async function handleActivityPATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -28,7 +29,7 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
+async function handleActivityDELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -66,3 +67,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Failed to delete folder" }, { status: 500 });
   }
 }
+
+export const PATCH = withActivity("/api/admin/assets/folders/[id]", "PATCH", handleActivityPATCH);
+
+export const DELETE = withActivity("/api/admin/assets/folders/[id]", "DELETE", handleActivityDELETE);

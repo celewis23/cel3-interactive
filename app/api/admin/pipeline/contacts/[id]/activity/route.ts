@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
@@ -28,7 +29,7 @@ export async function GET(
   }
 }
 
-export async function POST(
+async function handleActivityPOST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -59,3 +60,5 @@ export async function POST(
     return NextResponse.json({ error: "Failed to create activity" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/pipeline/contacts/[id]/activity", "POST", handleActivityPOST);

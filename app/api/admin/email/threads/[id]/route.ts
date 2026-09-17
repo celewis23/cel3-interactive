@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 // GET /api/admin/email/threads/[id] — full thread with all messages
 // PATCH /api/admin/email/threads/[id] — mark as read
 export const runtime = "nodejs";
@@ -36,7 +37,7 @@ export async function GET(
   }
 }
 
-export async function PATCH(
+async function handleActivityPATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -57,3 +58,5 @@ export async function PATCH(
     );
   }
 }
+
+export const PATCH = withActivity("/api/admin/email/threads/[id]", "PATCH", handleActivityPATCH);

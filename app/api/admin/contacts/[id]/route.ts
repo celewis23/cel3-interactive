@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -24,7 +25,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
+async function handleActivityPUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -55,7 +56,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
+async function handleActivityDELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -72,3 +73,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Failed to delete contact" }, { status: 500 });
   }
 }
+
+export const PUT = withActivity("/api/admin/contacts/[id]", "PUT", handleActivityPUT);
+
+export const DELETE = withActivity("/api/admin/contacts/[id]", "DELETE", handleActivityDELETE);

@@ -2,8 +2,8 @@
  * Audit Log Write Service
  *
  * Single reusable utility for writing audit events across the entire system.
- * All writes are fire-and-forget — they never block or fail the caller.
- * If a write fails, the error is logged silently.
+ * Existing callers can fire-and-forget; request tracking and Next's after()
+ * keep writes alive until they finish. Logging failures never fail an action.
  *
  * Usage (in any route handler after a successful operation):
  *   logAudit(req, { action: "contract.sent", resourceType: "contract", resourceId: c._id, ... });
@@ -12,10 +12,12 @@
  *   logAudit(req, { action: "auth.login_failed", ... }, { userId: null, userName: "unknown", userEmail, isOwner: false });
  */
 
-import { NextRequest } from "next/server";
+import { NextRequest, after } from "next/server";
 import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
+import { verifyPortalSessionToken, PORTAL_COOKIE } from "@/lib/portal/auth";
+import { activityContext, type ActivitySource, type ActivityStatus } from "./context";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -27,6 +29,14 @@ export interface AuditUserInfo {
 }
 
 export interface AuditEventInput {
+  id?: string;
+  timestamp?: string;
+  status?: ActivityStatus;
+  source?: ActivitySource;
+  kind?: "action" | "request" | "job";
+  runId?: string;
+  durationMs?: number;
+  routine?: boolean;
   action: string;                           // e.g. "contract.sent", "billing.invoice_created"
   resourceType: string;                     // e.g. "contract", "invoice", "staffMember"
   resourceId?: string | null;               // Sanity _id or Stripe ID
@@ -44,8 +54,13 @@ const staffCache = new Map<string, { name: string; email: string; cachedAt: numb
 
 async function extractUser(req: NextRequest): Promise<AuditUserInfo> {
   try {
+    const portalToken = req.cookies.get(PORTAL_COOKIE)?.value;
     const token = req.cookies.get(COOKIE_NAME)?.value;
-    if (!token) return { userId: null, userName: "System", userEmail: "", isOwner: false };
+    if (!token && portalToken) {
+      const portal = verifyPortalSessionToken(portalToken);
+      if (portal) return { userId: portal.userId, userName: portal.email, userEmail: portal.email, isOwner: false };
+    }
+    if (!token) return { userId: null, userName: "Website visitor", userEmail: "", isOwner: false };
 
     const session = verifySessionToken(token);
     if (!session) return { userId: null, userName: "System", userEmail: "", isOwner: false };
@@ -92,14 +107,37 @@ async function extractUser(req: NextRequest): Promise<AuditUserInfo> {
 
 // ── Core Write ────────────────────────────────────────────────────────────────
 
+export function safeAuditValue(value: unknown, depth = 0): unknown {
+  if (depth > 5) return "[truncated]";
+  if (typeof value === "string") return value
+    .replace(/Bearer\s+[^\s]+/gi, "Bearer [redacted]")
+    .replace(/\b(?:sk|rk)_(?:live|test)_[a-zA-Z0-9]+/g, "[redacted]")
+    .replace(/(https?:\/\/)[^\s/@]+:[^\s/@]+@/g, "$1[redacted]@")
+    .replace(/([?&][\w-]*(?:token|key|secret|code|password|signature)[\w-]*=)[^&\s]*/gi, "$1[redacted]")
+    .slice(0, 1000);
+  if (Array.isArray(value)) return value.slice(0, 25).map((item) => safeAuditValue(item, depth + 1));
+  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value)
+    .filter(([key]) => !/password|secret|token|authorization|cookie|credential|private.?key|api.?key|access.?key|html.?body|text.?body|body.?html|body.?text|^body$|^raw$/i.test(key))
+    .map(([key, item]) => [key, safeAuditValue(item, depth + 1)]));
+  return value;
+}
+
 async function _writeEvent(
   userInfo: AuditUserInfo,
   ipAddress: string | null,
   event: AuditEventInput
 ): Promise<void> {
-  await sanityWriteClient.create({
+  const context = activityContext.getStore();
+  const doc = {
+    ...(event.id ? { _id: event.id } : {}),
     _type: "auditEvent",
-    timestamp: new Date().toISOString(),
+    timestamp: event.timestamp ?? new Date().toISOString(),
+    status: event.status ?? (event.action.includes("failed") ? "failed" : "success"),
+    source: event.source ?? context?.source ?? (userInfo.userName === "System" ? "automatic" : "manual"),
+    kind: event.kind ?? "action",
+    runId: event.runId ?? context?.runId ?? null,
+    durationMs: event.durationMs ?? null,
+    routine: event.routine ?? false,
     userId: userInfo.userId,
     userName: userInfo.userName,
     userEmail: userInfo.userEmail,
@@ -109,11 +147,13 @@ async function _writeEvent(
     resourceType: event.resourceType,
     resourceId: event.resourceId ?? null,
     resourceLabel: event.resourceLabel ?? null,
-    description: event.description,
-    before: event.before ?? null,
-    after: event.after ?? null,
-    metadata: event.metadata ?? null,
-  });
+    description: safeAuditValue(event.description),
+    before: safeAuditValue(event.before ?? null),
+    after: safeAuditValue(event.after ?? null),
+    metadata: safeAuditValue(event.metadata ?? null),
+  };
+  if (event.id) await sanityWriteClient.createOrReplace({ ...doc, _id: event.id });
+  else await sanityWriteClient.create(doc);
 }
 
 function getIp(req: NextRequest): string | null {
@@ -140,15 +180,27 @@ export function logAudit(
   event: AuditEventInput,
   userOverride?: AuditUserInfo
 ): void {
-  const ip = getIp(req);
-
-  const doWrite = userOverride
-    ? _writeEvent(userOverride, ip, event)
-    : extractUser(req).then((u) => _writeEvent(u, ip, event));
-
-  doWrite.catch((err) => {
-    console.error("AUDIT_WRITE_FAILED:", event.action, err?.message ?? err);
+  const context = activityContext.getStore();
+  const write = writeAudit(req, event, userOverride).then((written) => {
+    if (written && context) context.eventsWritten++;
   });
+  if (context) context.pending.push(write);
+  // after() is unavailable in standalone scripts; writes still run there.
+  try { after(write); } catch { /* request wrapper also awaits registered writes */ }
+}
+
+export async function writeAudit(req: Request | null, event: AuditEventInput, userOverride?: AuditUserInfo): Promise<boolean> {
+  try {
+    const auditReq = req ? new NextRequest(req.url, { headers: req.headers }) : null;
+    const user = userOverride ?? (auditReq ? await extractUser(auditReq) : {
+      userId: null, userName: "System", userEmail: "", isOwner: false,
+    });
+    await _writeEvent(user, auditReq ? getIp(auditReq) : null, event);
+    return true;
+  } catch (err) {
+    console.error("AUDIT_WRITE_FAILED:", event.action, err instanceof Error ? err.message : "Logging unavailable");
+    return false;
+  }
 }
 
 // ── Action Constants ──────────────────────────────────────────────────────────

@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission, getSessionInfo } from "@/lib/admin/permissions";
 import { listCampaigns, createCampaign } from "@/lib/campaigns/db";
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "settings", "edit");
   if (authErr) return authErr;
   try {
@@ -40,3 +41,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to create campaign" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/campaigns", "POST", handleActivityPOST);

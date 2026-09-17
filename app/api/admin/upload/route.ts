@@ -1,10 +1,11 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
 
 export const runtime = "nodejs";
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "settings", "view");
   if (authErr) return authErr;
 
@@ -23,3 +24,5 @@ export async function POST(req: NextRequest) {
     asset: { _type: "reference", _ref: asset._id },
   });
 }
+
+export const POST = withActivity("/api/admin/upload", "POST", handleActivityPOST);

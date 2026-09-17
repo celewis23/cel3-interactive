@@ -1,8 +1,9 @@
+import { withActivity } from "@/lib/audit/withActivity";
 // app/api/stripe/assessment/route.ts
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 
-export async function POST() {
+async function handleActivityPOST() {
   try {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!;
     if (!siteUrl) {
@@ -54,3 +55,5 @@ export async function POST() {
     );
   }
 }
+
+export const POST = withActivity("/api/stripe/assessment", "POST", handleActivityPOST);

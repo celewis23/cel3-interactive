@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest) {
 }
 
 /** POST /api/admin/staff/accept-invite — complete invite acceptance with password */
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const { token, password } = await req.json();
 
   if (!token || !password) {
@@ -107,3 +108,5 @@ export async function POST(req: NextRequest) {
   });
   return res;
 }
+
+export const POST = withActivity("/api/admin/staff/accept-invite", "POST", handleActivityPOST);

@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
@@ -29,7 +30,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function PUT(req: NextRequest) {
+async function handleActivityPUT(req: NextRequest) {
   const authErr = await requirePermission(req, "leads", "edit");
   if (authErr) return authErr;
 
@@ -49,3 +50,5 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Failed to save config" }, { status: 500 });
   }
 }
+
+export const PUT = withActivity("/api/admin/pipeline/config", "PUT", handleActivityPUT);

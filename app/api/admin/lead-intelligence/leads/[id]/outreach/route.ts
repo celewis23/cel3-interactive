@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import {
@@ -7,7 +8,7 @@ import {
 
 export const runtime = "nodejs";
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function handleActivityPOST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const body = await req.json().catch(() => ({}));
   const action = body.action === "send" ? "send" : "generate";
   const authErr = await requirePermission(req, action === "send" ? "email" : "leads", "edit");
@@ -29,3 +30,5 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: err instanceof Error ? err.message : "Lead Intelligence outreach failed" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/lead-intelligence/leads/[id]/outreach", "POST", handleActivityPOST);

@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
@@ -17,7 +18,7 @@ export async function GET(
   return NextResponse.json(form);
 }
 
-export async function PUT(
+async function handleActivityPUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -46,7 +47,7 @@ export async function PUT(
   return NextResponse.json(updated);
 }
 
-export async function DELETE(
+async function handleActivityDELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -67,3 +68,7 @@ export async function DELETE(
 
   return NextResponse.json({ ok: true });
 }
+
+export const PUT = withActivity("/api/admin/forms/[id]", "PUT", handleActivityPUT);
+
+export const DELETE = withActivity("/api/admin/forms/[id]", "DELETE", handleActivityDELETE);

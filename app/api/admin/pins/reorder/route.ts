@@ -1,10 +1,11 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
 
-export async function PATCH(req: NextRequest) {
+async function handleActivityPATCH(req: NextRequest) {
   const authErr = await requirePermission(req, "announcements", "view");
   if (authErr) return authErr;
 
@@ -27,3 +28,5 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Failed to reorder pins" }, { status: 500 });
   }
 }
+
+export const PATCH = withActivity("/api/admin/pins/reorder", "PATCH", handleActivityPATCH);

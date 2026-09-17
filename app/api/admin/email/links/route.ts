@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 // GET /api/admin/email/links?threadId=xxx — get link for a thread
 // POST /api/admin/email/links — create a link between a thread and a record
 export const runtime = "nodejs";
@@ -41,7 +42,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "email", "edit");
   if (authErr) return authErr;
   try {
@@ -82,3 +83,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = withActivity("/api/admin/email/links", "POST", handleActivityPOST);

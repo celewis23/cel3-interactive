@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -13,7 +14,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(items);
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "tasks", "edit");
   if (authErr) return authErr;
 
@@ -60,3 +61,5 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json(item, { status: 201 });
 }
+
+export const POST = withActivity("/api/admin/tasks", "POST", handleActivityPOST);

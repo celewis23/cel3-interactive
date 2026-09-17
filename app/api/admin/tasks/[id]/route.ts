@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -7,7 +8,7 @@ import { upsertCalendarEventForItem, deleteCalendarEventForItem } from "@/lib/ta
 
 const SYNC_FIELDS = ["title", "notes", "dueDate", "notifyTime", "remindAt"] as const;
 
-export async function PATCH(
+async function handleActivityPATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -62,7 +63,7 @@ export async function PATCH(
   return NextResponse.json(updated);
 }
 
-export async function DELETE(
+async function handleActivityDELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -75,3 +76,7 @@ export async function DELETE(
   await deleteTaskItem(id);
   return new NextResponse(null, { status: 204 });
 }
+
+export const PATCH = withActivity("/api/admin/tasks/[id]", "PATCH", handleActivityPATCH);
+
+export const DELETE = withActivity("/api/admin/tasks/[id]", "DELETE", handleActivityDELETE);

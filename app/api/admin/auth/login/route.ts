@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import {
   validateCredentials,
@@ -19,7 +20,7 @@ const COOKIE_OPTS = {
   maxAge: 60 * 60 * 24,
 };
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const { username, password } = await req.json();
 
   // ── 1. Try owner credentials (username/password from env) ─────────────────
@@ -101,3 +102,5 @@ export async function POST(req: NextRequest) {
 
   return res;
 }
+
+export const POST = withActivity("/api/admin/auth/login", "POST", handleActivityPOST);

@@ -1,10 +1,11 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { getMessagingActor } from "@/lib/messaging/auth";
 import { MessageAttachmentInput, sendConversationMessage } from "@/lib/messaging/service";
 
-export async function POST(
+async function handleActivityPOST(
   req: NextRequest,
   { params }: { params: Promise<{ conversationId: string }> }
 ) {
@@ -42,3 +43,5 @@ export async function POST(
     return NextResponse.json({ error: "Failed to send message" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/messages/conversations/[conversationId]/messages", "POST", handleActivityPOST);

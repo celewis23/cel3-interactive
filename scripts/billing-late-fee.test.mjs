@@ -22,6 +22,7 @@ function loadModule(path, dependencies, Clock) {
   });
   const loaded = { exports: {} };
   const load = (name) => {
+    if (name === "@/lib/audit/withActivity") return { withActivity: (_route, _method, handler) => handler };
     if (Object.hasOwn(dependencies, name)) return dependencies[name];
     if (name === "next/server") return require(name);
     throw new Error(`Unexpected dependency: ${name}`);
@@ -183,7 +184,7 @@ function fixture() {
     } },
     "@/lib/automations/engine": { automationEngine: {} },
     "@/lib/notifications/push": {},
-    "@/lib/audit/log": {},
+    "@/lib/audit/log": { logAudit() {}, AuditAction: {} },
     "@/lib/billing/websiteStatusSync": {},
   }, Clock);
   return { helper, route, docs, fees, items, calls, faults, seedFee,

@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { cancelSubscription, getSubscription, updateSubscription } from "@/lib/stripe/billing";
@@ -30,7 +31,7 @@ export async function GET(
   }
 }
 
-export async function PATCH(
+async function handleActivityPATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -94,7 +95,7 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
+async function handleActivityDELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -126,3 +127,7 @@ export async function DELETE(
     );
   }
 }
+
+export const PATCH = withActivity("/api/admin/billing/subscriptions/[id]", "PATCH", handleActivityPATCH);
+
+export const DELETE = withActivity("/api/admin/billing/subscriptions/[id]", "DELETE", handleActivityDELETE);

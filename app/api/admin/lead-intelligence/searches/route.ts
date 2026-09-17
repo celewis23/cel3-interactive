@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import {
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "leads", "edit");
   if (authErr) return authErr;
 
@@ -43,3 +44,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err instanceof Error ? err.message : "Failed to run Lead Intelligence search" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/lead-intelligence/searches", "POST", handleActivityPOST);

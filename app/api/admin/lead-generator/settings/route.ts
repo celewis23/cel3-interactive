@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { getLeadGeneratorSettings, updateLeadGeneratorSettings } from "@/lib/leads/service";
@@ -12,7 +13,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ settings });
 }
 
-export async function PATCH(req: NextRequest) {
+async function handleActivityPATCH(req: NextRequest) {
   const authErr = await requirePermission(req, "leads", "edit");
   if (authErr) return authErr;
 
@@ -25,3 +26,5 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Failed to update lead generator settings" }, { status: 500 });
   }
 }
+
+export const PATCH = withActivity("/api/admin/lead-generator/settings", "PATCH", handleActivityPATCH);

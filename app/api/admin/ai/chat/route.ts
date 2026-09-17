@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -954,7 +955,7 @@ async function executeTool(req: NextRequest, name: string, input: Record<string,
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "aiAssistant", "view");
   if (authErr) return authErr;
 
@@ -1352,3 +1353,5 @@ TOOLS.push(
     input_schema: { type: "object" as const, properties: { contractId: { type: "string" }, status: { type: "string", enum: ["draft", "sent", "viewed", "signed", "declined", "expired"] }, notes: { type: "string" }, expiryDate: { type: "string" } }, required: ["contractId"] },
   }
 );
+
+export const POST = withActivity("/api/admin/ai/chat", "POST", handleActivityPOST);

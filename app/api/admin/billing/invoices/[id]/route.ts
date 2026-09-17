@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { getInvoice, updateInvoice } from "@/lib/stripe/billing";
@@ -34,7 +35,7 @@ function unixFromDate(value: unknown) {
   return Number.isFinite(time) ? Math.floor(time / 1000) : undefined;
 }
 
-export async function PATCH(
+async function handleActivityPATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -81,3 +82,5 @@ export async function PATCH(
     );
   }
 }
+
+export const PATCH = withActivity("/api/admin/billing/invoices/[id]", "PATCH", handleActivityPATCH);

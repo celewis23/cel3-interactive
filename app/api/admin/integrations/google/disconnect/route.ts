@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -5,7 +6,7 @@ import { requirePermission } from "@/lib/admin/permissions";
 import { clearTokens } from "@/lib/gmail/client";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "settings", "manage");
   if (authErr) return authErr;
 
@@ -25,3 +26,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to disconnect" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/integrations/google/disconnect", "POST", handleActivityPOST);

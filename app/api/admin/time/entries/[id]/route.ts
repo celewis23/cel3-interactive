@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
@@ -28,7 +29,7 @@ export async function GET(req: NextRequest, { params }: Params) {
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: Params) {
+async function handleActivityPATCH(req: NextRequest, { params }: Params) {
   const authErr = await requirePermission(req, "timeTracking", "edit");
   if (authErr) return authErr;
   const { id } = await params;
@@ -65,7 +66,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: Params) {
+async function handleActivityDELETE(req: NextRequest, { params }: Params) {
   const authErr = await requirePermission(req, "timeTracking", "delete");
   if (authErr) return authErr;
   const { id } = await params;
@@ -77,3 +78,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Failed to delete time entry" }, { status: 500 });
   }
 }
+
+export const PATCH = withActivity("/api/admin/time/entries/[id]", "PATCH", handleActivityPATCH);
+
+export const DELETE = withActivity("/api/admin/time/entries/[id]", "DELETE", handleActivityDELETE);

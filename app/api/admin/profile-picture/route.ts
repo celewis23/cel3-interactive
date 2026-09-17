@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -7,7 +8,7 @@ import { sanityWriteClient } from "@/lib/sanity.write";
 import { uploadProfileImage } from "@/lib/profileImages";
 import { logAudit } from "@/lib/audit/log";
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const token = req.cookies.get(COOKIE_NAME)?.value;
   const session = token ? verifySessionToken(token) : null;
   if (!session || session.step !== "full") {
@@ -61,3 +62,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = withActivity("/api/admin/profile-picture", "POST", handleActivityPOST);

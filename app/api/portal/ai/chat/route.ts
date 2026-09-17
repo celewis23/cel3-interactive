@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { verifyPortalSessionToken, PORTAL_COOKIE } from "@/lib/portal/auth";
@@ -30,7 +31,7 @@ function normalizeMessages(input: unknown): RequestMessage[] {
     .filter((message) => message.content.length > 0);
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const token = req.cookies.get(PORTAL_COOKIE)?.value;
   const session = token ? verifyPortalSessionToken(token) : null;
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -220,3 +221,5 @@ Keep responses concise, professional, and helpful.`;
     return NextResponse.json({ error: err instanceof Error ? err.message : "Portal assistant failed" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/portal/ai/chat", "POST", handleActivityPOST);

@@ -1,10 +1,11 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { getMessagingActor } from "@/lib/messaging/auth";
 import { markNotificationRead } from "@/lib/messaging/service";
 
-export async function POST(
+async function handleActivityPOST(
   req: NextRequest,
   { params }: { params: Promise<{ notificationId: string }> }
 ) {
@@ -19,3 +20,5 @@ export async function POST(
   return NextResponse.json({ ok: true });
 }
 
+
+export const POST = withActivity("/api/notifications/[notificationId]/read", "POST", handleActivityPOST);

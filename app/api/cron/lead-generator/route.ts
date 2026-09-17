@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { DateTime } from "luxon";
 import { discoverLeadCandidates } from "@/lib/leads/provider";
@@ -20,7 +21,7 @@ function isAuthorizedCron(req: NextRequest) {
   return req.headers.get("x-vercel-cron") === "1";
 }
 
-export async function GET(req: NextRequest) {
+async function handleActivityGET(req: NextRequest) {
   if (!isAuthorizedCron(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -78,3 +79,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
+export const GET = withActivity("/api/cron/lead-generator", "GET", handleActivityGET);

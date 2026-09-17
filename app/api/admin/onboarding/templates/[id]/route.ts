@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
@@ -24,7 +25,7 @@ export async function GET(req: NextRequest, { params }: Params) {
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: Params) {
+async function handleActivityPATCH(req: NextRequest, { params }: Params) {
   const authErr = await requirePermission(req, "onboarding", "edit");
   if (authErr) return authErr;
   const { id } = await params;
@@ -52,7 +53,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: Params) {
+async function handleActivityDELETE(req: NextRequest, { params }: Params) {
   const authErr = await requirePermission(req, "onboarding", "delete");
   if (authErr) return authErr;
   const { id } = await params;
@@ -64,3 +65,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Failed to delete template" }, { status: 500 });
   }
 }
+
+export const PATCH = withActivity("/api/admin/onboarding/templates/[id]", "PATCH", handleActivityPATCH);
+
+export const DELETE = withActivity("/api/admin/onboarding/templates/[id]", "DELETE", handleActivityDELETE);

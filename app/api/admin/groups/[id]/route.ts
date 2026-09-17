@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import {
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   return NextResponse.json({ group, members });
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function handleActivityPATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authErr = await requirePermission(req, "settings", "edit");
   if (authErr) return authErr;
   try {
@@ -41,10 +42,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function handleActivityDELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authErr = await requirePermission(req, "settings", "edit");
   if (authErr) return authErr;
   const { id } = await params;
   await deleteGroup(id);
   return NextResponse.json({ ok: true });
 }
+
+export const PATCH = withActivity("/api/admin/groups/[id]", "PATCH", handleActivityPATCH);
+
+export const DELETE = withActivity("/api/admin/groups/[id]", "DELETE", handleActivityDELETE);

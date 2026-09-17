@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
@@ -14,7 +15,7 @@ function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
 }
 
-export async function POST(req: NextRequest, { params }: Params) {
+async function handleActivityPOST(req: NextRequest, { params }: Params) {
   const authErr = await requirePermission(req, "estimates", "edit");
   if (authErr) return authErr;
   try {
@@ -186,3 +187,5 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Failed to send estimate" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/estimates/[id]/send", "POST", handleActivityPOST);

@@ -1,10 +1,11 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { getDueCampaigns } from "@/lib/campaigns/db";
 import { sendCampaign } from "@/lib/campaigns/sender";
 
 export const runtime = "nodejs";
 
-export async function GET(req: NextRequest) {
+async function handleActivityGET(req: NextRequest) {
   const secret = req.headers.get("authorization")?.replace("Bearer ", "");
   if (secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -20,3 +21,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 }
+
+export const GET = withActivity("/api/cron/campaigns", "GET", handleActivityGET);

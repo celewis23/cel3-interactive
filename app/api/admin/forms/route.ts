@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
@@ -24,7 +25,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(forms.map(f => ({ ...f, submissionCount: countMap[f._id] || 0 })));
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "forms", "edit");
   if (authErr) return authErr;
 
@@ -53,3 +54,5 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json(created, { status: 201 });
 }
+
+export const POST = withActivity("/api/admin/forms", "POST", handleActivityPOST);

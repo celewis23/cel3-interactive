@@ -1,10 +1,11 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { PlatformBuilderValidationError, submitPlatformBuilderLead } from "@/lib/platformBuilder/service";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   try {
     const body = await req.json();
     const result = await submitPlatformBuilderLead(body, req.nextUrl.origin);
@@ -17,3 +18,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to generate proposal. Please try again." }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/leads/platform-builder", "POST", handleActivityPOST);

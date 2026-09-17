@@ -1,10 +1,11 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { validatePin, verifySessionToken, createSessionToken, COOKIE_NAME } from "@/lib/admin/auth";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const token = req.cookies.get(COOKIE_NAME)?.value;
   if (!token) {
     return NextResponse.json({ error: "No session" }, { status: 401 });
@@ -38,3 +39,5 @@ export async function POST(req: NextRequest) {
 
   return res;
 }
+
+export const POST = withActivity("/api/admin/auth/pin", "POST", handleActivityPOST);

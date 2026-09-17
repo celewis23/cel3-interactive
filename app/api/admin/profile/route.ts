@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -52,7 +53,7 @@ export async function GET(req: NextRequest) {
   });
 }
 
-export async function PATCH(req: NextRequest) {
+async function handleActivityPATCH(req: NextRequest) {
   const token = req.cookies.get(COOKIE_NAME)?.value;
   const session = token ? verifySessionToken(token) : null;
   if (!session || session.step !== "full") {
@@ -117,3 +118,5 @@ export async function PATCH(req: NextRequest) {
     profileImageUrl: staff.profileImageUrl ?? null,
   });
 }
+
+export const PATCH = withActivity("/api/admin/profile", "PATCH", handleActivityPATCH);

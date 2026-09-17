@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
@@ -28,7 +29,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   return NextResponse.json(project);
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function handleActivityPATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authErr = await requirePermission(req, "projects", "edit");
   if (authErr) return authErr;
   const { id } = await params;
@@ -101,7 +102,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   return NextResponse.json(updated);
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function handleActivityDELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authErr = await requirePermission(req, "projects", "delete");
   if (authErr) return authErr;
   const { id } = await params;
@@ -146,3 +147,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   return NextResponse.json({ ok: true });
 }
+
+export const PATCH = withActivity("/api/admin/pm/projects/[id]", "PATCH", handleActivityPATCH);
+
+export const DELETE = withActivity("/api/admin/pm/projects/[id]", "DELETE", handleActivityDELETE);

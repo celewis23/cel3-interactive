@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
@@ -42,7 +43,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "estimates", "edit");
   if (authErr) return authErr;
   try {
@@ -127,3 +128,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to create estimate" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/estimates", "POST", handleActivityPOST);

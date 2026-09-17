@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 /**
@@ -13,7 +14,7 @@ import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { AutomationEngine } from "@/lib/automations/engine";
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   // Simple secret check for cron security
   const secret = req.headers.get("x-cron-secret");
   const expected = process.env.CRON_SECRET;
@@ -137,3 +138,5 @@ export async function GET(req: NextRequest) {
   }
   return NextResponse.json({ ok: true, message: "Automation processor is healthy" });
 }
+
+export const POST = withActivity("/api/admin/automations/process-pending", "POST", handleActivityPOST);

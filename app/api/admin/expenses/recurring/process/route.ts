@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -17,7 +18,7 @@ function advanceDate(dateStr: string, frequency: string): string {
   return d.toISOString().slice(0, 10);
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "expenses", "edit");
   if (authErr) return authErr;
 
@@ -81,3 +82,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to process recurring" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/expenses/recurring/process", "POST", handleActivityPOST);

@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { DEFAULT_ROLES } from "@/lib/admin/permissions";
@@ -7,7 +8,7 @@ import { sanityWriteClient } from "@/lib/sanity.write";
 export const runtime = "nodejs";
 
 /** POST /api/admin/roles/seed — seeds the 5 default roles (idempotent). */
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "staffManagement", "manage");
   if (authErr) return authErr;
 
@@ -28,3 +29,5 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ ok: true, results });
 }
+
+export const POST = withActivity("/api/admin/roles/seed", "POST", handleActivityPOST);

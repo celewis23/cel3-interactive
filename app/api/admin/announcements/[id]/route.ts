@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest, { params }: Params) {
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: Params) {
+async function handleActivityPATCH(req: NextRequest, { params }: Params) {
   const authErr = await requirePermission(req, "announcements", "manage");
   if (authErr) return authErr;
 
@@ -48,7 +49,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: Params) {
+async function handleActivityDELETE(req: NextRequest, { params }: Params) {
   const authErr = await requirePermission(req, "announcements", "manage");
   if (authErr) return authErr;
 
@@ -62,3 +63,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Failed to archive" }, { status: 500 });
   }
 }
+
+export const PATCH = withActivity("/api/admin/announcements/[id]", "PATCH", handleActivityPATCH);
+
+export const DELETE = withActivity("/api/admin/announcements/[id]", "DELETE", handleActivityDELETE);

@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -5,7 +6,7 @@ import { PORTAL_COOKIE, verifyPortalSessionToken } from "@/lib/portal/auth";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { uploadProfileImage } from "@/lib/profileImages";
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const token = req.cookies.get(PORTAL_COOKIE)?.value;
   const session = token ? verifyPortalSessionToken(token) : null;
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -32,3 +33,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = withActivity("/api/portal/profile-picture", "POST", handleActivityPOST);

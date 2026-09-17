@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
@@ -7,7 +8,7 @@ import { FormField } from "@/lib/forms";
 
 export const runtime = "nodejs";
 
-export async function POST(
+async function handleActivityPOST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; nId: string }> }
 ) {
@@ -56,3 +57,5 @@ export async function POST(
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
+
+export const POST = withActivity("/api/admin/forms/[id]/notifications/[nId]/test", "POST", handleActivityPOST);

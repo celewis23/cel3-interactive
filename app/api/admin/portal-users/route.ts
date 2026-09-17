@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { normalizeDriveId } from "@/lib/google/drive";
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "clients", "edit");
   if (authErr) return authErr;
 
@@ -88,3 +89,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to create portal user" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/portal-users", "POST", handleActivityPOST);

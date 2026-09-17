@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
@@ -6,7 +7,7 @@ import { createPortalSessionToken, PORTAL_COOKIE, PORTAL_SESSION_MAX_AGE_SECONDS
 
 export const runtime = "nodejs";
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   try {
     const { email, password } = await req.json();
     const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
@@ -62,3 +63,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to sign in" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/portal/auth/login", "POST", handleActivityPOST);

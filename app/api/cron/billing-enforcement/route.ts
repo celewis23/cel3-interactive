@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 /**
@@ -77,7 +78,7 @@ type ClientRow = {
 
 const SYSTEM_AUDIT_USER = { userId: null, userName: "Billing enforcement", userEmail: "", isOwner: false };
 
-export async function GET(req: NextRequest) {
+async function handleActivityGET(req: NextRequest) {
   if (!isAuthorizedCron(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -90,6 +91,8 @@ export async function GET(req: NextRequest) {
     restored: 0,
     vercelSyncFailed: 0,
     errors: 0,
+    skippedNotices: 0,
+    lateFeeConfirmed: 0,
   };
 
   try {
@@ -151,8 +154,8 @@ export async function GET(req: NextRequest) {
           if (nextStage === 1) {
             if (inv.clientEmail) {
               await sendFirstNoticeEmail(dunningInvoice, addDays(inv.dueDate, settings.secondNoticeDays));
+              results.firstNotice++;
             }
-            results.firstNotice++;
           } else if (nextStage === 2) {
             const feeInvoice = await ensureLateFeeInvoice({
               invoiceId: inv._id,
@@ -162,15 +165,22 @@ export async function GET(req: NextRequest) {
               existingFeeInvoiceId: lateFeeInvoiceId,
             });
             lateFeeInvoiceId = feeInvoice.id;
+            results.lateFeeConfirmed++;
+            logAudit(req, {
+              action: "billing.late_fee_confirmed", source: "automatic",
+              resourceType: "invoice", resourceId: inv._id, resourceLabel: inv.number,
+              description: `Late-fee invoice ${feeInvoice.number ?? feeInvoice.id} confirmed for ${inv.clientName} — invoice ${inv.number}`,
+              metadata: { feeInvoiceId: feeInvoice.id, amountCents: feeInvoice.total, currency: feeInvoice.currency },
+            }, SYSTEM_AUDIT_USER);
             if (inv.clientEmail) {
               await sendSecondNoticeEmail(dunningInvoice, feeInvoice.total, addDays(inv.dueDate, settings.finalNoticeDays));
+              results.secondNotice++;
             }
-            results.secondNotice++;
           } else if (nextStage === 3) {
             if (inv.clientEmail) {
               await sendInterruptionNoticeEmail(dunningInvoice);
+              results.interruptionNotice++;
             }
-            results.interruptionNotice++;
           } else if (nextStage === 4) {
             if (client && client.websiteStatus !== "suspended" && !client.websiteAutoSuspendExempt) {
               const now = new Date().toISOString();
@@ -188,10 +198,12 @@ export async function GET(req: NextRequest) {
 
               logAudit(req, {
                 action: AuditAction.CLIENT_WEBSITE_SUSPENDED,
+                status: vercelSync.ok ? "success" : "partial", source: "automatic",
                 resourceType: "contact",
                 resourceId: client._id,
                 resourceLabel: client.name ?? undefined,
                 description: `Website auto-suspended for ${client.name ?? "client"} (invoice ${inv.number}, ${daysPastDue} days overdue)`,
+                metadata: { websiteSyncSucceeded: vercelSync.ok, invoiceId: inv._id },
               }, SYSTEM_AUDIT_USER);
 
               automationEngine.fire("default", "client_status_changed", { websiteStatus: "suspended" }, "contact", client._id, client._id);
@@ -207,7 +219,24 @@ export async function GET(req: NextRequest) {
               ).catch(console.error);
 
               results.suspended++;
+            } else {
+              logAudit(req, { action: "billing.suspension_skipped", status: "skipped", source: "automatic",
+                resourceType: "invoice", resourceId: inv._id, resourceLabel: inv.number,
+                description: `Suspension skipped for ${inv.clientName}: ${!client ? "client record missing" : client.websiteAutoSuspendExempt ? "client is exempt" : "website already suspended"}.`,
+              }, SYSTEM_AUDIT_USER);
             }
+          }
+
+          if (nextStage <= 3) {
+            const notice = ["", "First payment reminder", "Late-fee notice", "Service-interruption notice"][nextStage];
+            if (!inv.clientEmail) results.skippedNotices++;
+            logAudit(req, {
+              action: inv.clientEmail ? "billing.notice_sent" : "billing.notice_skipped",
+              status: inv.clientEmail ? "success" : "skipped", source: "automatic",
+              resourceType: "invoice", resourceId: inv._id, resourceLabel: inv.number,
+              description: `${notice} ${inv.clientEmail ? "sent" : "skipped: no client email saved"} — ${inv.clientName}, invoice ${inv.number}`,
+              metadata: { stage: nextStage, daysPastDue, lateFeeInvoiceId },
+            }, SYSTEM_AUDIT_USER);
           }
 
           await sanityWriteClient.createOrReplace({
@@ -221,6 +250,11 @@ export async function GET(req: NextRequest) {
           });
         } catch (err) {
           console.error(`DUNNING_STAGE_ERR (${inv._id}, stage ${nextStage}):`, err);
+          logAudit(req, { action: "billing.collections_failed", status: "failed", source: "automatic",
+            resourceType: "invoice", resourceId: inv._id, resourceLabel: inv.number,
+            description: `Collections step ${nextStage} failed for ${inv.clientName}, invoice ${inv.number}`,
+            metadata: { stage: nextStage, error: err instanceof Error ? err.message : "Processing failed" },
+          }, SYSTEM_AUDIT_USER);
           results.errors++;
         }
       }
@@ -250,10 +284,12 @@ export async function GET(req: NextRequest) {
 
       logAudit(req, {
         action: AuditAction.CLIENT_WEBSITE_RESTORED,
+        status: vercelSync.ok ? "success" : "partial", source: "automatic",
         resourceType: "contact",
         resourceId: client._id,
         resourceLabel: client.name ?? undefined,
         description: `Website auto-restored for ${client.name ?? "client"} (no remaining overdue invoices)`,
+        metadata: { websiteSyncSucceeded: vercelSync.ok },
       }, SYSTEM_AUDIT_USER);
 
       automationEngine.fire("default", "client_status_changed", { websiteStatus: "active" }, "contact", client._id, client._id);
@@ -271,9 +307,13 @@ export async function GET(req: NextRequest) {
       results.restored++;
     }
 
-    return NextResponse.json({ ok: true, ...results });
+    return NextResponse.json({ ok: true, ...results, overdueCount: overdueInvoices.length,
+      ...(!settings.autoSuspendEnabled ? { reason: "Automatic collections are off; only restoration checks run." } : {}),
+    });
   } catch (err) {
     console.error("BILLING_ENFORCEMENT_CRON_ERR:", err);
     return NextResponse.json({ error: "Processing failed", ...results }, { status: 500 });
   }
 }
+
+export const GET = withActivity("/api/cron/billing-enforcement", "GET", handleActivityGET);

@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 // POST /api/admin/email/send — send a new email (FormData)
 export const runtime = "nodejs";
 
@@ -13,7 +14,7 @@ function extractEmailAddresses(value?: string) {
   return Array.from(new Set(matches.map((email) => email.toLowerCase())));
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "email", "edit");
   if (authErr) return authErr;
 
@@ -80,3 +81,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/email/send", "POST", handleActivityPOST);

@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission, getSessionInfo } from "@/lib/admin/permissions";
 import { getEnforcementSettings, saveEnforcementSettings } from "@/lib/billing/enforcementSettings";
@@ -11,7 +12,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(settings);
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "settings", "manage");
   if (authErr) return authErr;
 
@@ -50,3 +51,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to save settings" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/billing-enforcement/config", "POST", handleActivityPOST);

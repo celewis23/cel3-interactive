@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { verifyPortalSessionToken, PORTAL_COOKIE } from "@/lib/portal/auth";
 import { getPortalProfile, updatePortalProfile } from "@/lib/portal/profile";
@@ -19,7 +20,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function PATCH(req: NextRequest) {
+async function handleActivityPATCH(req: NextRequest) {
   const token = req.cookies.get(PORTAL_COOKIE)?.value;
   const session = token ? verifyPortalSessionToken(token) : null;
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -44,3 +45,5 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: err instanceof Error ? err.message : "Failed to update profile" }, { status: 500 });
   }
 }
+
+export const PATCH = withActivity("/api/portal/me", "PATCH", handleActivityPATCH);

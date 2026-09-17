@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 // POST /api/admin/email/reply — reply within a thread
 export const runtime = "nodejs";
 
@@ -5,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { replyToThread } from "@/lib/gmail/api";
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "email", "edit");
   if (authErr) return authErr;
   try {
@@ -52,3 +53,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = withActivity("/api/admin/email/reply", "POST", handleActivityPOST);

@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
@@ -7,7 +8,7 @@ export const runtime = "nodejs";
 
 type Params = { params: Promise<{ id: string }> };
 
-export async function POST(req: NextRequest, { params }: Params) {
+async function handleActivityPOST(req: NextRequest, { params }: Params) {
   const authErr = await requirePermission(req, "timeTracking", "edit");
   if (authErr) return authErr;
   const { id } = await params;
@@ -38,3 +39,5 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Failed to stop timer" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/time/entries/[id]/stop", "POST", handleActivityPOST);

@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { listLeadCandidates, upsertLeadCandidate } from "@/lib/leads/service";
@@ -13,7 +14,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ leads });
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "leads", "edit");
   if (authErr) return authErr;
 
@@ -26,3 +27,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to save lead candidate" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/lead-generator/candidates", "POST", handleActivityPOST);

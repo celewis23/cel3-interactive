@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { sanityServer } from "@/lib/sanityServer";
 import { sanityWriteClient } from "@/lib/sanity.write";
@@ -47,7 +48,7 @@ async function consumeToken(token: string) {
   return { response };
 }
 
-export async function GET(req: NextRequest) {
+async function handleActivityGET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const token = searchParams.get("token");
@@ -63,7 +64,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({})) as { token?: string };
     const token = body.token?.trim();
@@ -73,10 +74,14 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await consumeToken(token);
-    if ("response" in result) return result.response;
+    if ("response" in result && result.response) return result.response;
     return NextResponse.json({ error: result.error }, { status: 410 });
   } catch (err) {
     console.error("PORTAL_AUTH_VERIFY_POST_ERR:", err);
     return NextResponse.json({ error: "server" }, { status: 500 });
   }
 }
+
+export const GET = withActivity("/api/portal/auth/verify", "GET", handleActivityGET);
+
+export const POST = withActivity("/api/portal/auth/verify", "POST", handleActivityPOST);

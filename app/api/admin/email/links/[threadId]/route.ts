@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 // DELETE /api/admin/email/links/[threadId] — remove a link
 export const runtime = "nodejs";
 
@@ -5,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
 
-export async function DELETE(
+async function handleActivityDELETE(
   req: NextRequest,
   { params }: { params: Promise<{ threadId: string }> }
 ) {
@@ -23,3 +24,5 @@ export async function DELETE(
     );
   }
 }
+
+export const DELETE = withActivity("/api/admin/email/links/[threadId]", "DELETE", handleActivityDELETE);

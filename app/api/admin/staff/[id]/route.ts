@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission, getSessionInfo } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
@@ -26,7 +27,7 @@ export async function GET(
   return NextResponse.json(member);
 }
 
-export async function PATCH(
+async function handleActivityPATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -83,7 +84,7 @@ export async function PATCH(
   return NextResponse.json(updated);
 }
 
-export async function DELETE(
+async function handleActivityDELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -122,3 +123,7 @@ export async function DELETE(
 
   return NextResponse.json({ ok: true });
 }
+
+export const PATCH = withActivity("/api/admin/staff/[id]", "PATCH", handleActivityPATCH);
+
+export const DELETE = withActivity("/api/admin/staff/[id]", "DELETE", handleActivityDELETE);

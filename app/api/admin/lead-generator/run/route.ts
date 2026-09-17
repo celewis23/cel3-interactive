@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { discoverLeadCandidates } from "@/lib/leads/provider";
@@ -13,7 +14,7 @@ export const runtime = "nodejs";
 const RUN_TIME_BUDGET_MS = 285_000;
 const MIN_RUN_TIME_REMAINING_MS = 15_000;
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "leads", "edit");
   if (authErr) return authErr;
 
@@ -65,3 +66,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/admin/lead-generator/run", "POST", handleActivityPOST);

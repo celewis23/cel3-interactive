@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityServer } from "@/lib/sanityServer";
@@ -25,7 +26,7 @@ function formatStatus(status: string) {
   return STATUS_LABELS[status] ?? status.replaceAll("_", " ");
 }
 
-export async function PATCH(
+async function handleActivityPATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -111,3 +112,5 @@ export async function PATCH(
     return NextResponse.json({ error: "Failed to update request" }, { status: 500 });
   }
 }
+
+export const PATCH = withActivity("/api/admin/portal-requests/[id]", "PATCH", handleActivityPATCH);

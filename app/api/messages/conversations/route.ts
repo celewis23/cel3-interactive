@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
@@ -44,7 +45,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function handleActivityPOST(req: NextRequest) {
   try {
     const actor = await getMessagingActor(req);
     if (!actor) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -64,3 +65,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to start conversation" }, { status: 500 });
   }
 }
+
+export const POST = withActivity("/api/messages/conversations", "POST", handleActivityPOST);

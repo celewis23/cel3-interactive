@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { sanityWriteClient } from "@/lib/sanity.write";
@@ -18,7 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   return NextResponse.json(tasks);
 }
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function handleActivityPOST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authErr = await requirePermission(req, "projects", "edit");
   if (authErr) return authErr;
   const { id } = await params;
@@ -67,3 +68,5 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   return NextResponse.json(task, { status: 201 });
 }
+
+export const POST = withActivity("/api/admin/pm/projects/[id]/tasks", "POST", handleActivityPOST);

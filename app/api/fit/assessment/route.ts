@@ -1,3 +1,4 @@
+import { withActivity } from "@/lib/audit/withActivity";
 // app/api/assessment/route.ts
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
@@ -8,7 +9,7 @@ function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-export async function POST(req: Request) {
+async function handleActivityPOST(req: Request) {
   try {
     const body = await req.json();
 
@@ -82,3 +83,5 @@ function escapeHtml(input: string) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
+
+export const POST = withActivity("/api/fit/assessment", "POST", handleActivityPOST);

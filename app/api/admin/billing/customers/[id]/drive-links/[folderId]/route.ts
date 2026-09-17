@@ -1,10 +1,11 @@
+import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
 import { removeCustomerDriveLink } from "@/lib/stripe/customerDriveLinks";
 
-export async function DELETE(
+async function handleActivityDELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; folderId: string }> }
 ) {
@@ -20,3 +21,5 @@ export async function DELETE(
     return NextResponse.json({ error: "Failed to remove drive link" }, { status: 500 });
   }
 }
+
+export const DELETE = withActivity("/api/admin/billing/customers/[id]/drive-links/[folderId]", "DELETE", handleActivityDELETE);
