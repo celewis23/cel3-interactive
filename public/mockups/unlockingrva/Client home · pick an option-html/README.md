@@ -17,5 +17,11 @@ components and styling system rather than copy wholesale.
 
 ## Viewing
 
-Serve the folder (e.g. `python3 -m http.server`) and open `Home.dc.html`;
-some browsers block the scripts over file://.
+The client home now lives in `../index.html` and is served at
+`/mockups/unlockingrva/` (also `/mockups/ulockingrva/`). `Home.dc.html`
+redirects there for existing bookmarks. Keep this folder's `support.js` and
+`vendor` files in place: the client home loads them from here.
+
+For a standalone preview, serve the repository's `public` folder over HTTP
+and open `/mockups/unlockingrva/index.html`; the alternate spelling requires
+the Next.js rewrites.
