@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>UnlockingRVA — The Almanac</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<nav aria-label="Design review" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:14px 32px;background:#16161A;color:#F5F4EF;font:600 14px/1.5 system-ui,sans-serif;">
+  <a href="../Client%20home%20%C2%B7%20pick%20an%20option-html/Home.dc.html#options" style="color:inherit;text-underline-offset:4px;">&larr; All options</a>
+  <span>Option C · The Almanac · Desktop concept</span>
+  <span style="font-weight:400;">Your options page stays open in its original tab.</span>
+</nav>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..900&amp;family=Figtree:wght@400;500;600;700;800&amp;family=Caveat:wght@500;700&amp;display=swap">
+<style>
+body{margin:0;background:#F6EFE2;}
+*{box-sizing:border-box}
+h1,h2,h3,p{margin:0}
+a{color:inherit}
+.fr{font-family:'Fraunces',serif;font-weight:800;letter-spacing:-.025em;line-height:1}
+.fri{font-family:'Fraunces',serif;font-style:italic;font-weight:500;letter-spacing:-.02em}
+.hand{font-family:'Caveat',cursive;font-weight:700}
+.eyebrow{font-family:'Figtree',sans-serif;font-weight:800;font-size:13px;letter-spacing:.14em;text-transform:uppercase}
+.btn{display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:0 28px;border-radius:999px;font-family:'Figtree',sans-serif;font-weight:700;font-size:17px;text-decoration:none;border:2px solid #221A14;cursor:pointer;transition:transform .18s}
+.btn:hover{transform:translateY(-3px) rotate(-1deg)}
+.navl{font-family:'Figtree',sans-serif;font-weight:700;font-size:16px;text-decoration:none;padding:12px 18px;border-radius:999px;transition:background .15s}
+.navl:hover{background:#221A14;color:#F6EFE2}
+.polaroid{transition:transform .6s cubic-bezier(.3,1.3,.5,1)}
+.day{transition:transform .12s}
+.day:hover{transform:translateY(-2px)}
+.hang{transform-origin:top center;transition:transform .45s cubic-bezier(.3,1.6,.5,1)}
+.hang:hover{transform:rotate(4deg)}
+.flip{transition:transform .8s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:26px;border:2px solid #F6EFE2}
+.svcrow{transition:background .2s}
+.svcrow:hover{background:#F6EFE2}
+.ph{background-image:repeating-linear-gradient(135deg,rgba(34,26,20,.10) 0 2px,transparent 2px 14px)}
+.inp{width:100%;min-height:50px;border:2px solid #221A14;border-radius:12px;padding:0 14px;font-family:'Figtree',sans-serif;font-size:17px;background:#FFFFFF;color:#221A14}
+.inp:focus{outline:3px solid #1F4D45;outline-offset:2px}
+:focus-visible{outline:3px solid #1F4D45;outline-offset:3px}
+.dk a:focus-visible,.dk button:focus-visible{outline-color:#F6EFE2}
+@media (prefers-reduced-motion:reduce){.polaroid,.flip,.hang,.btn{transition:none}}
+</style>
+</helmet>
+
+<div id="top" style="width:100%;background:#F6EFE2;color:#221A14;font-family:'Figtree',sans-serif;overflow:hidden;">
+
+  <!-- MASTHEAD -->
+  <div style="background:#221A14;color:#F6EFE2;">
+    <div style="max-width:1312px;margin:0 auto;padding:10px 64px;display:flex;justify-content:space-between;gap:24px;font-size:14px;font-weight:600;">
+      <span>Richmond, Virginia</span>
+      <span>Event planning &amp; promotions</span>
+      <span>info@unlockingrva.com · 804-651-3764</span>
+    </div>
+  </div>
+  <header style="text-align:center;padding:36px 64px 24px;">
+    <a href="#top" style="text-decoration:none;display:inline-flex;align-items:center;gap:18px;" aria-label="UnlockingRVA home">
+      <svg width="76" height="76" viewBox="0 0 64 64" aria-hidden="true"><circle cx="20" cy="32" r="14" fill="#F6EFE2" stroke="#B5432A" stroke-width="5"></circle><circle cx="20" cy="32" r="4" fill="#B5432A"></circle><path d="M34 32h24M50 32v10M58 32v7" stroke="#B5432A" stroke-width="5" stroke-linecap="round" fill="none"></path></svg>
+      <span class="fr" style="font-size:88px;">Unlocking<span class="fri" style="color:#B5432A;">RVA</span></span>
+    </a>
+    <div class="hand" style="font-size:34px;color:#B5432A;margin-top:6px;">There is always something to do in Richmond!</div>
+  </header>
+  <nav aria-label="Main" style="position:sticky;top:0;z-index:30;background:#F6EFE2;border-top:2px solid #221A14;border-bottom:2px solid #221A14;">
+    <div style="max-width:1312px;margin:0 auto;padding:8px 64px;display:flex;align-items:center;justify-content:center;gap:6px;">
+      <a class="navl" href="#events">Events</a>
+      <a class="navl" href="#friend">#FriendoftheBrand</a>
+      <a class="navl" href="#services">Hire Us</a>
+      <a class="navl" href="#merch">Merch</a>
+      <a class="navl" href="#about">About</a>
+      <a class="btn" href="#contact" style="background:#B5432A;color:#F6EFE2;min-height:44px;padding:0 22px;font-size:16px;margin-left:12px;">Get in touch</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section style="max-width:1312px;margin:0 auto;padding:80px 64px 88px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;align-items:center;">
+    <div style="grid-column:span 7;display:flex;flex-direction:column;gap:32px;">
+      <h1 class="fr" style="font-size:100px;">There's always <span class="fri" style="color:#B5432A;position:relative;display:inline-block;">something<svg viewBox="0 0 300 16" preserveAspectRatio="none" style="position:absolute;left:0;bottom:-6px;width:100%;height:16px;" aria-hidden="true"><path d="M2 8Q22 0 42 8T82 8T122 8T162 8T202 8T242 8T298 8" stroke="#B5432A" stroke-width="5" fill="none" stroke-linecap="round"></path></svg></span> to do in Richmond.</h1>
+      <p style="font-size:21px;line-height:1.55;max-width:600px;color:#4A3F34;">We design and produce creative, unforgettable events for all, from small intimate affairs to large-scale parties, and connect Richmonders to local businesses and, most importantly, to each other.</p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;">
+        <a class="btn" href="#events" style="background:#221A14;color:#F6EFE2;">See the calendar
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+        </a>
+        <a class="btn" href="#contact" style="background:transparent;color:#221A14;">Book us for your event</a>
+      </div>
+    </div>
+    <div style="grid-column:span 5;position:relative;height:580px;">
+      <sc-for list="{{cards}}" as="c" hint-placeholder-count="3">
+        <button type="button" class="polaroid" aria-label="{{c.aria}}" onClick="{{c.pick}}" style="position:absolute;left:50%;top:50%;width:300px;margin-left:-150px;margin-top:-220px;padding:14px 14px 16px;background:#FFFDF8;border:2px solid #221A14;box-shadow:6px 6px 0 #221A14;cursor:pointer;text-align:left;font-family:'Figtree',sans-serif;color:#221A14;{{c.style}}">
+          <span style="position:absolute;top:-16px;left:50%;margin-left:-46px;width:92px;height:30px;background:rgba(217,201,168,.92);transform:rotate(-3deg);display:block;"></span>
+          <span class="ph" style="display:flex;height:290px;background-color:{{c.bg}};border:2px solid #221A14;align-items:flex-end;padding:10px;"><span class="eyebrow" style="background:#F6EFE2;color:#221A14;padding:5px 10px;border-radius:999px;font-size:11px;">Event photo</span></span>
+          <span class="hand" style="font-size:32px;display:block;margin-top:10px;">[Event name]</span>
+        </button>
+      </sc-for>
+      <div class="hand" style="position:absolute;left:0;bottom:8px;font-size:32px;color:#B5432A;display:flex;align-items:center;gap:8px;transform:rotate(-4deg);">tap to shuffle
+        <svg width="46" height="30" viewBox="0 0 46 30" fill="none" stroke="#B5432A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 24C14 24 26 20 40 6M40 6l-1 12M40 6L28 8"></path></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT WE DO BAND -->
+  <section aria-label="What we do" style="background:#221A14;color:#F6EFE2;padding:28px 64px;text-align:center;">
+    <div class="fri" style="font-size:40px;display:flex;justify-content:center;align-items:center;gap:28px;flex-wrap:wrap;">
+      <span>Event design</span><span style="color:#B5432A;">✦</span><span>Promotions</span><span style="color:#B5432A;">✦</span><span>Digital advertising</span><span style="color:#B5432A;">✦</span><span>Consulting &amp; management</span>
+    </div>
+  </section>
+
+  <!-- EVENTS CALENDAR -->
+  <section id="events" style="max-width:1312px;margin:0 auto;padding:112px 64px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="eyebrow" style="color:#B5432A;">Upcoming events</div>
+        <h2 class="fr" style="font-size:84px;">Check out what<br>we're up to <span class="fri" style="color:#1F4D45;">next.</span></h2>
+      </div>
+      <a class="btn" href="https://www.unlockingrva.com/upcomingevents" target="_blank" rel="noopener noreferrer" style="background:#FFFDF8;color:#221A14;">View all events</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;margin-top:56px;align-items:stretch;">
+      <div style="grid-column:span 7;background:#FFFDF8;border:2px solid #221A14;border-radius:28px;box-shadow:8px 8px 0 #221A14;padding:32px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+          <h3 class="fr" style="font-size:44px;">{{monthName}}</h3>
+          <div style="display:flex;gap:10px;">
+            <button type="button" aria-label="Previous month" onClick="{{prevMonth}}" style="width:48px;height:48px;border-radius:50%;border:2px solid #221A14;background:#F6EFE2;color:#221A14;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg></button>
+            <button type="button" aria-label="Next month" onClick="{{nextMonth}}" style="width:48px;height:48px;border-radius:50%;border:2px solid #221A14;background:#F6EFE2;color:#221A14;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:8px;">
+          <div class="eyebrow" style="text-align:center;color:#5A4E42;font-size:12px;">Sun</div><div class="eyebrow" style="text-align:center;color:#5A4E42;font-size:12px;">Mon</div><div class="eyebrow" style="text-align:center;color:#5A4E42;font-size:12px;">Tue</div><div class="eyebrow" style="text-align:center;color:#5A4E42;font-size:12px;">Wed</div><div class="eyebrow" style="text-align:center;color:#5A4E42;font-size:12px;">Thu</div><div class="eyebrow" style="text-align:center;color:#5A4E42;font-size:12px;">Fri</div><div class="eyebrow" style="text-align:center;color:#5A4E42;font-size:12px;">Sat</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;">
+          <sc-for list="{{cells}}" as="cell" hint-placeholder-count="35">
+            <sc-if value="{{cell.blank}}" hint-placeholder-val="{{false}}"><div style="min-height:68px;"></div></sc-if>
+            <sc-if value="{{cell.real}}" hint-placeholder-val="{{true}}">
+              <button type="button" class="day" aria-label="{{cell.label}}" aria-pressed="{{cell.pressed}}" onClick="{{cell.pick}}" style="min-height:68px;border-radius:16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-family:'Fraunces',serif;font-size:24px;font-weight:700;border:2px solid;{{cell.style}}">
+                <span>{{cell.day}}</span>
+                <sc-if value="{{cell.dot}}" hint-placeholder-val="{{false}}"><span style="width:8px;height:8px;border-radius:50%;background:{{cell.dotColor}};display:block;"></span></sc-if>
+              </button>
+            </sc-if>
+          </sc-for>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:20px;font-size:15px;color:#5A4E42;font-weight:600;"><span style="width:10px;height:10px;border-radius:50%;background:#B5432A;display:block;"></span>Event day</div>
+      </div>
+
+      <div style="grid-column:span 5;display:flex;flex-direction:column;">
+        <sc-if value="{{showPrompt}}" hint-placeholder-val="{{false}}">
+          <div style="flex-grow:1;border:2px dashed #221A14;border-radius:28px;padding:40px;display:flex;flex-direction:column;justify-content:center;gap:14px;">
+            <div class="hand" style="font-size:44px;color:#B5432A;line-height:1;">pick a date →</div>
+            <p class="fri" style="font-size:34px;line-height:1.1;">Tap any day on the calendar to see what's happening.</p>
+          </div>
+        </sc-if>
+        <sc-if value="{{showEv}}" hint-placeholder-val="{{true}}">
+          <div style="flex-grow:1;background:#B5432A;color:#F6EFE2;border:2px solid #221A14;border-radius:28px;box-shadow:8px 8px 0 #221A14;padding:32px;display:flex;flex-direction:column;gap:18px;">
+            <div class="eyebrow">{{selHead}}</div>
+            <div class="ph" style="height:170px;border:2px solid #221A14;border-radius:16px;background-color:#8F3320;display:flex;align-items:flex-end;padding:12px;"><span class="eyebrow" style="background:#F6EFE2;color:#221A14;padding:5px 10px;border-radius:999px;font-size:11px;">Event photo</span></div>
+            <h3 class="fr" style="font-size:52px;">[Event name]</h3>
+            <p style="font-size:18px;font-weight:600;">[Time] · [Venue]</p>
+            <p class="fri" style="font-size:26px;line-height:1.15;">[A line or two about the event.]</p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:auto;">
+              <a class="btn" href="https://www.unlockingrva.com/upcomingevents" target="_blank" rel="noopener noreferrer" style="background:#F6EFE2;color:#221A14;">Get tickets</a>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{showEmpty}}" hint-placeholder-val="{{false}}">
+          <div style="flex-grow:1;border:2px dashed #221A14;border-radius:28px;padding:40px;display:flex;flex-direction:column;justify-content:center;gap:16px;">
+            <div class="eyebrow" style="color:#B5432A;">{{selHead}}</div>
+            <p class="fri" style="font-size:38px;line-height:1.1;">Nothing on this one yet.</p>
+            <p style="font-size:18px;line-height:1.5;color:#4A3F34;">Friends of the Brand see the full monthly calendar first.</p>
+            <div><a class="btn" href="#friend" style="background:#1F4D45;color:#F6EFE2;">Become a Friend</a></div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </section>
+
+  <!-- FRIEND OF THE BRAND -->
+  <svg viewBox="0 0 1440 60" preserveAspectRatio="none" style="display:block;width:100%;height:60px;background:#F6EFE2;" aria-hidden="true"><path d="M0 60V30Q90 0 180 30T360 30T540 30T720 30T900 30T1080 30T1260 30T1440 30V60Z" fill="#1F4D45"></path></svg>
+  <section id="friend" class="dk" style="background:#1F4D45;color:#F6EFE2;">
+    <div style="max-width:1312px;margin:0 auto;padding:64px 64px 120px;">
+      <div class="eyebrow" style="color:#F2C9B8;">Annual membership</div>
+      <h2 class="fr" style="font-size:104px;margin-top:16px;">Become a<br><span class="fri" style="color:#F2C9B8;">#FriendoftheBrand</span></h2>
+      <div style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;margin-top:64px;align-items:center;">
+        <div style="grid-column:span 5;display:flex;flex-direction:column;gap:26px;">
+          <p class="fri" style="font-size:38px;line-height:1.12;">An annual subscription for exclusive access to UnlockingRVA events, services and giveaways.</p>
+          <p style="font-size:18px;line-height:1.5;color:#DCE6E2;">Flip the pass to see what's inside.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button type="button" class="btn" onClick="{{flip}}" style="background:transparent;color:#F6EFE2;border-color:#F6EFE2;">Flip the pass</button>
+            <a class="btn" href="https://www.unlockingrva.com/friendofthebrand" target="_blank" rel="noopener noreferrer" style="background:#F6EFE2;color:#221A14;border-color:#F6EFE2;">Subscribe today</a>
+          </div>
+        </div>
+        <div style="grid-column:span 7;display:flex;justify-content:center;">
+          <button type="button" onClick="{{flip}}" aria-label="Flip the membership pass" style="position:relative;width:560px;height:350px;perspective:1400px;background:transparent;border:0;padding:0;cursor:pointer;color:inherit;font-family:'Figtree',sans-serif;text-align:left;">
+            <span class="flip" style="display:block;position:absolute;inset:0;transform:{{flipT}};">
+              <span class="face" style="background:#B5432A;color:#F6EFE2;padding:30px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:10px 10px 0 #143630;">
+                <span style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="display:flex;align-items:center;gap:10px;"><svg width="40" height="40" viewBox="0 0 64 64" aria-hidden="true"><circle cx="20" cy="32" r="14" fill="none" stroke="#F6EFE2" stroke-width="5"></circle><path d="M34 32h24M50 32v10M58 32v7" stroke="#F6EFE2" stroke-width="5" stroke-linecap="round" fill="none"></path></svg><span class="fr" style="font-size:26px;">UnlockingRVA</span></span>
+                  <span class="eyebrow" style="border:2px solid #F6EFE2;border-radius:999px;padding:5px 12px;font-size:11px;">Annual member</span>
+                </span>
+                <span class="fri" style="font-size:62px;line-height:.98;display:block;">Friend of the Brand</span>
+                <span style="display:flex;justify-content:space-between;align-items:flex-end;">
+                  <span class="eyebrow">[PRICE] / year</span>
+                  <span class="hand" style="font-size:30px;">4 perks inside →</span>
+                </span>
+              </span>
+              <span class="face" style="background:#F6EFE2;color:#221A14;padding:30px;display:flex;flex-direction:column;gap:14px;transform:rotateY(180deg);box-shadow:10px 10px 0 #143630;">
+                <span class="eyebrow" style="color:#B5432A;">Your perks</span>
+                <span style="display:flex;align-items:center;gap:14px;font-size:20px;font-weight:600;line-height:1.25;"><svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink:0;"><circle cx="12" cy="12" r="11" fill="#1F4D45"></circle><path d="M7 12.5l3.5 3.5L17 9" stroke="#F6EFE2" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>Access to the monthly events calendar</span>
+                <span style="display:flex;align-items:center;gap:14px;font-size:20px;font-weight:600;line-height:1.25;"><svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink:0;"><circle cx="12" cy="12" r="11" fill="#1F4D45"></circle><path d="M7 12.5l3.5 3.5L17 9" stroke="#F6EFE2" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>Special events just for you</span>
+                <span style="display:flex;align-items:center;gap:14px;font-size:20px;font-weight:600;line-height:1.25;"><svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink:0;"><circle cx="12" cy="12" r="11" fill="#1F4D45"></circle><path d="M7 12.5l3.5 3.5L17 9" stroke="#F6EFE2" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>Discounts on UnlockingRVA events + early ticket access</span>
+                <span style="display:flex;align-items:center;gap:14px;font-size:20px;font-weight:600;line-height:1.25;"><svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink:0;"><circle cx="12" cy="12" r="11" fill="#1F4D45"></circle><path d="M7 12.5l3.5 3.5L17 9" stroke="#F6EFE2" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>Discount on UnlockingRVA advertising rates</span>
+              </span>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <svg viewBox="0 0 1440 60" preserveAspectRatio="none" style="display:block;width:100%;height:60px;background:#EDE3D0;" aria-hidden="true"><path d="M0 0V30Q90 60 180 30T360 30T540 30T720 30T900 30T1080 30T1260 30T1440 30V0Z" fill="#1F4D45"></path></svg>
+
+  <!-- SERVICES MENU -->
+  <section id="services" style="background:#EDE3D0;">
+    <div style="max-width:1312px;margin:0 auto;padding:48px 64px 112px;">
+      <div class="eyebrow" style="color:#B5432A;">Event &amp; advertisement services</div>
+      <h2 class="fr" style="font-size:96px;margin-top:16px;">Make your dream<br>event <span class="fri" style="color:#B5432A;">a reality.</span></h2>
+      <div style="display:flex;align-items:center;gap:16px;margin-top:28px;flex-wrap:wrap;">
+        <span class="hand" style="font-size:34px;color:#B5432A;">tap "Add" to build your postcard →</span>
+        <a href="#contact" style="font-weight:700;font-size:17px;">{{svCountText}}</a>
+      </div>
+      <div style="margin-top:40px;background:#FFFDF8;border:2px solid #221A14;border-radius:28px;box-shadow:8px 8px 0 #221A14;overflow:hidden;">
+        <sc-for list="{{services}}" as="sv" hint-placeholder-count="3">
+          <div class="svcrow" style="display:grid;grid-template-columns:90px minmax(0,1fr) 150px;align-items:center;gap:24px;padding:34px 36px;border-top:2px solid #221A14;{{sv.rowStyle}}">
+            <span class="hand" style="font-size:64px;color:#B5432A;line-height:1;">{{sv.n}}</span>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <h3 class="fr" style="font-size:50px;">{{sv.t}}</h3>
+              <p style="font-size:19px;line-height:1.5;color:#4A3F34;max-width:640px;">{{sv.c}}</p>
+            </div>
+            <button type="button" class="btn" aria-pressed="{{sv.pressed}}" onClick="{{sv.pick}}" style="justify-content:center;{{sv.btn}}">{{sv.label}}</button>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;gap:14px;margin-top:36px;flex-wrap:wrap;">
+        <a class="btn" href="#contact" style="background:#221A14;color:#F6EFE2;">Book with us</a>
+        <a class="btn" href="https://www.unlockingrva.com/advertisewithus" target="_blank" rel="noopener noreferrer" style="background:transparent;color:#221A14;">Advertise with us</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- MERCH -->
+  <section id="merch" style="max-width:1312px;margin:0 auto;padding:112px 64px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="eyebrow" style="color:#B5432A;">Available now</div>
+        <h2 class="fr" style="font-size:96px;">The merch <span class="fri" style="color:#1F4D45;">table.</span></h2>
+      </div>
+      <a class="btn" href="https://www.bonfire.com/store/unlockingrva/" target="_blank" rel="noopener noreferrer" style="background:#B5432A;color:#F6EFE2;">Shop the store</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px;margin-top:72px;">
+      <a class="hang" href="https://www.bonfire.com/store/unlockingrva/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:#221A14;position:relative;display:block;padding-top:36px;">
+        <span style="position:absolute;top:0;left:50%;width:2px;height:44px;background:#221A14;display:block;"></span>
+        <span style="display:block;background:#FFFDF8;border:2px solid #221A14;border-radius:28px;box-shadow:6px 6px 0 #221A14;padding:28px 28px 24px;position:relative;">
+          <span style="position:absolute;top:14px;left:50%;margin-left:-9px;width:18px;height:18px;border-radius:50%;background:#F6EFE2;border:2px solid #221A14;display:block;"></span>
+          <span style="display:flex;justify-content:center;padding:34px 0 10px;"><svg viewBox="0 0 200 200" width="230" height="230" aria-hidden="true"><path d="M30 30L62 14Q100 40 138 14L170 30L192 76L160 90L150 72V184H50V72L40 90L8 76Z" fill="#B5432A" stroke="#221A14" stroke-width="4" stroke-linejoin="round"></path><circle cx="90" cy="82" r="10" fill="#F6EFE2" stroke="#221A14" stroke-width="3"></circle><path d="M100 82h22M114 82v8" stroke="#221A14" stroke-width="4" stroke-linecap="round"></path></svg></span>
+          <span style="display:flex;justify-content:space-between;align-items:baseline;border-top:2px dashed #221A14;padding-top:14px;"><span class="fr" style="font-size:28px;">[Product name]</span><span class="eyebrow" style="color:#5A4E42;">[Price]</span></span>
+        </span>
+      </a>
+      <a class="hang" href="https://www.bonfire.com/store/unlockingrva/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:#221A14;position:relative;display:block;padding-top:36px;">
+        <span style="position:absolute;top:0;left:50%;width:2px;height:44px;background:#221A14;display:block;"></span>
+        <span style="display:block;background:#FFFDF8;border:2px solid #221A14;border-radius:28px;box-shadow:6px 6px 0 #221A14;padding:28px 28px 24px;position:relative;">
+          <span style="position:absolute;top:14px;left:50%;margin-left:-9px;width:18px;height:18px;border-radius:50%;background:#F6EFE2;border:2px solid #221A14;display:block;"></span>
+          <span style="display:flex;justify-content:center;padding:34px 0 10px;"><svg viewBox="0 0 200 200" width="230" height="230" aria-hidden="true"><path d="M30 30L62 14Q100 40 138 14L170 30L192 76L160 90L150 72V184H50V72L40 90L8 76Z" fill="#1F4D45" stroke="#221A14" stroke-width="4" stroke-linejoin="round"></path><circle cx="90" cy="82" r="10" fill="#F6EFE2" stroke="#221A14" stroke-width="3"></circle><path d="M100 82h22M114 82v8" stroke="#F6EFE2" stroke-width="4" stroke-linecap="round"></path></svg></span>
+          <span style="display:flex;justify-content:space-between;align-items:baseline;border-top:2px dashed #221A14;padding-top:14px;"><span class="fr" style="font-size:28px;">[Product name]</span><span class="eyebrow" style="color:#5A4E42;">[Price]</span></span>
+        </span>
+      </a>
+      <a class="hang" href="https://www.bonfire.com/store/unlockingrva/" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:#221A14;position:relative;display:block;padding-top:36px;">
+        <span style="position:absolute;top:0;left:50%;width:2px;height:44px;background:#221A14;display:block;"></span>
+        <span style="display:block;background:#FFFDF8;border:2px solid #221A14;border-radius:28px;box-shadow:6px 6px 0 #221A14;padding:28px 28px 24px;position:relative;">
+          <span style="position:absolute;top:14px;left:50%;margin-left:-9px;width:18px;height:18px;border-radius:50%;background:#F6EFE2;border:2px solid #221A14;display:block;"></span>
+          <span style="display:flex;justify-content:center;padding:34px 0 10px;"><svg viewBox="0 0 200 200" width="230" height="230" aria-hidden="true"><path d="M30 30L62 14Q100 40 138 14L170 30L192 76L160 90L150 72V184H50V72L40 90L8 76Z" fill="#D9C9A8" stroke="#221A14" stroke-width="4" stroke-linejoin="round"></path><circle cx="90" cy="82" r="10" fill="#F6EFE2" stroke="#221A14" stroke-width="3"></circle><path d="M100 82h22M114 82v8" stroke="#221A14" stroke-width="4" stroke-linecap="round"></path></svg></span>
+          <span style="display:flex;justify-content:space-between;align-items:baseline;border-top:2px dashed #221A14;padding-top:14px;"><span class="fr" style="font-size:28px;">[Product name]</span><span class="eyebrow" style="color:#5A4E42;">[Price]</span></span>
+        </span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" style="background:#FFFDF8;border-top:2px solid #221A14;border-bottom:2px solid #221A14;">
+    <div style="max-width:1312px;margin:0 auto;padding:112px 64px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;align-items:center;">
+      <div style="grid-column:span 6;display:flex;flex-direction:column;gap:28px;">
+        <div class="eyebrow" style="color:#B5432A;">About us</div>
+        <h2 class="fr" style="font-size:72px;">Small intimate affairs to <span class="fri" style="color:#1F4D45;">large-scale parties.</span></h2>
+        <p style="font-size:21px;line-height:1.6;color:#4A3F34;"><span class="fr" style="float:left;font-size:96px;line-height:.8;padding:8px 12px 0 0;color:#B5432A;">U</span>nlockingRVA was founded with one goal in mind: to design and produce creative and unforgettable events for all. We strive to execute events that not only aim to impress, but also create unique experiences that connect Richmonders to local businesses and, most importantly, each other.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <a class="btn" href="https://www.unlockingrva.com/about" target="_blank" rel="noopener noreferrer" style="background:#221A14;color:#F6EFE2;min-height:48px;font-size:16px;">Learn more</a>
+          <a class="btn" href="https://www.unlockingrva.com/inthemedia" target="_blank" rel="noopener noreferrer" style="background:transparent;color:#221A14;min-height:48px;font-size:16px;">In the media</a>
+          <a class="btn" href="https://www.unlockingrva.com/blank-page" target="_blank" rel="noopener noreferrer" style="background:transparent;color:#221A14;min-height:48px;font-size:16px;">Unlocking Richmond Foundation</a>
+        </div>
+      </div>
+      <div style="grid-column:8 / span 5;position:relative;height:540px;">
+        <div style="position:absolute;left:10px;top:10px;width:330px;padding:14px 14px 16px;background:#FFFDF8;border:2px solid #221A14;box-shadow:6px 6px 0 #221A14;transform:rotate(-5deg);">
+          <span style="position:absolute;top:-16px;left:50%;margin-left:-46px;width:92px;height:30px;background:rgba(217,201,168,.92);display:block;"></span>
+          <div class="ph" style="height:300px;background-color:#1F4D45;border:2px solid #221A14;display:flex;align-items:flex-end;padding:10px;"><span class="eyebrow" style="background:#F6EFE2;color:#221A14;padding:5px 10px;border-radius:999px;font-size:11px;">Event photo</span></div>
+          <div class="hand" style="font-size:30px;margin-top:8px;">[Caption]</div>
+        </div>
+        <div style="position:absolute;right:0;bottom:0;width:300px;padding:14px 14px 16px;background:#FFFDF8;border:2px solid #221A14;box-shadow:6px 6px 0 #221A14;transform:rotate(4deg);">
+          <span style="position:absolute;top:-16px;left:50%;margin-left:-46px;width:92px;height:30px;background:rgba(217,201,168,.92);display:block;"></span>
+          <div class="ph" style="height:260px;background-color:#B5432A;border:2px solid #221A14;display:flex;align-items:flex-end;padding:10px;"><span class="eyebrow" style="background:#F6EFE2;color:#221A14;padding:5px 10px;border-radius:999px;font-size:11px;">Event photo</span></div>
+          <div class="hand" style="font-size:30px;margin-top:8px;">[Caption]</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT POSTCARD -->
+  <section id="contact" class="dk" style="background:#B5432A;color:#F6EFE2;">
+    <div style="max-width:1312px;margin:0 auto;padding:112px 64px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;align-items:center;">
+      <div style="grid-column:span 5;display:flex;flex-direction:column;gap:26px;">
+        <div class="eyebrow">Contact us</div>
+        <h2 class="fr" style="font-size:78px;">Send us a <span class="fri">postcard.</span></h2>
+        <p style="font-size:20px;line-height:1.55;">Interested in having your special occasion produced by UnlockingRVA, or promoting your upcoming event or local business? We'd love to hear from you.</p>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <a href="mailto:info@unlockingrva.com" class="fr" style="font-size:34px;">info@unlockingrva.com</a>
+          <a href="tel:8046513764" class="fr" style="font-size:34px;">804-651-3764</a>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <a class="btn" href="https://www.instagram.com/unlockingrva" target="_blank" rel="noopener noreferrer" style="background:#221A14;color:#F6EFE2;border-color:#221A14;min-height:46px;font-size:16px;">Instagram</a>
+          <a class="btn" href="https://www.facebook.com/unlockingrva" target="_blank" rel="noopener noreferrer" style="background:#221A14;color:#F6EFE2;border-color:#221A14;min-height:46px;font-size:16px;">Facebook</a>
+          <a class="btn" href="https://www.twitter.com/unlockingrva" target="_blank" rel="noopener noreferrer" style="background:#221A14;color:#F6EFE2;border-color:#221A14;min-height:46px;font-size:16px;">Twitter</a>
+        </div>
+      </div>
+      <div style="grid-column:7 / span 6;">
+        <div style="background:#FFFDF8;color:#221A14;border:2px solid #221A14;border-radius:16px;box-shadow:10px 10px 0 #221A14;padding:32px;transform:rotate(-1.2deg);">
+          <sc-if value="{{notSent}}" hint-placeholder-val="{{true}}">
+            <div style="display:grid;grid-template-columns:minmax(0,1.1fr) 2px minmax(0,1fr);gap:28px;">
+              <div style="display:flex;flex-direction:column;gap:12px;">
+                <div class="hand" style="font-size:38px;line-height:1;">Dear UnlockingRVA,</div>
+                <label for="pc-msg" style="font-weight:700;font-size:16px;">Your message</label>
+                <textarea id="pc-msg" class="inp" rows="8" style="padding:12px 14px;min-height:230px;resize:vertical;" placeholder="Tell us about your event, business or idea…"></textarea>
+              </div>
+              <div style="background:#221A14;opacity:.25;"></div>
+              <div style="display:flex;flex-direction:column;gap:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                  <svg viewBox="0 0 120 120" width="88" height="88" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" stroke="#221A14" stroke-width="3" opacity=".55"></circle><circle cx="60" cy="60" r="40" fill="none" stroke="#221A14" stroke-width="2" opacity=".55"></circle><path d="M14 44Q34 34 54 44T94 44M14 60Q34 50 54 60T94 60M14 76Q34 66 54 76T94 76" stroke="#221A14" stroke-width="3" fill="none" opacity=".55"></path></svg>
+                  <div style="width:78px;height:96px;">
+                    <sc-if value="{{st0}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 90 110" width="78" height="96" aria-hidden="true"><rect x="4" y="4" width="82" height="102" fill="#FFFDF8" stroke="#B5432A" stroke-width="5" stroke-dasharray="8 6"></rect><rect x="16" y="16" width="58" height="78" fill="#B5432A"></rect><circle cx="34" cy="50" r="11" fill="none" stroke="#F6EFE2" stroke-width="5"></circle><path d="M45 50h20M60 50v10" stroke="#F6EFE2" stroke-width="5" stroke-linecap="round"></path></svg></sc-if>
+                    <sc-if value="{{st1}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 90 110" width="78" height="96" aria-hidden="true"><rect x="4" y="4" width="82" height="102" fill="#FFFDF8" stroke="#1F4D45" stroke-width="5" stroke-dasharray="8 6"></rect><rect x="16" y="16" width="58" height="78" fill="#1F4D45"></rect><path d="M45 34l6 14 15 2-11 10 3 15-13-8-13 8 3-15-11-10 15-2z" fill="#F6EFE2"></path></svg></sc-if>
+                    <sc-if value="{{st2}}" hint-placeholder-val="{{false}}"><svg viewBox="0 0 90 110" width="78" height="96" aria-hidden="true"><rect x="4" y="4" width="82" height="102" fill="#FFFDF8" stroke="#221A14" stroke-width="5" stroke-dasharray="8 6"></rect><rect x="16" y="16" width="58" height="78" fill="#D9C9A8"></rect><circle cx="45" cy="55" r="16" fill="#B5432A"></circle><path d="M45 26v8M45 76v8M20 55h8M62 55h8M28 38l6 6M56 66l6 6M62 38l-6 6M34 66l-6 6" stroke="#221A14" stroke-width="4" stroke-linecap="round"></path></svg></sc-if>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:6px;"><label for="pc-name" style="font-weight:700;font-size:16px;">Name</label><input id="pc-name" class="inp" type="text" placeholder="Your name"></div>
+                <div style="display:flex;flex-direction:column;gap:6px;"><label for="pc-email" style="font-weight:700;font-size:16px;">Email</label><input id="pc-email" class="inp" type="email" placeholder="you@email.com"></div>
+                <div class="hand" style="font-size:28px;color:#B5432A;line-height:1.05;">Re: {{interest}}</div>
+                <div>
+                  <div style="font-weight:700;font-size:14px;margin-bottom:8px;">Pick a stamp</div>
+                  <div role="group" aria-label="Stamp" style="display:flex;gap:8px;">
+                    <sc-for list="{{stamps}}" as="sp" hint-placeholder-count="3"><button type="button" aria-pressed="{{sp.pressed}}" onClick="{{sp.pick}}" class="btn" style="min-height:44px;padding:0 16px;font-size:15px;{{sp.style}}">{{sp.label}}</button></sc-for>
+                  </div>
+                </div>
+                <button type="button" class="btn" onClick="{{send}}" style="background:#221A14;color:#F6EFE2;justify-content:center;margin-top:4px;">Send the postcard</button>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{sent}}" hint-placeholder-val="{{false}}">
+            <div style="min-height:440px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:20px;position:relative;">
+              <div class="fr" style="font-size:88px;">Postcard preview</div>
+              <p class="fri" style="font-size:34px;line-height:1.1;max-width:440px;">Demo complete — no message was sent. Use the email link to contact UnlockingRVA.</p>
+              <div class="hand" style="position:absolute;right:10px;top:10px;font-size:44px;color:#B5432A;border:4px solid #B5432A;border-radius:10px;padding:2px 16px;transform:rotate(8deg);">DEMO</div>
+              <button type="button" class="btn" onClick="{{reset}}" style="background:transparent;color:#221A14;">Write another</button>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="dk" style="background:#221A14;color:#F6EFE2;">
+    <div style="max-width:1312px;margin:0 auto;padding:80px 64px 48px;">
+      <div class="fri" style="font-size:112px;line-height:1;">There's always<br><span style="color:#B5432A;">something to do.</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;margin-top:64px;border-top:1px solid #4A3F34;padding-top:28px;">
+        <nav aria-label="Footer" style="display:flex;gap:4px;flex-wrap:wrap;">
+          <a class="navl" href="#events" style="color:#F6EFE2;">Events</a>
+          <a class="navl" href="#friend" style="color:#F6EFE2;">#FriendoftheBrand</a>
+          <a class="navl" href="https://www.unlockingrva.com/advertisewithus" target="_blank" rel="noopener noreferrer" style="color:#F6EFE2;">Advertise</a>
+          <a class="navl" href="#services" style="color:#F6EFE2;">Hire Us</a>
+          <a class="navl" href="https://www.unlockingrva.com/inthemedia" target="_blank" rel="noopener noreferrer" style="color:#F6EFE2;">In the Media</a>
+        </nav>
+        <div class="eyebrow" style="color:#CFC4B0;">© UnlockingRVA · Richmond, VA</div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":6900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+
+    // hero polaroid stack
+    const top = s.top ?? 0;
+    const base = [{ bg: '#B5432A' }, { bg: '#1F4D45' }, { bg: '#D9C9A8' }];
+    const pos = [
+      'transform:translate(0px,10px) rotate(-3deg);z-index:3;',
+      'transform:translate(120px,-36px) rotate(7deg);z-index:2;',
+      'transform:translate(-120px,-16px) rotate(-10deg);z-index:1;'
+    ];
+    const cards = base.map((b, i) => {
+      const p = (i - top + 3) % 3;
+      return {
+        bg: b.bg,
+        style: pos[p],
+        aria: p === 0 ? 'Shuffle to the next photo' : 'Bring photo ' + (i + 1) + ' to the front',
+        pick: () => this.setState({ top: p === 0 ? (top + 1) % 3 : i })
+      };
+    });
+
+    // calendar (starts September 2026)
+    const mo = s.mo ?? 0;
+    const first = new Date(2026, 8 + mo, 1);
+    const monthName = first.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    const startDow = first.getDay();
+    const dim = new Date(2026, 9 + mo, 0).getDate();
+    const evDays = [5, 12, 13, 19, 26];
+    const sel = s.sel && s.sel.m === mo ? s.sel.d : null;
+    const cells = [];
+    for (let i = 0; i < startDow; i++) cells.push({ blank: true, real: false });
+    for (let d = 1; d <= dim; d++) {
+      const hasEv = evDays.indexOf(d) > -1;
+      const isSel = sel === d;
+      const nice = new Date(2026, 8 + mo, d).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+      let style = 'background:transparent;color:#221A14;border-color:transparent;';
+      if (hasEv) style = 'background:#F6EFE2;color:#221A14;border-color:#221A14;';
+      if (isSel) style = 'background:#1F4D45;color:#F6EFE2;border-color:#221A14;';
+      cells.push({
+        blank: false, real: true, day: d, dot: hasEv,
+        dotColor: isSel ? '#F6EFE2' : '#B5432A',
+        style,
+        pressed: isSel ? 'true' : 'false',
+        label: nice + (hasEv ? ', event' : ''),
+        pick: () => this.setState({ sel: { m: mo, d } })
+      });
+    }
+    const selHasEv = sel !== null && evDays.indexOf(sel) > -1;
+    const selHead = sel === null ? '' : new Date(2026, 8 + mo, sel).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+    // membership flip
+    const flipped = !!s.flip;
+
+    // services picker
+    const picked = s.picked ?? [false, false, false];
+    const sv = [
+      { n: '1.', t: 'Event Concept & Design Planning', c: 'From first spark to floor plan. We shape the idea, the look and the flow of your event.', short: 'Concept & design' },
+      { n: '2.', t: 'Digital Advertising & Direct Marketing', c: 'Put your event or local business in front of Richmond, online and in inboxes.', short: 'Advertising & marketing' },
+      { n: '3.', t: 'Event Consulting & Management', c: 'Already have a plan? We\u2019ll pressure-test it and help run the day.', short: 'Consulting & management' }
+    ];
+    const services = sv.map((x, i) => ({
+      n: x.n, t: x.t, c: x.c,
+      label: picked[i] ? 'Added' : 'Add',
+      pressed: picked[i] ? 'true' : 'false',
+      btn: picked[i] ? 'background:#1F4D45;color:#F6EFE2;border-color:#1F4D45;' : 'background:transparent;color:#221A14;',
+      rowStyle: picked[i] ? 'background:#F1EADB;' : '',
+      pick: () => { const p = picked.slice(); p[i] = !p[i]; this.setState({ picked: p }); }
+    }));
+    const names = sv.filter((x, i) => picked[i]).map((x) => x.short);
+    const count = names.length;
+
+    // postcard
+    const stamp = s.stamp ?? 0;
+    const stOn = 'background:#221A14;color:#F6EFE2;';
+    const stOff = 'background:transparent;color:#221A14;';
+    const stamps = ['Key', 'Star', 'Sun'].map((label, i) => ({
+      label, pressed: i === stamp ? 'true' : 'false', style: i === stamp ? stOn : stOff,
+      pick: () => this.setState({ stamp: i })
+    }));
+    const sent = !!s.sent;
+
+    return {
+      cards, monthName, cells,
+      prevMonth: () => this.setState({ mo: mo - 1 }),
+      nextMonth: () => this.setState({ mo: mo + 1 }),
+      showPrompt: sel === null, showEv: sel !== null && selHasEv, showEmpty: sel !== null && !selHasEv, selHead,
+      flip: () => this.setState({ flip: !flipped }),
+      flipT: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+      services,
+      svCountText: count === 0 ? 'Nothing added yet' : count + ' added to your postcard',
+      interest: count === 0 ? 'General inquiry' : names.join(' + '),
+      stamps, st0: stamp === 0, st1: stamp === 1, st2: stamp === 2,
+      sent, notSent: !sent,
+      send: () => {
+        const fields = [...document.querySelectorAll('#contact input, #contact textarea')];
+        for (const field of fields) {
+          field.required = true;
+          if (!field.reportValidity()) return;
+        }
+        this.setState({ sent: true });
+      },
+      reset: () => this.setState({ sent: false })
+    };
+  }
+}
+</script>
+</body>
+</html>
