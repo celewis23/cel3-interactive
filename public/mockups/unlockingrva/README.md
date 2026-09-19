@@ -8,7 +8,7 @@ Share `/mockups/unlockingrva/` or `/mockups/ulockingrva/` through the website. B
 | B — After Dark | `B · Desktop home-html/AfterDark.dc.html` | `B · Mobile home-html/AfterDarkMobile.dc.html` |
 | C — The Almanac | `C · Desktop home-html/Almanac.dc.html` | `C · Mobile home-html/AlmanacMobile.dc.html` |
 
-Each entire card is a keyboard-accessible link that opens the matching concept in a new tab. The original client home page keeps its position. Each concept has an **All options** link back to the cards; external website, store, and social links also open new tabs. Section links stay within the current concept.
+Each card's preview is a keyboard-accessible link that opens the matching concept in a new tab. A separate **Download brand board (PDF)** link at the bottom downloads the matching A, B, or C PDF from `Client home · pick an option-html`, using a readable filename. The original client home page keeps its position. Each concept has an **All options** link back to the cards; external website, store, and social links also open new tabs. Section links stay within the current concept.
 
 `device-view.js` selects the mobile export for viewports below 1200 CSS pixels, including phones and smaller tablets, and the desktop export for larger viewports. Selection uses available screen space rather than the browser's device name. Card links update when the client home is resized. Opening a direct/bookmarked concept link also selects the appropriate export and preserves query parameters and section fragments.
 

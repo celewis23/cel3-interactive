@@ -23,13 +23,22 @@ a{color:inherit}
 .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px}
 .notes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px}
 @media (max-width:1000px){.cards,.notes{grid-template-columns:minmax(0,1fr)}.hd{font-size:64px !important}.pad{padding-left:24px !important;padding-right:24px !important}}
-.card{transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
-.card:focus-visible{outline:3px solid #16161A;outline-offset:5px}
+.card{display:flex;flex-direction:column;container-type:inline-size;background:#FFFFFF;border:1px solid #D9D6CC;border-radius:28px;overflow:hidden;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+.concept-preview{display:flex;flex-direction:column;flex:1;text-decoration:none;color:inherit}
+.card-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:nowrap}
+.card-meta>.eyebrow{flex-shrink:0;white-space:nowrap}
+.card-tags{display:flex;gap:4px;flex-wrap:nowrap}
+.card a:focus-visible{outline:3px solid #16161A;outline-offset:-5px}
+.brand-board{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:60px;padding:18px 30px;border-top:1px solid #D9D6CC;background:#F5F4EF;font-weight:800;font-size:14px;text-underline-offset:4px}
+.brand-board:hover{background:#E8E6DC}
+.brand-board svg{flex-shrink:0}
 .card:hover{transform:translateY(-8px);box-shadow:0 22px 44px rgba(22,22,26,.14)}
 .go{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 24px;border-radius:999px;font-weight:800;font-size:15px;text-decoration:none;border:2px solid #16161A;transition:transform .15s}
 .go:hover{transform:translateY(-2px)}
 :focus-visible{outline:3px solid #16161A;outline-offset:3px}
-.tag{display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;border:1px solid #BDB9AB;font-weight:700;font-size:13px;color:#4A4840}
+.tag{display:inline-flex;align-items:center;min-height:30px;padding:0 8px;border-radius:999px;border:1px solid #BDB9AB;font-weight:700;font-size:12px;color:#4A4840;white-space:nowrap}
+@container (max-width:350px){.card-copy{padding:24px 20px 26px !important}.card-meta>.eyebrow{font-size:11px;letter-spacing:.12em}.card-tags .tag{font-size:11px;padding:0 5px}}
+@container (max-width:280px){.card-copy{padding-left:14px !important;padding-right:14px !important}.card-meta{gap:4px}.card-meta>.eyebrow{letter-spacing:.06em}.card-tags{gap:3px}.card-tags .tag{padding:0 4px}}
 @media (prefers-reduced-motion:reduce){.card,.go{transition:none}}
 </style>
 </helmet>
@@ -61,7 +70,8 @@ a{color:inherit}
     <div class="cards">
 
       <!-- OPTION A -->
-      <a class="card" data-concept="a" href="/mockups/unlockingrva/A%20%C2%B7%20Desktop%20home-html/Main.dc.html" target="_blank" rel="noopener noreferrer" aria-label="View Sticker Pop (opens in a new tab)" style="background:#FFFFFF;border:1px solid #D9D6CC;border-radius:28px;overflow:hidden;display:flex;flex-direction:column;text-decoration:none;color:inherit;">
+      <article class="card">
+      <a class="concept-preview" data-concept="a" href="/mockups/unlockingrva/A%20%C2%B7%20Desktop%20home-html/Main.dc.html" target="_blank" rel="noopener noreferrer" aria-label="View Sticker Pop (opens in a new tab)">
         <div aria-hidden="true" style="display:block;text-decoration:none;color:inherit;">
           <span style="display:block;position:relative;height:340px;background:#F3EEE3;border-bottom:1px solid #D9D6CC;overflow:hidden;">
             <span style="position:absolute;left:26px;top:24px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:2px solid #15130F;border-radius:999px;padding:5px 10px;background:#FFFFFF;color:#15130F;">Events &amp; promotions</span>
@@ -76,10 +86,10 @@ a{color:inherit}
             <span style="position:absolute;right:18px;top:20px;width:72px;height:72px;border-radius:50%;background:#FFD23F;border:2px solid #15130F;display:flex;align-items:center;justify-content:center;transform:rotate(12deg);"><svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0L15 9L24 12L15 15L12 24L9 15L0 12L9 9Z" fill="#15130F"></path></svg></span>
           </span>
         </div>
-        <div style="padding:30px 30px 32px;display:flex;flex-direction:column;gap:18px;flex-grow:1;">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div class="card-copy" style="padding:30px 30px 32px;display:flex;flex-direction:column;gap:18px;flex-grow:1;">
+          <div class="card-meta">
             <span class="eyebrow" style="color:#5C5A50;">Option A</span>
-            <span style="display:flex;gap:6px;flex-wrap:wrap;"><span class="tag">Light</span><span class="tag">Playful</span><span class="tag">Bold</span></span>
+            <span class="card-tags"><span class="tag">Light</span><span class="tag">Playful</span><span class="tag">Bold</span></span>
           </div>
           <h2 class="serif" style="font-size:52px;line-height:1;">Sticker Pop</h2>
           <p style="font-size:18px;line-height:1.55;color:#3A3830;">Bright, playful and poster-like. Thick outlines, ticket-style event cards and a key you can't miss.</p>
@@ -94,9 +104,15 @@ a{color:inherit}
           </div>
         </div>
       </a>
+      <a class="brand-board" href="/mockups/unlockingrva/Client%20home%20%C2%B7%20pick%20an%20option-html/A%20%C2%B7%20Brand%20board.pdf" download="UnlockingRVA-A-Sticker-Pop-Brand-Board.pdf" target="_blank" rel="noopener noreferrer" aria-label="Download brand board (PDF) — Sticker Pop">
+        <span>Download brand board (PDF)</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 16v5h16v-5"></path></svg>
+      </a>
+      </article>
 
       <!-- OPTION B -->
-      <a class="card" data-concept="b" href="/mockups/unlockingrva/B%20%C2%B7%20Desktop%20home-html/AfterDark.dc.html" target="_blank" rel="noopener noreferrer" aria-label="View After Dark (opens in a new tab)" style="background:#FFFFFF;border:1px solid #D9D6CC;border-radius:28px;overflow:hidden;display:flex;flex-direction:column;text-decoration:none;color:inherit;">
+      <article class="card">
+      <a class="concept-preview" data-concept="b" href="/mockups/unlockingrva/B%20%C2%B7%20Desktop%20home-html/AfterDark.dc.html" target="_blank" rel="noopener noreferrer" aria-label="View After Dark (opens in a new tab)">
         <div aria-hidden="true" style="display:block;text-decoration:none;color:inherit;">
           <span style="display:block;position:relative;height:340px;background:#0A0A0F;border-bottom:1px solid #D9D6CC;overflow:hidden;">
             <svg viewBox="0 0 700 700" width="300" height="300" style="position:absolute;right:-110px;top:-90px;" aria-hidden="true"><circle cx="350" cy="350" r="340" fill="#15151D" stroke="#2A2A36" stroke-width="3"></circle><circle cx="350" cy="350" r="290" fill="none" stroke="#2A2A36" stroke-width="3"></circle><circle cx="350" cy="350" r="240" fill="none" stroke="#2A2A36" stroke-width="3"></circle><circle cx="350" cy="350" r="190" fill="none" stroke="#C8FF2E" stroke-width="3" stroke-dasharray="6 14"></circle><circle cx="350" cy="350" r="110" fill="#C8FF2E"></circle><path d="M312 350a24 24 0 1 1 0 .1M336 350h56M378 350v22M392 350v16" stroke="#0A0A0F" stroke-width="10" stroke-linecap="round" fill="none"></path></svg>
@@ -112,10 +128,10 @@ a{color:inherit}
             </span>
           </span>
         </div>
-        <div style="padding:30px 30px 32px;display:flex;flex-direction:column;gap:18px;flex-grow:1;">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div class="card-copy" style="padding:30px 30px 32px;display:flex;flex-direction:column;gap:18px;flex-grow:1;">
+          <div class="card-meta">
             <span class="eyebrow" style="color:#5C5A50;">Option B</span>
-            <span style="display:flex;gap:6px;flex-wrap:wrap;"><span class="tag">Dark</span><span class="tag">Cinematic</span><span class="tag">Nightlife</span></span>
+            <span class="card-tags"><span class="tag">Dark</span><span class="tag">Cinematic</span><span class="tag">Nightlife</span></span>
           </div>
           <h2 class="serif" style="font-size:52px;line-height:1;">After Dark</h2>
           <p style="font-size:18px;line-height:1.55;color:#3A3830;">Dark, cinematic and made for nightlife. Big condensed type, and a mood picker that re-colors the whole site.</p>
@@ -130,9 +146,15 @@ a{color:inherit}
           </div>
         </div>
       </a>
+      <a class="brand-board" href="/mockups/unlockingrva/Client%20home%20%C2%B7%20pick%20an%20option-html/B%20%C2%B7%20Brand%20board.pdf" download="UnlockingRVA-B-After-Dark-Brand-Board.pdf" target="_blank" rel="noopener noreferrer" aria-label="Download brand board (PDF) — After Dark">
+        <span>Download brand board (PDF)</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 16v5h16v-5"></path></svg>
+      </a>
+      </article>
 
       <!-- OPTION C -->
-      <a class="card" data-concept="c" href="/mockups/unlockingrva/C%20%C2%B7%20Desktop%20home-html/Almanac.dc.html" target="_blank" rel="noopener noreferrer" aria-label="View The Almanac (opens in a new tab)" style="background:#FFFFFF;border:1px solid #D9D6CC;border-radius:28px;overflow:hidden;display:flex;flex-direction:column;text-decoration:none;color:inherit;">
+      <article class="card">
+      <a class="concept-preview" data-concept="c" href="/mockups/unlockingrva/C%20%C2%B7%20Desktop%20home-html/Almanac.dc.html" target="_blank" rel="noopener noreferrer" aria-label="View The Almanac (opens in a new tab)">
         <div aria-hidden="true" style="display:block;text-decoration:none;color:inherit;">
           <span style="display:block;position:relative;height:340px;background:#F6EFE2;border-bottom:1px solid #D9D6CC;overflow:hidden;">
             <span style="position:absolute;left:0;right:0;top:20px;text-align:center;font-family:'Fraunces',serif;font-weight:800;font-size:30px;letter-spacing:-.025em;color:#221A14;">Unlocking<span style="font-style:italic;font-weight:500;color:#B5432A;">RVA</span></span>
@@ -142,10 +164,10 @@ a{color:inherit}
             <span style="position:absolute;right:24px;top:142px;width:112px;padding:7px 7px 9px;background:#FFFDF8;border:2px solid #221A14;box-shadow:4px 4px 0 #221A14;transform:rotate(6deg);display:block;"><span style="display:block;height:96px;background:#B5432A;border:2px solid #221A14;"></span><span style="display:block;font-family:'Caveat',cursive;font-weight:700;font-size:18px;color:#221A14;margin-top:2px;">[Event name]</span></span>
           </span>
         </div>
-        <div style="padding:30px 30px 32px;display:flex;flex-direction:column;gap:18px;flex-grow:1;">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div class="card-copy" style="padding:30px 30px 32px;display:flex;flex-direction:column;gap:18px;flex-grow:1;">
+          <div class="card-meta">
             <span class="eyebrow" style="color:#5C5A50;">Option C</span>
-            <span style="display:flex;gap:6px;flex-wrap:wrap;"><span class="tag">Warm</span><span class="tag">Local</span><span class="tag">Human</span></span>
+            <span class="card-tags"><span class="tag">Warm</span><span class="tag">Local</span><span class="tag">Human</span></span>
           </div>
           <h2 class="serif" style="font-size:52px;line-height:1;">The Almanac</h2>
           <p style="font-size:18px;line-height:1.55;color:#3A3830;">Warm, local and human. Paper tones, handwritten notes and a calendar that feels like a city guide.</p>
@@ -160,6 +182,11 @@ a{color:inherit}
           </div>
         </div>
       </a>
+      <a class="brand-board" href="/mockups/unlockingrva/Client%20home%20%C2%B7%20pick%20an%20option-html/C%20%C2%B7%20Brand%20board.pdf" download="UnlockingRVA-C-The-Almanac-Brand-Board.pdf" target="_blank" rel="noopener noreferrer" aria-label="Download brand board (PDF) — The Almanac">
+        <span>Download brand board (PDF)</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 16v5h16v-5"></path></svg>
+      </a>
+      </article>
 
     </div>
   </section>
