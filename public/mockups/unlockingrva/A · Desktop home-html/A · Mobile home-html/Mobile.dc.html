@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en" data-mockup-layout="mobile" data-mockup-concept="a">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/mockups/unlockingrva/device-view.js" data-concept="a" data-layout="mobile"></script>
+<link rel="stylesheet" href="/mockups/unlockingrva/review.css">
+<title>UnlockingRVA — Sticker Pop Mobile</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<nav aria-label="Design review" class="mockup-review">
+  <a href="/mockups/unlockingrva/#options">&larr; All options</a>
+  <span class="mockup-review__label">Option A · Sticker Pop · Mobile</span>
+  <span class="mockup-review__views" role="group" aria-label="Preview layout">
+    <a href="/mockups/unlockingrva/A%20%C2%B7%20Desktop%20home-html/Main.dc.html" data-view="auto">Auto</a>
+    <a href="/mockups/unlockingrva/A%20%C2%B7%20Desktop%20home-html/A%20%C2%B7%20Mobile%20home-html/Mobile.dc.html?view=mobile" data-view="mobile">Mobile</a>
+    <a href="/mockups/unlockingrva/A%20%C2%B7%20Desktop%20home-html/Main.dc.html?view=desktop" data-view="desktop">Desktop</a>
+  </span>
+</nav>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=DM+Sans:wght@400;500;700&amp;family=DM+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#F3EEE3;}
+*{box-sizing:border-box}
+h1,h2,h3,p{margin:0}
+a{color:inherit}
+.disp{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-0.035em;line-height:.95}
+.mono{font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;font-size:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 24px;border:2px solid #15130F;border-radius:999px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:17px;text-decoration:none;box-shadow:4px 4px 0 #15130F;cursor:pointer}
+.btn:active{transform:translate(2px,2px);box-shadow:0 0 0 #15130F}
+.chip{min-height:44px;padding:0 18px;border:2px solid #15130F;border-radius:999px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:16px;cursor:pointer}
+.ph{background-image:repeating-linear-gradient(135deg,rgba(21,19,15,.12) 0 2px,transparent 2px 14px)}
+.spin{animation:spin 18s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.marq{display:flex;width:max-content;animation:marq 28s linear infinite}
+@keyframes marq{to{transform:translateX(-50%)}}
+:focus-visible{outline:3px solid #15130F;outline-offset:3px}
+.dk a:focus-visible,.dk button:focus-visible{outline-color:#FFD23F}
+@media (prefers-reduced-motion:reduce){.spin,.marq{animation:none}}
+</style>
+</helmet>
+
+<div id="top" style="width:100%;background:#F3EEE3;color:#15130F;font-family:'DM Sans',sans-serif;overflow-x:clip;">
+
+
+  <!-- HEADER -->
+  <header style="position:sticky;top:0;z-index:20;background:#F3EEE3;border-bottom:2px solid #15130F;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;">
+      <a href="#top" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:#15130F;" aria-label="UnlockingRVA home">
+        <svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><circle cx="20" cy="32" r="14" fill="#FF5A3C" stroke="#15130F" stroke-width="3"></circle><circle cx="20" cy="32" r="4" fill="#15130F"></circle><path d="M34 32h24M50 32v10M58 32v7" stroke="#15130F" stroke-width="5" stroke-linecap="round" fill="none"></path></svg>
+        <span class="disp" style="font-size:22px;display:flex;align-items:center;gap:3px;">Unlocking<span style="background:#15130F;color:#F3EEE3;padding:1px 7px 3px;border-radius:8px;">RVA</span></span>
+      </a>
+      <button type="button" onClick="{{toggleMenu}}" aria-label="Menu" aria-expanded="{{menuExpanded}}" style="width:48px;height:48px;border:2px solid #15130F;border-radius:14px;background:#FFD23F;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+        <sc-if value="{{menuClosed}}" hint-placeholder-val="{{true}}">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15130F" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+        </sc-if>
+        <sc-if value="{{menuOpen}}" hint-placeholder-val="{{false}}">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15130F" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg>
+        </sc-if>
+      </button>
+    </div>
+    <sc-if value="{{menuOpen}}" hint-placeholder-val="{{false}}">
+      <nav aria-label="Main" style="background:#15130F;color:#F3EEE3;padding:12px 20px 28px;display:flex;flex-direction:column;">
+        <a href="#events" onClick="{{toggleMenu}}" class="disp" style="font-size:38px;text-decoration:none;padding:12px 0;border-bottom:1px solid #4A453C;letter-spacing:-.03em;">Events</a>
+        <a href="#friend" onClick="{{toggleMenu}}" class="disp" style="font-size:38px;text-decoration:none;padding:12px 0;border-bottom:1px solid #4A453C;letter-spacing:-.03em;">#Friend<wbr>of<wbr>the<wbr>Brand</a>
+        <a href="#contact" onClick="{{toggleMenu}}" class="disp" style="font-size:38px;text-decoration:none;padding:12px 0;border-bottom:1px solid #4A453C;letter-spacing:-.03em;">Hire Us</a>
+        <a href="https://www.bonfire.com/store/unlockingrva/" target="_blank" rel="noopener noreferrer" class="disp" style="font-size:38px;text-decoration:none;padding:12px 0;letter-spacing:-.03em;">Merch</a>
+      </nav>
+    </sc-if>
+  </header>
+
+  <!-- HERO -->
+  <section style="padding:36px 20px 44px;display:flex;flex-direction:column;gap:24px;">
+    <div class="mono" style="align-self:flex-start;border:2px solid #15130F;border-radius:999px;padding:7px 14px;background:#FFFFFF;">Events &amp; promotions · Richmond, VA</div>
+    <h1 class="disp" style="font-size:60px;line-height:.92;">
+      <span style="display:block;">There's always</span>
+      <span style="display:inline-block;background:#FFD23F;border:2px solid #15130F;border-radius:16px;padding:0 14px 6px;transform:rotate(-2deg);margin:6px 0 6px -4px;box-shadow:4px 4px 0 #15130F;">something to</span>
+      <span style="display:block;">do in RVA.</span>
+    </h1>
+    <p style="font-size:18px;line-height:1.5;color:#3A362E;">We design and produce creative, unforgettable events for all — and connect Richmonders to local businesses and each other.</p>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <a class="btn" href="#events" style="background:#15130F;color:#F3EEE3;">See what's next</a>
+      <a class="btn" href="#contact" style="background:#FFFFFF;color:#15130F;">Book us for your event</a>
+    </div>
+    <div style="position:relative;height:300px;margin-top:20px;">
+      <div style="position:absolute;inset:0;background:#FF5A3C;border:2px solid #15130F;border-radius:32px;box-shadow:6px 6px 0 #15130F;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+        <svg viewBox="0 0 400 200" width="330" height="165" style="transform:rotate(-24deg);" aria-hidden="true">
+          <path d="M160 100H360M318 100V152M350 100V136" stroke="#15130F" stroke-width="26" stroke-linecap="round" fill="none"></path>
+          <circle cx="92" cy="100" r="72" fill="#FFD23F" stroke="#15130F" stroke-width="7"></circle>
+          <circle cx="92" cy="100" r="24" fill="#FF5A3C" stroke="#15130F" stroke-width="7"></circle>
+        </svg>
+      </div>
+      <svg class="spin" viewBox="0 0 200 200" width="104" height="104" style="position:absolute;top:-24px;right:-6px;" aria-hidden="true">
+        <defs><path id="circ-m" d="M100,100 m-72,0 a72,72 0 1,1 144,0 a72,72 0 1,1 -144,0"></path></defs>
+        <circle cx="100" cy="100" r="98" fill="#FFD23F" stroke="#15130F" stroke-width="4"></circle>
+        <text font-family="DM Mono, monospace" font-size="16" letter-spacing="2" fill="#15130F" font-weight="500"><textPath href="#circ-m" textLength="440" lengthAdjust="spacing">EVENTS • PROMOTIONS • RVA • </textPath></text>
+        <circle cx="100" cy="100" r="30" fill="#15130F"></circle>
+        <path d="M100 82l5 13 13 5-13 5-5 13-5-13-13-5 13-5z" fill="#FFD23F"></path>
+      </svg>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <section aria-label="What we do" style="background:#15130F;color:#F3EEE3;border-top:2px solid #15130F;border-bottom:2px solid #15130F;overflow:hidden;padding:16px 0;">
+    <div class="marq">
+      <sc-for list="{{ticker}}" as="t" hint-placeholder-count="12">
+        <div class="disp" style="display:flex;align-items:center;gap:20px;padding-right:20px;font-size:32px;white-space:nowrap;letter-spacing:-.02em;">
+          <span>{{t.label}}</span>
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0L15 9L24 12L15 15L12 24L9 15L0 12L9 9Z" fill="#FF5A3C"></path></svg>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- EVENTS -->
+  <section id="events" style="padding:64px 20px;">
+    <div class="mono">Upcoming events</div>
+    <h2 class="disp" style="font-size:52px;margin-top:12px;">Check out what we're up to next.</h2>
+    <div role="group" aria-label="Filter events" style="display:flex;gap:10px;overflow-x:auto;padding:28px 4px 20px 0;">
+      <sc-for list="{{chips}}" as="c" hint-placeholder-count="4">
+        <button type="button" class="chip" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="flex-shrink:0;{{c.style}}">{{c.label}}</button>
+      </sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:24px;">
+      <sc-for list="{{events}}" as="ev" hint-placeholder-count="3">
+        <article style="background:{{ev.bg}};border:2px solid #15130F;border-radius:24px;box-shadow:5px 5px 0 #15130F;overflow:hidden;">
+          <div class="ph" style="height:140px;border-bottom:2px solid #15130F;display:flex;align-items:flex-end;padding:12px;">
+            <span class="mono" style="background:#15130F;color:#F3EEE3;padding:4px 10px;border-radius:999px;font-size:11px;">Event photo</span>
+          </div>
+          <div style="padding:20px;display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span class="mono">[Month] [Day]</span>
+              <span class="mono" style="background:#FFFFFF;border:2px solid #15130F;border-radius:999px;padding:3px 10px;font-size:11px;">{{ev.tag}}</span>
+            </div>
+            <h3 class="disp" style="font-size:32px;line-height:1;">[Event name]</h3>
+            <div class="mono" style="font-size:11px;">[Venue] · [Time]</div>
+            <div style="border-top:2px dashed #15130F;padding-top:12px;">
+              <a href="https://www.unlockingrva.com/upcomingevents" target="_blank" rel="noopener noreferrer" style="font-weight:700;font-size:17px;display:inline-flex;align-items:center;min-height:44px;text-decoration:none;">Get tickets →</a>
+            </div>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- FRIEND OF THE BRAND -->
+  <section id="friend" class="dk" style="background:#15130F;color:#F3EEE3;padding:64px 20px;">
+    <div class="mono" style="color:#FFD23F;">Annual membership</div>
+    <h2 class="disp" style="font-size:52px;margin-top:12px;">Become a <span style="color:#FFD23F;">#Friend<wbr>of<wbr>the<wbr>Brand</span></h2>
+    <p style="font-size:18px;line-height:1.5;margin-top:20px;color:#E6E0D2;">Exclusive access to UnlockingRVA events, services and giveaways. Tap a perk to see it on your pass.</p>
+    <div style="position:relative;height:250px;margin:36px 0 28px;display:flex;align-items:center;justify-content:center;">
+      <div style="width:100%;height:220px;border:2px solid #F3EEE3;border-radius:22px;background:{{cardBg}};color:#15130F;transform:rotate(-3deg);padding:18px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:6px 6px 0 #F3EEE3;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span class="disp" style="font-size:18px;">UnlockingRVA</span>
+          <span class="mono" style="border:2px solid #15130F;border-radius:999px;padding:3px 10px;font-size:11px;">Member pass</span>
+        </div>
+        <div class="disp" style="font-size:32px;line-height:1;">{{cardTitle}}</div>
+        <div style="display:flex;justify-content:space-between;border-top:2px dashed #15130F;padding-top:10px;">
+          <span class="mono" style="font-size:11px;">#Friend<wbr>of<wbr>the<wbr>Brand</span>
+          <span class="mono" style="font-size:11px;">[PRICE] / year</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <sc-for list="{{benefits}}" as="b" hint-placeholder-count="4">
+        <button type="button" aria-pressed="{{b.pressed}}" onClick="{{b.pick}}" style="display:flex;align-items:center;gap:14px;width:100%;padding:16px 18px;border:2px solid;border-radius:20px;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:left;{{b.style}}">
+          <span class="mono">{{b.n}}</span>
+          <span class="disp" style="font-size:21px;line-height:1.05;letter-spacing:-.02em;">{{b.t}}</span>
+        </button>
+      </sc-for>
+    </div>
+    <div style="margin-top:28px;display:flex;flex-direction:column;">
+      <a class="btn" href="https://www.unlockingrva.com/friendofthebrand" target="_blank" rel="noopener noreferrer" style="background:#FFD23F;color:#15130F;box-shadow:4px 4px 0 #F3EEE3;">Subscribe today</a>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section style="background:#FFD23F;border-top:2px solid #15130F;border-bottom:2px solid #15130F;padding:64px 20px;">
+    <div class="mono">Event &amp; advertisement services</div>
+    <h2 class="disp" style="font-size:52px;margin-top:12px;">Make your dream event a reality.</h2>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-top:32px;">
+      <div style="background:#FFFFFF;border:2px solid #15130F;border-radius:22px;box-shadow:4px 4px 0 #15130F;padding:22px;">
+        <div class="mono">01</div>
+        <h3 class="disp" style="font-size:28px;line-height:1;margin-top:8px;">Event Concept &amp; Design Planning</h3>
+      </div>
+      <div style="background:#FFFFFF;border:2px solid #15130F;border-radius:22px;box-shadow:4px 4px 0 #15130F;padding:22px;">
+        <div class="mono">02</div>
+        <h3 class="disp" style="font-size:28px;line-height:1;margin-top:8px;">Digital Advertising &amp; Direct Marketing</h3>
+      </div>
+      <div style="background:#FFFFFF;border:2px solid #15130F;border-radius:22px;box-shadow:4px 4px 0 #15130F;padding:22px;">
+        <div class="mono">03</div>
+        <h3 class="disp" style="font-size:28px;line-height:1;margin-top:8px;">Event Consulting &amp; Management</h3>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-top:28px;">
+      <a class="btn" href="#contact" style="background:#15130F;color:#F3EEE3;">Book with us</a>
+      <a class="btn" href="https://www.unlockingrva.com/advertisewithus" target="_blank" rel="noopener noreferrer" style="background:#FFFFFF;color:#15130F;">Advertise with us</a>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" style="background:#FF5A3C;border-bottom:2px solid #15130F;padding:64px 20px;">
+    <div class="mono">Contact us</div>
+    <h2 class="disp" style="font-size:58px;margin-top:12px;">Let's unlock your next event.</h2>
+    <p style="font-size:18px;line-height:1.5;margin-top:18px;">Want your special occasion produced by UnlockingRVA, or to promote your event or local business? We'd love to hear from you.</p>
+    <div style="display:flex;flex-direction:column;gap:4px;margin-top:24px;">
+      <a href="mailto:info@unlockingrva.com" class="disp" style="font-size:26px;letter-spacing:-.02em;">info@unlockingrva.com</a>
+      <a href="tel:8046513764" class="disp" style="font-size:26px;letter-spacing:-.02em;">804-651-3764</a>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;">
+      <a class="chip" href="https://www.instagram.com/unlockingrva" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;background:#15130F;color:#F3EEE3;text-decoration:none;">Instagram</a>
+      <a class="chip" href="https://www.facebook.com/unlockingrva" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;background:#15130F;color:#F3EEE3;text-decoration:none;">Facebook</a>
+      <a class="chip" href="https://www.twitter.com/unlockingrva" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;background:#15130F;color:#F3EEE3;text-decoration:none;">Twitter</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="dk" style="background:#15130F;color:#F3EEE3;padding:32px 20px 0;overflow:hidden;">
+    <div class="mono" style="color:#CFC8B8;">© UnlockingRVA · Richmond, VA</div>
+    <div class="disp" aria-hidden="true" style="font-size:78px;letter-spacing:-.05em;color:#2A2620;white-space:nowrap;margin-top:20px;line-height:.85;transform:translateY(8px);">UnlockingRVA</div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":3900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const filter = s.filter ?? 'All';
+    const benefit = s.benefit ?? 0;
+    const open = !!s.menu;
+
+    const on = 'background:#15130F;color:#F3EEE3;';
+    const off = 'background:#F3EEE3;color:#15130F;';
+
+    const cats = ['All', 'Nightlife', 'Community', 'Markets'];
+    const chips = cats.map((c) => ({
+      label: c,
+      pressed: c === filter ? 'true' : 'false',
+      style: c === filter ? on : off,
+      pick: () => this.setState({ filter: c })
+    }));
+
+    const allEvents = [
+      { tag: 'Nightlife', bg: '#FFD23F' },
+      { tag: 'Community', bg: '#FF5A3C' },
+      { tag: 'Markets', bg: '#FFFFFF' },
+      { tag: 'Nightlife', bg: '#FF5A3C' },
+      { tag: 'Community', bg: '#FFFFFF' },
+      { tag: 'Markets', bg: '#FFD23F' }
+    ];
+    const events = allEvents.filter((e) => filter === 'All' || e.tag === filter).slice(0, 3);
+
+    const bl = [
+      { n: '01', t: 'Access to the monthly events calendar', short: 'Monthly events calendar', bg: '#FFD23F' },
+      { n: '02', t: 'Special events just for you', short: 'Special events just for you', bg: '#FF5A3C' },
+      { n: '03', t: 'Discounts on UnlockingRVA events + early ticket access', short: 'Event discounts + early ticket access', bg: '#F3EEE3' },
+      { n: '04', t: 'Discount on UnlockingRVA advertising rates', short: 'Advertising rate discount', bg: '#FFD23F' }
+    ];
+    const bOn = 'background:#FFD23F;color:#15130F;border-color:#FFD23F;';
+    const bOff = 'background:transparent;color:#F3EEE3;border-color:#F3EEE3;';
+    const benefits = bl.map((b, i) => ({
+      n: b.n,
+      t: b.t,
+      pressed: i === benefit ? 'true' : 'false',
+      style: i === benefit ? bOn : bOff,
+      pick: () => this.setState({ benefit: i })
+    }));
+
+    const words = ['Event Design', 'Promotions', 'Digital Advertising', 'Consulting & Management', '#FriendoftheBrand', 'Merch'];
+    const ticker = words.concat(words).map((label) => ({ label }));
+
+    return {
+      chips, events, benefits, ticker,
+      cardBg: bl[benefit].bg,
+      cardTitle: bl[benefit].short,
+      menuOpen: open,
+      menuClosed: !open,
+      menuExpanded: open ? 'true' : 'false',
+      toggleMenu: () => this.setState({ menu: !open })
+    };
+  }
+}
+</script>
+</body>
+</html>

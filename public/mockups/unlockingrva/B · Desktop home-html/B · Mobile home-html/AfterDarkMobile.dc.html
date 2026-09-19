@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en" data-mockup-layout="mobile" data-mockup-concept="b">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/mockups/unlockingrva/device-view.js" data-concept="b" data-layout="mobile"></script>
+<link rel="stylesheet" href="/mockups/unlockingrva/review.css">
+<title>UnlockingRVA — After Dark Mobile</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<nav aria-label="Design review" class="mockup-review">
+  <a href="/mockups/unlockingrva/#options">&larr; All options</a>
+  <span class="mockup-review__label">Option B · After Dark · Mobile</span>
+  <span class="mockup-review__views" role="group" aria-label="Preview layout">
+    <a href="/mockups/unlockingrva/B%20%C2%B7%20Desktop%20home-html/AfterDark.dc.html" data-view="auto">Auto</a>
+    <a href="/mockups/unlockingrva/B%20%C2%B7%20Desktop%20home-html/B%20%C2%B7%20Mobile%20home-html/AfterDarkMobile.dc.html?view=mobile" data-view="mobile">Mobile</a>
+    <a href="/mockups/unlockingrva/B%20%C2%B7%20Desktop%20home-html/AfterDark.dc.html?view=desktop" data-view="desktop">Desktop</a>
+  </span>
+</nav>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&amp;family=Instrument+Serif:ital@0;1&amp;family=Manrope:wght@400;500;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#0A0A0F;}
+*{box-sizing:border-box}
+h1,h2,h3,p{margin:0}
+a{color:inherit}
+.cond{font-family:'Big Shoulders Display',sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:-.005em;line-height:.85}
+.serif{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;letter-spacing:-.01em}
+.eyebrow{font-weight:800;font-size:12px;letter-spacing:.16em;text-transform:uppercase}
+.pill{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 24px;border-radius:999px;border:2px solid transparent;font-family:'Manrope',sans-serif;font-weight:800;font-size:16px;text-decoration:none;cursor:pointer}
+.chip{min-height:44px;padding:0 18px;border:2px solid;border-radius:999px;font-family:'Manrope',sans-serif;font-weight:800;font-size:15px;cursor:pointer;flex-shrink:0}
+.ph{background-image:repeating-linear-gradient(135deg,rgba(245,243,238,.07) 0 2px,transparent 2px 14px)}
+.vinyl{animation:spin 40s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.marq{display:flex;width:max-content;animation:marq 26s linear infinite}
+@keyframes marq{to{transform:translateX(-50%)}}
+:focus-visible{outline:3px solid #F5F3EE;outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.vinyl,.marq{animation:none}}
+</style>
+</helmet>
+
+<div id="top" style="width:100%;background:#0A0A0F;color:#F5F3EE;font-family:'Manrope',sans-serif;overflow-x:clip;">
+
+
+  <header style="position:sticky;top:0;z-index:30;background:#0A0A0F;border-bottom:1px solid #2A2A36;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;">
+      <a href="#top" style="display:flex;align-items:center;gap:8px;text-decoration:none;" aria-label="UnlockingRVA home">
+        <svg width="32" height="32" viewBox="0 0 64 64" aria-hidden="true"><circle cx="20" cy="32" r="14" fill="none" stroke="{{accent}}" stroke-width="5"></circle><path d="M34 32h24M50 32v10M58 32v7" stroke="{{accent}}" stroke-width="5" stroke-linecap="round" fill="none"></path></svg>
+        <span class="cond" style="font-size:28px;letter-spacing:.01em;">Unlocking<span style="color:{{accent}};">RVA</span></span>
+      </a>
+      <button type="button" onClick="{{toggleMenu}}" aria-label="Menu" aria-expanded="{{menuExpanded}}" style="width:48px;height:48px;border:2px solid #6B6B7B;border-radius:50%;background:transparent;color:#F5F3EE;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+        <sc-if value="{{menuClosed}}" hint-placeholder-val="{{true}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"></path></svg></sc-if>
+        <sc-if value="{{menuOpen}}" hint-placeholder-val="{{false}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg></sc-if>
+      </button>
+    </div>
+    <sc-if value="{{menuOpen}}" hint-placeholder-val="{{false}}">
+      <nav aria-label="Main" style="background:{{accent}};color:#0A0A0F;padding:8px 20px 28px;display:flex;flex-direction:column;">
+        <a href="#events" onClick="{{toggleMenu}}" class="cond" style="font-size:56px;text-decoration:none;padding:12px 0;border-bottom:2px solid #0A0A0F;">Events</a>
+        <a href="#friend" onClick="{{toggleMenu}}" class="cond" style="font-size:56px;text-decoration:none;padding:12px 0;border-bottom:2px solid #0A0A0F;">#Friend<wbr>of<wbr>the<wbr>Brand</a>
+        <a href="#contact" onClick="{{toggleMenu}}" class="cond" style="font-size:56px;text-decoration:none;padding:12px 0;border-bottom:2px solid #0A0A0F;">Hire Us</a>
+        <a href="https://www.bonfire.com/store/unlockingrva/" target="_blank" rel="noopener noreferrer" class="cond" style="font-size:56px;text-decoration:none;padding:12px 0;">Merch</a>
+      </nav>
+    </sc-if>
+  </header>
+
+  <!-- HERO -->
+  <section style="position:relative;overflow:hidden;padding:36px 20px 56px;">
+    <svg class="vinyl" viewBox="0 0 700 700" width="360" height="360" style="position:absolute;right:-150px;top:-90px;z-index:0;" aria-hidden="true">
+      <circle cx="350" cy="350" r="340" fill="#15151D" stroke="#2A2A36" stroke-width="3"></circle>
+      <circle cx="350" cy="350" r="290" fill="none" stroke="#2A2A36" stroke-width="3"></circle>
+      <circle cx="350" cy="350" r="240" fill="none" stroke="#2A2A36" stroke-width="3"></circle>
+      <circle cx="350" cy="350" r="190" fill="none" stroke="{{accent}}" stroke-width="3" stroke-dasharray="6 14"></circle>
+      <circle cx="350" cy="350" r="110" fill="{{accent}}"></circle>
+      <path d="M312 350a24 24 0 1 1 0 .1M336 350h56M378 350v22M392 350v16" stroke="#0A0A0F" stroke-width="10" stroke-linecap="round" fill="none"></path>
+    </svg>
+    <div style="position:relative;z-index:1;">
+      <div class="serif" style="font-size:22px;color:#A9A8B5;">Richmond, VA · events &amp; promotions</div>
+      <h1 class="cond" style="font-size:118px;margin-top:20px;">
+        <span style="display:block;color:transparent;-webkit-text-stroke:2px #F5F3EE;">Always</span>
+        <span style="display:block;">Something</span>
+        <span style="display:flex;align-items:baseline;gap:14px;">On<span class="serif" style="font-size:98px;text-transform:none;color:{{accent}};line-height:.85;">in RVA.</span></span>
+      </h1>
+      <div class="eyebrow" style="color:#A9A8B5;margin-top:36px;">Pick tonight's mood</div>
+      <div role="group" aria-label="Mood" style="display:flex;gap:10px;overflow-x:auto;padding:12px 4px 12px 0;">
+        <sc-for list="{{vibes}}" as="v" hint-placeholder-count="4"><button type="button" class="chip" aria-pressed="{{v.pressed}}" onClick="{{v.pick}}" style="{{v.style}}">{{v.label}}</button></sc-for>
+      </div>
+      <div class="serif" style="font-size:34px;line-height:1.05;color:{{accent}};margin-top:8px;">{{vibeLine}}</div>
+      <p style="font-size:17px;line-height:1.55;margin-top:24px;color:#C9C7D2;">We design and produce creative, unforgettable events for all, and connect Richmonders to local businesses and each other.</p>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:28px;">
+        <a class="pill" href="#events" style="background:{{accent}};color:#0A0A0F;">See what's next</a>
+        <a class="pill" href="#contact" style="border-color:#F5F3EE;color:#F5F3EE;">Book us for your event</a>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="What we do" style="background:{{accent}};color:#0A0A0F;transform:rotate(-2deg);margin:0 -20px;padding:12px 0;overflow:hidden;">
+    <div class="marq">
+      <sc-for list="{{ticker}}" as="t" hint-placeholder-count="12">
+        <div class="cond" style="display:flex;align-items:center;gap:18px;padding-right:18px;font-size:38px;white-space:nowrap;"><span>{{t.label}}</span><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0L15 9L24 12L15 15L12 24L9 15L0 12L9 9Z" fill="#0A0A0F"></path></svg></div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- EVENTS -->
+  <section id="events" style="padding:72px 20px 56px;">
+    <div class="eyebrow" style="color:{{accent}};">Upcoming events</div>
+    <h2 class="cond" style="font-size:104px;margin-top:12px;">What's<br>next.</h2>
+    <p class="serif" style="font-size:28px;color:#C9C7D2;margin-top:14px;line-height:1.1;">Check out what we are up to next!</p>
+    <div role="group" aria-label="Filter events" style="display:flex;gap:10px;overflow-x:auto;padding:24px 4px 20px 0;">
+      <sc-for list="{{chips}}" as="c" hint-placeholder-count="4"><button type="button" class="chip" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button></sc-for>
+    </div>
+    <div style="border-bottom:1px solid #2A2A36;">
+      <sc-for list="{{events}}" as="ev" hint-placeholder-count="3">
+        <div style="border-top:1px solid #2A2A36;">
+          <button type="button" aria-expanded="{{ev.expanded}}" onClick="{{ev.pick}}" style="display:flex;align-items:center;gap:16px;width:100%;padding:20px 0;background:transparent;border:0;color:#F5F3EE;text-align:left;cursor:pointer;font-family:'Manrope',sans-serif;">
+            <span class="cond" style="font-size:52px;color:{{accent}};min-width:64px;">[DD]<span style="font-size:15px;display:block;color:#A9A8B5;margin-top:4px;">[MON]</span></span>
+            <span style="flex-grow:1;min-width:0;">
+              <span class="cond" style="font-size:38px;display:block;color:{{ev.titleColor}};">[Event name]</span>
+              <span class="eyebrow" style="color:#A9A8B5;display:block;margin-top:8px;font-size:11px;">{{ev.tag}} · [Venue]</span>
+            </span>
+            <span style="width:44px;height:44px;flex-shrink:0;border-radius:50%;background:{{accent}};color:#0A0A0F;display:flex;align-items:center;justify-content:center;{{ev.arrow}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+          </button>
+          <sc-if value="{{ev.open}}" hint-placeholder-val="{{false}}">
+            <div style="padding:0 0 28px;display:flex;flex-direction:column;gap:16px;">
+              <div class="ph" style="height:180px;border:1px solid #2A2A36;border-radius:20px;background-color:#15151D;display:flex;align-items:flex-end;padding:12px;"><span class="eyebrow" style="background:#F5F3EE;color:#0A0A0F;padding:5px 10px;border-radius:999px;font-size:10px;">Event photo</span></div>
+              <p class="serif" style="font-size:28px;line-height:1.1;">[A line or two about the night.]</p>
+              <a class="pill" href="https://www.unlockingrva.com/upcomingevents" target="_blank" rel="noopener noreferrer" style="background:{{accent}};color:#0A0A0F;">Get tickets</a>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- FRIEND -->
+  <section id="friend" style="background:#15151D;border-top:1px solid #2A2A36;border-bottom:1px solid #2A2A36;padding:72px 20px;">
+    <div class="eyebrow" style="color:{{accent}};">Annual membership</div>
+    <h2 class="cond" style="font-size:88px;margin-top:12px;">Become a <span style="color:{{accent}};">#Friend<wbr>of</span><wbr>the<wbr>Brand</h2>
+    <p class="serif" style="font-size:28px;line-height:1.1;margin-top:20px;">Exclusive access to UnlockingRVA events, services and giveaways.</p>
+    <div style="margin-top:28px;">
+      <div style="display:flex;justify-content:space-between;font-weight:800;font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;"><span>Tap to unlock</span><span>{{count}} / 4</span></div>
+      <div style="height:10px;border-radius:999px;background:#2A2A36;overflow:hidden;"><div style="height:100%;width:{{pct}}%;background:{{accent}};"></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:24px;">
+      <sc-for list="{{locks}}" as="ln" hint-placeholder-count="4">
+        <button type="button" aria-pressed="{{ln.pressed}}" onClick="{{ln.pick}}" style="display:flex;align-items:center;gap:16px;text-align:left;padding:18px 20px;border-radius:22px;border:2px solid;cursor:pointer;font-family:'Manrope',sans-serif;{{ln.style}}">
+          <sc-if value="{{ln.locked}}" hint-placeholder-val="{{true}}"><svg width="40" height="40" viewBox="0 0 48 48" aria-hidden="true"><rect x="10" y="22" width="28" height="20" rx="5" fill="currentColor"></rect><path d="M16 22v-6a8 8 0 0 1 16 0v6" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path></svg></sc-if>
+          <sc-if value="{{ln.open}}" hint-placeholder-val="{{false}}"><svg width="40" height="40" viewBox="0 0 48 48" aria-hidden="true"><rect x="10" y="22" width="28" height="20" rx="5" fill="currentColor"></rect><path d="M16 22v-6a8 8 0 0 1 15-3.5" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path></svg></sc-if>
+          <span class="cond" style="font-size:30px;line-height:.95;">{{ln.t}}</span>
+        </button>
+      </sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:24px;">
+      <a class="pill" href="https://www.unlockingrva.com/friendofthebrand" target="_blank" rel="noopener noreferrer" style="background:{{accent}};color:#0A0A0F;">Subscribe today</a>
+      <div class="eyebrow" style="color:#A9A8B5;text-align:center;">[PRICE] / year</div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section style="padding:72px 20px;">
+    <div class="eyebrow" style="color:{{accent}};">Event &amp; advertisement services</div>
+    <h2 class="cond" style="font-size:80px;margin-top:12px;">Make your dream event <span class="serif" style="text-transform:none;font-size:72px;color:{{accent}};">a reality.</span></h2>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:32px;">
+      <div style="background:#15151D;border:1px solid #2A2A36;border-radius:24px;padding:24px;"><div class="eyebrow" style="color:{{accent}};">01</div><h3 class="cond" style="font-size:38px;margin-top:10px;line-height:.95;">Event Concept &amp; Design Planning</h3></div>
+      <div style="background:#15151D;border:1px solid #2A2A36;border-radius:24px;padding:24px;"><div class="eyebrow" style="color:{{accent}};">02</div><h3 class="cond" style="font-size:38px;margin-top:10px;line-height:.95;">Digital Advertising &amp; Direct Marketing</h3></div>
+      <div style="background:#15151D;border:1px solid #2A2A36;border-radius:24px;padding:24px;"><div class="eyebrow" style="color:{{accent}};">03</div><h3 class="cond" style="font-size:38px;margin-top:10px;line-height:.95;">Event Consulting &amp; Management</h3></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:24px;">
+      <a class="pill" href="#contact" style="background:{{accent}};color:#0A0A0F;">Book with us</a>
+      <a class="pill" href="https://www.unlockingrva.com/advertisewithus" target="_blank" rel="noopener noreferrer" style="border-color:#F5F3EE;color:#F5F3EE;">Advertise with us</a>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" style="background:{{accent}};color:#0A0A0F;padding:72px 20px;">
+    <div class="eyebrow">Contact us</div>
+    <h2 class="cond" style="font-size:104px;margin-top:12px;">Plan your<br>night.</h2>
+    <div style="background:#0A0A0F;color:#F5F3EE;border-radius:28px;padding:24px;margin-top:32px;">
+      <sc-if value="{{notSent}}" hint-placeholder-val="{{true}}">
+        <div style="display:flex;flex-direction:column;gap:22px;">
+          <div><div class="eyebrow" style="color:#A9A8B5;margin-bottom:10px;">What are we planning?</div>
+            <div role="group" aria-label="Event type" style="display:flex;gap:8px;flex-wrap:wrap;"><sc-for list="{{whats}}" as="w" hint-placeholder-count="5"><button type="button" class="chip" aria-pressed="{{w.pressed}}" onClick="{{w.pick}}" style="{{w.style}}">{{w.label}}</button></sc-for></div></div>
+          <div><div class="eyebrow" style="color:#A9A8B5;margin-bottom:10px;">How many guests?</div>
+            <div role="group" aria-label="Guest count" style="display:flex;gap:8px;flex-wrap:wrap;"><sc-for list="{{sizes}}" as="z" hint-placeholder-count="4"><button type="button" class="chip" aria-pressed="{{z.pressed}}" onClick="{{z.pick}}" style="{{z.style}}">{{z.label}}</button></sc-for></div></div>
+          <p class="serif" style="font-size:32px;line-height:1.1;border-top:1px solid #2A2A36;padding-top:20px;">I'm planning a <span style="color:{{accent}};">{{whatV}}</span> for <span style="color:{{accent}};">{{sizeV}}</span> guests.</p>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <label for="m-email" style="font-weight:800;">Your email</label>
+            <input id="m-email" type="email" placeholder="you@email.com" style="width:100%;min-height:54px;border:2px solid #6B6B7B;border-radius:14px;padding:0 16px;font-family:'Manrope',sans-serif;font-size:17px;background:#0A0A0F;color:#F5F3EE;">
+          </div>
+          <button type="button" class="pill" onClick="{{send}}" style="background:{{accent}};color:#0A0A0F;">Send to UnlockingRVA</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{sent}}" hint-placeholder-val="{{false}}">
+        <div style="display:flex;flex-direction:column;gap:16px;align-items:flex-start;padding:24px 0;">
+          <div class="cond" style="font-size:80px;color:{{accent}};">Door's<br>unlocked.</div>
+          <p style="font-size:17px;line-height:1.5;color:#C9C7D2;">Demo complete — no message was sent. Use the email link to contact UnlockingRVA.</p>
+          <button type="button" class="pill" onClick="{{reset}}" style="border-color:#F5F3EE;background:transparent;color:#F5F3EE;">Plan another</button>
+        </div>
+      </sc-if>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;margin-top:32px;">
+      <a href="mailto:info@unlockingrva.com" class="cond" style="font-size:36px;text-decoration:none;">info@unlockingrva.com</a>
+      <a href="tel:8046513764" class="cond" style="font-size:36px;text-decoration:none;">804-651-3764</a>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;">
+      <a class="pill" href="https://www.instagram.com/unlockingrva" target="_blank" rel="noopener noreferrer" style="background:#0A0A0F;color:#F5F3EE;min-height:46px;">Instagram</a>
+      <a class="pill" href="https://www.facebook.com/unlockingrva" target="_blank" rel="noopener noreferrer" style="background:#0A0A0F;color:#F5F3EE;min-height:46px;">Facebook</a>
+      <a class="pill" href="https://www.twitter.com/unlockingrva" target="_blank" rel="noopener noreferrer" style="background:#0A0A0F;color:#F5F3EE;min-height:46px;">Twitter</a>
+    </div>
+  </section>
+
+  <footer style="background:#0A0A0F;padding:28px 20px 0;overflow:hidden;">
+    <div class="eyebrow" style="color:#A9A8B5;">© UnlockingRVA · Richmond, VA</div>
+    <div class="cond" aria-hidden="true" style="font-size:96px;color:transparent;-webkit-text-stroke:1.5px #2A2A36;white-space:nowrap;margin-top:16px;line-height:.8;transform:translateY(10px);">UnlockingRVA</div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":5200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const vibes = [
+      { label: 'Party', accent: '#C8FF2E', line: 'Turn the volume up.' },
+      { label: 'Chill', accent: '#3DE3D0', line: 'Slow the night down.' },
+      { label: 'Local love', accent: '#FF3D8B', line: 'Support the neighborhood.' },
+      { label: 'Big night', accent: '#FFA13D', line: 'Go all out. We\u2019ll handle the rest.' }
+    ];
+    const vi = s.vibe ?? 0;
+    const accent = vibes[vi].accent;
+    const chipOn = 'background:' + accent + ';color:#0A0A0F;border-color:' + accent + ';';
+    const chipOff = 'background:transparent;color:#F5F3EE;border-color:#6B6B7B;';
+    const open = !!s.menu;
+
+    const vibeChips = vibes.map((v, i) => ({ label: v.label, pressed: i === vi ? 'true' : 'false', style: i === vi ? chipOn : chipOff, pick: () => this.setState({ vibe: i }) }));
+
+    const filter = s.filter ?? 'All';
+    const chips = ['All', 'Nightlife', 'Community', 'Markets'].map((c) => ({ label: c, pressed: c === filter ? 'true' : 'false', style: c === filter ? chipOn : chipOff, pick: () => this.setState({ filter: c, open: null }) }));
+    const openId = s.open === undefined ? 1 : s.open;
+    const events = [
+      { id: 1, tag: 'Nightlife' }, { id: 2, tag: 'Community' }, { id: 3, tag: 'Markets' },
+      { id: 4, tag: 'Nightlife' }, { id: 5, tag: 'Community' }, { id: 6, tag: 'Markets' }
+    ].filter((e) => filter === 'All' || e.tag === filter).slice(0, 4).map((e) => {
+      const isOpen = e.id === openId;
+      return { tag: e.tag, open: isOpen, expanded: isOpen ? 'true' : 'false', titleColor: isOpen ? accent : '#F5F3EE', arrow: isOpen ? 'transform:rotate(90deg);' : '', pick: () => this.setState({ open: isOpen ? null : e.id }) };
+    });
+
+    const perks = ['Access to the monthly events calendar', 'Special events just for you', 'Discounts on events + early ticket access', 'Discount on advertising rates'];
+    const unlocked = s.unlocked ?? [false, false, false, false];
+    const lOn = 'background:' + accent + ';color:#0A0A0F;border-color:' + accent + ';';
+    const lOff = 'background:#0A0A0F;color:#F5F3EE;border-color:#3A3A48;';
+    const locks = perks.map((t, i) => ({ t, open: unlocked[i], locked: !unlocked[i], pressed: unlocked[i] ? 'true' : 'false', style: unlocked[i] ? lOn : lOff, pick: () => { const u = unlocked.slice(); u[i] = !u[i]; this.setState({ unlocked: u }); } }));
+    const count = unlocked.filter(Boolean).length;
+
+    const whatI = s.what ?? 0, sizeI = s.size ?? 1;
+    const whatL = [['Birthday', 'birthday'], ['Corporate', 'corporate event'], ['Fundraiser', 'fundraiser'], ['Pop-up', 'pop-up'], ['Something else', 'one-of-a-kind event']];
+    const sizeL = ['Under 50', '50\u2013150', '150\u2013500', '500+'];
+    const mk = (arr, cur, key) => arr.map((a, i) => ({ label: Array.isArray(a) ? a[0] : a, pressed: i === cur ? 'true' : 'false', style: i === cur ? chipOn : chipOff, pick: () => this.setState({ [key]: i }) }));
+
+    const words = ['Event Design', 'Promotions', 'Digital Advertising', 'Consulting & Management', '#FriendoftheBrand', 'Merch'];
+    const sent = !!s.sent;
+
+    return {
+      accent, vibes: vibeChips, vibeLine: vibes[vi].line, chips, events, locks, count, pct: count * 25,
+      ticker: words.concat(words).map((label) => ({ label })),
+      whats: mk(whatL, whatI, 'what'), sizes: mk(sizeL, sizeI, 'size'),
+      whatV: whatL[whatI][1], sizeV: sizeL[sizeI].toLowerCase(),
+      sent, notSent: !sent, send: () => {
+        for (const field of document.querySelectorAll('#contact input, #contact textarea')) {
+          field.required = true;
+          if (!field.reportValidity()) return;
+        }
+        this.setState({ sent: true });
+      }, reset: () => this.setState({ sent: false }),
+      menuOpen: open, menuClosed: !open, menuExpanded: open ? 'true' : 'false', toggleMenu: () => this.setState({ menu: !open })
+    };
+  }
+}
+</script>
+</body>
+</html>
