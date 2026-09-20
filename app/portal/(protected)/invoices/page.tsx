@@ -1,5 +1,5 @@
 import { getPortalUser } from "@/lib/portal/getPortalUser";
-import { listInvoices } from "@/lib/stripe/billing";
+import { getPortalBillingCustomerIds, listPortalInvoices } from "@/lib/portal/billingAccess";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -20,7 +20,7 @@ const STATUS_LABEL: Record<string, { label: string; cls: string }> = {
 export default async function PortalInvoicesPage() {
   const user = await getPortalUser();
 
-  if (!user.stripeCustomerId) {
+  if (!getPortalBillingCustomerIds(user).length) {
     return (
       <div className="flex flex-col gap-6">
         <div>
@@ -34,13 +34,8 @@ export default async function PortalInvoicesPage() {
     );
   }
 
-  const [paid, open] = await Promise.all([
-    listInvoices({ customerId: user.stripeCustomerId, status: "paid", limit: 50 }).catch(() => ({ invoices: [] })),
-    listInvoices({ customerId: user.stripeCustomerId, status: "open", limit: 50 }).catch(() => ({ invoices: [] })),
-  ]);
-
-  const invoices = [...open.invoices, ...paid.invoices].sort((a, b) => b.created - a.created);
-  const outstandingTotal = open.invoices.reduce((s, i) => s + i.amountDue, 0);
+  const { invoices } = await listPortalInvoices(user);
+  const outstandingTotal = invoices.filter(invoice => invoice.status === "open").reduce((s, i) => s + i.amountRemaining, 0);
 
   return (
     <div className="flex flex-col gap-6">
@@ -82,6 +77,9 @@ export default async function PortalInvoicesPage() {
                       <Link href={`/portal/invoices/${inv.id}`} className="text-sm text-white hover:text-sky-400 transition-colors">
                         {inv.number ?? inv.id.slice(0, 12)}
                       </Link>
+                      {getPortalBillingCustomerIds(user).length > 1 && inv.customerName && (
+                        <p className="text-xs text-white/50">{inv.customerName}</p>
+                      )}
                       {inv.description && (
                         <p className="text-xs text-white/30 truncate max-w-[200px]">{inv.description}</p>
                       )}
@@ -99,7 +97,7 @@ export default async function PortalInvoicesPage() {
                       <span className={`text-xs px-2 py-0.5 rounded-full ${s.cls}`}>{s.label}</span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <p className="text-sm text-white font-medium">{money(inv.amountDue || inv.amountPaid)}</p>
+                      <p className="text-sm text-white font-medium">{money(inv.status === "open" ? inv.amountRemaining : inv.amountPaid)}</p>
                     </td>
                     <td className="px-4 py-3 text-right hidden md:table-cell">
                       <div className="flex items-center justify-end gap-2">

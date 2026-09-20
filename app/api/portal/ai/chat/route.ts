@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { verifyPortalSessionToken, PORTAL_COOKIE } from "@/lib/portal/auth";
 import { sanityServer } from "@/lib/sanityServer";
-import { listInvoices } from "@/lib/stripe/billing";
+import { listPortalInvoices } from "@/lib/portal/billingAccess";
 
 export const runtime = "nodejs";
 
@@ -52,12 +52,13 @@ async function handleActivityPOST(req: NextRequest) {
       name: string | null;
       company: string | null;
       stripeCustomerId: string | null;
+      managedStripeCustomerIds?: string[] | null;
       pipelineContactId: string | null;
       driveRootFolderId: string | null;
       status: string | null;
     } | null>(
       `*[_type == "clientPortalUser" && _id == $id && status != "suspended"][0]{
-        _id, email, name, company, stripeCustomerId, pipelineContactId, driveRootFolderId, status
+        _id, email, name, company, stripeCustomerId, managedStripeCustomerIds, pipelineContactId, driveRootFolderId, status
       }`,
       { id: session.userId }
     );
@@ -66,9 +67,7 @@ async function handleActivityPOST(req: NextRequest) {
     const refs = [user.stripeCustomerId, user.pipelineContactId].filter(Boolean) as string[];
 
     const [invoiceData, projects, tickets, estimates, contracts, onboarding, siteSettings] = await Promise.all([
-      user.stripeCustomerId
-        ? listInvoices({ customerId: user.stripeCustomerId, limit: 25 }).catch(() => ({ invoices: [] }))
-        : Promise.resolve({ invoices: [] }),
+      listPortalInvoices(user).catch(() => ({ invoices: [] })),
       refs.length > 0
         ? sanityServer.fetch<Array<{
             _id: string;
@@ -172,7 +171,8 @@ async function handleActivityPOST(req: NextRequest) {
         id: invoice.id,
         number: invoice.number,
         status: invoice.status,
-        amountDue: invoice.amountDue,
+        customerName: invoice.customerName,
+        amountDue: invoice.amountRemaining,
         amountPaid: invoice.amountPaid,
         currency: invoice.currency,
         dueDate: invoice.dueDate,
@@ -193,6 +193,7 @@ async function handleActivityPOST(req: NextRequest) {
 
     const systemPrompt = `You are the client portal assistant for CEL3 Interactive.
 You must answer ONLY from the account-scoped context provided to you plus the general company info provided to you.
+The supplied invoices may include businesses this user is explicitly authorized to manage; those invoice records are within their permitted scope.
 Never reveal, infer, summarize, or hint at information about any other client, company, invoice, project, ticket, file, contract, estimate, or account.
 If the answer is not present in the provided context, say that it is not available in this portal view.
 Do not claim to have tools or live access beyond the provided context.

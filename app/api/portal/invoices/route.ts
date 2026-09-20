@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sanityServer } from "@/lib/sanityServer";
 import { verifyPortalSessionToken, PORTAL_COOKIE } from "@/lib/portal/auth";
-import { listInvoices } from "@/lib/stripe/billing";
+import { listPortalInvoices, type PortalBillingAccess } from "@/lib/portal/billingAccess";
 
 export const runtime = "nodejs";
 
@@ -11,20 +11,12 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const user = await sanityServer.fetch<{ stripeCustomerId: string | null } | null>(
-      `*[_type == "clientPortalUser" && _id == $id][0]{ stripeCustomerId }`,
+    const user = await sanityServer.fetch<PortalBillingAccess | null>(
+      `*[_type == "clientPortalUser" && _id == $id && status != "suspended"][0]{ stripeCustomerId, managedStripeCustomerIds }`,
       { id: session.userId }
     );
     if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
-    if (!user.stripeCustomerId) return NextResponse.json({ invoices: [] });
-
-    const [paid, open] = await Promise.all([
-      listInvoices({ customerId: user.stripeCustomerId, status: "paid", limit: 50 }),
-      listInvoices({ customerId: user.stripeCustomerId, status: "open", limit: 50 }),
-    ]);
-
-    const invoices = [...open.invoices, ...paid.invoices].sort((a, b) => b.created - a.created);
-    return NextResponse.json({ invoices });
+    return NextResponse.json(await listPortalInvoices(user));
   } catch (err) {
     console.error("PORTAL_INVOICES_ERR:", err);
     return NextResponse.json({ error: "Failed to fetch invoices" }, { status: 500 });

@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:calendar": "node --test scripts/calendar-invites.test.mjs",
-    "test:billing": "node --test scripts/billing-late-fee.test.mjs",
+    "test:billing": "node --test scripts/billing-late-fee.test.mjs scripts/portal-billing.test.mjs",
     "test:activity": "node --test scripts/activity-log.test.mjs",
     "check:activity": "node scripts/instrument-activity.mjs --check",
     "seed:griotos-case-study": "node scripts/seed-griotos-case-study.mjs",

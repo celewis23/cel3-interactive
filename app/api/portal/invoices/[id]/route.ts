@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sanityServer } from "@/lib/sanityServer";
 import { verifyPortalSessionToken, PORTAL_COOKIE } from "@/lib/portal/auth";
 import { getInvoice } from "@/lib/stripe/billing";
+import { canAccessPortalInvoice, type PortalBillingAccess } from "@/lib/portal/billingAccess";
 
 export const runtime = "nodejs";
 
@@ -15,17 +16,16 @@ export async function GET(
 
   try {
     const { id } = await params;
-    const user = await sanityServer.fetch<{ stripeCustomerId: string | null } | null>(
-      `*[_type == "clientPortalUser" && _id == $id][0]{ stripeCustomerId }`,
+    const user = await sanityServer.fetch<PortalBillingAccess | null>(
+      `*[_type == "clientPortalUser" && _id == $id && status != "suspended"][0]{ stripeCustomerId, managedStripeCustomerIds }`,
       { id: session.userId }
     );
-    if (!user?.stripeCustomerId) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     const invoice = await getInvoice(id);
     if (!invoice) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    // Enforce ownership — only return invoice if it belongs to this customer
-    if (invoice.customerId !== user.stripeCustomerId) {
+    if (!canAccessPortalInvoice(user, invoice)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

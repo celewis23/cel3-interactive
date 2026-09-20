@@ -3,6 +3,7 @@ import { stripe } from "@/lib/stripe";
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { getInvoice, type BillingInvoice } from "@/lib/stripe/billing";
 import { syncStripeInvoiceToSanity } from "@/lib/stripe/sync";
+import { refreshCollectibleInvoice } from "@/lib/billing/collections";
 
 type LateFeeRequest = {
   invoiceId: string;
@@ -34,10 +35,11 @@ function requireSafeRetry(startedAt: string) {
 
 /** Resume one durable late-fee operation per original invoice, including after
  * Stripe succeeds but a database write, sync, or either email fails. */
-export async function ensureLateFeeInvoice(request: LateFeeRequest): Promise<BillingInvoice> {
+export async function ensureLateFeeInvoice(request: LateFeeRequest): Promise<BillingInvoice | null> {
   if (!Number.isSafeInteger(request.amountCents) || request.amountCents < 0) {
     throw new Error("Late fee must be a non-negative number of cents.");
   }
+  if (!await refreshCollectibleInvoice(request.invoiceId, request.customerId)) return null;
 
   // Atomic create: overlapping runs use the same amount and request parameters,
   // even if the owner changes the fee setting while an operation is in progress.
@@ -72,6 +74,9 @@ export async function ensureLateFeeInvoice(request: LateFeeRequest): Promise<Bil
     }
 
     if (!fee) {
+      // Listing/recovering an earlier attempt can take time. Recheck immediately
+      // before creating a new obligation, including on a retry after payment.
+      if (!await refreshCollectibleInvoice(request.invoiceId, request.customerId)) return null;
       requireSafeRetry(operation.invoiceStartedAt);
       fee = await stripe.invoices.create({
         customer: operation.customerId,
@@ -148,6 +153,7 @@ export async function ensureLateFeeInvoice(request: LateFeeRequest): Promise<Bil
   await syncStripeInvoiceToSanity(invoice);
 
   if (fee.status === "open" && !operation.sentAt) {
+    if (!await refreshCollectibleInvoice(request.invoiceId, request.customerId)) return null;
     await stripe.invoices.sendInvoice(fee.id, {}, { idempotencyKey: `${key}:send` });
     await sanityWriteClient.patch(operation._id).set({ sentAt: new Date().toISOString() }).commit();
   }

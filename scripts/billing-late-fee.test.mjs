@@ -49,6 +49,12 @@ function fixture() {
   const idempotency = new Map();
   const faults = new Set();
   const calls = { created: 0, items: 0, finalized: 0, sent: 0, synced: 0, notices: 0 };
+  const original = { id: request.invoiceId, customerId: request.customerId, status: "open", amountRemaining: 7500,
+    dueDate: Date.parse("2026-09-15T00:00:00Z") / 1000, hostedInvoiceUrl: "https://example.com/invoice" };
+  let beforeOriginalRead = () => {};
+  const originalSyncs = [];
+  const autoSuspended = [];
+  docs.set("client", { _id: "client", name: "Client", websiteStatus: "active" });
   function fail(point) {
     if (faults.delete(point)) throw new Error(`Simulated failure: ${point}`);
   }
@@ -150,7 +156,19 @@ function fixture() {
       return patch;
     },
   };
+  const collections = loadModule("lib/billing/collections.ts", {
+    "@/lib/stripe/billing": { getInvoice: async () => {
+      fail("original.read");
+      beforeOriginalRead();
+      return structuredClone(original);
+    } },
+    "@/lib/stripe/sync": { syncStripeInvoiceToSanity: async invoice => {
+      fail("original.sync");
+      originalSyncs.push(invoice);
+    } },
+  }, Clock);
   const helper = loadModule("lib/billing/lateFee.ts", {
+    "@/lib/billing/collections": collections,
     "@/lib/stripe": { stripe },
     "@/lib/sanity.write": { sanityWriteClient: sanity },
     "@/lib/stripe/billing": { getInvoice: async (id) => {
@@ -164,6 +182,7 @@ function fixture() {
     } },
   }, Clock);
   const route = loadModule("app/api/cron/billing-enforcement/route.ts", {
+    "@/lib/billing/collections": collections,
     "@/lib/billing/lateFee": helper,
     "@/lib/sanity.write": { sanityWriteClient: sanity },
     "@/lib/sanityServer": { sanityServer: { fetch: async (query) => {
@@ -171,23 +190,26 @@ function fixture() {
         clientEmail: "client@example.com", stripeCustomerId: request.customerId, number: request.invoiceNumber,
         dueDate: "2026-09-15", amountDueCents: 7500, hostedInvoiceUrl: "https://example.com/invoice" }];
       if (query.includes('_type == "invoiceDunningState"')) return [structuredClone(docs.get("dunning.in_original"))];
-      if (query.includes("websiteStatusReason")) return [];
+      if (query.includes("websiteStatusReason")) return autoSuspended;
       if (query.includes('_type == "pipelineContact"')) return [{ _id: "client", name: "Client" }];
       throw new Error(`Unexpected query: ${query}`);
     } } },
     "@/lib/billing/enforcementSettings": { getEnforcementSettings: async () => ({ autoSuspendEnabled: true,
       firstNoticeDays: 1, secondNoticeDays: 5, finalNoticeDays: 10, suspendDays: 11, lateFeeCents: 2500 }) },
-    "@/lib/billing/dunningEmails": { sendSecondNoticeEmail: async (_invoice, amount) => {
+    "@/lib/billing/dunningEmails": { sendFirstNoticeEmail: async invoice => { calls.notices++; calls.noticeAmount = invoice.amountDueCents; },
+      sendInterruptionNoticeEmail: async () => { calls.notices++; },
+      sendSecondNoticeEmail: async (_invoice, amount) => {
       assert.equal(amount, fees.values().next().value.total);
       calls.notices++;
       fail("notice");
     } },
-    "@/lib/automations/engine": { automationEngine: {} },
-    "@/lib/notifications/push": {},
+    "@/lib/automations/engine": { automationEngine: { fire() {} } },
+    "@/lib/notifications/push": { sendPushNotificationToAudience: async () => {} },
     "@/lib/audit/log": { logAudit() {}, AuditAction: {} },
-    "@/lib/billing/websiteStatusSync": {},
+    "@/lib/billing/websiteStatusSync": { syncVercelWebsiteStatus: async () => ({ ok: true }) },
   }, Clock);
-  return { helper, route, docs, fees, items, calls, faults, seedFee,
+  return { helper, route, docs, fees, items, calls, faults, seedFee, original, originalSyncs, autoSuspended,
+    beforeOriginalRead: fn => { beforeOriginalRead = fn; },
     advance: (ms) => { now += ms; },
     run: (overrides = {}) => helper.ensureLateFeeInvoice({ ...request, ...overrides }),
     cron: async () => (await route.GET({ headers: new Headers({ "x-vercel-cron": "1" }) })).json(),
@@ -344,4 +366,111 @@ test("an already-paid fee is reused without emailing a new demand for that fee",
   assert.equal((await f.run()).id, fee.id);
   assert.equal(f.calls.created, 0);
   assert.equal(f.calls.sent, 0);
+});
+
+for (const stage of [0, 1, 2, 3]) {
+  test(`a stale unpaid record cannot trigger stage ${stage + 1} after Stripe payment`, async () => {
+    const f = fixture();
+    f.docs.get("dunning.in_original").dunningStage = stage;
+    f.advance(15 * DAY);
+    Object.assign(f.original, { status: "paid", amountRemaining: 0 });
+    const result = await f.cron();
+    assert.equal(result.errors, 0);
+    assert.equal(result.suspended, 0);
+    assert.equal(f.calls.created, 0);
+    assert.equal(f.calls.sent, 0);
+    assert.equal(f.calls.notices, 0);
+    assert.equal(f.originalSyncs[0].status, "paid");
+    assert.equal(f.docs.get("dunning.in_original").dunningStage, stage);
+  });
+}
+
+for (const state of [{ status: "void" }, { status: "uncollectible" }, { status: "draft" },
+  { amountRemaining: 0 }, { dueDate: null }, { dueDate: Date.parse("2026-10-01") / 1000 }]) {
+  test(`no fee for a non-collectible invoice: ${JSON.stringify(state)}`, async () => {
+    const f = fixture();
+    Object.assign(f.original, state);
+    assert.equal(await f.run(), null);
+    assert.equal(f.calls.created, 0);
+    assert.equal(f.docs.has("lateFee.in_original"), false);
+  });
+}
+
+for (const point of ["original.read", "original.sync"]) {
+  test(`${point} failure skips collections and does not restore a suspended site`, async () => {
+    const f = fixture();
+    f.autoSuspended.push({ _id: "client", name: "Client" });
+    f.faults.add(point);
+    const result = await f.cron();
+    assert.equal(result.errors, 1);
+    assert.equal(result.restored, 0);
+    assert.equal(f.calls.created, 0);
+    assert.equal(f.calls.notices, 0);
+  });
+}
+
+test("verified payment permits restoration even when the saved invoice is overdue", async () => {
+  const f = fixture();
+  f.autoSuspended.push({ _id: "client", name: "Client" });
+  Object.assign(f.original, { status: "paid", amountRemaining: 0 });
+  assert.equal((await f.cron()).restored, 1);
+});
+
+test("a customer mismatch fails closed", async () => {
+  const f = fixture();
+  f.original.customerId = "cus_other";
+  await assert.rejects(f.run(), /does not match/);
+  assert.equal(f.calls.created, 0);
+});
+
+test("payment during fee recovery prevents creation", async () => {
+  const f = fixture();
+  let reads = 0;
+  f.beforeOriginalRead(() => { if (++reads === 2) Object.assign(f.original, { status: "paid", amountRemaining: 0 }); });
+  assert.equal(await f.run(), null);
+  assert.equal(f.calls.created, 0);
+});
+
+test("a retry after payment does not create or send another fee", async () => {
+  const f = fixture();
+  f.faults.add("invoice.send.before");
+  await assert.rejects(f.run());
+  Object.assign(f.original, { status: "paid", amountRemaining: 0 });
+  assert.equal(await f.run(), null);
+  assert.equal(f.calls.created, 1);
+  assert.equal(f.calls.sent, 0);
+});
+
+test("reminders use the current remaining balance after a partial payment", async () => {
+  const f = fixture();
+  f.docs.get("dunning.in_original").dunningStage = 0;
+  f.original.amountRemaining = 2500;
+  assert.equal((await f.cron()).firstNotice, 1);
+  assert.equal(f.calls.noticeAmount, 2500);
+});
+
+test("Stripe sync preserves the actual payment date and remaining balance independently of the original amount due", async () => {
+  const paidAt = Date.parse("2026-09-17T13:02:00Z") / 1000;
+  const billing = loadModule("lib/stripe/billing.ts", {
+    "stripe": require("stripe"),
+    "@/lib/stripe": { stripe: { invoices: { retrieve: async () => ({
+      id: "in_paid", customer: { id: "cus_client", name: "Client", email: "client@example.com" },
+      status: "paid", amount_due: 15000, amount_paid: 15000, amount_remaining: 0,
+      created: Date.parse("2026-09-01T00:00:00Z") / 1000, status_transitions: { paid_at: paidAt },
+      lines: { data: [] }, total: 15000, subtotal: 15000, currency: "usd",
+    }) } } },
+  }, Date);
+  let saved;
+  const sync = loadModule("lib/stripe/sync.ts", {
+    "@/lib/stripe/billing": billing,
+    "@/lib/sanityServer": { sanityServer: { fetch: async query => query.includes('"pipelineContact"') ? { _id: "client", name: "Client" } : { _id: "in_paid", status: "open" } } },
+    "@/lib/sanity.write": { sanityWriteClient: { createOrReplace: async doc => { saved = doc; } } },
+  }, Date);
+  const invoice = await billing.getInvoice("in_paid");
+  await sync.syncStripeInvoiceToSanity(invoice);
+  assert.equal(saved.status, "paid");
+  assert.equal(saved.amountDueCents, 15000);
+  assert.equal(saved.amountRemainingCents, 0);
+  assert.equal(saved.paidAt, "2026-09-17T13:02:00.000Z");
+  assert.equal(saved.issuedAt, "2026-09-01T00:00:00.000Z");
 });

@@ -209,6 +209,7 @@ export async function syncStripeInvoiceToSanity(invoice: BillingInvoice) {
     status: invoice.status ?? "draft",
     amountCents: invoice.total,
     amountDueCents: invoice.amountDue,
+    amountRemainingCents: invoice.amountRemaining,
     amountPaidCents: invoice.amountPaid,
     subtotalCents: invoice.subtotal,
     taxCents: invoice.tax ?? 0,
@@ -219,7 +220,8 @@ export async function syncStripeInvoiceToSanity(invoice: BillingInvoice) {
     hostedInvoiceUrl: invoice.hostedInvoiceUrl,
     invoicePdf: invoice.invoicePdf,
     issuedAt: isoDateTimeFromUnix(invoice.created),
-    paidAt: invoice.status === "paid" ? isoDateTimeFromUnix(invoice.created) : null,
+    paidAt: isoDateTimeFromUnix(invoice.paidAt),
+    stripeSyncedAt: new Date().toISOString(),
     lineItems: invoice.lines.map((line, index) => ({
       _key: line.id || `${invoice.id}-${index}`,
       stripeLineItemId: line.id,

@@ -70,7 +70,9 @@ export type BillingInvoice = {
   customerEmail: string | null;
   status: Stripe.Invoice.Status | null;
   amountDue: number;
+  amountRemaining: number;
   amountPaid: number;
+  paidAt: number | null;
   currency: string;
   created: number;
   dueDate: number | null;
@@ -183,7 +185,9 @@ function mapInvoice(inv: Stripe.Invoice): BillingInvoice {
     customerEmail: customer?.email ?? null,
     status: inv.status ?? null,
     amountDue: inv.amount_due,
+    amountRemaining: inv.amount_remaining,
     amountPaid: inv.amount_paid,
+    paidAt: inv.status_transitions.paid_at ?? null,
     currency: inv.currency,
     created: inv.created,
     dueDate: inv.due_date ?? null,

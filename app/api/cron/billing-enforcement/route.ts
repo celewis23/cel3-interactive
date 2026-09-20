@@ -29,6 +29,7 @@ import { sendPushNotificationToAudience } from "@/lib/notifications/push";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 import { syncVercelWebsiteStatus } from "@/lib/billing/websiteStatusSync";
 import { ensureLateFeeInvoice } from "@/lib/billing/lateFee";
+import { refreshCollectibleInvoice } from "@/lib/billing/collections";
 import {
   sendFirstNoticeEmail,
   sendSecondNoticeEmail,
@@ -106,10 +107,11 @@ async function handleActivityGET(req: NextRequest) {
       { today }
     );
 
-    // Any client with at least one overdue invoice (original or late-fee) still owes money.
-    const clientIdsStillOwing = new Set(overdueInvoices.map((inv) => inv.clientId).filter((id): id is string => !!id));
+    // Keep unverified debts here on errors so a Stripe outage cannot restore a
+    // suspended site. Remove a candidate only after Stripe confirms it is clear.
+    const invoicesStillOwing = new Map(overdueInvoices.map((inv) => [inv._id, inv.clientId]));
 
-    if (settings.autoSuspendEnabled && overdueInvoices.length > 0) {
+    if (overdueInvoices.length > 0) {
       const invoiceIds = overdueInvoices.map((inv) => inv._id);
       const dunningStates = await sanityServer.fetch<DunningStateRow[]>(
         `*[_type == "invoiceDunningState" && invoiceId in $ids]{ invoiceId, dunningStage, lateFeeInvoiceId, isLateFee }`,
@@ -117,7 +119,7 @@ async function handleActivityGET(req: NextRequest) {
       );
       const stateByInvoiceId = new Map(dunningStates.map((s) => [s.invoiceId, s]));
 
-      const clientIds = [...clientIdsStillOwing];
+      const clientIds = [...new Set(invoicesStillOwing.values())].filter((id): id is string => !!id);
       const clients = await sanityServer.fetch<ClientRow[]>(
         `*[_type == "pipelineContact" && _id in $ids]{ _id, name, websiteStatus, websiteAutoSuspendExempt, vercelProjectId, vercelDomain }`,
         { ids: clientIds }
@@ -125,22 +127,32 @@ async function handleActivityGET(req: NextRequest) {
       const clientById = new Map(clients.map((c) => [c._id, c]));
 
       for (const inv of overdueInvoices) {
-        const state = stateByInvoiceId.get(inv._id);
-        if (state?.isLateFee) continue; // late-fee invoices don't run their own ladder
-
-        const daysPastDue = Math.floor((Date.now() - new Date(`${inv.dueDate}T00:00:00Z`).getTime()) / 86400000);
-        const currentStage = state?.dunningStage ?? 0;
-
-        let targetStage = 0;
-        if (daysPastDue >= settings.suspendDays) targetStage = 4;
-        else if (daysPastDue >= settings.finalNoticeDays) targetStage = 3;
-        else if (daysPastDue >= settings.secondNoticeDays) targetStage = 2;
-        else if (daysPastDue >= settings.firstNoticeDays) targetStage = 1;
-
-        if (targetStage <= currentStage) continue;
-        const nextStage = currentStage + 1; // advance one stage per run
-
+        let nextStage = 0;
         try {
+          const live = await refreshCollectibleInvoice(inv._id, inv.stripeCustomerId);
+          if (!live) {
+            invoicesStillOwing.delete(inv._id);
+            continue;
+          }
+          if (!settings.autoSuspendEnabled) continue;
+          inv.dueDate = new Date(live.dueDate! * 1000).toISOString().slice(0, 10);
+          inv.amountDueCents = live.amountRemaining;
+          inv.hostedInvoiceUrl = live.hostedInvoiceUrl;
+          const state = stateByInvoiceId.get(inv._id);
+          if (state?.isLateFee) continue; // late-fee invoices don't run their own ladder
+
+          const daysPastDue = Math.floor((Date.now() - new Date(`${inv.dueDate}T00:00:00Z`).getTime()) / 86400000);
+          const currentStage = state?.dunningStage ?? 0;
+
+          let targetStage = 0;
+          if (daysPastDue >= settings.suspendDays) targetStage = 4;
+          else if (daysPastDue >= settings.finalNoticeDays) targetStage = 3;
+          else if (daysPastDue >= settings.secondNoticeDays) targetStage = 2;
+          else if (daysPastDue >= settings.firstNoticeDays) targetStage = 1;
+
+          if (targetStage <= currentStage) continue;
+          nextStage = currentStage + 1; // advance one stage per run
+
           let lateFeeInvoiceId = state?.lateFeeInvoiceId ?? null;
           const client = inv.clientId ? clientById.get(inv.clientId) : undefined;
           const dunningInvoice: DunningInvoice = {
@@ -164,6 +176,7 @@ async function handleActivityGET(req: NextRequest) {
               amountCents: settings.lateFeeCents,
               existingFeeInvoiceId: lateFeeInvoiceId,
             });
+            if (!feeInvoice) continue;
             lateFeeInvoiceId = feeInvoice.id;
             results.lateFeeConfirmed++;
             logAudit(req, {
@@ -172,8 +185,13 @@ async function handleActivityGET(req: NextRequest) {
               description: `Late-fee invoice ${feeInvoice.number ?? feeInvoice.id} confirmed for ${inv.clientName} — invoice ${inv.number}`,
               metadata: { feeInvoiceId: feeInvoice.id, amountCents: feeInvoice.total, currency: feeInvoice.currency },
             }, SYSTEM_AUDIT_USER);
+            const current = await refreshCollectibleInvoice(inv._id, inv.stripeCustomerId);
+            if (!current) {
+              invoicesStillOwing.delete(inv._id);
+              continue;
+            }
             if (inv.clientEmail) {
-              await sendSecondNoticeEmail(dunningInvoice, feeInvoice.total, addDays(inv.dueDate, settings.finalNoticeDays));
+              await sendSecondNoticeEmail({ ...dunningInvoice, amountDueCents: current.amountRemaining }, feeInvoice.total, addDays(inv.dueDate, settings.finalNoticeDays));
               results.secondNotice++;
             }
           } else if (nextStage === 3) {
@@ -261,6 +279,7 @@ async function handleActivityGET(req: NextRequest) {
     }
 
     // ── Restore clients that were auto-suspended and no longer owe anything ───
+    const clientIdsStillOwing = new Set(invoicesStillOwing.values());
     const autoSuspended = await sanityServer.fetch<Array<{
       _id: string; name: string | null; vercelProjectId: string | null; vercelDomain: string | null;
     }>>(

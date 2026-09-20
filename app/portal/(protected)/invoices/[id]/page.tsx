@@ -1,5 +1,6 @@
 import { getPortalUser } from "@/lib/portal/getPortalUser";
 import { getInvoice } from "@/lib/stripe/billing";
+import { canAccessPortalInvoice } from "@/lib/portal/billingAccess";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
@@ -25,10 +26,8 @@ export default async function PortalInvoiceDetailPage({
 }) {
   const [user, { id }] = await Promise.all([getPortalUser(), params]);
 
-  if (!user.stripeCustomerId) notFound();
-
   const invoice = await getInvoice(id).catch(() => null);
-  if (!invoice || invoice.customerId !== user.stripeCustomerId) notFound();
+  if (!invoice || !canAccessPortalInvoice(user, invoice)) notFound();
 
   const badge = STATUS_BADGE[invoice.status ?? "open"] ?? STATUS_BADGE["open"];
 
@@ -118,7 +117,7 @@ export default async function PortalInvoiceDetailPage({
           {invoice.status === "open" && (
             <div className="flex justify-between text-base font-semibold pt-1 border-t border-white/8 mt-1">
               <span className="text-yellow-400">Amount due</span>
-              <span className="text-yellow-400">{money(invoice.amountDue)}</span>
+              <span className="text-yellow-400">{money(invoice.amountRemaining)}</span>
             </div>
           )}
         </div>

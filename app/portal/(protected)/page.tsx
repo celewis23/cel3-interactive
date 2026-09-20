@@ -1,5 +1,5 @@
 import { getPortalUser } from "@/lib/portal/getPortalUser";
-import { listInvoices } from "@/lib/stripe/billing";
+import { listPortalInvoices } from "@/lib/portal/billingAccess";
 import { sanityServer } from "@/lib/sanityServer";
 import { listPortalAppointmentsWithResponses } from "@/lib/portal/appointments";
 import { getUnreadCount } from "@/lib/messaging/service";
@@ -63,9 +63,7 @@ export default async function PortalDashboard() {
 
   const [invoiceData, projects, estimates, siteAccess, allAppointments, recentCampaigns, recentNewsletters, unsignedContracts, unreadMessages] =
     await Promise.all([
-      user.stripeCustomerId
-        ? listInvoices({ customerId: user.stripeCustomerId, status: "open", limit: 50 }).catch(() => ({ invoices: [] }))
-        : Promise.resolve({ invoices: [] }),
+      listPortalInvoices(user, ["open"]).catch(() => ({ invoices: [] })),
       refs.length > 0
         ? sanityServer
             .fetch<Array<{ _id: string; name: string; status: string; _createdAt: string }>>(
@@ -110,7 +108,7 @@ export default async function PortalDashboard() {
     ]);
 
   const openInvoices = invoiceData.invoices;
-  const outstandingTotal = openInvoices.reduce((s, inv) => s + inv.amountDue, 0);
+  const outstandingTotal = openInvoices.reduce((s, inv) => s + inv.amountRemaining, 0);
   const pendingEstimates = estimates.filter((e) => ["sent", "viewed"].includes(e.status));
 
   const effectiveSiteUrl = user.siteUrl ?? siteAccess?.siteUrl ?? null;
@@ -138,7 +136,7 @@ export default async function PortalDashboard() {
     ...openInvoices.slice(0, 2).map((inv) => ({
       type: "invoice",
       label: `Invoice ${inv.number ?? inv.id}`,
-      sub: `${money(inv.amountDue)} · Open`,
+      sub: `${money(inv.amountRemaining)} · Open`,
       href: `/portal/invoices/${inv.id}`,
       date: inv.created * 1000,
     })),
