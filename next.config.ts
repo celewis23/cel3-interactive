@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
+      { source: "/mockups/glue-craft-studio", destination: "/mockups/glue-craft-studio/index.html" },
       { source: "/mockups/unlockingrva", destination: "/mockups/unlockingrva/index.html" },
       // Keep the spelling in the client's share link working as well.
       { source: "/mockups/ulockingrva", destination: "/mockups/unlockingrva/index.html" },

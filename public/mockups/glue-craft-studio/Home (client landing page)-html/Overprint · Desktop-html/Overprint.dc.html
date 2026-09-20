@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en" data-mockup-layout="desktop" data-mockup-concept="c">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/mockups/glue-craft-studio/device-view.js" data-concept="c" data-layout="desktop"></script>
+<link rel="stylesheet" href="/mockups/glue-craft-studio/review.css">
+<title>Glue Craft Studio — Overprint</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<nav aria-label="Design review" class="mockup-review">
+  <a href="/mockups/glue-craft-studio/#options">&larr; All options</a>
+  <span class="mockup-review__label">Option C · Overprint · Desktop</span>
+  <span class="mockup-review__views" role="group" aria-label="Preview layout">
+    <a href="/mockups/glue-craft-studio/Home%20(client%20landing%20page)-html/Overprint%20%C2%B7%20Desktop-html/Overprint.dc.html" data-view="auto">Auto</a>
+    <a href="/mockups/glue-craft-studio/Home%20(client%20landing%20page)-html/Overprint%20%C2%B7%20Mobile-html/OverprintMobile.dc.html?view=mobile" data-view="mobile">Mobile</a>
+    <a href="/mockups/glue-craft-studio/Home%20(client%20landing%20page)-html/Overprint%20%C2%B7%20Desktop-html/Overprint.dc.html?view=desktop" data-view="desktop">Desktop</a>
+  </span>
+</nav>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&amp;family=Work+Sans:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<style>
+body{margin:0;background:#F4EFE4;}
+*{box-sizing:border-box}
+h1,h2,h3,p{margin:0}
+a{color:inherit}
+.ub{font-family:'Unbounded',sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:-.02em;line-height:.95}
+.mono{font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.06em;font-size:13px;font-weight:700}
+.btn{display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:0 26px;border:2px solid #17171B;background:#FFD60A;color:#17171B;font-family:'Work Sans',sans-serif;font-weight:700;font-size:17px;box-shadow:4px 4px 0 #17171B;text-decoration:none;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #17171B}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 #17171B}
+.navl{font-family:'Space Mono',monospace;text-transform:uppercase;font-weight:700;font-size:13px;letter-spacing:.06em;text-decoration:none;padding:10px 14px;transition:background .15s}
+.navl:hover{background:#FFD60A}
+.reg{transition:transform .2s,box-shadow .2s}
+.reg:hover{transform:translate(-4px,-4px);box-shadow:8px 8px 0 #17171B !important}
+.row{transition:background .15s}
+.row:hover{background:#FFD60A !important}
+.tabb{transition:transform .15s}
+.tabb:hover{transform:translateY(-4px)}
+.ph{background-image:radial-gradient(circle,rgba(23,23,27,.28) 1.4px,transparent 1.8px);background-size:9px 9px}
+.inp{width:100%;min-height:54px;border:2px solid #17171B;border-radius:0;padding:0 14px;font-family:'Work Sans',sans-serif;font-size:17px;background:#FFFFFF;color:#17171B}
+.inp:focus{outline:3px solid #2A5CFF;outline-offset:2px}
+:focus-visible{outline:3px solid #2A5CFF;outline-offset:3px}
+.dk a:focus-visible,.dk button:focus-visible{outline-color:#FFD60A}
+.marq{display:flex;width:max-content;animation:marq 32s linear infinite}
+@keyframes marq{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.marq{animation:none}.btn,.reg,.tabb{transition:none}}
+</style>
+</helmet>
+
+<div id="top" style="width:100%;background:#F4EFE4;color:#17171B;font-family:'Work Sans',sans-serif;overflow-x:clip;">
+
+
+  <!-- NAV -->
+  <header style="position:sticky;top:0;z-index:40;background:#F4EFE4;border-bottom:2px solid #17171B;">
+    <div style="max-width:1312px;margin:0 auto;padding:12px 64px;display:flex;align-items:center;justify-content:space-between;gap:24px;">
+      <a href="#top" style="display:flex;align-items:center;gap:12px;text-decoration:none;" aria-label="Glue Craft Studio home">
+        <svg width="46" height="34" viewBox="0 0 46 34" aria-hidden="true"><circle cx="15" cy="17" r="14" fill="#FF4FA3" style="mix-blend-mode:multiply"></circle><circle cx="31" cy="17" r="14" fill="#FFD60A" style="mix-blend-mode:multiply"></circle></svg>
+        <span style="display:flex;flex-direction:column;line-height:1;"><span class="ub" style="font-size:24px;">Glue</span><span class="mono" style="font-size:10px;margin-top:2px;">craft studio</span></span>
+      </a>
+      <nav aria-label="Main" style="display:flex;align-items:center;gap:2px;">
+        <a class="navl" href="#about">About</a>
+        <a class="navl" href="#offer">What We Offer</a>
+        <a class="navl" href="#love">Testimonials</a>
+        <a class="navl" href="#freebie">Freebie</a>
+        <a class="navl" href="#contact">Contact</a>
+      </nav>
+      <a class="btn" href="#contact" style="min-height:46px;font-size:16px;padding:0 22px;">Book now</a>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section style="max-width:1312px;margin:0 auto;padding:64px 64px 88px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;align-items:center;">
+    <div style="grid-column:span 7;display:flex;flex-direction:column;gap:30px;">
+      <div class="mono" style="display:flex;gap:14px;align-items:center;"><span style="background:#17171B;color:#F4EFE4;padding:5px 10px;">Sheet 01</span><span>Church Hill · Richmond, VA</span></div>
+      <h1 class="ub" style="font-size:88px;text-shadow:5px 5px 0 #FF4FA3;">Anyone<br>can<br><span style="color:#2A5CFF;text-shadow:5px 5px 0 #FFD60A;">create.</span></h1>
+      <p style="font-size:22px;line-height:1.5;max-width:560px;color:#2B2B31;">Imagine. Connect. Socialize. Enjoy. Classes, parties, workshops and events. We handle the planning, tools, materials and clean up.</p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;">
+        <a class="btn" href="#contact">Plan a party</a>
+        <a class="btn" href="#events" style="background:#FFFFFF;">See what's on</a>
+      </div>
+    </div>
+    <div style="grid-column:span 5;display:flex;flex-direction:column;gap:18px;">
+      <div style="border:2px solid #17171B;background:#FFFFFF;box-shadow:8px 8px 0 #17171B;padding:14px;">
+        <svg viewBox="0 0 600 600" width="100%" style="display:block;" role="img" aria-label="Overprinted illustration of a glue drop, scissors and a paper sheet">
+          <defs>
+            <pattern id="htPink" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r="4.4" fill="#FF4FA3"></circle></pattern>
+            <pattern id="htBlue" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r="3.4" fill="#2A5CFF"></circle></pattern>
+          </defs>
+          <g style="mix-blend-mode:multiply;opacity:{{yO}};transition:opacity .4s;">
+            <path d="M250 60C250 60 100 260 100 360a150 150 0 0 0 300 0C400 260 250 60 250 60Z" fill="#FFD60A"></path>
+            <path d="M470 400l16 36 40 4-30 26 9 39-35-20-35 20 9-39-30-26 40-4z" fill="#FFD60A"></path>
+          </g>
+          <g style="mix-blend-mode:multiply;opacity:{{pO}};transition:opacity .4s;">
+            <circle cx="410" cy="200" r="150" fill="#FF4FA3"></circle>
+            <rect x="60" y="330" width="300" height="220" rx="16" fill="url(#htPink)" transform="rotate(-8 210 440)"></rect>
+          </g>
+          <g style="mix-blend-mode:multiply;opacity:{{bO}};transition:opacity .4s;">
+            <circle cx="140" cy="540" r="42" fill="none" stroke="#2A5CFF" stroke-width="18"></circle>
+            <circle cx="340" cy="540" r="42" fill="none" stroke="#2A5CFF" stroke-width="18"></circle>
+            <path d="M158 502L430 150M322 502L60 150" stroke="#2A5CFF" stroke-width="22" stroke-linecap="round" fill="none"></path>
+            <path d="M36 70q30-34 60 0t60 0t60 0" stroke="#2A5CFF" stroke-width="12" stroke-linecap="round" fill="none"></path>
+            <rect x="440" y="300" width="130" height="110" fill="url(#htBlue)"></rect>
+          </g>
+        </svg>
+      </div>
+      <div role="group" aria-label="Ink layers" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <span class="mono" style="font-size:12px;">Ink layers</span>
+        <sc-for list="{{layers}}" as="l" hint-placeholder-count="3">
+          <button type="button" aria-pressed="{{l.pressed}}" onClick="{{l.pick}}" style="display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 12px;border:2px solid #17171B;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;{{l.style}}"><span style="width:16px;height:16px;border:2px solid #17171B;border-radius:50%;display:block;{{l.dot}}"></span>{{l.label}}</button>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <section aria-label="What we do" style="background:#17171B;color:#F4EFE4;padding:18px 0;overflow:hidden;border-top:2px solid #17171B;border-bottom:2px solid #17171B;">
+    <div class="marq">
+      <sc-for list="{{ticker}}" as="t" hint-placeholder-count="10">
+        <div class="ub" style="display:flex;align-items:center;gap:26px;padding-right:26px;font-size:34px;white-space:nowrap;"><span>{{t.label}}</span><svg width="28" height="22" viewBox="0 0 46 34" aria-hidden="true"><circle cx="15" cy="17" r="14" fill="#FF4FA3"></circle><circle cx="31" cy="17" r="14" fill="#FFD60A" style="mix-blend-mode:screen"></circle></svg></div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- OFFER -->
+  <section id="offer" style="max-width:1312px;margin:0 auto;padding:104px 64px;">
+    <div class="mono" style="display:flex;gap:14px;align-items:center;"><span style="background:#17171B;color:#F4EFE4;padding:5px 10px;">Sheet 02</span><span>What we offer</span></div>
+    <h2 class="ub" style="font-size:80px;margin-top:22px;">Four ways<br>to <span style="color:#2A5CFF;">get messy.</span></h2>
+    <div role="group" aria-label="Offerings" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-top:56px;border:2px solid #17171B;">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+        <button type="button" class="tabb" aria-pressed="{{t.pressed}}" onClick="{{t.pick}}" style="border:0;border-right:2px solid #17171B;padding:26px 24px;cursor:pointer;text-align:left;font-family:'Work Sans',sans-serif;display:flex;flex-direction:column;gap:26px;{{t.style}}">
+          <span class="ub" style="font-size:44px;line-height:1;">{{t.n}}</span>
+          <span class="ub" style="font-size:20px;line-height:1.05;letter-spacing:-.01em;">{{t.title}}</span>
+        </button>
+      </sc-for>
+    </div>
+    <div style="border:2px solid #17171B;border-top:0;background:#FFFFFF;padding:44px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:32px;align-items:center;box-shadow:8px 8px 0 #17171B;">
+      <div style="grid-column:span 7;display:flex;flex-direction:column;gap:20px;">
+        <div class="mono" style="color:#2A5CFF;">{{oKicker}}</div>
+        <h3 class="ub" style="font-size:52px;">{{oTitle}}</h3>
+        <p style="font-size:20px;line-height:1.55;color:#2B2B31;">{{oCopy}}</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;"><sc-for list="{{oChips}}" as="c" hint-placeholder-count="3"><span class="mono" style="border:2px solid #17171B;padding:6px 12px;font-size:12px;">{{c.label}}</span></sc-for></div>
+        <div><a class="btn" href="{{oHref}}" target="{{oTarget}}" rel="noopener noreferrer" style="background:{{oColor}};color:{{oText}};">{{oCta}}</a></div>
+      </div>
+      <div style="grid-column:span 5;position:relative;height:340px;">
+        <span style="position:absolute;left:10%;top:6%;width:56%;height:64%;border-radius:50%;background:{{a1}};mix-blend-mode:multiply;transition:background-color .4s;display:block;"></span>
+        <span style="position:absolute;left:34%;top:26%;width:56%;height:64%;background:{{a2}};mix-blend-mode:multiply;transform:rotate(12deg);transition:background-color .4s;display:block;"></span>
+        <span style="position:absolute;left:4%;top:56%;width:34%;height:38%;background:{{a3}};mix-blend-mode:multiply;clip-path:polygon(50% 0,100% 100%,0 100%);transition:background-color .4s;display:block;"></span>
+        <span class="mono" style="position:absolute;right:0;bottom:0;background:#17171B;color:#F4EFE4;padding:5px 10px;font-size:11px;">{{oPhoto}}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- KIDS CLUB -->
+  <section id="kids" style="background:#FFD60A;border-top:2px solid #17171B;border-bottom:2px solid #17171B;">
+    <div style="max-width:1312px;margin:0 auto;padding:96px 64px;">
+      <div class="mono" style="display:flex;gap:14px;align-items:center;"><span style="background:#17171B;color:#F4EFE4;padding:5px 10px;">Sheet 03</span><span>Kids Club</span></div>
+      <h2 class="ub" style="font-size:76px;margin-top:22px;">A class in<br>four colors.</h2>
+      <p style="font-size:21px;line-height:1.55;max-width:680px;margin-top:22px;">A mix of creative freedom and discovery to open minds and encourage self-expression. Small groups of no more than 10.</p>
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;margin-top:52px;">
+        <article class="reg" style="background:#FF4FA3;border:2px solid #17171B;box-shadow:6px 6px 0 #17171B;padding:28px;min-height:330px;display:flex;flex-direction:column;justify-content:space-between;gap:24px;"><span class="ub" style="font-size:88px;line-height:.9;">01</span><div style="display:flex;flex-direction:column;gap:10px;"><h3 class="ub" style="font-size:26px;line-height:1;letter-spacing:-.01em;">Think &amp; Brainstorm</h3><p style="font-size:17px;line-height:1.5;">Think outside the box, explore creativity, and practice problem-solving skills.</p></div></article>
+        <article class="reg" style="background:#F4EFE4;border:2px solid #17171B;box-shadow:6px 6px 0 #17171B;padding:28px;min-height:330px;display:flex;flex-direction:column;justify-content:space-between;gap:24px;"><span class="ub" style="font-size:88px;line-height:.9;">02</span><div style="display:flex;flex-direction:column;gap:10px;"><h3 class="ub" style="font-size:26px;line-height:1;letter-spacing:-.01em;">Craft</h3><p style="font-size:17px;line-height:1.5;">Practice fine motor and time management skills.</p></div></article>
+        <article class="reg" style="background:#2A5CFF;color:#FFFFFF;border:2px solid #17171B;box-shadow:6px 6px 0 #17171B;padding:28px;min-height:330px;display:flex;flex-direction:column;justify-content:space-between;gap:24px;"><span class="ub" style="font-size:88px;line-height:.9;">03</span><div style="display:flex;flex-direction:column;gap:10px;"><h3 class="ub" style="font-size:26px;line-height:1;letter-spacing:-.01em;">Play</h3><p style="font-size:17px;line-height:1.5;">Practice gross motor and social skills while having fun!</p></div></article>
+        <article class="reg" style="background:#17171B;color:#F4EFE4;border:2px solid #17171B;box-shadow:6px 6px 0 #FF4FA3;padding:28px;min-height:330px;display:flex;flex-direction:column;justify-content:space-between;gap:24px;"><span class="ub" style="font-size:88px;line-height:.9;">04</span><div style="display:flex;flex-direction:column;gap:10px;"><h3 class="ub" style="font-size:26px;line-height:1;letter-spacing:-.01em;">Wind Down</h3><p style="font-size:17px;line-height:1.5;">Reflect on what has been learned.</p></div></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- REUSE FOUND / MADE -->
+  <section id="about" style="max-width:1312px;margin:0 auto;padding:104px 64px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;align-items:center;">
+    <div style="grid-column:span 6;display:flex;flex-direction:column;gap:26px;">
+      <div class="mono" style="display:flex;gap:14px;align-items:center;"><span style="background:#17171B;color:#F4EFE4;padding:5px 10px;">Sheet 04</span><span>An arts &amp; crafts space for all</span></div>
+      <h2 class="ub" style="font-size:66px;">Found.<br><span style="color:#FF4FA3;text-shadow:3px 3px 0 #17171B;">Then made.</span></h2>
+      <p style="font-size:20px;line-height:1.6;color:#2B2B31;">With a strong focus on reuse, Glue Craft Studio sources materials that would have been discarded or gone unused and works them into the crafting. It expands the life of the object, keeps prices accessible and reduces waste.</p>
+      <div role="group" aria-label="Found or made" style="display:flex;">
+        <button type="button" aria-pressed="{{foundP}}" onClick="{{showFound}}" style="min-height:52px;padding:0 30px;border:2px solid #17171B;font-family:'Space Mono',monospace;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;{{foundStyle}}">Found</button>
+        <button type="button" aria-pressed="{{madeP}}" onClick="{{showMade}}" style="min-height:52px;padding:0 30px;border:2px solid #17171B;border-left:0;font-family:'Space Mono',monospace;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;{{madeStyle}}">Made</button>
+      </div>
+    </div>
+    <div style="grid-column:8 / span 5;">
+      <div style="border:2px solid #17171B;background:#FFFFFF;box-shadow:8px 8px 0 #17171B;padding:18px;">
+        <sc-if value="{{isFound}}" hint-placeholder-val="{{true}}">
+          <svg viewBox="0 0 500 420" width="100%" style="display:block;" role="img" aria-label="Discarded materials: a cardboard tube, a bottle cap and a small box">
+            <g style="mix-blend-mode:multiply"><rect x="60" y="60" width="90" height="220" rx="6" fill="#FFD60A" transform="rotate(-14 105 170)"></rect></g>
+            <g style="mix-blend-mode:multiply"><circle cx="300" cy="120" r="64" fill="#FF4FA3"></circle><circle cx="300" cy="120" r="44" fill="none" stroke="#17171B" stroke-width="4" stroke-dasharray="4 6"></circle></g>
+            <g style="mix-blend-mode:multiply"><rect x="250" y="250" width="170" height="120" fill="#2A5CFF" transform="rotate(8 335 310)"></rect></g>
+            <g style="mix-blend-mode:multiply"><rect x="70" y="300" width="130" height="70" fill="url(#htBlue)" transform="rotate(-4 135 335)"></rect></g>
+            <defs><pattern id="htBlue" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r="3.4" fill="#2A5CFF"></circle></pattern></defs>
+          </svg>
+        </sc-if>
+        <sc-if value="{{isMade}}" hint-placeholder-val="{{false}}">
+          <svg viewBox="0 0 500 420" width="100%" style="display:block;" role="img" aria-label="The same materials assembled into a rocket">
+            <defs><pattern id="htPk" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r="4.2" fill="#FF4FA3"></circle></pattern></defs>
+            <g style="mix-blend-mode:multiply"><rect x="200" y="90" width="100" height="220" rx="8" fill="#FFD60A"></rect></g>
+            <g style="mix-blend-mode:multiply"><path d="M200 96L250 12l50 84z" fill="#FF4FA3"></path></g>
+            <g style="mix-blend-mode:multiply"><circle cx="250" cy="170" r="34" fill="#FF4FA3"></circle><circle cx="250" cy="170" r="22" fill="none" stroke="#17171B" stroke-width="4"></circle></g>
+            <g style="mix-blend-mode:multiply"><path d="M200 250L130 340h70zM300 250l70 90h-70z" fill="#2A5CFF"></path></g>
+            <g style="mix-blend-mode:multiply"><rect x="214" y="310" width="72" height="30" fill="url(#htPk)"></rect></g>
+            <g style="mix-blend-mode:multiply"><path d="M226 350l24 60 24-60z" fill="#FFD60A"></path></g>
+            <path d="M60 60l10 22 24 3-18 16 5 24-21-12-21 12 5-24-18-16 24-3z" fill="none" stroke="#17171B" stroke-width="3"></path>
+            <path d="M400 300l8 18 20 2-15 13 4 20-17-10-17 10 4-20-15-13 20-2z" fill="none" stroke="#17171B" stroke-width="3"></path>
+          </svg>
+        </sc-if>
+      </div>
+      <p class="mono" style="margin-top:16px;font-size:12px;line-height:1.6;">{{foundCap}}</p>
+    </div>
+  </section>
+
+  <!-- EVENTS -->
+  <section id="events" style="background:#FFFFFF;border-top:2px solid #17171B;border-bottom:2px solid #17171B;">
+    <div style="max-width:1312px;margin:0 auto;padding:96px 64px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap;">
+        <div>
+          <div class="mono" style="display:flex;gap:14px;align-items:center;"><span style="background:#17171B;color:#F4EFE4;padding:5px 10px;">Sheet 05</span><span>Upcoming events</span></div>
+          <h2 class="ub" style="font-size:72px;margin-top:22px;">Come craft<br>with us.</h2>
+        </div>
+        <a class="btn" href="https://linktr.ee/gluecraftstudio" target="_blank" rel="noopener noreferrer">All events &amp; booking</a>
+      </div>
+      <div role="group" aria-label="Filter events" style="display:flex;margin-top:44px;">
+        <sc-for list="{{chips}}" as="c" hint-placeholder-count="4"><button type="button" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="min-height:48px;padding:0 24px;border:2px solid #17171B;margin-right:-2px;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;{{c.style}}">{{c.label}}</button></sc-for>
+      </div>
+      <div style="margin-top:32px;border-bottom:2px solid #17171B;">
+        <sc-for list="{{events}}" as="ev" hint-placeholder-count="4">
+          <a class="row" href="https://linktr.ee/gluecraftstudio" target="_blank" rel="noopener noreferrer" style="display:grid;grid-template-columns:150px minmax(0,1fr) 190px 130px 56px;align-items:center;gap:24px;padding:22px 16px;border-top:2px solid #17171B;text-decoration:none;background:transparent;">
+            <span class="ub" style="font-size:44px;line-height:1;">[DD]<span class="mono" style="display:block;font-size:12px;margin-top:6px;">[Month]</span></span>
+            <span class="ub" style="font-size:36px;line-height:1;letter-spacing:-.01em;">[Event name]</span>
+            <span class="mono" style="border:2px solid #17171B;padding:6px 12px;font-size:12px;text-align:center;background:{{ev.bg}};color:{{ev.text}};">{{ev.tag}}</span>
+            <span class="mono">[Price]</span>
+            <span style="width:48px;height:48px;background:#17171B;color:#F4EFE4;display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+          </a>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUNDERS -->
+  <section style="max-width:1312px;margin:0 auto;padding:104px 64px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;align-items:start;">
+    <div style="grid-column:span 5;display:flex;flex-direction:column;gap:24px;">
+      <div class="mono" style="display:flex;gap:14px;align-items:center;"><span style="background:#17171B;color:#F4EFE4;padding:5px 10px;">Sheet 06</span><span>Hello from Amy &amp; Vanessa</span></div>
+      <h2 class="ub" style="font-size:56px;">Lifelong<br>crafters.</h2>
+      <div style="display:flex;gap:16px;">
+        <div class="ph" style="width:170px;height:210px;border:2px solid #17171B;background-color:#FF4FA3;box-shadow:5px 5px 0 #17171B;display:flex;align-items:flex-end;padding:10px;"><span class="mono" style="background:#17171B;color:#F4EFE4;padding:4px 8px;font-size:11px;">Amy</span></div>
+        <div class="ph" style="width:170px;height:210px;margin-top:28px;border:2px solid #17171B;background-color:#2A5CFF;box-shadow:5px 5px 0 #17171B;display:flex;align-items:flex-end;padding:10px;"><span class="mono" style="background:#F4EFE4;color:#17171B;padding:4px 8px;font-size:11px;">Vanessa</span></div>
+      </div>
+    </div>
+    <div style="grid-column:7 / span 6;display:flex;flex-direction:column;gap:22px;">
+      <div style="border:2px solid #17171B;background:#FFFFFF;padding:26px 28px;display:flex;flex-direction:column;gap:8px;"><div class="ub" style="font-size:24px;">Amy</div><p style="font-size:18px;line-height:1.6;color:#2B2B31;">Amy remembers crafting with her Grandma, Tutu, at the family dinner table, tinkering away for hours together. She leads our Kids Club, with a bachelors in Youth Development &amp; Camp Management and years of experience working with kids.</p></div>
+      <div style="border:2px solid #17171B;background:#FFFFFF;padding:26px 28px;display:flex;flex-direction:column;gap:8px;"><div class="ub" style="font-size:24px;">Vanessa</div><p style="font-size:18px;line-height:1.6;color:#2B2B31;">Vanessa attributes her love of crafting to her mom, Nora, who always had a new craft ready for every childhood hangout or sleepover.</p></div>
+      <p class="ub" style="font-size:26px;line-height:1.1;letter-spacing:-.01em;background:#FFD60A;border:2px solid #17171B;padding:22px 26px;">"Nothing more special and healing than learning a new skill in a shared experience."</p>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section id="love" class="dk" style="background:#17171B;color:#F4EFE4;">
+    <div style="max-width:1312px;margin:0 auto;padding:104px 64px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;align-items:center;">
+      <div style="grid-column:span 5;display:flex;flex-direction:column;gap:26px;">
+        <div class="mono" style="display:flex;gap:14px;align-items:center;"><span style="background:#F4EFE4;color:#17171B;padding:5px 10px;">Sheet 07</span><span>See what others are saying</span></div>
+        <h2 class="ub" style="font-size:62px;">Don't take<br>our word<br>for it.</h2>
+        <div><button type="button" class="btn" onClick="{{nextQ}}" style="background:#FF4FA3;box-shadow:4px 4px 0 #F4EFE4;">Next quote
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button></div>
+      </div>
+      <div style="grid-column:7 / span 6;position:relative;height:440px;">
+        <sc-for list="{{quotes}}" as="q" hint-placeholder-count="3">
+          <div style="position:absolute;left:0;top:60px;width:86%;min-height:300px;border:2px solid #F4EFE4;padding:32px;display:flex;flex-direction:column;justify-content:space-between;gap:22px;transition:transform .5s cubic-bezier(.3,1.3,.5,1);{{q.style}}">
+            <p style="font-size:{{q.size}}px;line-height:1.35;font-weight:600;">{{q.t}}</p>
+            <div class="mono">{{q.n}}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section style="max-width:1312px;margin:0 auto;padding:104px 64px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;align-items:start;">
+    <div style="grid-column:span 4;display:flex;flex-direction:column;gap:22px;">
+      <div class="mono" style="display:flex;gap:14px;align-items:center;"><span style="background:#17171B;color:#F4EFE4;padding:5px 10px;">Sheet 08</span><span>Have questions?</span></div>
+      <h2 class="ub" style="font-size:60px;">We'll<br>answer<br>them.</h2>
+    </div>
+    <div style="grid-column:6 / span 7;border-top:2px solid #17171B;">
+      <sc-for list="{{faqs}}" as="f" hint-placeholder-count="6">
+        <div style="border-bottom:2px solid #17171B;">
+          <button type="button" aria-expanded="{{f.expanded}}" onClick="{{f.pick}}" style="display:grid;grid-template-columns:64px minmax(0,1fr) 44px;align-items:center;gap:16px;width:100%;padding:22px 0;border:0;background:transparent;color:#17171B;cursor:pointer;text-align:left;font-family:'Work Sans',sans-serif;font-weight:700;font-size:21px;line-height:1.25;">
+            <span class="mono" style="color:#2A5CFF;">{{f.n}}</span>
+            <span>{{f.q}}</span>
+            <span style="width:44px;height:44px;border:2px solid #17171B;display:flex;align-items:center;justify-content:center;{{f.icon}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></span>
+          </button>
+          <sc-if value="{{f.open}}" hint-placeholder-val="{{false}}"><p style="padding:0 60px 26px 80px;font-size:18px;line-height:1.6;color:#2B2B31;">{{f.a}}</p></sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- FREEBIE -->
+  <section id="freebie" style="background:#FF4FA3;border-top:2px solid #17171B;border-bottom:2px solid #17171B;">
+    <div style="max-width:1312px;margin:0 auto;padding:72px 64px;display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;gap:14px;max-width:820px;">
+        <div class="mono">Free for you</div>
+        <h2 class="ub" style="font-size:64px;">Grab your freebie.</h2>
+        <p style="font-size:21px;line-height:1.5;">A free step-by-step video tutorial and instruction template to create an artwork with your kids at home.</p>
+      </div>
+      <a class="btn" href="https://gluecraftstudio.mycreativeclub.com/freebie" target="_blank" rel="noopener noreferrer" style="background:#17171B;color:#F4EFE4;box-shadow:4px 4px 0 #FFD60A;min-height:60px;font-size:19px;">Yes, please!</a>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" style="max-width:1312px;margin:0 auto;padding:104px 64px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;align-items:start;">
+    <div style="grid-column:span 5;display:flex;flex-direction:column;gap:26px;">
+      <div class="mono" style="display:flex;gap:14px;align-items:center;"><span style="background:#17171B;color:#F4EFE4;padding:5px 10px;">Sheet 09</span><span>Come have fun with us</span></div>
+      <h2 class="ub" style="font-size:66px;">Order a<br>good time.</h2>
+      <div style="border:2px solid #17171B;background:#FFFFFF;box-shadow:6px 6px 0 #17171B;padding:24px 26px;display:flex;flex-direction:column;gap:8px;">
+        <div class="mono" style="color:#2A5CFF;">The studio</div>
+        <p style="font-size:20px;font-weight:600;line-height:1.4;">401 Chimborazo Blvd<br>Church Hill, Richmond, VA</p>
+        <p style="font-size:16px;color:#4A4A52;">[Hours]</p>
+      </div>
+      <a href="mailto:gluecraftstudio@gmail.com" style="font-weight:700;font-size:22px;">gluecraftstudio@gmail.com</a>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a class="btn" href="https://www.instagram.com/glue.craft.studio/" target="_blank" rel="noopener noreferrer" style="background:#FFFFFF;min-height:46px;font-size:16px;">Instagram</a>
+        <a class="btn" href="https://www.facebook.com/glue.craft.studio/" target="_blank" rel="noopener noreferrer" style="background:#FFFFFF;min-height:46px;font-size:16px;">Facebook</a>
+      </div>
+    </div>
+    <div style="grid-column:7 / span 6;border:2px solid #17171B;background:#FFFFFF;box-shadow:8px 8px 0 #17171B;padding:40px;">
+      <sc-if value="{{notSent}}" hint-placeholder-val="{{true}}">
+        <div style="display:flex;flex-direction:column;gap:26px;">
+          <div>
+            <div class="mono" style="margin-bottom:12px;"><span style="color:#2A5CFF;">01</span> What are you after?</div>
+            <div role="group" aria-label="Interest" style="display:flex;flex-wrap:wrap;gap:8px;">
+              <sc-for list="{{wants}}" as="w" hint-placeholder-count="4"><button type="button" aria-pressed="{{w.pressed}}" onClick="{{w.pick}}" style="min-height:46px;padding:0 18px;border:2px solid #17171B;font-family:'Work Sans',sans-serif;font-weight:700;font-size:16px;cursor:pointer;{{w.style}}">{{w.label}}</button></sc-for>
+            </div>
+          </div>
+          <div>
+            <div class="mono" style="margin-bottom:12px;"><span style="color:#2A5CFF;">02</span> How many crafters?</div>
+            <div role="group" aria-label="Group size" style="display:flex;flex-wrap:wrap;gap:8px;">
+              <sc-for list="{{sizes}}" as="z" hint-placeholder-count="3"><button type="button" aria-pressed="{{z.pressed}}" onClick="{{z.pick}}" style="min-height:46px;padding:0 18px;border:2px solid #17171B;font-family:'Work Sans',sans-serif;font-weight:700;font-size:16px;cursor:pointer;{{z.style}}">{{z.label}}</button></sc-for>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;"><label for="p-email" class="mono"><span style="color:#2A5CFF;">03</span> Your email</label><input id="p-email" class="inp" type="email" placeholder="you@email.com"></div>
+          <div><button type="button" class="btn" onClick="{{send}}" style="background:#FF4FA3;">Send to press</button></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{sent}}" hint-placeholder-val="{{false}}">
+        <div style="min-height:440px;display:flex;flex-direction:column;justify-content:center;gap:20px;align-items:flex-start;">
+          <div class="ub" style="font-size:64px;text-shadow:4px 4px 0 #FFD60A;">Off the<br>press!</div>
+          <p style="font-size:20px;line-height:1.5;color:#2B2B31;">Demo complete — no request was sent. Use the email link below to contact Glue Craft Studio.</p>
+          <button type="button" class="btn" onClick="{{reset}}">Print another</button>
+        </div>
+      </sc-if>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="dk" style="background:#17171B;color:#F4EFE4;overflow:hidden;">
+    <div style="max-width:1312px;margin:0 auto;padding:56px 64px 0;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;">
+      <nav aria-label="Footer" style="display:flex;gap:2px;flex-wrap:wrap;">
+        <a class="navl" href="#about" style="color:#F4EFE4;">About</a>
+        <a class="navl" href="#offer" style="color:#F4EFE4;">What We Offer</a>
+        <a class="navl" href="#love" style="color:#F4EFE4;">Testimonials</a>
+        <a class="navl" href="https://gluecraftstudio.mycreativeclub.com/privacypolicy" target="_blank" rel="noopener noreferrer" style="color:#F4EFE4;">Policy</a>
+        <a class="navl" href="https://gluecraftstudio.mycreativeclub.com/termsandconditions" target="_blank" rel="noopener noreferrer" style="color:#F4EFE4;">Terms</a>
+      </nav>
+      <div class="mono" style="color:#CFCAC0;">© Glue Craft Studio</div>
+    </div>
+    <div class="ub" aria-hidden="true" style="font-size:190px;color:transparent;-webkit-text-stroke:2px #3A3A44;white-space:nowrap;text-align:center;margin-top:28px;line-height:.85;transform:translateY(28px);">Glue Craft</div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":8000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+
+    // ink layers
+    const ly = s.ly ?? [true, true, true];
+    const lDefs = [
+      { label: 'Pink', color: '#FF4FA3' },
+      { label: 'Blue', color: '#2A5CFF' },
+      { label: 'Yellow', color: '#FFD60A' }
+    ];
+    const layers = lDefs.map((d, i) => ({
+      label: d.label,
+      pressed: ly[i] ? 'true' : 'false',
+      style: ly[i] ? 'background:#FFFFFF;color:#17171B;' : 'background:#E5DFD1;color:#5A5A62;',
+      dot: 'background:' + (ly[i] ? d.color : 'transparent') + ';',
+      pick: () => { const n = ly.slice(); n[i] = !n[i]; this.setState({ ly: n }); }
+    }));
+
+    // offerings
+    const tab = s.tab ?? 0;
+    const off = [
+      { n: '01', title: 'Studio Time', color: '#FF4FA3', text: '#17171B', kicker: 'DIY arts & crafts studio', copy: 'Our DIY studio has projects for all ages. Each person can choose a different art or craft and create magic with the help of our staff. Make an appointment to come and join us for a great time.', chips: ['All ages', 'Pick your project', 'Staff on hand'], cta: 'Book studio time', href: '#contact', photo: 'Studio photo', art: ['#FF4FA3', '#FFD60A', '#2A5CFF'] },
+      { n: '02', title: 'Parties & Events', color: '#FFD60A', text: '#17171B', kicker: 'For kids and grown-ups', copy: "Planning a child's birthday party, a team-building outing, a celebratory milestone or just a fun night of creating with friends? Our events bring people together in the name of creativity, whatever the skill level.", chips: ['Birthdays', 'Team building', 'Milestones'], cta: 'Plan an event', href: '#contact', photo: 'Party photo', art: ['#FFD60A', '#FF4FA3', '#2A5CFF'] },
+      { n: '03', title: 'Classes & Workshops', color: '#2A5CFF', text: '#FFFFFF', kicker: 'Instructor-led', copy: 'Learn a new skill with fellow crafters and relax with a fun class. A more structured, creative experience with instructor-led sessions where you focus on creating a project in a longer crafting session.', chips: ['Instructor-led', 'Longer sessions', 'Learn a skill'], cta: 'See upcoming classes', href: 'https://linktr.ee/gluecraftstudio', photo: 'Class photo', art: ['#2A5CFF', '#FFD60A', '#FF4FA3'] },
+      { n: '04', title: 'Kids Club', color: '#17171B', text: '#F4EFE4', kicker: 'Led by Amy', copy: 'Our Kids Club uses an engaging curriculum developed with a team including occupational and play therapists, with a mix of creative freedom and discovery to open minds and encourage self-expression.', chips: ['Max 10 kids', 'Therapist-informed', 'Self-expression'], cta: 'Join Kids Club', href: 'https://linktr.ee/gluecraftstudio', photo: 'Kids Club photo', art: ['#FF4FA3', '#2A5CFF', '#FFD60A'] }
+    ];
+    const tabs = off.map((o, i) => ({
+      n: o.n, title: o.title, pressed: i === tab ? 'true' : 'false',
+      style: i === tab ? 'background:' + o.color + ';color:' + o.text + ';' : 'background:#FFFFFF;color:#17171B;',
+      pick: () => this.setState({ tab: i })
+    }));
+    const O = off[tab];
+
+    // found / made
+    const made = !!s.made;
+
+    // events
+    const flt = s.flt ?? 'All';
+    const chips = ['All', 'Classes', 'Parties', 'Open studio'].map((c) => ({ label: c, pressed: c === flt ? 'true' : 'false', style: c === flt ? 'background:#17171B;color:#F4EFE4;' : 'background:#FFFFFF;color:#17171B;', pick: () => this.setState({ flt: c }) }));
+    const allEv = [
+      { tag: 'Classes', bg: '#2A5CFF', text: '#FFFFFF' }, { tag: 'Parties', bg: '#FFD60A', text: '#17171B' }, { tag: 'Open studio', bg: '#FF4FA3', text: '#17171B' },
+      { tag: 'Classes', bg: '#2A5CFF', text: '#FFFFFF' }, { tag: 'Open studio', bg: '#FF4FA3', text: '#17171B' }, { tag: 'Parties', bg: '#FFD60A', text: '#17171B' }
+    ];
+    const events = allEv.filter((e) => flt === 'All' || e.tag === flt).slice(0, 4);
+
+    // testimonials stack
+    const top = s.q ?? 0;
+    const qd = [
+      { t: 'It was a unique and special experience. It felt like a calm and restorative space to let creativity flow.', n: 'Lok', bg: '#FF4FA3', color: '#17171B' },
+      { t: 'I loved the instructors, they were very patient and cheerful in all their instructions, made it a fun group. It was nice hearing the laughter of other people, a nice cozy space having fun.', n: 'Rachel', bg: '#FFD60A', color: '#17171B' },
+      { t: 'Such an incredible space, concept, way to spend time!', n: 'Jonny', bg: '#2A5CFF', color: '#FFFFFF' }
+    ];
+    const pos = [
+      'transform:translate(0px,0px) rotate(-1deg);z-index:3;',
+      'transform:translate(34px,-30px) rotate(2deg);z-index:2;',
+      'transform:translate(68px,-58px) rotate(4deg);z-index:1;'
+    ];
+    const quotes = qd.map((q, i) => {
+      const p = (i - top + 3) % 3;
+      return { t: q.t, n: q.n, size: q.t.length > 120 ? 22 : 30, style: 'background:' + q.bg + ';color:' + q.color + ';' + pos[p] };
+    });
+
+    // faq
+    const fq = s.faq === undefined ? 0 : s.faq;
+    const faqData = [
+      { q: 'Do I have to buy the supplies?', a: 'No. The supplies are included with the cost of registration.' },
+      { q: 'How big are the classes?', a: 'We feel it is important that everyone receives special attention, so classes are typically kept to a maximum of 10 students.' },
+      { q: 'What do I bring to class?', a: 'We provide all the supplies and materials. All you need to do is bring a good attitude and an open mind.' },
+      { q: 'What do I wear?', a: 'Classes tend to get messy and could result in paint or other damage to clothing, so we encourage old clothes.' },
+      { q: 'What if a class is canceled?', a: 'In the rare case a class is canceled, you will be notified as soon as possible and your class will be rescheduled.' },
+      { q: 'What if I "don\u2019t feel creative"?', a: 'Think of this more like playtime! The goal is to enjoy yourself. No one expects you to recreate the Mona Lisa or start an Etsy shop.' }
+    ];
+    const faqs = faqData.map((f, i) => ({ n: 'Q' + (i + 1), q: f.q, a: f.a, open: i === fq, expanded: i === fq ? 'true' : 'false', icon: i === fq ? 'background:#FFD60A;transform:rotate(45deg);' : '', pick: () => this.setState({ faq: i === fq ? -1 : i }) }));
+
+    // contact
+    const wi = s.want ?? 0, zi = s.size ?? 1;
+    const on = 'background:#2A5CFF;color:#FFFFFF;';
+    const offS = 'background:#FFFFFF;color:#17171B;';
+    const wants = ['Studio time', 'A party', 'A class', 'Kids Club'].map((label, i) => ({ label, pressed: i === wi ? 'true' : 'false', style: i === wi ? on : offS, pick: () => this.setState({ want: i }) }));
+    const sizes = ['Just me', '2 to 10', '10+'].map((label, i) => ({ label, pressed: i === zi ? 'true' : 'false', style: i === zi ? on : offS, pick: () => this.setState({ size: i }) }));
+    const sent = !!s.sent;
+
+    const words = ['Studio time', 'Parties & events', 'Classes & workshops', 'Kids Club', 'Anyone can create'];
+
+    return {
+      layers, pO: ly[0] ? 1 : 0, bO: ly[1] ? 1 : 0, yO: ly[2] ? 1 : 0,
+      ticker: words.concat(words).map((label) => ({ label })),
+      tabs, oTitle: O.title, oKicker: O.kicker, oCopy: O.copy, oColor: O.color, oText: O.text, oCta: O.cta, oHref: O.href, oTarget: O.href.startsWith('https://') ? '_blank' : '_self', oPhoto: O.photo,
+      oChips: O.chips.map((label) => ({ label })), a1: O.art[0], a2: O.art[1], a3: O.art[2],
+      isFound: !made, isMade: made,
+      foundP: made ? 'false' : 'true', madeP: made ? 'true' : 'false',
+      foundStyle: made ? 'background:#FFFFFF;color:#17171B;' : 'background:#17171B;color:#F4EFE4;',
+      madeStyle: made ? 'background:#17171B;color:#F4EFE4;' : 'background:#FFFFFF;color:#17171B;',
+      showFound: () => this.setState({ made: false }), showMade: () => this.setState({ made: true }),
+      foundCap: made ? 'Made: the same scraps, now a rocket. A second life for materials that would have been discarded.' : 'Found: a cardboard tube, a bottle cap and a small box that would have been thrown away.',
+      chips, events, quotes, nextQ: () => this.setState({ q: (top + 1) % 3 }),
+      faqs, wants, sizes, sent, notSent: !sent, send: () => {
+        for (const field of document.querySelectorAll('#contact input, #contact textarea')) {
+          field.required = true;
+          if (!field.reportValidity()) return;
+        }
+        this.setState({ sent: true });
+      }, reset: () => this.setState({ sent: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en" data-mockup-layout="mobile" data-mockup-concept="a">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/mockups/glue-craft-studio/device-view.js" data-concept="a" data-layout="mobile"></script>
+<link rel="stylesheet" href="/mockups/glue-craft-studio/review.css">
+<title>Glue Craft Studio — Cut &amp; Paste Mobile</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<nav aria-label="Design review" class="mockup-review">
+  <a href="/mockups/glue-craft-studio/#options">&larr; All options</a>
+  <span class="mockup-review__label">Option A · Cut &amp; Paste · Mobile</span>
+  <span class="mockup-review__views" role="group" aria-label="Preview layout">
+    <a href="/mockups/glue-craft-studio/Home%20(client%20landing%20page)-html/Cut%20%26%20Paste%20%C2%B7%20Desktop-html/Main.dc.html" data-view="auto">Auto</a>
+    <a href="/mockups/glue-craft-studio/Home%20(client%20landing%20page)-html/Cut%20%26%20Paste%20%C2%B7%20Mobile-html/Mobile.dc.html?view=mobile" data-view="mobile">Mobile</a>
+    <a href="/mockups/glue-craft-studio/Home%20(client%20landing%20page)-html/Cut%20%26%20Paste%20%C2%B7%20Desktop-html/Main.dc.html?view=desktop" data-view="desktop">Desktop</a>
+  </span>
+</nav>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&amp;family=Nunito+Sans:wght@400;600;700;800&amp;family=Caveat:wght@600;700&amp;display=swap">
+<style>
+body{margin:0;background:#E9D9BB;}
+*{box-sizing:border-box}
+h1,h2,h3,p{margin:0}
+a{color:inherit}
+.bag{font-family:'Bagel Fat One',sans-serif;font-weight:400;letter-spacing:-.01em;line-height:.95}
+.hand{font-family:'Caveat',cursive;font-weight:700}
+.eyebrow{font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.paper{box-shadow:0 2px 0 rgba(43,33,24,.16),0 10px 18px rgba(43,33,24,.14)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 24px;border:0;border-radius:14px;font-family:'Nunito Sans',sans-serif;font-weight:800;font-size:17px;text-decoration:none;cursor:pointer;box-shadow:0 4px 0 #2B2118}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #2B2118}
+.scrap{transition:transform .7s cubic-bezier(.3,1.5,.5,1),background-color .5s}
+.marq{display:flex;width:max-content;animation:marq 30s linear infinite}
+@keyframes marq{to{transform:translateX(-50%)}}
+.ph{background-image:repeating-linear-gradient(135deg,rgba(43,33,24,.09) 0 2px,transparent 2px 14px)}
+.inp{width:100%;min-height:52px;border:2px solid #2B2118;border-radius:12px;padding:0 14px;font-family:'Nunito Sans',sans-serif;font-size:17px;background:#FFFFFF;color:#2B2118}
+:focus-visible{outline:3px solid #146E6A;outline-offset:3px}
+.dk a:focus-visible,.dk button:focus-visible{outline-color:#FCF6E8}
+@media (prefers-reduced-motion:reduce){.marq{animation:none}.scrap{transition:none}}
+</style>
+</helmet>
+
+<div id="top" style="width:100%;background:#E9D9BB;color:#2B2118;font-family:'Nunito Sans',sans-serif;overflow-x:clip;">
+
+
+  <header style="position:sticky;top:0;z-index:40;background:#FCF6E8;border-bottom:3px solid #2B2118;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 20px;">
+      <a href="#top" style="display:flex;align-items:center;gap:8px;text-decoration:none;" aria-label="Glue Craft Studio home">
+        <svg width="30" height="36" viewBox="0 0 40 46" aria-hidden="true"><path d="M20 2C20 2 5 20 5 30a15 15 0 0 0 30 0C35 20 20 2 20 2Z" fill="#CF3D25" stroke="#2B2118" stroke-width="3" stroke-linejoin="round"></path><path d="M12 30a8 8 0 0 0 6 8" stroke="#FCF6E8" stroke-width="3" stroke-linecap="round" fill="none"></path></svg>
+        <span style="display:flex;flex-direction:column;line-height:1;"><span class="bag" style="font-size:24px;">Glue</span><span class="hand" style="font-size:18px;color:#146E6A;margin-top:-2px;">craft studio</span></span>
+      </a>
+      <button type="button" onClick="{{toggleMenu}}" aria-label="Menu" aria-expanded="{{menuExpanded}}" style="width:48px;height:48px;border:3px solid #2B2118;border-radius:12px;background:#F4B62B;color:#2B2118;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+        <sc-if value="{{menuClosed}}" hint-placeholder-val="{{true}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></sc-if>
+        <sc-if value="{{menuOpen}}" hint-placeholder-val="{{false}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"></path></svg></sc-if>
+      </button>
+    </div>
+    <sc-if value="{{menuOpen}}" hint-placeholder-val="{{false}}">
+      <nav aria-label="Main" style="background:#2B2118;color:#FCF6E8;padding:8px 20px 24px;display:flex;flex-direction:column;">
+        <a href="#offer" onClick="{{toggleMenu}}" class="bag" style="font-size:36px;text-decoration:none;padding:12px 0;border-bottom:1px solid #4A3B2C;">What We Offer</a>
+        <a href="#about" onClick="{{toggleMenu}}" class="bag" style="font-size:36px;text-decoration:none;padding:12px 0;border-bottom:1px solid #4A3B2C;">About</a>
+        <a href="#love" onClick="{{toggleMenu}}" class="bag" style="font-size:36px;text-decoration:none;padding:12px 0;border-bottom:1px solid #4A3B2C;">Testimonials</a>
+        <a href="#contact" onClick="{{toggleMenu}}" class="bag" style="font-size:36px;text-decoration:none;padding:12px 0;">Contact</a>
+      </nav>
+    </sc-if>
+  </header>
+
+  <!-- HERO -->
+  <section style="padding:36px 20px 52px;display:flex;flex-direction:column;gap:22px;">
+    <div class="eyebrow" style="color:#5A4A3A;">Arts &amp; crafts experiences for all ages</div>
+    <h1 class="bag" style="font-size:72px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;">
+      <span class="paper" style="background:#CF3D25;color:#FCF6E8;padding:2px 18px 10px;border-radius:5px;transform:rotate(-2deg);">Anyone</span>
+      <span class="paper" style="background:#F4B62B;color:#2B2118;padding:2px 18px 10px;border-radius:5px;transform:rotate(1.5deg);margin-left:40px;">can</span>
+      <span class="paper" style="background:#146E6A;color:#FCF6E8;padding:2px 18px 10px;border-radius:5px;transform:rotate(-1deg);margin-left:8px;">create.</span>
+    </h1>
+    <div class="hand" style="font-size:34px;color:#146E6A;line-height:1;">Imagine. Connect. Socialize. Enjoy.</div>
+    <p style="font-size:18px;line-height:1.55;color:#3C3024;">Create and connect through our in-person classes, parties, workshops and events.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <a class="btn" href="#contact" style="background:#CF3D25;color:#FCF6E8;">Plan a party</a>
+      <a class="btn" href="#events" style="background:#FCF6E8;color:#2B2118;">See what's on</a>
+    </div>
+    <div style="position:relative;height:360px;margin-top:20px;">
+      <sc-for list="{{scraps}}" as="s" hint-placeholder-count="7"><span class="scrap" aria-hidden="true" style="position:absolute;{{s.style}}"></span></sc-for>
+      <div class="paper" style="position:absolute;left:8px;top:40px;width:190px;padding:9px 9px 11px;background:#FCF6E8;transform:rotate(-4deg);z-index:3;">
+        <div class="ph" style="height:180px;background-color:#EAD9BC;display:flex;align-items:flex-end;padding:8px;"><span class="eyebrow" style="background:#2B2118;color:#FCF6E8;padding:4px 8px;border-radius:999px;font-size:10px;">Studio photo</span></div>
+        <div class="hand" style="font-size:24px;margin-top:4px;">[Caption]</div>
+      </div>
+      <div class="paper" style="position:absolute;right:0;top:150px;width:150px;padding:9px 9px 11px;background:#FCF6E8;transform:rotate(5deg);z-index:4;">
+        <div class="ph" style="height:140px;background-color:#F1C7D2;display:flex;align-items:flex-end;padding:8px;"><span class="eyebrow" style="background:#2B2118;color:#FCF6E8;padding:4px 8px;border-radius:999px;font-size:10px;">Craft photo</span></div>
+        <div class="hand" style="font-size:24px;margin-top:4px;">[Caption]</div>
+      </div>
+    </div>
+    <button type="button" class="btn" onClick="{{remix}}" style="background:#2B2118;color:#FCF6E8;box-shadow:0 4px 0 #146E6A;">Remix the collage</button>
+  </section>
+
+  <section aria-label="What we do" style="background:#CF3D25;color:#FCF6E8;padding:14px 0;overflow:hidden;">
+    <div class="marq">
+      <sc-for list="{{ticker}}" as="t" hint-placeholder-count="10"><div class="bag" style="display:flex;align-items:center;gap:18px;padding-right:18px;font-size:32px;white-space:nowrap;"><span>{{t.label}}</span><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#F4B62B"></path></svg></div></sc-for>
+    </div>
+  </section>
+
+  <!-- OFFER -->
+  <section id="offer" style="padding:64px 20px;">
+    <div class="eyebrow" style="color:#5A4A3A;">What we offer</div>
+    <h2 class="bag" style="font-size:52px;margin-top:12px;">Pick your kind <span style="color:#CF3D25;">of messy.</span></h2>
+    <div role="group" aria-label="Offerings" style="display:flex;flex-direction:column;gap:10px;margin-top:28px;">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+        <button type="button" class="paper" aria-pressed="{{t.pressed}}" onClick="{{t.pick}}" style="display:flex;align-items:center;gap:14px;width:100%;padding:16px 18px;border:0;border-radius:10px;cursor:pointer;text-align:left;font-family:'Nunito Sans',sans-serif;{{t.style}}">
+          <span class="bag" style="font-size:30px;line-height:1;min-width:38px;">{{t.n}}</span>
+          <span class="bag" style="font-size:26px;line-height:1;">{{t.title}}</span>
+        </button>
+      </sc-for>
+    </div>
+    <div class="paper" style="background:#FCF6E8;border-radius:10px;padding:24px;margin-top:20px;display:flex;flex-direction:column;gap:14px;">
+      <div class="ph" style="height:170px;background-color:#EAD9BC;border-radius:8px;display:flex;align-items:flex-end;padding:10px;"><span class="eyebrow" style="background:#2B2118;color:#FCF6E8;padding:4px 8px;border-radius:999px;font-size:10px;">{{oPhoto}}</span></div>
+      <div class="eyebrow" style="color:#5A4A3A;">{{oKicker}}</div>
+      <h3 class="bag" style="font-size:38px;">{{oTitle}}</h3>
+      <p style="font-size:17px;line-height:1.55;color:#3C3024;">{{oCopy}}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;"><sc-for list="{{oChips}}" as="c" hint-placeholder-count="3"><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;background:#EAD9BC;font-weight:800;font-size:13px;">{{c.label}}</span></sc-for></div>
+      <a class="btn" href="{{oHref}}" target="{{oTarget}}" rel="noopener noreferrer" style="background:{{oColor}};color:{{oText}};">{{oCta}}</a>
+    </div>
+  </section>
+
+  <!-- KIDS -->
+  <section id="kids" class="dk" style="background:#146E6A;color:#FCF6E8;padding:64px 20px;">
+    <div class="eyebrow" style="color:#F4B62B;">Kids Club</div>
+    <h2 class="bag" style="font-size:52px;margin-top:12px;">Everything we do in each class.</h2>
+    <div role="group" aria-label="Class steps" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:28px;">
+      <sc-for list="{{steps}}" as="st" hint-placeholder-count="4">
+        <button type="button" class="paper" aria-pressed="{{st.pressed}}" onClick="{{st.pick}}" style="border:0;border-radius:10px;padding:16px;cursor:pointer;text-align:left;font-family:'Nunito Sans',sans-serif;min-height:120px;display:flex;flex-direction:column;justify-content:space-between;{{st.style}}">
+          <span class="bag" style="font-size:36px;line-height:1;">{{st.n}}</span>
+          <span class="bag" style="font-size:20px;line-height:1;">{{st.title}}</span>
+        </button>
+      </sc-for>
+    </div>
+    <div class="paper" style="background:#FCF6E8;color:#2B2118;border-radius:10px;padding:22px;margin-top:16px;display:flex;flex-direction:column;gap:12px;">
+      <div class="eyebrow" style="color:#146E6A;">Step {{stepNum}} of 4</div>
+      <p class="bag" style="font-size:28px;line-height:1.1;">{{stepCopy}}</p>
+      <button type="button" class="btn" onClick="{{nextStep}}" style="background:#2B2118;color:#FCF6E8;box-shadow:0 4px 0 #CF3D25;">Next step</button>
+    </div>
+  </section>
+
+  <!-- REUSE -->
+  <section id="about" style="background:#FCF6E8;padding:64px 20px;">
+    <div class="eyebrow" style="color:#146E6A;">An arts &amp; crafts space for all</div>
+    <h2 class="bag" style="font-size:50px;margin-top:12px;">Crafting with a <span style="color:#CF3D25;">second life.</span></h2>
+    <p style="font-size:18px;line-height:1.6;color:#3C3024;margin-top:18px;">With a strong focus on reuse, we source materials that would have been discarded or gone unused and work them into the crafting. That keeps prices accessible and reduces waste.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:26px;">
+      <div class="paper" style="background:#F4B62B;border-radius:10px;padding:18px 20px;display:flex;align-items:center;gap:16px;transform:rotate(-1deg);"><svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="#2B2118" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 24a16 16 0 0 1 27-11.5L40 17M40 9v8h-8M40 24a16 16 0 0 1-27 11.5L8 31M8 39v-8h8"></path></svg><span class="bag" style="font-size:22px;line-height:1;">Materials that would have been thrown away</span></div>
+      <div class="paper" style="background:#CF3D25;color:#FCF6E8;border-radius:10px;padding:18px 20px;display:flex;align-items:center;gap:16px;transform:rotate(1deg);"><svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="#FCF6E8" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 24L24 6h16v16L22 40z"></path><circle cx="31" cy="17" r="2.5" fill="#FCF6E8"></circle></svg><span class="bag" style="font-size:22px;line-height:1;">An accessible price point</span></div>
+      <div class="paper" style="background:#146E6A;color:#FCF6E8;border-radius:10px;padding:18px 20px;display:flex;align-items:center;gap:16px;transform:rotate(-.6deg);"><svg width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="#FCF6E8" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 38C10 20 22 10 40 8c-1 18-11 30-26 30M10 38c4-10 10-16 18-20"></path></svg><span class="bag" style="font-size:22px;line-height:1;">Less waste, more making</span></div>
+    </div>
+  </section>
+
+  <!-- EVENTS -->
+  <section id="events" style="padding:64px 20px;">
+    <div class="eyebrow" style="color:#5A4A3A;">Upcoming events</div>
+    <h2 class="bag" style="font-size:52px;margin-top:12px;">Come craft <span style="color:#146E6A;">with us.</span></h2>
+    <div role="group" aria-label="Filter events" style="display:flex;gap:8px;overflow-x:auto;padding:24px 4px 18px 0;">
+      <sc-for list="{{chips}}" as="c" hint-placeholder-count="4"><button type="button" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="flex-shrink:0;min-height:44px;padding:0 18px;border:2px solid #2B2118;border-radius:12px;font-family:'Nunito Sans',sans-serif;font-weight:800;font-size:16px;cursor:pointer;{{c.style}}">{{c.label}}</button></sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <sc-for list="{{events}}" as="ev" hint-placeholder-count="3">
+        <article class="paper" style="background:#FCF6E8;border-radius:10px;overflow:hidden;display:flex;">
+          <div style="width:80px;flex-shrink:0;background:{{ev.color}};color:{{ev.text}};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:12px 6px;border-right:3px dashed #2B2118;"><span class="eyebrow" style="font-size:11px;">[Mon]</span><span class="bag" style="font-size:40px;line-height:1;">[DD]</span></div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:6px;">
+            <span class="eyebrow" style="color:#5A4A3A;font-size:11px;">{{ev.tag}}</span>
+            <h3 class="bag" style="font-size:26px;line-height:1;">[Event name]</h3>
+            <p style="font-size:15px;font-weight:700;">[Time] · [Price]</p>
+            <a href="https://linktr.ee/gluecraftstudio" target="_blank" rel="noopener noreferrer" style="font-weight:800;font-size:16px;min-height:44px;display:inline-flex;align-items:center;">Book a spot →</a>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+    <div style="margin-top:20px;display:flex;flex-direction:column;"><a class="btn" href="https://linktr.ee/gluecraftstudio" target="_blank" rel="noopener noreferrer" style="background:#2B2118;color:#FCF6E8;">See all events &amp; booking</a></div>
+  </section>
+
+  <!-- FOUNDERS -->
+  <section style="background:#F4B62B;padding:64px 20px;">
+    <div class="eyebrow">Hello from Amy &amp; Vanessa</div>
+    <h2 class="bag" style="font-size:48px;margin-top:12px;">Lifelong crafters, <span style="color:#CF3D25;">now yours.</span></h2>
+    <div role="group" aria-label="Founders" style="display:flex;gap:10px;margin-top:24px;">
+      <sc-for list="{{founders}}" as="f" hint-placeholder-count="2"><button type="button" aria-pressed="{{f.pressed}}" onClick="{{f.pick}}" style="min-height:48px;padding:0 22px;border:2px solid #2B2118;border-radius:12px;font-family:'Nunito Sans',sans-serif;font-weight:800;font-size:17px;cursor:pointer;{{f.style}}">{{f.label}}</button></sc-for>
+    </div>
+    <div class="paper" style="background:#FCF6E8;border-radius:10px;padding:22px;margin-top:16px;display:flex;flex-direction:column;gap:12px;">
+      <div class="ph" style="height:150px;background-color:#F1C7D2;border-radius:8px;display:flex;align-items:flex-end;padding:10px;"><span class="eyebrow" style="background:#2B2118;color:#FCF6E8;padding:4px 8px;border-radius:999px;font-size:10px;">Founder photo</span></div>
+      <p style="font-size:18px;line-height:1.55;">{{fCopy}}</p>
+      <p style="font-size:16px;line-height:1.55;color:#5A4A3A;">{{fExtra}}</p>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section id="love" style="padding:64px 20px;">
+    <div class="eyebrow" style="color:#5A4A3A;">See what others are saying</div>
+    <h2 class="bag" style="font-size:50px;margin-top:12px;">Don't just take <span style="color:#CF3D25;">our word for it.</span></h2>
+    <div class="paper" style="background:#FCF6E8;border-radius:10px;padding:26px 22px;margin-top:28px;display:flex;flex-direction:column;gap:18px;min-height:280px;justify-content:space-between;">
+      <svg width="48" height="38" viewBox="0 0 72 56" aria-hidden="true"><path d="M0 56V30C0 12 10 2 28 0v14C20 16 16 20 16 28h14v28zM40 56V30C40 12 50 2 68 0v14c-8 2-12 6-12 14h14v28z" fill="#F4B62B"></path></svg>
+      <p style="font-size:{{qSize}}px;line-height:1.3;font-weight:800;">{{qText}}</p>
+      <div class="hand" style="font-size:32px;color:#146E6A;">{{qName}}</div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:20px;">
+      <button type="button" aria-label="Previous testimonial" onClick="{{prevQ}}" style="width:56px;height:56px;border-radius:50%;border:3px solid #2B2118;background:#F4B62B;color:#2B2118;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg></button>
+      <button type="button" aria-label="Next testimonial" onClick="{{nextQ}}" style="width:56px;height:56px;border-radius:50%;border:3px solid #2B2118;background:#CF3D25;color:#FCF6E8;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section style="background:#FCF6E8;padding:64px 20px;">
+    <div class="eyebrow" style="color:#146E6A;">Have questions?</div>
+    <h2 class="bag" style="font-size:50px;margin-top:12px;">We'll answer them.</h2>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:26px;">
+      <sc-for list="{{faqs}}" as="f" hint-placeholder-count="6">
+        <div class="paper" style="background:#E9D9BB;border-radius:10px;overflow:hidden;">
+          <button type="button" aria-expanded="{{f.expanded}}" onClick="{{f.pick}}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:16px 18px;border:0;background:transparent;color:#2B2118;cursor:pointer;text-align:left;font-family:'Nunito Sans',sans-serif;font-weight:800;font-size:17px;line-height:1.25;">
+            <span>{{f.q}}</span>
+            <span style="width:34px;height:34px;flex-shrink:0;border-radius:50%;background:#2B2118;color:#FCF6E8;display:flex;align-items:center;justify-content:center;{{f.icon}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></span>
+          </button>
+          <sc-if value="{{f.open}}" hint-placeholder-val="{{false}}"><p style="padding:0 18px 18px;font-size:16px;line-height:1.55;color:#3C3024;">{{f.a}}</p></sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="freebie" class="dk" style="background:#CF3D25;color:#FCF6E8;padding:52px 20px;display:flex;flex-direction:column;gap:16px;">
+    <div class="eyebrow" style="color:#F4B62B;">Free for you</div>
+    <h2 class="bag" style="font-size:52px;">Grab your freebie!</h2>
+    <p style="font-size:17px;line-height:1.5;">A free step-by-step video tutorial and instruction template to create an artwork with your kids at home.</p>
+    <a class="btn" href="https://gluecraftstudio.mycreativeclub.com/freebie" target="_blank" rel="noopener noreferrer" style="background:#F4B62B;color:#2B2118;">Yes, please!</a>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" style="padding:64px 20px;">
+    <div class="eyebrow" style="color:#5A4A3A;">Come have fun with us</div>
+    <h2 class="bag" style="font-size:56px;margin-top:12px;">Let's make <span style="color:#146E6A;">something.</span></h2>
+    <div class="paper" style="background:#FCF6E8;border-radius:10px;padding:24px 20px;margin-top:26px;">
+      <sc-if value="{{notSent}}" hint-placeholder-val="{{true}}">
+        <div style="display:flex;flex-direction:column;gap:20px;">
+          <div class="bag" style="font-size:30px;">Plan your party</div>
+          <div><div class="eyebrow" style="color:#5A4A3A;margin-bottom:10px;">What's the occasion?</div>
+            <div role="group" aria-label="Occasion" style="display:flex;gap:8px;flex-wrap:wrap;"><sc-for list="{{occs}}" as="o" hint-placeholder-count="4"><button type="button" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}" style="min-height:44px;padding:0 14px;border:2px solid #2B2118;border-radius:12px;font-family:'Nunito Sans',sans-serif;font-weight:800;font-size:15px;cursor:pointer;{{o.style}}">{{o.label}}</button></sc-for></div></div>
+          <div><div class="eyebrow" style="color:#5A4A3A;margin-bottom:10px;">How many crafters?</div>
+            <div role="group" aria-label="Group size" style="display:flex;gap:8px;flex-wrap:wrap;"><sc-for list="{{sizes}}" as="z" hint-placeholder-count="3"><button type="button" aria-pressed="{{z.pressed}}" onClick="{{z.pick}}" style="min-height:44px;padding:0 14px;border:2px solid #2B2118;border-radius:12px;font-family:'Nunito Sans',sans-serif;font-weight:800;font-size:15px;cursor:pointer;{{z.style}}">{{z.label}}</button></sc-for></div></div>
+          <p class="hand" style="font-size:30px;line-height:1.05;color:#CF3D25;border-top:2px dashed #2B2118;padding-top:16px;">We're planning a {{occV}} for {{sizeV}}.</p>
+          <div style="display:flex;flex-direction:column;gap:6px;"><label for="m-email" style="font-weight:800;">Your email</label><input id="m-email" class="inp" type="email" placeholder="you@email.com"></div>
+          <button type="button" class="btn" onClick="{{send}}" style="background:#CF3D25;color:#FCF6E8;">Send it to Amy &amp; Vanessa</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{sent}}" hint-placeholder-val="{{false}}">
+        <div style="min-height:300px;display:flex;flex-direction:column;justify-content:center;gap:16px;align-items:flex-start;">
+          <div class="bag" style="font-size:48px;">Stuck on you!</div>
+          <p style="font-size:18px;line-height:1.5;color:#3C3024;">Demo complete — no request was sent. Use the email link below to contact Glue Craft Studio.</p>
+          <button type="button" class="btn" onClick="{{reset}}" style="background:#F4B62B;color:#2B2118;">Plan another</button>
+        </div>
+      </sc-if>
+    </div>
+    <div class="paper" style="background:#FCF6E8;border-radius:10px;padding:20px;margin-top:20px;display:flex;flex-direction:column;gap:8px;">
+      <div class="eyebrow" style="color:#146E6A;">Visit the studio</div>
+      <p style="font-size:18px;font-weight:700;line-height:1.4;">401 Chimborazo Blvd<br>Church Hill, Richmond, VA</p>
+      <p style="font-size:15px;color:#5A4A3A;">[Hours]</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px;">
+      <a href="mailto:gluecraftstudio@gmail.com" style="font-weight:800;font-size:19px;">gluecraftstudio@gmail.com</a>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a class="btn" href="https://www.instagram.com/glue.craft.studio/" target="_blank" rel="noopener noreferrer" style="background:#2B2118;color:#FCF6E8;min-height:46px;font-size:16px;">Instagram</a>
+        <a class="btn" href="https://www.facebook.com/glue.craft.studio/" target="_blank" rel="noopener noreferrer" style="background:#2B2118;color:#FCF6E8;min-height:46px;font-size:16px;">Facebook</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="dk" style="background:#2B2118;color:#FCF6E8;padding:32px 20px 0;overflow:hidden;">
+    <div style="display:flex;gap:16px;flex-wrap:wrap;font-weight:700;font-size:15px;">
+      <a href="https://gluecraftstudio.mycreativeclub.com/privacypolicy" target="_blank" rel="noopener noreferrer" style="min-height:44px;display:inline-flex;align-items:center;">Policy</a>
+      <a href="https://gluecraftstudio.mycreativeclub.com/termsandconditions" target="_blank" rel="noopener noreferrer" style="min-height:44px;display:inline-flex;align-items:center;">Terms</a>
+    </div>
+    <div class="eyebrow" style="color:#D9CBB0;">© Glue Craft Studio</div>
+    <div class="bag" aria-hidden="true" style="font-size:112px;color:#3C3024;white-space:nowrap;margin-top:18px;line-height:.8;transform:translateY(12px);">Glue Craft</div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":8000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const open = !!s.menu;
+
+    const seed = s.seed ?? 0;
+    const palette = ['#CF3D25', '#F4B62B', '#146E6A', '#F1A7BD', '#FCF6E8'];
+    const clips = {
+      circle: 'border-radius:50%;',
+      star: 'clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);',
+      tri: 'clip-path:polygon(50% 0,100% 100%,0 100%);',
+      blob: 'border-radius:60% 40% 55% 45% / 50% 60% 40% 50%;',
+      semi: 'border-radius:999px 999px 0 0;'
+    };
+    const base = [
+      { shape: 'circle', l: 2, t: 0, w: 76, h: 76, z: 1 },
+      { shape: 'star', l: 58, t: 0, w: 92, h: 92, z: 1 },
+      { shape: 'tri', l: 68, t: 52, w: 84, h: 76, z: 5 },
+      { shape: 'blob', l: -2, t: 62, w: 100, h: 84, z: 2 },
+      { shape: 'semi', l: 36, t: 84, w: 120, h: 60, z: 5 },
+      { shape: 'circle', l: 82, t: 86, w: 52, h: 52, z: 5 },
+      { shape: 'tri', l: 30, t: -3, w: 56, h: 50, z: 1 }
+    ];
+    const scraps = base.map((b, i) => {
+      const color = palette[(i + seed) % palette.length];
+      const rot = ((i * 53 + seed * 71) % 60) - 30;
+      const sc = 0.9 + ((i * 37 + seed * 29) % 30) / 100;
+      const dx = ((i * 19 + seed * 13) % 16) - 8;
+      const dy = ((i * 23 + seed * 17) % 16) - 8;
+      return { style: 'left:' + b.l + '%;top:' + b.t + '%;width:' + b.w + 'px;height:' + b.h + 'px;background-color:' + color + ';' + clips[b.shape] + 'z-index:' + b.z + ';transform:translate(' + dx + 'px,' + dy + 'px) rotate(' + rot + 'deg) scale(' + sc + ');box-shadow:0 2px 0 rgba(43,33,24,.16);' };
+    });
+
+    const tab = s.tab ?? 0;
+    const off = [
+      { n: '01', title: 'Studio Time', color: '#CF3D25', text: '#FCF6E8', kicker: 'DIY arts & crafts studio', copy: 'Projects for all ages. Each person picks a different art or craft and creates magic with help from our staff. Make an appointment and join us.', chips: ['All ages', 'Pick your project', 'Staff on hand'], cta: 'Book studio time', href: '#contact', photo: 'Studio photo' },
+      { n: '02', title: 'Parties & Events', color: '#F4B62B', text: '#2B2118', kicker: 'Groups of kids or adults', copy: "A child's birthday, a team-building outing, a milestone or a fun night of creating with friends. Whatever the skill level.", chips: ['Birthdays', 'Team building', 'Milestones'], cta: 'Plan a party', href: '#contact', photo: 'Party photo' },
+      { n: '03', title: 'Classes & Workshops', color: '#146E6A', text: '#FCF6E8', kicker: 'Instructor-led', copy: 'Learn a new skill with fellow crafters. Instructor-led sessions where you focus on one project in a longer crafting session.', chips: ['Instructor-led', 'Longer sessions', 'Learn a skill'], cta: 'See upcoming classes', href: 'https://linktr.ee/gluecraftstudio', photo: 'Class photo' },
+      { n: '04', title: 'Kids Club', color: '#F1A7BD', text: '#2B2118', kicker: 'Led by Amy', copy: 'A curriculum developed with a team including occupational and play therapists: creative freedom and discovery to encourage self-expression.', chips: ['Max 10 kids', 'Therapist-informed', 'Self-expression'], cta: 'Join Kids Club', href: 'https://linktr.ee/gluecraftstudio', photo: 'Kids Club photo' }
+    ];
+    const tabs = off.map((o, i) => ({ n: o.n, title: o.title, pressed: i === tab ? 'true' : 'false', style: i === tab ? 'background:' + o.color + ';color:' + o.text + ';' : 'background:#FCF6E8;color:#2B2118;', pick: () => this.setState({ tab: i }) }));
+    const O = off[tab];
+
+    const step = s.step ?? 0;
+    const st = [
+      { title: 'Think & Brainstorm', copy: 'Think outside the box, explore creativity, and practice problem-solving skills.', color: '#FCF6E8', text: '#2B2118' },
+      { title: 'Craft', copy: 'Practice fine motor and time management skills.', color: '#F4B62B', text: '#2B2118' },
+      { title: 'Play', copy: 'Practice gross motor and social skills while having fun!', color: '#F1A7BD', text: '#2B2118' },
+      { title: 'Wind Down', copy: 'Reflect on what has been learned.', color: '#CF3D25', text: '#FCF6E8' }
+    ];
+    const steps = st.map((x, i) => ({ n: '0' + (i + 1), title: x.title, pressed: i === step ? 'true' : 'false', style: 'background:' + x.color + ';color:' + x.text + ';' + (i === step ? '' : 'opacity:.72;'), pick: () => this.setState({ step: i }) }));
+
+    const flt = s.flt ?? 'All';
+    const chips = ['All', 'Classes', 'Parties', 'Open studio'].map((c) => ({ label: c, pressed: c === flt ? 'true' : 'false', style: c === flt ? 'background:#2B2118;color:#FCF6E8;' : 'background:#FCF6E8;color:#2B2118;', pick: () => this.setState({ flt: c }) }));
+    const allEv = [
+      { tag: 'Classes', color: '#146E6A', text: '#FCF6E8' }, { tag: 'Parties', color: '#F4B62B', text: '#2B2118' }, { tag: 'Open studio', color: '#CF3D25', text: '#FCF6E8' },
+      { tag: 'Classes', color: '#F1A7BD', text: '#2B2118' }, { tag: 'Open studio', color: '#146E6A', text: '#FCF6E8' }, { tag: 'Parties', color: '#CF3D25', text: '#FCF6E8' }
+    ];
+    const events = allEv.filter((e) => flt === 'All' || e.tag === flt).slice(0, 3);
+
+    const fnd = s.fnd ?? 0;
+    const fData = [
+      { label: 'Amy', copy: 'Amy remembers crafting with her Grandma, Tutu, at the family dinner table, tinkering away for hours together.', extra: 'She leads our Kids Club, with a bachelors in Youth Development & Camp Management.' },
+      { label: 'Vanessa', copy: 'Vanessa attributes her love of crafting to her mom, Nora, who always had a new craft ready for every childhood hangout or sleepover.', extra: 'Together they want to recreate that sense of community through shared creativity.' }
+    ];
+    const founders = fData.map((f, i) => ({ label: f.label, pressed: i === fnd ? 'true' : 'false', style: i === fnd ? 'background:#2B2118;color:#FCF6E8;' : 'background:#FCF6E8;color:#2B2118;', pick: () => this.setState({ fnd: i }) }));
+
+    const qi = s.q ?? 0;
+    const qs = [
+      { t: 'It was a unique and special experience. It felt like a calm and restorative space to let creativity flow.', n: 'Lok' },
+      { t: 'I loved the instructors, they were very patient and cheerful in all their instructions, made it a fun group. It was nice hearing the laughter of other people, a nice cozy space having fun.', n: 'Rachel' },
+      { t: 'Such an incredible space, concept, way to spend time!', n: 'Jonny' }
+    ];
+
+    const fq = s.faq === undefined ? 0 : s.faq;
+    const faqData = [
+      { q: 'Do I have to buy the supplies?', a: 'No. The supplies are included with the cost of registration.' },
+      { q: 'How big are the classes?', a: 'Classes are typically kept to a maximum of 10 students so everyone gets special attention.' },
+      { q: 'What do I bring to class?', a: 'We provide all the supplies and materials. Just bring a good attitude and an open mind.' },
+      { q: 'What do I wear?', a: 'Classes tend to get messy, so we encourage old clothes.' },
+      { q: 'What if a class is canceled?', a: 'You will be notified as soon as possible and your class will be rescheduled.' },
+      { q: 'What if I "don\u2019t feel creative"?', a: 'Think of this more like playtime! No one expects you to recreate the Mona Lisa or start an Etsy shop.' }
+    ];
+    const faqs = faqData.map((f, i) => ({ q: f.q, a: f.a, open: i === fq, expanded: i === fq ? 'true' : 'false', icon: i === fq ? 'transform:rotate(45deg);background:#CF3D25;' : '', pick: () => this.setState({ faq: i === fq ? -1 : i }) }));
+
+    const oc = s.occ ?? 0, sz = s.size ?? 1;
+    const occL = [['Birthday party', 'birthday party'], ['Team outing', 'team outing'], ['Milestone', 'milestone celebration'], ['Night with friends', 'night with friends']];
+    const szL = [['Under 10', 'under 10 crafters'], ['10 to 20', '10 to 20 crafters'], ['20+', '20+ crafters']];
+    const mk = (arr, cur, key) => arr.map((a, i) => ({ label: a[0], pressed: i === cur ? 'true' : 'false', style: i === cur ? 'background:#146E6A;color:#FCF6E8;' : 'background:#FFFFFF;color:#2B2118;', pick: () => this.setState({ [key]: i }) }));
+    const sent = !!s.sent;
+
+    const words = ['Studio time', 'Parties & events', 'Classes & workshops', 'Kids Club', 'Anyone can create'];
+
+    return {
+      menuOpen: open, menuClosed: !open, menuExpanded: open ? 'true' : 'false', toggleMenu: () => this.setState({ menu: !open }),
+      scraps, remix: () => this.setState({ seed: seed + 1 }), ticker: words.concat(words).map((label) => ({ label })),
+      tabs, oTitle: O.title, oKicker: O.kicker, oCopy: O.copy, oColor: O.color, oText: O.text, oCta: O.cta, oHref: O.href, oTarget: O.href.startsWith('https://') ? '_blank' : '_self', oPhoto: O.photo, oChips: O.chips.map((label) => ({ label })),
+      steps, stepNum: step + 1, stepCopy: st[step].copy, nextStep: () => this.setState({ step: (step + 1) % 4 }),
+      chips, events: events.map((e) => ({ tag: e.tag, color: e.color, text: e.text })),
+      founders, fCopy: fData[fnd].copy, fExtra: fData[fnd].extra,
+      qText: qs[qi].t, qName: qs[qi].n, qSize: qs[qi].t.length > 120 ? 22 : 28,
+      prevQ: () => this.setState({ q: (qi + 2) % 3 }), nextQ: () => this.setState({ q: (qi + 1) % 3 }),
+      faqs, occs: mk(occL, oc, 'occ'), sizes: mk(szL, sz, 'size'), occV: occL[oc][1], sizeV: szL[sz][1],
+      sent, notSent: !sent, send: () => {
+        for (const field of document.querySelectorAll('#contact input, #contact textarea')) {
+          field.required = true;
+          if (!field.reportValidity()) return;
+        }
+        this.setState({ sent: true });
+      }, reset: () => this.setState({ sent: false })
+    };
+  }
+}
+</script>
+</body>
+</html>
