@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en" data-mockup-layout="mobile" data-mockup-concept="a">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/mockups/secret-squares/device-view.js" data-concept="a" data-layout="mobile"></script>
+<link rel="stylesheet" href="/mockups/secret-squares/review.css">
+<title>Secret Squares — Gig Poster Mobile</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<nav aria-label="Design review" class="mockup-review">
+  <a href="/mockups/secret-squares/#options">&larr; All options</a>
+  <span class="mockup-review__label">Option A · Gig Poster · Mobile</span>
+  <span class="mockup-review__views" role="group" aria-label="Preview layout">
+    <a href="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/A%20%C2%B7%20Gig%20Poster%20%C2%B7%20Desktop-html/Main.dc.html" data-view="auto">Auto</a>
+    <a href="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/A%20%C2%B7%20Gig%20Poster%20%C2%B7%20Mobile-html/Mobile.dc.html?view=mobile" data-view="mobile">Mobile</a>
+    <a href="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/A%20%C2%B7%20Gig%20Poster%20%C2%B7%20Desktop-html/Main.dc.html?view=desktop" data-view="desktop">Desktop</a>
+  </span>
+  <span class="mockup-review__note">Interactive demo. Orders, purchases and messages are not sent.</span>
+</nav>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&amp;family=Karla:wght@400;500;700;800&amp;family=Permanent+Marker&amp;display=swap">
+<style>
+body{margin:0;background:#FBF3DC;}
+*{box-sizing:border-box}
+h1,h2,h3,p{margin:0}
+a{color:inherit}
+.bw{font-family:'Bowlby One',sans-serif;font-weight:400;letter-spacing:-.01em;line-height:.98;text-transform:uppercase}
+.mk{font-family:'Permanent Marker',cursive;font-weight:400}
+.eyebrow{font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 22px;border:3px solid #16120E;border-radius:0;font-family:'Karla',sans-serif;font-weight:800;font-size:17px;text-decoration:none;cursor:pointer;box-shadow:4px 4px 0 #16120E}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 #16120E}
+.btn[disabled]{background:#E9E1CB;color:#6B5F4E;cursor:not-allowed;box-shadow:none}
+.card{background:#FFFFFF;border:3px solid #16120E;box-shadow:5px 5px 0 #16120E}
+.step{width:44px;height:44px;border:3px solid #16120E;background:#FFFFFF;color:#16120E;font-family:'Karla',sans-serif;font-weight:800;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.dots{background-image:radial-gradient(circle,rgba(22,18,14,.22) 1.4px,transparent 1.8px);background-size:10px 10px}
+.marq{display:flex;width:max-content;animation:marq 28s linear infinite}
+@keyframes marq{to{transform:translateX(-50%)}}
+.inp{width:100%;min-height:52px;border:3px solid #16120E;border-radius:0;padding:0 14px;font-family:'Karla',sans-serif;font-size:17px;background:#FFFFFF;color:#16120E}
+:focus-visible{outline:3px solid #C4351A;outline-offset:3px}
+.dk a:focus-visible,.dk button:focus-visible,.dk input:focus-visible{outline-color:#F3CF2E}
+@media (prefers-reduced-motion:reduce){.marq{animation:none}}
+</style>
+</helmet>
+
+<div id="top" style="width:100%;background:#FBF3DC;color:#16120E;font-family:'Karla',sans-serif;overflow-x:clip;">
+
+
+  <header style="position:sticky;top:0;z-index:40;background:#FBF3DC;border-bottom:4px solid #16120E;display:flex;align-items:center;justify-content:space-between;padding:6px 16px;">
+    <a href="#top" aria-label="Secret Squares home" style="display:flex;"><img src="./assets/02616b60ed95792e95ef62a4113b0272.png" alt="Secret Squares" style="height:46px;width:auto;display:block;"></a>
+    <a class="btn" href="#order" style="background:#C4351A;color:#FBF3DC;min-height:46px;font-size:15px;padding:0 16px;">Order <span style="background:#F3CF2E;color:#16120E;padding:2px 8px;font-size:13px;">{{countLabel}}</span></a>
+  </header>
+
+  <!-- HERO -->
+  <section style="padding:32px 20px 48px;display:flex;flex-direction:column;gap:22px;">
+    <div style="display:flex;align-items:center;gap:10px;"><span style="width:12px;height:12px;border-radius:50%;background:{{dot}};border:2px solid #16120E;display:block;"></span><span class="eyebrow">{{statusText}}</span></div>
+    <h1 class="bw" style="font-size:56px;">Square pies.<br><span style="color:#C4351A;">Sourdough</span><br>soul.</h1>
+    <p style="font-size:18px;line-height:1.55;color:#3A3128;">100% naturally leavened Detroit-style pizza, made with local ingredients in Church Hill.</p>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <a class="btn" href="#order" style="background:#C4351A;color:#FBF3DC;">Order ahead</a>
+      <a class="btn" href="#visit" style="background:#FFFFFF;">Hours &amp; location</a>
+    </div>
+    <div style="position:relative;height:390px;margin-top:12px;">
+      <div class="dots" style="position:absolute;left:24px;top:10px;width:250px;height:250px;background-color:#F3CF2E;border:3px solid #16120E;transform:rotate(6deg);"></div>
+      <div style="position:absolute;left:0;top:50px;width:330px;background:#FFFFFF;border:3px solid #16120E;box-shadow:7px 7px 0 #16120E;padding:8px;transform:rotate(-3deg);z-index:2;"><img src="./assets/02616b60ed95792e95ef62a4113b0272.png" alt="Secret Squares logo" style="width:100%;height:auto;display:block;"></div>
+      <img src="./assets/02e3cb67db1e8a3930eb6e055158063a.jpg" alt="Pepperoni pizza" style="position:absolute;right:0;top:0;width:110px;height:110px;object-fit:cover;border-radius:50%;border:3px solid #16120E;box-shadow:4px 4px 0 #16120E;z-index:3;transform:rotate(8deg);">
+      <img src="./assets/1a2d11610d6542eee3d61836cfc7753d.jpg" alt="Burrata and tomato pizza" style="position:absolute;right:10px;bottom:0;width:170px;height:170px;object-fit:cover;border-radius:50%;border:3px solid #16120E;box-shadow:4px 4px 0 #16120E;z-index:3;transform:rotate(-6deg);">
+      <span class="mk" style="position:absolute;left:6px;bottom:30px;font-size:28px;color:#C4351A;transform:rotate(-5deg);z-index:4;">crispy edge, always.</span>
+    </div>
+  </section>
+
+  <section aria-label="Highlights" style="background:#16120E;color:#F3CF2E;padding:14px 0;overflow:hidden;">
+    <div class="marq">
+      <div class="bw" style="display:flex;align-items:center;gap:20px;padding-right:20px;font-size:24px;white-space:nowrap;"><span>Naturally leavened</span><span style="color:#C4351A;">✱</span><span>Locally focused</span><span style="color:#C4351A;">✱</span><span>Crispy cheese edge</span><span style="color:#C4351A;">✱</span><span>Order ahead</span><span style="color:#C4351A;">✱</span></div>
+      <div class="bw" aria-hidden="true" style="display:flex;align-items:center;gap:20px;padding-right:20px;font-size:24px;white-space:nowrap;"><span>Naturally leavened</span><span style="color:#C4351A;">✱</span><span>Locally focused</span><span style="color:#C4351A;">✱</span><span>Crispy cheese edge</span><span style="color:#C4351A;">✱</span><span>Order ahead</span><span style="color:#C4351A;">✱</span></div>
+    </div>
+  </section>
+
+  <!-- ORDER -->
+  <section id="order" style="padding:56px 20px 24px;">
+    <div class="eyebrow" style="color:#C4351A;">Order ahead for pickup</div>
+    <h2 class="bw" style="font-size:48px;margin-top:12px;">Build your order.</h2>
+    <span class="eyebrow" style="display:inline-block;margin-top:14px;border:3px solid #16120E;padding:6px 10px;background:#F3CF2E;font-size:11px;">Sample menu and prices</span>
+    <div style="display:flex;flex-direction:column;gap:18px;margin-top:26px;">
+      <sc-for list="{{items}}" as="m" hint-placeholder-count="8">
+        <article class="card" style="display:grid;grid-template-columns:118px minmax(0,1fr);">
+          <img src="{{m.img}}" alt="{{m.name}}" style="width:118px;height:100%;min-height:170px;object-fit:cover;display:block;border-right:3px solid #16120E;">
+          <div style="padding:14px 14px 16px;display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;"><h3 class="bw" style="font-size:20px;">{{m.name}}</h3><span class="bw" style="background:#F3CF2E;border:2px solid #16120E;padding:2px 8px;font-size:15px;">{{m.price}}</span></div>
+            <p style="font-size:14px;line-height:1.4;color:#3A3128;">{{m.desc}}</p>
+            <div style="margin-top:auto;padding-top:8px;">
+              <sc-if value="{{m.noQty}}" hint-placeholder-val="{{true}}"><button type="button" class="btn" onClick="{{m.add}}" style="background:#C4351A;color:#FBF3DC;width:100%;min-height:46px;font-size:16px;">Add</button></sc-if>
+              <sc-if value="{{m.hasQty}}" hint-placeholder-val="{{false}}"><div style="display:flex;align-items:center;justify-content:space-between;background:#F3CF2E;border:3px solid #16120E;padding:2px;"><button type="button" class="step" aria-label="Remove one {{m.name}}" onClick="{{m.dec}}">−</button><span class="bw" style="font-size:20px;">{{m.qty}}</span><button type="button" class="step" aria-label="Add one {{m.name}}" onClick="{{m.inc}}">+</button></div></sc-if>
+            </div>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+
+    <div id="ticket" class="card" style="margin-top:32px;box-shadow:6px 6px 0 #16120E;">
+      <div style="background:#16120E;color:#F3CF2E;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;"><span class="bw" style="font-size:24px;">Your ticket</span><span class="eyebrow">{{countLabel}}</span></div>
+      <sc-if value="{{notPlaced}}" hint-placeholder-val="{{true}}">
+        <div style="padding:18px;display:flex;flex-direction:column;gap:18px;">
+          <sc-if value="{{noLines}}" hint-placeholder-val="{{true}}"><p class="mk" style="font-size:22px;line-height:1.2;color:#6B5F4E;">Nothing yet. Tap a pie to add it.</p></sc-if>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <sc-for list="{{lines}}" as="l" hint-placeholder-count="2">
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;border-bottom:2px dashed #16120E;padding-bottom:10px;">
+                <span style="font-weight:800;font-size:15px;line-height:1.2;">{{l.name}}</span>
+                <span style="display:flex;align-items:center;gap:4px;"><button type="button" class="step" style="width:40px;height:40px;font-size:18px;" aria-label="Remove one {{l.name}}" onClick="{{l.dec}}">−</button><span style="font-weight:800;min-width:14px;text-align:center;">{{l.qty}}</span><button type="button" class="step" style="width:40px;height:40px;font-size:18px;" aria-label="Add one {{l.name}}" onClick="{{l.inc}}">+</button></span>
+                <span style="font-weight:800;min-width:44px;text-align:right;">{{l.total}}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-weight:800;font-size:19px;"><span>Subtotal</span><span>{{subtotal}}</span></div>
+          <div>
+            <div class="eyebrow" style="margin-bottom:8px;">Pickup day</div>
+            <div role="group" aria-label="Pickup day" style="display:flex;gap:8px;"><sc-for list="{{dayChips}}" as="d" hint-placeholder-count="3"><button type="button" aria-pressed="{{d.pressed}}" onClick="{{d.pick}}" style="flex:1;min-height:46px;border:3px solid #16120E;font-family:'Karla',sans-serif;font-weight:800;font-size:16px;cursor:pointer;{{d.style}}">{{d.label}}</button></sc-for></div>
+          </div>
+          <div>
+            <div class="eyebrow" style="margin-bottom:8px;">Pickup time</div>
+            <div role="group" aria-label="Pickup time" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;"><sc-for list="{{slotChips}}" as="t" hint-placeholder-count="7"><button type="button" aria-pressed="{{t.pressed}}" aria-disabled="{{t.dis}}" onClick="{{t.pick}}" style="min-height:46px;border:3px solid #16120E;font-family:'Karla',sans-serif;font-weight:800;font-size:15px;cursor:pointer;{{t.style}}">{{t.label}} <span style="font-size:12px;">{{t.note}}</span></button></sc-for></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <label for="am-name" class="eyebrow">Name</label><input id="am-name" class="inp" type="text" placeholder="Name for the order">
+            <label for="am-phone" class="eyebrow">Phone</label><input id="am-phone" class="inp" type="tel" placeholder="For a text when it's ready">
+          </div>
+          <sc-if value="{{canOrder}}" hint-placeholder-val="{{false}}"><button type="button" class="btn" onClick="{{place}}" style="background:#C4351A;color:#FBF3DC;width:100%;font-size:18px;">Place order · {{subtotal}}</button></sc-if>
+          <sc-if value="{{cantOrder}}" hint-placeholder-val="{{true}}"><button type="button" class="btn" disabled="{{true}}" style="width:100%;font-size:16px;">Add a pie and pick a time</button></sc-if>
+          <p style="font-size:13px;color:#6B5F4E;">Taxes calculated at checkout. Your order goes straight to the kitchen ticket.</p>
+        </div>
+      </sc-if>
+      <sc-if value="{{placed}}" hint-placeholder-val="{{false}}">
+        <div style="padding:22px 18px;display:flex;flex-direction:column;gap:16px;">
+          <div class="eyebrow" style="color:#C4351A;">Demo kitchen ticket</div>
+          <div class="bw" style="font-size:44px;">Ticket {{orderNo}}</div>
+          <p style="font-size:17px;font-weight:800;">Pickup: {{pickupText}}</p>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <sc-for list="{{stageList}}" as="g" hint-placeholder-count="3">
+              <div style="display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:10px;border:3px solid #16120E;padding:10px;{{g.style}}"><span class="bw" style="font-size:22px;">{{g.n}}</span><span><span style="font-weight:800;display:block;">{{g.label}}</span><span style="font-size:13px;">{{g.desc}}</span></span><span class="eyebrow" style="font-size:10px;">{{g.tag}}</span></div>
+            </sc-for>
+          </div>
+          <sc-if value="{{advOpen}}" hint-placeholder-val="{{true}}"><button type="button" class="btn" onClick="{{advance}}" style="background:#F3CF2E;width:100%;">{{advLabel}}</button></sc-if>
+          <button type="button" class="btn" onClick="{{resetOrder}}" style="background:#FFFFFF;width:100%;">Start a new order</button>
+        </div>
+      </sc-if>
+    </div>
+
+    <sc-if value="{{hasLines}}" hint-placeholder-val="{{false}}">
+      <a class="btn" href="#ticket" style="position:sticky;bottom:12px;margin-top:20px;width:100%;background:#C4351A;color:#FBF3DC;z-index:20;justify-content:space-between;"><span>{{countLabel}}</span><span>View ticket · {{subtotal}}</span></a>
+    </sc-if>
+  </section>
+
+  <!-- STORY -->
+  <section id="story" style="background:#F3CF2E;border-top:4px solid #16120E;border-bottom:4px solid #16120E;padding:56px 20px;display:flex;flex-direction:column;gap:22px;">
+    <div class="eyebrow">Our story</div>
+    <h2 class="bw" style="font-size:46px;">Started as a pop-up.</h2>
+    <p style="font-size:18px;line-height:1.6;">Secret Squares began as a pizza pop-up. Willoughby Obenchain fell for Detroit-style square pies and has been perfecting the crust ever since, using local ingredients and 100% naturally leavened sourdough.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <span class="bw" style="background:#16120E;color:#F3CF2E;padding:8px 12px;font-size:15px;transform:rotate(-2deg);">100% sourdough</span>
+      <span class="bw" style="background:#C4351A;color:#FBF3DC;padding:8px 12px;font-size:15px;transform:rotate(1.5deg);">Locally focused</span>
+      <span class="bw" style="background:#FFFFFF;border:3px solid #16120E;padding:5px 12px;font-size:15px;transform:rotate(-1deg);">Crispy edge</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:8px;">
+      <img src="./assets/be488aea114191e1707ef958ae5e4639.jpg" alt="Buffalo and ranch pizza close-up" style="width:100%;height:180px;object-fit:cover;border:3px solid #16120E;box-shadow:4px 4px 0 #16120E;">
+      <img src="./assets/fd3f70bef5595bbc37b669a91ea26189.jpg" alt="Pizza with green sauce" style="width:100%;height:180px;object-fit:cover;border:3px solid #16120E;box-shadow:4px 4px 0 #16120E;">
+    </div>
+  </section>
+
+  <section aria-label="Photos" style="padding:48px 20px 8px;">
+    <h2 class="bw" style="font-size:38px;">Fresh out of the pan.</h2>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px;">
+      <img src="./assets/5dac0273ddcb950b9c6e42568afbbbfd.jpg" alt="Ricotta and sauce stripes pizza slice" style="width:100%;height:170px;object-fit:cover;border:3px solid #16120E;box-shadow:4px 4px 0 #16120E;">
+      <img src="./assets/4b70441ecdcfa64ff185d8ea44abc345.jpg" alt="Pickled cabbage pizza" style="width:100%;height:170px;object-fit:cover;border:3px solid #16120E;box-shadow:4px 4px 0 #16120E;">
+      <img src="./assets/abf7e005fcc44e08bf4dc3fdd9260f6c.jpg" alt="Red pepper drizzle pizza" style="width:100%;height:170px;object-fit:cover;border:3px solid #16120E;box-shadow:4px 4px 0 #16120E;">
+      <img src="./assets/15d0cf74d90b2988ddf8775a3750405f.jpg" alt="Whipped ricotta and mushroom slice" style="width:100%;height:170px;object-fit:cover;border:3px solid #16120E;box-shadow:4px 4px 0 #16120E;">
+    </div>
+    <div style="display:flex;flex-direction:column;margin-top:22px;"><a class="btn" href="https://www.instagram.com/secretsquares/" target="_blank" rel="noopener noreferrer" style="background:#FFFFFF;">Follow @secretsquares</a></div>
+  </section>
+
+  <!-- VISIT -->
+  <section id="visit" class="dk" style="background:#16120E;color:#FBF3DC;margin-top:48px;padding:56px 20px;display:flex;flex-direction:column;gap:22px;">
+    <div class="eyebrow" style="color:#F3CF2E;">Hours</div>
+    <h2 class="bw" style="font-size:46px;">Come on in.</h2>
+    <div style="display:flex;align-items:center;gap:10px;"><span style="width:12px;height:12px;border-radius:50%;background:{{dot}};border:2px solid #FBF3DC;display:block;"></span><span style="font-weight:800;font-size:16px;">{{statusText}}</span></div>
+    <div style="border:3px solid #FBF3DC;">
+      <sc-for list="{{hours}}" as="h" hint-placeholder-count="7">
+        <div style="display:grid;grid-template-columns:52px minmax(0,1fr);gap:4px 10px;padding:10px 14px;border-bottom:2px solid #3A3128;font-weight:700;font-size:15px;{{h.style}}"><span class="bw" style="font-size:16px;">{{h.d}}</span><span>{{h.t}} <span style="font-size:13px;">{{h.note}}</span></span></div>
+      </sc-for>
+    </div>
+    <div style="border:3px solid #FBF3DC;padding:20px;display:flex;flex-direction:column;gap:8px;">
+      <div class="eyebrow" style="color:#F3CF2E;">Find us</div>
+      <p style="font-size:20px;font-weight:800;line-height:1.35;">306 N 29th St<br>Richmond, VA 23223</p>
+      <p style="font-size:15px;color:#D9CDB4;">Church Hill · Dine-in and take-out</p>
+      <div style="height:130px;margin-top:6px;border:3px dashed #6B5F4E;display:flex;align-items:center;justify-content:center;"><span class="eyebrow" style="color:#D9CDB4;">Map goes here</span></div>
+    </div>
+    <div style="background:#F3CF2E;color:#16120E;padding:22px 20px;display:flex;flex-direction:column;gap:12px;">
+      <div class="bw" style="font-size:28px;">Get a text when we're open.</div>
+      <sc-if value="{{alertOpen}}" hint-placeholder-val="{{true}}"><div style="display:flex;flex-direction:column;gap:8px;"><label for="am-alert" class="eyebrow">Your phone number</label><input id="am-alert" class="inp" type="tel" placeholder="(804) 555-0123"><button type="button" class="btn" onClick="{{sendAlert}}" style="background:#16120E;color:#F3CF2E;box-shadow:4px 4px 0 #C4351A;">Text me</button></div></sc-if>
+      <sc-if value="{{alertSent}}" hint-placeholder-val="{{false}}"><div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start;"><p style="font-size:18px;font-weight:800;">Demo signup complete. No text alerts were activated.</p><button type="button" class="btn" onClick="{{resetAlert}}" style="background:#FBF3DC;color:#16120E;">Use another number</button></div></sc-if>
+    </div>
+  </section>
+
+  <!-- MORE -->
+  <section id="more" style="padding:56px 20px;display:flex;flex-direction:column;gap:28px;">
+    <div class="card" style="padding:24px 20px;display:flex;flex-direction:column;gap:16px;">
+      <div class="eyebrow" style="color:#C4351A;">Catering and pop-ups</div>
+      <h2 class="bw" style="font-size:34px;">Bring the squares to you.</h2>
+      <sc-if value="{{catOpen}}" hint-placeholder-val="{{true}}">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div role="group" aria-label="Occasion" style="display:flex;gap:8px;flex-wrap:wrap;"><sc-for list="{{catChips}}" as="c" hint-placeholder-count="4"><button type="button" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="min-height:44px;padding:0 14px;border:3px solid #16120E;font-family:'Karla',sans-serif;font-weight:800;font-size:15px;cursor:pointer;{{c.style}}">{{c.label}}</button></sc-for></div>
+          <div role="group" aria-label="Guests" style="display:flex;gap:8px;flex-wrap:wrap;"><sc-for list="{{guestChips}}" as="c" hint-placeholder-count="3"><button type="button" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="min-height:44px;padding:0 14px;border:3px solid #16120E;font-family:'Karla',sans-serif;font-weight:800;font-size:15px;cursor:pointer;{{c.style}}">{{c.label}}</button></sc-for></div>
+          <p class="mk" style="font-size:24px;line-height:1.15;color:#C4351A;">We're planning a {{catLine}}.</p>
+          <div style="display:flex;flex-direction:column;gap:6px;"><label for="am-cat" class="eyebrow">Your email</label><input id="am-cat" class="inp" type="email" placeholder="you@email.com"></div>
+          <button type="button" class="btn" onClick="{{sendCat}}" style="background:#C4351A;color:#FBF3DC;">Send inquiry</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{catSent}}" hint-placeholder-val="{{false}}"><div style="display:flex;flex-direction:column;gap:14px;align-items:flex-start;min-height:220px;justify-content:center;"><p class="bw" style="font-size:36px;">Got it!</p><p style="font-size:18px;">Demo inquiry complete. No message was sent.</p><button type="button" class="btn" onClick="{{resetCat}}" style="background:#F3CF2E;">Send another</button></div></sc-if>
+    </div>
+    <div class="card" style="padding:24px 20px;display:flex;flex-direction:column;gap:16px;background:#F3CF2E;">
+      <div class="eyebrow">Gift cards</div>
+      <h2 class="bw" style="font-size:34px;">Give someone a square meal.</h2>
+      <sc-if value="{{giftOpen}}" hint-placeholder-val="{{true}}">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div role="group" aria-label="Amount" style="display:flex;gap:8px;"><sc-for list="{{giftChips}}" as="c" hint-placeholder-count="3"><button type="button" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="flex:1;min-height:56px;border:3px solid #16120E;font-family:'Bowlby One',sans-serif;font-size:20px;cursor:pointer;{{c.style}}">{{c.label}}</button></sc-for></div>
+          <div style="background:#FBF3DC;border:3px solid #16120E;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;"><img src="./assets/02616b60ed95792e95ef62a4113b0272.png" alt="" style="height:56px;width:auto;"><span class="bw" style="font-size:36px;">{{giftAmt}}</span></div>
+          <button type="button" class="btn" onClick="{{addGift}}" style="background:#16120E;color:#F3CF2E;box-shadow:4px 4px 0 #C4351A;">Add gift card</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{giftAdded}}" hint-placeholder-val="{{false}}"><div style="display:flex;flex-direction:column;gap:14px;align-items:flex-start;min-height:220px;justify-content:center;"><p class="bw" style="font-size:36px;">Added!</p><p style="font-size:18px;">Previewed a {{giftAmt}} gift card. No purchase was made.</p><button type="button" class="btn" onClick="{{resetGift}}" style="background:#FBF3DC;">Add another</button></div></sc-if>
+    </div>
+  </section>
+
+  <footer class="dk" style="background:#16120E;color:#FBF3DC;border-top:4px solid #F3CF2E;padding:32px 20px;display:flex;flex-direction:column;gap:16px;">
+    <img src="./assets/02616b60ed95792e95ef62a4113b0272.png" alt="Secret Squares" style="height:70px;width:auto;align-self:flex-start;background:#FBF3DC;padding:6px 10px;border:3px solid #F3CF2E;">
+    <p style="font-size:15px;line-height:1.6;color:#D9CDB4;">306 N 29th St, Richmond, VA 23223<br>Dine-in and take-out · Thursday to Monday</p>
+    <a href="https://www.instagram.com/secretsquares/" target="_blank" rel="noopener noreferrer" style="font-weight:800;min-height:44px;display:inline-flex;align-items:center;">Instagram</a>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  validateFields(suffixes) {
+    for (const suffix of suffixes) {
+      const field = document.querySelector('#dc-root input[id$="-' + suffix + '"]');
+      if (!field) return false;
+      field.required = true;
+      if (!field.reportValidity()) return false;
+    }
+    return true;
+  }
+  menuData() {
+    return [
+      { id: 'p1', name: 'Pepperoni & Basil', desc: 'Cupped pepperoni, red sauce, parmesan, fresh basil.', price: 26, img: './assets/02e3cb67db1e8a3930eb6e055158063a.jpg' },
+      { id: 'p2', name: 'Tricolor Stripes', desc: 'Red sauce, green sauce and whipped ricotta rosettes.', price: 27, img: './assets/5dac0273ddcb950b9c6e42568afbbbfd.jpg' },
+      { id: 'p3', name: 'Burrata & Tomato', desc: 'Burrata, tomatoes, basil and that crispy cheese edge.', price: 28, img: './assets/1a2d11610d6542eee3d61836cfc7753d.jpg' },
+      { id: 'p4', name: 'Pickled Cabbage', desc: 'Sweet onions, pickled cabbage and scallion.', price: 27, img: './assets/4b70441ecdcfa64ff185d8ea44abc345.jpg' },
+      { id: 'p5', name: 'Red Pepper Drizzle', desc: 'Roasted red pepper sauce, scallion, shaved parmesan.', price: 27, img: './assets/abf7e005fcc44e08bf4dc3fdd9260f6c.jpg' },
+      { id: 'p6', name: 'Mushroom & Ricotta', desc: 'Mushrooms, whipped ricotta and basil.', price: 27, img: './assets/15d0cf74d90b2988ddf8775a3750405f.jpg' },
+      { id: 'p7', name: 'Sausage & Green Sauce', desc: 'Sausage, bright herb sauce and parmesan.', price: 27, img: './assets/fd3f70bef5595bbc37b669a91ea26189.jpg' },
+      { id: 'p8', name: 'Buffalo Ranch', desc: 'Buffalo sauce, ranch and scallion.', price: 26, img: './assets/be488aea114191e1707ef958ae5e4639.jpg' }
+    ];
+  }
+  bump(id, d) {
+    const s = this.state || {};
+    const q = Object.assign({}, s.qty || {});
+    q[id] = Math.max(0, (q[id] || 0) + d);
+    this.setState({ qty: q });
+  }
+  pickDay(i) { this.setState({ day: i, slot: null }); }
+  pickSlot(i) { this.setState({ slot: i }); }
+  fmtMin(m) {
+    const h = Math.floor(m / 60);
+    const mm = m % 60;
+    return (((h + 11) % 12) + 1) + ':' + (mm < 10 ? '0' + mm : mm) + ' ' + (h >= 12 ? 'PM' : 'AM');
+  }
+  common(st) {
+    const s = this.state || {};
+    const qty = s.qty || {};
+    const menu = this.menuData();
+    let count = 0;
+    let sub = 0;
+    const lines = [];
+    const items = menu.map((m) => {
+      const q = qty[m.id] || 0;
+      count += q;
+      sub += q * m.price;
+      if (q > 0) {
+        lines.push({ name: m.name, qty: q, total: '$' + (q * m.price), img: m.img, inc: () => this.bump(m.id, 1), dec: () => this.bump(m.id, -1) });
+      }
+      return { id: m.id, name: m.name, desc: m.desc, price: '$' + m.price, img: m.img, qty: q, hasQty: q > 0, noQty: q === 0, add: () => this.bump(m.id, 1), inc: () => this.bump(m.id, 1), dec: () => this.bump(m.id, -1) };
+    });
+
+    // pickup day + time
+    const days = ['Fri', 'Sat', 'Sun'];
+    const dayFull = ['Friday', 'Saturday', 'Sunday'];
+    const di = s.day === undefined ? 1 : s.day;
+    const times = di === 2 ? ['4:30', '5:00', '5:30', '6:00', '6:30', '7:00'] : ['4:30', '5:00', '5:30', '6:00', '6:30', '7:00', '7:30'];
+    const fullSets = [['5:30'], ['5:00', '6:00'], ['6:30']];
+    const si = s.slot === undefined ? null : s.slot;
+    const dayChips = days.map((d, i) => ({ label: d, pressed: i === di ? 'true' : 'false', style: i === di ? st.on : st.off, pick: () => this.pickDay(i) }));
+    const slotChips = times.map((t, i) => {
+      const full = fullSets[di].indexOf(t) >= 0;
+      const on = si === i;
+      return { label: t + ' PM', note: full ? 'Full' : '', full, dis: full ? 'true' : 'false', pressed: on ? 'true' : 'false', style: full ? st.full : (on ? st.on : st.off), pick: () => { if (!full) this.pickSlot(i); } };
+    });
+    const pickupText = si === null || si >= times.length ? 'Choose a time' : dayFull[di] + ' at ' + times[si] + ' PM';
+    const canOrder = count > 0 && si !== null && si < times.length;
+
+    // order + kitchen status
+    const placed = !!s.placed;
+    const prog = s.prog || 0;
+    const stages = [
+      { label: 'Received', desc: 'Your ticket reached the kitchen.' },
+      { label: 'In the oven', desc: 'Your pies are in the pans and baking.' },
+      { label: 'Ready for pickup', desc: 'Come on in. Your order is waiting.' }
+    ];
+    const stageList = stages.map((g, i) => ({
+      n: '' + (i + 1), label: g.label, desc: g.desc, active: i === prog, done: i < prog,
+      tag: i < prog ? 'Done' : (i === prog ? 'Now' : 'Next'),
+      style: i <= prog ? (st.stageOn || st.on) : (st.stageOff || st.off)
+    }));
+
+    // hours (America/New_York)
+    const hoursDef = [
+      { d: 'Mon', t: '4:00 to 8:00 PM', note: 'Walk-in only', o: [960, 1200] },
+      { d: 'Tue', t: 'Closed', note: '', o: null },
+      { d: 'Wed', t: 'Closed', note: '', o: null },
+      { d: 'Thu', t: '4:00 to 8:00 PM', note: 'Walk-in only', o: [960, 1200] },
+      { d: 'Fri', t: '4:30 to 8:00 PM', note: 'Order ahead', o: [990, 1200] },
+      { d: 'Sat', t: '4:30 to 8:00 PM', note: 'Order ahead', o: [990, 1200] },
+      { d: 'Sun', t: '4:30 to 7:30 PM', note: 'Order ahead', o: [990, 1170] }
+    ];
+    let idx = 0;
+    let mins = 0;
+    try {
+      const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: 'numeric', minute: 'numeric', hour12: false }).formatToParts(new Date());
+      const wk = parts.find((p) => p.type === 'weekday').value;
+      const hr = parseInt(parts.find((p) => p.type === 'hour').value, 10) % 24;
+      const mn = parseInt(parts.find((p) => p.type === 'minute').value, 10);
+      idx = Math.max(0, ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].indexOf(wk));
+      mins = hr * 60 + mn;
+    } catch (e) { idx = 4; mins = 1020; }
+    const today = hoursDef[idx];
+    let isOpen = false;
+    let statusText = '';
+    if (today.o && mins >= today.o[0] && mins < today.o[1]) {
+      isOpen = true;
+      statusText = 'Open now until ' + this.fmtMin(today.o[1]);
+    } else {
+      for (let k = 0; k < 8; k++) {
+        const h = hoursDef[(idx + k) % 7];
+        if (h.o && (k > 0 || mins < h.o[0])) {
+          statusText = 'Closed now. Opens ' + (k === 0 ? 'today' : (k === 1 ? 'tomorrow' : h.d)) + ' at ' + this.fmtMin(h.o[0]);
+          break;
+        }
+      }
+    }
+    const hours = hoursDef.map((h, i) => ({ d: h.d, t: h.t, note: h.note, isToday: i === idx, style: i === idx ? (st.today || '') : '' }));
+
+    // catering, gift cards, text alerts
+    const ci = s.cat === undefined ? 0 : s.cat;
+    const gi = s.guests === undefined ? 1 : s.guests;
+    const catOpts = ['Office lunch', 'Private party', 'Pop-up or event', 'Something else'];
+    const guestOpts = ['Under 15', '15 to 40', '40+'];
+    const catChips = catOpts.map((label, i) => ({ label, pressed: i === ci ? 'true' : 'false', style: i === ci ? st.on : st.off, pick: () => this.setState({ cat: i }) }));
+    const guestChips = guestOpts.map((label, i) => ({ label, pressed: i === gi ? 'true' : 'false', style: i === gi ? st.on : st.off, pick: () => this.setState({ guests: i }) }));
+    const gAmts = [25, 50, 100];
+    const gs = s.gift === undefined ? 1 : s.gift;
+    const giftChips = gAmts.map((a, i) => ({ label: '$' + a, pressed: i === gs ? 'true' : 'false', style: i === gs ? st.on : st.off, pick: () => this.setState({ gift: i }) }));
+    const catSent = !!s.catSent;
+    const giftAdded = !!s.giftAdded;
+    const alertSent = !!s.alertSent;
+
+    return {
+      items, lines, hasLines: lines.length > 0, noLines: lines.length === 0,
+      count, countLabel: count === 0 ? 'Empty' : (count === 1 ? '1 pie' : count + ' pies'), subtotal: '$' + sub,
+      dayChips, slotChips, pickupText, canOrder, cantOrder: !canOrder,
+      placed, notPlaced: !placed, orderNo: '#1047', stageList, prog,
+      advLabel: prog < 2 ? 'Next kitchen update' : 'Order ready', advOpen: prog < 2,
+      place: () => { if (canOrder && this.validateFields(['name', 'phone'])) this.setState({ placed: true, prog: 0 }); },
+      advance: () => this.setState({ prog: Math.min(2, prog + 1) }),
+      resetOrder: () => this.setState({ qty: {}, slot: null, placed: false, prog: 0 }),
+      hours, isOpen, notOpen: !isOpen, statusText,
+      catChips, guestChips, catSent, catOpen: !catSent, sendCat: () => { if (this.validateFields(['cat'])) this.setState({ catSent: true }); }, resetCat: () => this.setState({ catSent: false }),
+      catLine: catOpts[ci].toLowerCase() + ' for ' + guestOpts[gi].toLowerCase() + ' people',
+      giftChips, giftAdded, giftOpen: !giftAdded, giftAmt: '$' + gAmts[gs], addGift: () => this.setState({ giftAdded: true }), resetGift: () => this.setState({ giftAdded: false }),
+      alertSent, alertOpen: !alertSent, sendAlert: () => { if (this.validateFields(['alert'])) this.setState({ alertSent: true }); }, resetAlert: () => this.setState({ alertSent: false })
+    };
+  }
+
+  renderVals() {
+    const c = this.common({
+      on: 'background:#16120E;color:#FBF3DC;',
+      off: 'background:#FFFFFF;color:#16120E;',
+      full: 'background:#E9E1CB;color:#6B5F4E;text-decoration:line-through;cursor:not-allowed;',
+      today: 'background:#F3CF2E;color:#16120E;',
+      stageOn: 'background:#F3CF2E;color:#16120E;',
+      stageOff: 'background:#FFFFFF;color:#6B5F4E;'
+    });
+    return Object.assign({}, c, { dot: c.isOpen ? '#2E9E4F' : '#C4351A' });
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/mockups/secret-squares/device-view.js"></script>
+<title>Secret Squares — Website redesign concepts</title>
+<script src="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/vendor/react.js"></script>
+<script src="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/vendor/react-dom.js"></script>
+<script src="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&amp;family=Figtree:wght@400;500;600;700&amp;family=Bowlby+One&amp;family=DM+Serif+Display&amp;family=Big+Shoulders+Display:wght@800&amp;display=swap">
+<style>
+body{margin:0;background:#F6F1E7;}
+*{box-sizing:border-box}
+h1,h2,h3,p{margin:0}
+a{color:inherit}
+.fr{font-family:'Fraunces',serif;font-weight:700;letter-spacing:-.02em;line-height:1.02}
+.eyebrow{font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase}
+.card{background:#FFFFFF;border:1px solid #DDD5C4;border-radius:24px;overflow:hidden;display:flex;flex-direction:column;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+.concept-preview{display:flex;flex-direction:column;flex:1;color:inherit;text-decoration:none}
+.card a:focus-visible{outline-offset:-4px}
+.brand-board{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:60px;padding:18px 28px;border-top:1px solid #DDD5C4;background:#F6F1E7;font-size:14px;font-weight:700;text-underline-offset:4px}
+.brand-board svg{flex-shrink:0}
+.brand-board:hover{background:#EBE3D2}
+.btn{gap:8px}
+@media(max-width:1199px){.intro,.cards,.notes{grid-template-columns:minmax(0,1fr) !important}.intro>div{grid-column:auto !important}.intro-logo{max-width:260px;margin-top:24px}.pad{padding-left:24px !important;padding-right:24px !important}.cards{max-width:688px !important}h1.fr{font-size:clamp(40px,8vw,76px) !important}.notes{padding:28px !important}}
+.card:hover{transform:translateY(-6px);box-shadow:0 22px 40px rgba(27,22,19,.12)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;border-radius:999px;font-family:'Figtree',sans-serif;font-weight:700;font-size:16px;text-decoration:none;border:1.5px solid #1B1613;transition:background .15s}
+.btn-p{background:#1B1613;color:#F6F1E7}
+.btn-p:hover{background:#3A312A}
+.btn-s{background:transparent;color:#1B1613}
+.btn-s:hover{background:#EBE3D2}
+:focus-visible{outline:3px solid #1B1613;outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.card{transition:none}}
+</style>
+</helmet>
+
+<div style="width:100%;background:#F6F1E7;color:#1B1613;font-family:'Figtree',sans-serif;overflow-x:clip;">
+  <div class="pad intro" style="max-width:1312px;margin:0 auto;padding:64px 64px 36px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:24px;align-items:center;">
+    <div style="grid-column:span 8;display:flex;flex-direction:column;gap:26px;">
+      <span class="eyebrow" style="color:#4A4038;">Secret Squares · Website redesign concepts</span>
+      <h1 class="fr" style="font-size:88px;">Three ways Secret Squares could serve you online.</h1>
+      <p style="font-size:22px;line-height:1.55;max-width:720px;color:#3A312A;">Each concept puts your logo and pizza up front and previews online ordering, pickup times, open-now hours and text alerts, so guests can do it all on your own site. Each design opens in a new tab with the mobile or desktop layout for your screen. Download its brand board at the bottom of the card.</p>
+    </div>
+    <div class="intro-logo" style="grid-column:10 / span 3;"><img src="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/assets/02616b60ed95792e95ef62a4113b0272.png" alt="Secret Squares logo" style="width:100%;height:auto;display:block;"></div>
+  </div>
+
+  <div id="options" class="pad cards" style="max-width:1312px;margin:0 auto;padding:24px 64px 56px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px;">
+
+    <article class="card">
+      <a class="concept-preview" data-concept="a" href="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/A%20%C2%B7%20Gig%20Poster%20%C2%B7%20Desktop-html/Main.dc.html" target="_blank" rel="noopener noreferrer" aria-label="View Gig Poster (opens in a new tab)">
+      <div style="height:320px;background:#FBF3DC;position:relative;overflow:hidden;" aria-hidden="true">
+        <span style="position:absolute;left:150px;top:10px;width:220px;height:220px;background:#F3CF2E;border:3px solid #16120E;transform:rotate(6deg);display:block;"></span>
+        <div style="position:absolute;left:24px;top:50px;width:290px;background:#FFFFFF;border:3px solid #16120E;box-shadow:6px 6px 0 #16120E;padding:8px;transform:rotate(-3deg);z-index:2;"><img src="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/assets/02616b60ed95792e95ef62a4113b0272.png" alt="" style="width:100%;height:auto;display:block;"></div>
+        <img src="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/assets/02e3cb67db1e8a3930eb6e055158063a.jpg" alt="" style="position:absolute;right:20px;top:18px;width:100px;height:100px;object-fit:cover;border-radius:50%;border:3px solid #16120E;box-shadow:4px 4px 0 #16120E;z-index:3;transform:rotate(8deg);">
+        <img src="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/assets/1a2d11610d6542eee3d61836cfc7753d.jpg" alt="" style="position:absolute;right:30px;top:150px;width:130px;height:130px;object-fit:cover;border-radius:50%;border:3px solid #16120E;box-shadow:4px 4px 0 #16120E;z-index:3;transform:rotate(-6deg);">
+        <span style="position:absolute;left:24px;bottom:18px;font-family:'Bowlby One',sans-serif;font-size:30px;text-transform:uppercase;line-height:1;color:#16120E;">Square pies.</span>
+      </div>
+      <div style="padding:28px 28px 32px;display:flex;flex-direction:column;gap:16px;flex-grow:1;">
+        <div class="eyebrow" style="color:#4A4038;">Option A</div>
+        <h2 class="fr" style="font-size:40px;">Gig Poster</h2>
+        <p style="font-size:18px;line-height:1.55;color:#3A312A;">Loud and hand-made, straight from the logo. Ink outlines, hard shadows, sticker prices and a sticky order ticket that follows you down the menu.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;"><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;background:#EBE3D2;font-weight:600;font-size:14px;">Bold</span><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;background:#EBE3D2;font-weight:600;font-size:14px;">Punk-poster</span><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;background:#EBE3D2;font-weight:600;font-size:14px;">Sticky ticket</span></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:auto;padding-top:12px;"><span class="btn btn-p">View full design <span style="font-size:12px;font-weight:400;">(new tab)</span></span></div>
+      </div>
+          </a>
+      <a class="brand-board" href="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/A%20%C2%B7%20Gig%20Poster%20%C2%B7%20Brand%20board.pdf" download="Secret-Squares-A-Gig-Poster-Brand-Board.pdf" target="_blank" rel="noopener noreferrer" aria-label="Download brand board (PDF) — Gig Poster">
+        <span>Download brand board (PDF)</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 16v5h16v-5"></path></svg>
+      </a>
+    </article>
+
+    <article class="card">
+      <a class="concept-preview" data-concept="b" href="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/B%20%C2%B7%20The%20Menu%20%C2%B7%20Desktop-html/Editorial.dc.html" target="_blank" rel="noopener noreferrer" aria-label="View The Menu (opens in a new tab)">
+      <div style="height:320px;background:#F6EFE0;position:relative;overflow:hidden;" aria-hidden="true">
+        <img src="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/assets/1a2d11610d6542eee3d61836cfc7753d.jpg" alt="" style="position:absolute;right:26px;top:24px;width:170px;height:260px;object-fit:cover;border-radius:85px 85px 8px 8px;">
+        <img src="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/assets/02e3cb67db1e8a3930eb6e055158063a.jpg" alt="" style="position:absolute;right:170px;bottom:24px;width:100px;height:100px;object-fit:cover;border-radius:8px;border:5px solid #F6EFE0;">
+        <span style="position:absolute;left:28px;top:34px;font-family:'DM Serif Display',serif;font-size:50px;line-height:1.02;color:#1B1613;">Square<br>pizza, made<br>the <span style="color:#B5301C;font-style:italic;">slow</span> way.</span>
+        <span style="position:absolute;left:28px;bottom:24px;display:inline-block;padding:8px 18px;border-radius:999px;background:#B5301C;color:#F6EFE0;font-weight:700;font-size:14px;">See the menu</span>
+      </div>
+      <div style="padding:28px 28px 32px;display:flex;flex-direction:column;gap:16px;flex-grow:1;">
+        <div class="eyebrow" style="color:#4A4038;">Option B</div>
+        <h2 class="fr" style="font-size:40px;">The Menu</h2>
+        <p style="font-size:18px;line-height:1.55;color:#3A312A;">An editorial, printed-menu feel that lets the photos do the talking. A clean order list leads to a calm three-part checkout with pickup times.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;"><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;background:#EBE3D2;font-weight:600;font-size:14px;">Refined</span><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;background:#EBE3D2;font-weight:600;font-size:14px;">Photo-led</span><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;background:#EBE3D2;font-weight:600;font-size:14px;">Easy checkout</span></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:auto;padding-top:12px;"><span class="btn btn-p">View full design <span style="font-size:12px;font-weight:400;">(new tab)</span></span></div>
+      </div>
+          </a>
+      <a class="brand-board" href="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/B%20%C2%B7%20The%20Menu%20%C2%B7%20Brand%20board.pdf" download="Secret-Squares-B-The-Menu-Brand-Board.pdf" target="_blank" rel="noopener noreferrer" aria-label="Download brand board (PDF) — The Menu">
+        <span>Download brand board (PDF)</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 16v5h16v-5"></path></svg>
+      </a>
+    </article>
+
+    <article class="card">
+      <a class="concept-preview" data-concept="c" href="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/C%20%C2%B7%20Kitchen%20Ticket%20%C2%B7%20Desktop-html/Ticket.dc.html" target="_blank" rel="noopener noreferrer" aria-label="View Kitchen Ticket (opens in a new tab)">
+      <div style="height:320px;background:#131110;position:relative;overflow:hidden;" aria-hidden="true">
+        <div style="position:absolute;left:24px;top:24px;right:24px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;"><img src="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/assets/be488aea114191e1707ef958ae5e4639.jpg" alt="" style="width:100%;height:120px;object-fit:cover;border-radius:12px;"><img src="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/assets/abf7e005fcc44e08bf4dc3fdd9260f6c.jpg" alt="" style="width:100%;height:120px;object-fit:cover;border-radius:12px;"><img src="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/assets/1a2d11610d6542eee3d61836cfc7753d.jpg" alt="" style="width:100%;height:120px;object-fit:cover;border-radius:12px;"></div>
+        <span style="position:absolute;left:24px;bottom:70px;font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:44px;line-height:.95;text-transform:uppercase;color:#F6EEDC;">Pick your <span style="color:#F3CF2E;">squares.</span></span>
+        <span style="position:absolute;left:24px;bottom:22px;display:inline-block;padding:9px 18px;border-radius:10px;background:#F3CF2E;color:#131110;font-weight:700;font-size:14px;">Next: pickup time →</span>
+      </div>
+      <div style="padding:28px 28px 32px;display:flex;flex-direction:column;gap:16px;flex-grow:1;">
+        <div class="eyebrow" style="color:#4A4038;">Option C</div>
+        <h2 class="fr" style="font-size:40px;">Kitchen Ticket</h2>
+        <p style="font-size:18px;line-height:1.55;color:#3A312A;">Dark and ordering-first. A three-step flow ends with a kitchen display board that shows how live order status could work.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;"><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;background:#EBE3D2;font-weight:600;font-size:14px;">Moody</span><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;background:#EBE3D2;font-weight:600;font-size:14px;">App-like</span><span style="display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;background:#EBE3D2;font-weight:600;font-size:14px;">Live status</span></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:auto;padding-top:12px;"><span class="btn btn-p">View full design <span style="font-size:12px;font-weight:400;">(new tab)</span></span></div>
+      </div>
+          </a>
+      <a class="brand-board" href="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/C%20%C2%B7%20Kitchen%20Ticket%20%C2%B7%20Brand%20board.pdf" download="Secret-Squares-C-Kitchen-Ticket-Brand-Board.pdf" target="_blank" rel="noopener noreferrer" aria-label="Download brand board (PDF) — Kitchen Ticket">
+        <span>Download brand board (PDF)</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 16v5h16v-5"></path></svg>
+      </a>
+    </article>
+  </div>
+
+  <div class="pad" style="max-width:1312px;margin:0 auto;padding:0 64px 72px;">
+    <div class="notes" style="background:#FFFFFF;border:1px solid #DDD5C4;border-radius:24px;padding:44px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px;">
+      <div style="display:flex;flex-direction:column;gap:10px;"><h3 class="fr" style="font-size:28px;">What every concept adds</h3><p style="font-size:17px;line-height:1.6;color:#3A312A;">Online ordering with pickup slots and order status, live open-now hours, text-alert sign-up, catering inquiries and gift cards, all on your own site.</p></div>
+      <div style="display:flex;flex-direction:column;gap:10px;"><h3 class="fr" style="font-size:28px;">Sample menu, prices and hours</h3><p style="font-size:17px;line-height:1.6;color:#3A312A;">Menu details, prices, hours and pickup availability are samples. Your real menu, hours, taxes and pickup capacity would replace them.</p></div>
+      <div style="display:flex;flex-direction:column;gap:10px;"><h3 class="fr" style="font-size:28px;">Try the ordering flow</h3><p style="font-size:17px;line-height:1.6;color:#3A312A;">Add a pie, pick a time and preview the kitchen status updates. Orders, gift cards, inquiries and text alerts are demos; nothing is purchased or sent. Use Auto, Mobile or Desktop at the top to compare layouts.</p></div>
+    </div>
+  </div>
+
+  <footer style="border-top:1px solid #DDD5C4;">
+    <div class="pad" style="max-width:1312px;margin:0 auto;padding:28px 64px;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:15px;color:#4A4038;"><span>Prepared by CEL3 Interactive</span><span>Concept designs for discussion. Not the live site.</span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

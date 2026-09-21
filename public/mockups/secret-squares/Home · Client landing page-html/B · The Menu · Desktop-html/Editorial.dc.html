@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en" data-mockup-layout="desktop" data-mockup-concept="b">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/mockups/secret-squares/device-view.js" data-concept="b" data-layout="desktop"></script>
+<link rel="stylesheet" href="/mockups/secret-squares/review.css">
+<title>Secret Squares — The Menu</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<nav aria-label="Design review" class="mockup-review">
+  <a href="/mockups/secret-squares/#options">&larr; All options</a>
+  <span class="mockup-review__label">Option B · The Menu · Desktop</span>
+  <span class="mockup-review__views" role="group" aria-label="Preview layout">
+    <a href="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/B%20%C2%B7%20The%20Menu%20%C2%B7%20Desktop-html/Editorial.dc.html" data-view="auto">Auto</a>
+    <a href="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/B%20%C2%B7%20The%20Menu%20%C2%B7%20Mobile-html/EditorialMobile.dc.html?view=mobile" data-view="mobile">Mobile</a>
+    <a href="/mockups/secret-squares/Home%20%C2%B7%20Client%20landing%20page-html/B%20%C2%B7%20The%20Menu%20%C2%B7%20Desktop-html/Editorial.dc.html?view=desktop" data-view="desktop">Desktop</a>
+  </span>
+  <span class="mockup-review__note">Interactive demo. Orders, purchases and messages are not sent.</span>
+</nav>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=Hanken+Grotesk:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#F6EFE0;}
+*{box-sizing:border-box}
+h1,h2,h3,p{margin:0}
+a{color:inherit}
+.ds{font-family:'DM Serif Display',serif;font-weight:400;letter-spacing:-.015em;line-height:1.02}
+.eyebrow{font-weight:700;font-size:13px;letter-spacing:.16em;text-transform:uppercase}
+.pill{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 28px;border-radius:999px;border:1.5px solid #1B1613;font-family:'Hanken Grotesk',sans-serif;font-weight:700;font-size:16px;text-decoration:none;cursor:pointer;transition:transform .15s,background .15s}
+.pill:hover{transform:translateY(-2px)}
+.pill[disabled]{background:#ECE2CC;color:#6B5F4E;border-color:#CFC3A8;cursor:not-allowed;transform:none}
+.navl{font-weight:600;font-size:15px;text-decoration:none;padding:10px 14px;border-radius:999px;transition:background .15s}
+.navl:hover{background:#ECE2CC}
+.row{transition:background .15s}
+.row:hover{background:#F0E7D3}
+.step{width:44px;height:44px;border-radius:50%;border:1.5px solid #1B1613;background:transparent;color:#1B1613;font-family:'Hanken Grotesk',sans-serif;font-weight:700;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.step:hover{background:#ECE2CC}
+.inp{width:100%;min-height:54px;border:1.5px solid #1B1613;border-radius:14px;padding:0 16px;font-family:'Hanken Grotesk',sans-serif;font-size:17px;background:#FFFDF7;color:#1B1613}
+.inp:focus{outline:3px solid #B5301C;outline-offset:2px}
+:focus-visible{outline:3px solid #B5301C;outline-offset:3px}
+.dk a:focus-visible,.dk button:focus-visible,.dk input:focus-visible{outline-color:#F3CF2E}
+@media (prefers-reduced-motion:reduce){.pill,.row{transition:none}}
+</style>
+</helmet>
+
+<div id="top" style="width:100%;background:#F6EFE0;color:#1B1613;font-family:'Hanken Grotesk',sans-serif;overflow-x:clip;">
+
+
+  <!-- NAV -->
+  <header style="position:sticky;top:0;z-index:40;background:#F6EFE0;border-bottom:1px solid #CFC3A8;">
+    <div style="max-width:1312px;margin:0 auto;padding:8px 64px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;">
+      <nav aria-label="Main" style="display:flex;gap:2px;"><a class="navl" href="#menu">Menu</a><a class="navl" href="#story">Our Story</a><a class="navl" href="#visit">Hours &amp; Visit</a></nav>
+      <a href="#top" aria-label="Secret Squares home" style="display:flex;"><img src="./assets/02616b60ed95792e95ef62a4113b0272.png" alt="Secret Squares" style="height:68px;width:auto;display:block;"></a>
+      <div style="display:flex;justify-content:flex-end;align-items:center;gap:16px;">
+        <span style="display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;"><span style="width:10px;height:10px;border-radius:50%;background:{{dot}};display:block;"></span>{{statusText}}</span>
+        <a class="pill" href="#checkout" style="background:#B5301C;color:#F6EFE0;border-color:#B5301C;min-height:46px;">Order · {{countLabel}}</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section style="max-width:1312px;margin:0 auto;padding:72px 64px 80px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:32px;align-items:center;">
+    <div style="grid-column:span 6;display:flex;flex-direction:column;gap:28px;">
+      <div class="eyebrow" style="color:#B5301C;">Detroit-style pizza · Church Hill, Richmond</div>
+      <h1 class="ds" style="font-size:100px;">Square pizza, made the slow way.</h1>
+      <p style="font-size:22px;line-height:1.55;max-width:540px;color:#3A312A;">100% naturally leavened sourdough, local ingredients and a caramelized cheese edge you can hear. Dine in, take out, or order ahead for pickup.</p>
+      <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+        <a class="pill" href="#menu" style="background:#B5301C;color:#F6EFE0;border-color:#B5301C;">See the menu</a>
+        <a href="#visit" style="font-weight:700;font-size:17px;min-height:44px;display:inline-flex;align-items:center;">Hours &amp; location →</a>
+      </div>
+    </div>
+    <div style="grid-column:7 / span 6;position:relative;height:640px;">
+      <img src="./assets/1a2d11610d6542eee3d61836cfc7753d.jpg" alt="Burrata and tomato pizza on a wooden board" style="position:absolute;right:0;top:0;width:470px;height:600px;object-fit:cover;border-radius:220px 220px 12px 12px;display:block;">
+      <img src="./assets/02e3cb67db1e8a3930eb6e055158063a.jpg" alt="Pepperoni pizza with red sauce and basil" style="position:absolute;left:0;bottom:0;width:260px;height:260px;object-fit:cover;border-radius:12px;border:8px solid #F6EFE0;display:block;">
+      <span class="ds" style="position:absolute;right:16px;bottom:0;font-size:22px;font-style:italic;color:#3A312A;">Burrata &amp; Tomato</span>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section aria-label="What makes it different" style="border-top:1px solid #CFC3A8;border-bottom:1px solid #CFC3A8;background:#ECE2CC;">
+    <div style="max-width:1312px;margin:0 auto;padding:40px 64px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:48px;">
+      <div style="display:flex;gap:18px;align-items:flex-start;"><span class="ds" style="font-size:44px;color:#B5301C;">01</span><div><div class="ds" style="font-size:28px;">Naturally leavened</div><p style="font-size:16px;line-height:1.5;margin-top:6px;color:#3A312A;">100% sourdough, no shortcuts.</p></div></div>
+      <div style="display:flex;gap:18px;align-items:flex-start;"><span class="ds" style="font-size:44px;color:#B5301C;">02</span><div><div class="ds" style="font-size:28px;">Locally focused</div><p style="font-size:16px;line-height:1.5;margin-top:6px;color:#3A312A;">Ingredients from around Richmond.</p></div></div>
+      <div style="display:flex;gap:18px;align-items:flex-start;"><span class="ds" style="font-size:44px;color:#B5301C;">03</span><div><div class="ds" style="font-size:28px;">Crispy cheese edge</div><p style="font-size:16px;line-height:1.5;margin-top:6px;color:#3A312A;">Baked right to the corners of the pan.</p></div></div>
+    </div>
+  </section>
+
+  <!-- MENU -->
+  <section id="menu" style="max-width:1312px;margin:0 auto;padding:96px 64px 40px;">
+    <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;">
+      <div class="eyebrow" style="color:#B5301C;">Order ahead for pickup</div>
+      <h2 class="ds" style="font-size:88px;">The Menu</h2>
+      <span class="eyebrow" style="border:1.5px solid #1B1613;border-radius:999px;padding:7px 14px;font-size:11px;">Sample menu and prices</span>
+    </div>
+    <div style="margin-top:56px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:56px;border-top:2px solid #1B1613;">
+      <sc-for list="{{items}}" as="m" hint-placeholder-count="8">
+        <div class="row" style="display:grid;grid-template-columns:104px minmax(0,1fr) auto;gap:20px;align-items:center;padding:22px 8px;border-bottom:1px solid #CFC3A8;">
+          <img src="{{m.img}}" alt="{{m.name}}" style="width:104px;height:104px;object-fit:cover;border-radius:10px;display:block;">
+          <div style="display:flex;flex-direction:column;gap:6px;"><h3 class="ds" style="font-size:28px;">{{m.name}}</h3><p style="font-size:15px;line-height:1.45;color:#3A312A;">{{m.desc}}</p></div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;min-width:118px;">
+            <span class="ds" style="font-size:28px;">{{m.price}}</span>
+            <sc-if value="{{m.noQty}}" hint-placeholder-val="{{true}}"><button type="button" class="pill" onClick="{{m.add}}" style="min-height:44px;padding:0 22px;background:#1B1613;color:#F6EFE0;">Add</button></sc-if>
+            <sc-if value="{{m.hasQty}}" hint-placeholder-val="{{false}}"><div style="display:flex;align-items:center;gap:8px;"><button type="button" class="step" aria-label="Remove one {{m.name}}" onClick="{{m.dec}}">−</button><span style="font-weight:800;min-width:16px;text-align:center;">{{m.qty}}</span><button type="button" class="step" aria-label="Add one {{m.name}}" onClick="{{m.inc}}">+</button></div></sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{hasLines}}" hint-placeholder-val="{{false}}">
+      <div style="position:sticky;bottom:20px;margin-top:32px;z-index:20;display:flex;justify-content:center;">
+        <a href="#checkout" class="dk" style="display:flex;align-items:center;gap:28px;background:#1B1613;color:#F6EFE0;text-decoration:none;border-radius:999px;padding:12px 14px 12px 32px;box-shadow:0 14px 30px rgba(27,22,19,.28);font-weight:700;font-size:18px;"><span>{{countLabel}} · {{subtotal}}</span><span style="background:#F3CF2E;color:#1B1613;border-radius:999px;padding:12px 26px;">Checkout →</span></a>
+      </div>
+    </sc-if>
+  </section>
+
+  <!-- CHECKOUT -->
+  <section id="checkout" style="background:#ECE2CC;border-top:1px solid #CFC3A8;border-bottom:1px solid #CFC3A8;margin-top:56px;">
+    <div style="max-width:1312px;margin:0 auto;padding:88px 64px;">
+      <sc-if value="{{notPlaced}}" hint-placeholder-val="{{true}}">
+        <div>
+          <div class="eyebrow" style="color:#B5301C;">Checkout</div>
+          <h2 class="ds" style="font-size:72px;margin-top:14px;">Your order.</h2>
+          <div style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:40px;margin-top:48px;align-items:start;">
+            <div style="grid-column:span 4;display:flex;flex-direction:column;gap:22px;">
+              <div class="ds" style="font-size:30px;">1. Pickup</div>
+              <div role="group" aria-label="Pickup day" style="display:flex;gap:8px;"><sc-for list="{{dayChips}}" as="d" hint-placeholder-count="3"><button type="button" aria-pressed="{{d.pressed}}" onClick="{{d.pick}}" style="flex:1;min-height:48px;border:1.5px solid #1B1613;border-radius:999px;font-family:'Hanken Grotesk',sans-serif;font-weight:700;font-size:16px;cursor:pointer;{{d.style}}">{{d.label}}</button></sc-for></div>
+              <div role="group" aria-label="Pickup time" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;"><sc-for list="{{slotChips}}" as="t" hint-placeholder-count="7"><button type="button" aria-pressed="{{t.pressed}}" aria-disabled="{{t.dis}}" onClick="{{t.pick}}" style="min-height:46px;border:1.5px solid #1B1613;border-radius:999px;font-family:'Hanken Grotesk',sans-serif;font-weight:600;font-size:15px;cursor:pointer;{{t.style}}">{{t.label}} <span style="font-size:12px;">{{t.note}}</span></button></sc-for></div>
+              <p style="font-size:15px;color:#3A312A;">Pickup: <strong>{{pickupText}}</strong></p>
+            </div>
+            <div style="grid-column:span 4;display:flex;flex-direction:column;gap:18px;">
+              <div class="ds" style="font-size:30px;">2. Your details</div>
+              <div style="display:flex;flex-direction:column;gap:8px;"><label for="b-name" style="font-weight:700;">Name</label><input id="b-name" class="inp" type="text" placeholder="Name for the order"></div>
+              <div style="display:flex;flex-direction:column;gap:8px;"><label for="b-phone" style="font-weight:700;">Phone</label><input id="b-phone" class="inp" type="tel" placeholder="For a text when it's ready"></div>
+              <div style="display:flex;flex-direction:column;gap:8px;"><label for="b-note" style="font-weight:700;">Note for the kitchen</label><input id="b-note" class="inp" type="text" placeholder="Optional"></div>
+            </div>
+            <div style="grid-column:span 4;background:#F6EFE0;border:1.5px solid #1B1613;border-radius:24px;padding:28px;display:flex;flex-direction:column;gap:18px;">
+              <div class="ds" style="font-size:30px;">3. Summary</div>
+              <sc-if value="{{noLines}}" hint-placeholder-val="{{true}}"><p style="font-size:16px;color:#6B5F4E;">Your order is empty. Add a pie from the menu above.</p></sc-if>
+              <div style="display:flex;flex-direction:column;gap:12px;">
+                <sc-for list="{{lines}}" as="l" hint-placeholder-count="2">
+                  <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;font-weight:600;font-size:16px;border-bottom:1px solid #CFC3A8;padding-bottom:12px;"><span>{{l.qty}} × {{l.name}}</span><span>{{l.total}}</span></div>
+                </sc-for>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-weight:800;font-size:22px;"><span>Subtotal</span><span>{{subtotal}}</span></div>
+              <p style="font-size:14px;color:#6B5F4E;margin-top:-8px;">Taxes calculated at checkout.</p>
+              <sc-if value="{{canOrder}}" hint-placeholder-val="{{false}}"><button type="button" class="pill" onClick="{{place}}" style="background:#B5301C;color:#F6EFE0;border-color:#B5301C;width:100%;font-size:18px;">Place order</button></sc-if>
+              <sc-if value="{{cantOrder}}" hint-placeholder-val="{{true}}"><button type="button" class="pill" disabled="{{true}}" style="width:100%;">Add a pie and pick a time</button></sc-if>
+              <p style="font-size:14px;line-height:1.4;color:#6B5F4E;">Your order goes straight to the kitchen ticket.</p>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{placed}}" hint-placeholder-val="{{false}}">
+        <div style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:40px;align-items:center;min-height:440px;">
+          <div style="grid-column:span 6;display:flex;flex-direction:column;gap:20px;">
+            <div class="eyebrow" style="color:#B5301C;">Demo kitchen ticket</div>
+            <h2 class="ds" style="font-size:96px;">Thank you.</h2>
+            <p style="font-size:24px;line-height:1.4;">Ticket <strong>{{orderNo}}</strong><br>Pickup: {{pickupText}}</p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;"><sc-if value="{{advOpen}}" hint-placeholder-val="{{true}}"><button type="button" class="pill" onClick="{{advance}}" style="background:#1B1613;color:#F6EFE0;">{{advLabel}}</button></sc-if><button type="button" class="pill" onClick="{{resetOrder}}">Start a new order</button></div>
+            <p style="font-size:14px;color:#6B5F4E;">Demo: each tap shows a status update the kitchen system could send back.</p>
+          </div>
+          <div style="grid-column:8 / span 5;display:flex;flex-direction:column;gap:14px;">
+            <sc-for list="{{stageList}}" as="g" hint-placeholder-count="3">
+              <div style="display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:center;gap:16px;border:1.5px solid #1B1613;border-radius:20px;padding:16px 20px;{{g.style}}"><span class="ds" style="font-size:32px;">{{g.n}}</span><span><span class="ds" style="font-size:24px;display:block;">{{g.label}}</span><span style="font-size:15px;">{{g.desc}}</span></span><span class="eyebrow" style="font-size:11px;">{{g.tag}}</span></div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </section>
+
+  <!-- STORY -->
+  <section id="story" style="max-width:1312px;margin:0 auto;padding:96px 64px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:32px;align-items:center;">
+    <div style="grid-column:span 5;position:relative;">
+      <img src="./assets/be488aea114191e1707ef958ae5e4639.jpg" alt="Pizza with green sauce, sausage and a crispy edge" style="width:100%;height:560px;object-fit:cover;border-radius:12px;display:block;">
+      <span class="ds" style="display:block;margin-top:12px;font-size:20px;font-style:italic;color:#3A312A;">Fresh from the pan</span>
+    </div>
+    <div style="grid-column:7 / span 6;display:flex;flex-direction:column;gap:26px;">
+      <div class="eyebrow" style="color:#B5301C;">Our story</div>
+      <h2 class="ds" style="font-size:72px;">It started as a pop-up.</h2>
+      <p style="font-size:21px;line-height:1.65;color:#3A312A;">Secret Squares began as a pizza pop-up. Willoughby Obenchain fell for Detroit-style square pies and has been perfecting the crust ever since, with local ingredients and 100% naturally leavened sourdough.</p>
+      <p class="ds" style="font-size:34px;line-height:1.15;font-style:italic;border-top:2px solid #1B1613;padding-top:22px;">“Locally-focused, 100% naturally-leavened sourdough square pies in RVA.”</p>
+      <p style="font-size:14px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-top:-14px;">@secretsquares</p>
+    </div>
+  </section>
+
+  <section aria-label="Photos" style="max-width:1312px;margin:0 auto;padding:0 64px 96px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;">
+    <img src="./assets/5dac0273ddcb950b9c6e42568afbbbfd.jpg" alt="Ricotta and sauce stripes pizza slice" style="width:100%;height:280px;object-fit:cover;border-radius:12px;">
+    <img src="./assets/abf7e005fcc44e08bf4dc3fdd9260f6c.jpg" alt="Red pepper drizzle pizza" style="width:100%;height:280px;object-fit:cover;border-radius:12px;">
+    <img src="./assets/4b70441ecdcfa64ff185d8ea44abc345.jpg" alt="Pickled cabbage pizza" style="width:100%;height:280px;object-fit:cover;border-radius:12px;">
+    <img src="./assets/15d0cf74d90b2988ddf8775a3750405f.jpg" alt="Whipped ricotta and mushroom slice" style="width:100%;height:280px;object-fit:cover;border-radius:12px;">
+  </section>
+
+  <!-- VISIT -->
+  <section id="visit" style="background:#ECE2CC;border-top:1px solid #CFC3A8;border-bottom:1px solid #CFC3A8;">
+    <div style="max-width:1312px;margin:0 auto;padding:88px 64px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:48px;align-items:start;">
+      <div style="grid-column:span 5;display:flex;flex-direction:column;gap:22px;">
+        <div class="eyebrow" style="color:#B5301C;">Hours</div>
+        <h2 class="ds" style="font-size:64px;">Come on in.</h2>
+        <div style="display:flex;align-items:center;gap:10px;"><span style="width:12px;height:12px;border-radius:50%;background:{{dot}};display:block;"></span><span style="font-weight:700;font-size:18px;">{{statusText}}</span></div>
+        <div style="border-top:2px solid #1B1613;">
+          <sc-for list="{{hours}}" as="h" hint-placeholder-count="7">
+            <div style="display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:12px;padding:14px 10px;border-bottom:1px solid #CFC3A8;font-weight:600;{{h.style}}"><span class="ds" style="font-size:22px;">{{h.d}}</span><span>{{h.t}}</span><span style="font-size:14px;color:#3A312A;">{{h.note}}</span></div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="grid-column:7 / span 6;display:flex;flex-direction:column;gap:24px;">
+        <div style="background:#F6EFE0;border:1.5px solid #1B1613;border-radius:24px;padding:28px;display:flex;flex-direction:column;gap:10px;">
+          <div class="eyebrow" style="color:#B5301C;">Find us</div>
+          <p class="ds" style="font-size:32px;line-height:1.15;">306 N 29th St<br>Richmond, VA 23223</p>
+          <p style="font-size:16px;color:#3A312A;">Church Hill · Dine-in and take-out</p>
+          <div style="height:170px;margin-top:8px;border:1.5px dashed #8C7F66;border-radius:14px;display:flex;align-items:center;justify-content:center;"><span class="eyebrow" style="color:#6B5F4E;">Map goes here</span></div>
+        </div>
+        <div class="dk" style="background:#1B1613;color:#F6EFE0;border-radius:24px;padding:28px;display:flex;flex-direction:column;gap:14px;">
+          <div class="ds" style="font-size:32px;">Get a text when we're open.</div>
+          <sc-if value="{{alertOpen}}" hint-placeholder-val="{{true}}"><div style="display:flex;gap:10px;flex-wrap:wrap;"><label for="b-alert" class="eyebrow" style="width:100%;color:#D9CDB4;">Your phone number</label><input id="b-alert" class="inp" type="tel" placeholder="(804) 555-0123" style="flex:1;min-width:200px;"><button type="button" class="pill" onClick="{{sendAlert}}" style="background:#F3CF2E;color:#1B1613;border-color:#F3CF2E;">Text me</button></div></sc-if>
+          <sc-if value="{{alertSent}}" hint-placeholder-val="{{false}}"><div style="display:flex;flex-direction:column;gap:12px;align-items:flex-start;"><p style="font-size:19px;font-weight:700;">Demo signup complete. No text alerts were activated.</p><button type="button" class="pill" onClick="{{resetAlert}}" style="color:#F6EFE0;border-color:#F6EFE0;">Use another number</button></div></sc-if>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MORE -->
+  <section id="more" style="max-width:1312px;margin:0 auto;padding:96px 64px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:40px;">
+    <div style="border:1.5px solid #1B1613;border-radius:32px;padding:40px;display:flex;flex-direction:column;gap:22px;">
+      <div class="eyebrow" style="color:#B5301C;">Catering and pop-ups</div>
+      <h2 class="ds" style="font-size:48px;">Bring the squares to you.</h2>
+      <sc-if value="{{catOpen}}" hint-placeholder-val="{{true}}">
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <div role="group" aria-label="Occasion" style="display:flex;gap:8px;flex-wrap:wrap;"><sc-for list="{{catChips}}" as="c" hint-placeholder-count="4"><button type="button" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="min-height:46px;padding:0 20px;border:1.5px solid #1B1613;border-radius:999px;font-family:'Hanken Grotesk',sans-serif;font-weight:600;font-size:15px;cursor:pointer;{{c.style}}">{{c.label}}</button></sc-for></div>
+          <div role="group" aria-label="Guests" style="display:flex;gap:8px;flex-wrap:wrap;"><sc-for list="{{guestChips}}" as="c" hint-placeholder-count="3"><button type="button" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="min-height:46px;padding:0 20px;border:1.5px solid #1B1613;border-radius:999px;font-family:'Hanken Grotesk',sans-serif;font-weight:600;font-size:15px;cursor:pointer;{{c.style}}">{{c.label}}</button></sc-for></div>
+          <p class="ds" style="font-size:28px;line-height:1.15;font-style:italic;color:#B5301C;">We're planning a {{catLine}}.</p>
+          <div style="display:flex;flex-direction:column;gap:8px;"><label for="b-cat" style="font-weight:700;">Your email</label><input id="b-cat" class="inp" type="email" placeholder="you@email.com"></div>
+          <div><button type="button" class="pill" onClick="{{sendCat}}" style="background:#B5301C;color:#F6EFE0;border-color:#B5301C;">Send inquiry</button></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{catSent}}" hint-placeholder-val="{{false}}"><div style="display:flex;flex-direction:column;gap:16px;align-items:flex-start;min-height:300px;justify-content:center;"><p class="ds" style="font-size:52px;">Got it.</p><p style="font-size:19px;">Demo inquiry complete. No message was sent.</p><button type="button" class="pill" onClick="{{resetCat}}">Send another</button></div></sc-if>
+    </div>
+    <div style="background:#F3CF2E;border:1.5px solid #1B1613;border-radius:32px;padding:40px;display:flex;flex-direction:column;gap:22px;">
+      <div class="eyebrow">Gift cards</div>
+      <h2 class="ds" style="font-size:48px;">Give someone a square meal.</h2>
+      <sc-if value="{{giftOpen}}" hint-placeholder-val="{{true}}">
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <div role="group" aria-label="Amount" style="display:flex;gap:10px;"><sc-for list="{{giftChips}}" as="c" hint-placeholder-count="3"><button type="button" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="flex:1;min-height:60px;border:1.5px solid #1B1613;border-radius:999px;font-family:'DM Serif Display',serif;font-size:26px;cursor:pointer;{{c.style}}">{{c.label}}</button></sc-for></div>
+          <div style="background:#F6EFE0;border-radius:20px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;"><img src="./assets/02616b60ed95792e95ef62a4113b0272.png" alt="" style="height:72px;width:auto;"><span class="ds" style="font-size:52px;">{{giftAmt}}</span></div>
+          <div><button type="button" class="pill" onClick="{{addGift}}" style="background:#1B1613;color:#F6EFE0;">Add gift card</button></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{giftAdded}}" hint-placeholder-val="{{false}}"><div style="display:flex;flex-direction:column;gap:16px;align-items:flex-start;min-height:300px;justify-content:center;"><p class="ds" style="font-size:52px;">Added.</p><p style="font-size:19px;">Previewed a {{giftAmt}} gift card. No purchase was made.</p><button type="button" class="pill" onClick="{{resetGift}}">Add another</button></div></sc-if>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="dk" style="background:#1B1613;color:#F6EFE0;">
+    <div style="max-width:1312px;margin:0 auto;padding:56px 64px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;">
+      <img src="./assets/02616b60ed95792e95ef62a4113b0272.png" alt="Secret Squares" style="height:84px;width:auto;background:#F6EFE0;padding:6px 12px;border-radius:12px;">
+      <p style="font-size:16px;line-height:1.6;color:#D9CDB4;">306 N 29th St, Richmond, VA 23223<br>Dine-in and take-out · Thursday to Monday</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;"><a class="navl" href="https://www.instagram.com/secretsquares/" target="_blank" rel="noopener noreferrer" style="color:#F6EFE0;">Instagram</a><a class="navl" href="#menu" style="color:#F6EFE0;">Menu</a><a class="navl" href="#visit" style="color:#F6EFE0;">Hours</a></div>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  validateFields(suffixes) {
+    for (const suffix of suffixes) {
+      const field = document.querySelector('#dc-root input[id$="-' + suffix + '"]');
+      if (!field) return false;
+      field.required = true;
+      if (!field.reportValidity()) return false;
+    }
+    return true;
+  }
+  menuData() {
+    return [
+      { id: 'p1', name: 'Pepperoni & Basil', desc: 'Cupped pepperoni, red sauce, parmesan, fresh basil.', price: 26, img: './assets/02e3cb67db1e8a3930eb6e055158063a.jpg' },
+      { id: 'p2', name: 'Tricolor Stripes', desc: 'Red sauce, green sauce and whipped ricotta rosettes.', price: 27, img: './assets/5dac0273ddcb950b9c6e42568afbbbfd.jpg' },
+      { id: 'p3', name: 'Burrata & Tomato', desc: 'Burrata, tomatoes, basil and that crispy cheese edge.', price: 28, img: './assets/1a2d11610d6542eee3d61836cfc7753d.jpg' },
+      { id: 'p4', name: 'Pickled Cabbage', desc: 'Sweet onions, pickled cabbage and scallion.', price: 27, img: './assets/4b70441ecdcfa64ff185d8ea44abc345.jpg' },
+      { id: 'p5', name: 'Red Pepper Drizzle', desc: 'Roasted red pepper sauce, scallion, shaved parmesan.', price: 27, img: './assets/abf7e005fcc44e08bf4dc3fdd9260f6c.jpg' },
+      { id: 'p6', name: 'Mushroom & Ricotta', desc: 'Mushrooms, whipped ricotta and basil.', price: 27, img: './assets/15d0cf74d90b2988ddf8775a3750405f.jpg' },
+      { id: 'p7', name: 'Sausage & Green Sauce', desc: 'Sausage, bright herb sauce and parmesan.', price: 27, img: './assets/fd3f70bef5595bbc37b669a91ea26189.jpg' },
+      { id: 'p8', name: 'Buffalo Ranch', desc: 'Buffalo sauce, ranch and scallion.', price: 26, img: './assets/be488aea114191e1707ef958ae5e4639.jpg' }
+    ];
+  }
+  bump(id, d) {
+    const s = this.state || {};
+    const q = Object.assign({}, s.qty || {});
+    q[id] = Math.max(0, (q[id] || 0) + d);
+    this.setState({ qty: q });
+  }
+  pickDay(i) { this.setState({ day: i, slot: null }); }
+  pickSlot(i) { this.setState({ slot: i }); }
+  fmtMin(m) {
+    const h = Math.floor(m / 60);
+    const mm = m % 60;
+    return (((h + 11) % 12) + 1) + ':' + (mm < 10 ? '0' + mm : mm) + ' ' + (h >= 12 ? 'PM' : 'AM');
+  }
+  common(st) {
+    const s = this.state || {};
+    const qty = s.qty || {};
+    const menu = this.menuData();
+    let count = 0;
+    let sub = 0;
+    const lines = [];
+    const items = menu.map((m) => {
+      const q = qty[m.id] || 0;
+      count += q;
+      sub += q * m.price;
+      if (q > 0) {
+        lines.push({ name: m.name, qty: q, total: '$' + (q * m.price), img: m.img, inc: () => this.bump(m.id, 1), dec: () => this.bump(m.id, -1) });
+      }
+      return { id: m.id, name: m.name, desc: m.desc, price: '$' + m.price, img: m.img, qty: q, hasQty: q > 0, noQty: q === 0, add: () => this.bump(m.id, 1), inc: () => this.bump(m.id, 1), dec: () => this.bump(m.id, -1) };
+    });
+
+    // pickup day + time
+    const days = ['Fri', 'Sat', 'Sun'];
+    const dayFull = ['Friday', 'Saturday', 'Sunday'];
+    const di = s.day === undefined ? 1 : s.day;
+    const times = di === 2 ? ['4:30', '5:00', '5:30', '6:00', '6:30', '7:00'] : ['4:30', '5:00', '5:30', '6:00', '6:30', '7:00', '7:30'];
+    const fullSets = [['5:30'], ['5:00', '6:00'], ['6:30']];
+    const si = s.slot === undefined ? null : s.slot;
+    const dayChips = days.map((d, i) => ({ label: d, pressed: i === di ? 'true' : 'false', style: i === di ? st.on : st.off, pick: () => this.pickDay(i) }));
+    const slotChips = times.map((t, i) => {
+      const full = fullSets[di].indexOf(t) >= 0;
+      const on = si === i;
+      return { label: t + ' PM', note: full ? 'Full' : '', full, dis: full ? 'true' : 'false', pressed: on ? 'true' : 'false', style: full ? st.full : (on ? st.on : st.off), pick: () => { if (!full) this.pickSlot(i); } };
+    });
+    const pickupText = si === null || si >= times.length ? 'Choose a time' : dayFull[di] + ' at ' + times[si] + ' PM';
+    const canOrder = count > 0 && si !== null && si < times.length;
+
+    // order + kitchen status
+    const placed = !!s.placed;
+    const prog = s.prog || 0;
+    const stages = [
+      { label: 'Received', desc: 'Your ticket reached the kitchen.' },
+      { label: 'In the oven', desc: 'Your pies are in the pans and baking.' },
+      { label: 'Ready for pickup', desc: 'Come on in. Your order is waiting.' }
+    ];
+    const stageList = stages.map((g, i) => ({
+      n: '' + (i + 1), label: g.label, desc: g.desc, active: i === prog, done: i < prog,
+      tag: i < prog ? 'Done' : (i === prog ? 'Now' : 'Next'),
+      style: i <= prog ? (st.stageOn || st.on) : (st.stageOff || st.off)
+    }));
+
+    // hours (America/New_York)
+    const hoursDef = [
+      { d: 'Mon', t: '4:00 to 8:00 PM', note: 'Walk-in only', o: [960, 1200] },
+      { d: 'Tue', t: 'Closed', note: '', o: null },
+      { d: 'Wed', t: 'Closed', note: '', o: null },
+      { d: 'Thu', t: '4:00 to 8:00 PM', note: 'Walk-in only', o: [960, 1200] },
+      { d: 'Fri', t: '4:30 to 8:00 PM', note: 'Order ahead', o: [990, 1200] },
+      { d: 'Sat', t: '4:30 to 8:00 PM', note: 'Order ahead', o: [990, 1200] },
+      { d: 'Sun', t: '4:30 to 7:30 PM', note: 'Order ahead', o: [990, 1170] }
+    ];
+    let idx = 0;
+    let mins = 0;
+    try {
+      const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: 'numeric', minute: 'numeric', hour12: false }).formatToParts(new Date());
+      const wk = parts.find((p) => p.type === 'weekday').value;
+      const hr = parseInt(parts.find((p) => p.type === 'hour').value, 10) % 24;
+      const mn = parseInt(parts.find((p) => p.type === 'minute').value, 10);
+      idx = Math.max(0, ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].indexOf(wk));
+      mins = hr * 60 + mn;
+    } catch (e) { idx = 4; mins = 1020; }
+    const today = hoursDef[idx];
+    let isOpen = false;
+    let statusText = '';
+    if (today.o && mins >= today.o[0] && mins < today.o[1]) {
+      isOpen = true;
+      statusText = 'Open now until ' + this.fmtMin(today.o[1]);
+    } else {
+      for (let k = 0; k < 8; k++) {
+        const h = hoursDef[(idx + k) % 7];
+        if (h.o && (k > 0 || mins < h.o[0])) {
+          statusText = 'Closed now. Opens ' + (k === 0 ? 'today' : (k === 1 ? 'tomorrow' : h.d)) + ' at ' + this.fmtMin(h.o[0]);
+          break;
+        }
+      }
+    }
+    const hours = hoursDef.map((h, i) => ({ d: h.d, t: h.t, note: h.note, isToday: i === idx, style: i === idx ? (st.today || '') : '' }));
+
+    // catering, gift cards, text alerts
+    const ci = s.cat === undefined ? 0 : s.cat;
+    const gi = s.guests === undefined ? 1 : s.guests;
+    const catOpts = ['Office lunch', 'Private party', 'Pop-up or event', 'Something else'];
+    const guestOpts = ['Under 15', '15 to 40', '40+'];
+    const catChips = catOpts.map((label, i) => ({ label, pressed: i === ci ? 'true' : 'false', style: i === ci ? st.on : st.off, pick: () => this.setState({ cat: i }) }));
+    const guestChips = guestOpts.map((label, i) => ({ label, pressed: i === gi ? 'true' : 'false', style: i === gi ? st.on : st.off, pick: () => this.setState({ guests: i }) }));
+    const gAmts = [25, 50, 100];
+    const gs = s.gift === undefined ? 1 : s.gift;
+    const giftChips = gAmts.map((a, i) => ({ label: '$' + a, pressed: i === gs ? 'true' : 'false', style: i === gs ? st.on : st.off, pick: () => this.setState({ gift: i }) }));
+    const catSent = !!s.catSent;
+    const giftAdded = !!s.giftAdded;
+    const alertSent = !!s.alertSent;
+
+    return {
+      items, lines, hasLines: lines.length > 0, noLines: lines.length === 0,
+      count, countLabel: count === 0 ? 'Empty' : (count === 1 ? '1 pie' : count + ' pies'), subtotal: '$' + sub,
+      dayChips, slotChips, pickupText, canOrder, cantOrder: !canOrder,
+      placed, notPlaced: !placed, orderNo: '#1047', stageList, prog,
+      advLabel: prog < 2 ? 'Next kitchen update' : 'Order ready', advOpen: prog < 2,
+      place: () => { if (canOrder && this.validateFields(['name', 'phone'])) this.setState({ placed: true, prog: 0 }); },
+      advance: () => this.setState({ prog: Math.min(2, prog + 1) }),
+      resetOrder: () => this.setState({ qty: {}, slot: null, placed: false, prog: 0 }),
+      hours, isOpen, notOpen: !isOpen, statusText,
+      catChips, guestChips, catSent, catOpen: !catSent, sendCat: () => { if (this.validateFields(['cat'])) this.setState({ catSent: true }); }, resetCat: () => this.setState({ catSent: false }),
+      catLine: catOpts[ci].toLowerCase() + ' for ' + guestOpts[gi].toLowerCase() + ' people',
+      giftChips, giftAdded, giftOpen: !giftAdded, giftAmt: '$' + gAmts[gs], addGift: () => this.setState({ giftAdded: true }), resetGift: () => this.setState({ giftAdded: false }),
+      alertSent, alertOpen: !alertSent, sendAlert: () => { if (this.validateFields(['alert'])) this.setState({ alertSent: true }); }, resetAlert: () => this.setState({ alertSent: false })
+    };
+  }
+
+  renderVals() {
+    const c = this.common({
+      on: 'background:#1B1613;color:#F6EFE0;',
+      off: 'background:transparent;color:#1B1613;',
+      full: 'background:#E2D7BE;color:#6B5F4E;text-decoration:line-through;cursor:not-allowed;border-color:#CFC3A8;',
+      today: 'background:#F6EFE0;',
+      stageOn: 'background:#1B1613;color:#F6EFE0;',
+      stageOff: 'background:transparent;color:#6B5F4E;'
+    });
+    return Object.assign({}, c, { dot: c.isOpen ? '#2E9E4F' : '#B5301C' });
+  }
+}
+</script>
+</body>
+</html>
