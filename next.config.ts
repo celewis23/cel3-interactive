@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
+      { source: "/mockups/neejah-styles", destination: "/mockups/neejah-styles/index.html" },
       { source: "/mockups/secret-squares", destination: "/mockups/secret-squares/index.html" },
       { source: "/mockups/glue-craft-studio", destination: "/mockups/glue-craft-studio/index.html" },
       { source: "/mockups/unlockingrva", destination: "/mockups/unlockingrva/index.html" },

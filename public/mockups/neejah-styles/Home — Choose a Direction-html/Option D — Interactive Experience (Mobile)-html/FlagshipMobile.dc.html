@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en" data-mockup-layout="mobile" data-mockup-concept="d">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/mockups/neejah-styles/device-view.js" data-concept="d" data-layout="mobile"></script>
+<link rel="stylesheet" href="/mockups/neejah-styles/review.css">
+<title>Najeeah Styles — Sun Kissed Summer (Mobile)</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<nav aria-label="Design review" class="mockup-review">
+  <a href="/mockups/neejah-styles/#options">← All options</a>
+  <span class="mockup-review__label">Option D · Flagship Experience · Mobile</span>
+  <span class="mockup-review__views" role="group" aria-label="Preview layout"><a href="/mockups/neejah-styles/Home%20%E2%80%94%20Choose%20a%20Direction-html/Option%20D%20%E2%80%94%20Interactive%20Experience%20(Mobile)-html/FlagshipMobile.dc.html" data-view="auto">Auto</a><a href="/mockups/neejah-styles/Home%20%E2%80%94%20Choose%20a%20Direction-html/Option%20D%20%E2%80%94%20Interactive%20Experience%20(Mobile)-html/FlagshipMobile.dc.html?view=mobile" data-view="mobile">Mobile</a><a href="/mockups/neejah-styles/Home%20%E2%80%94%20Choose%20a%20Direction-html/Option%20D%20%E2%80%94%20Interactive%20Experience-html/Flagship.dc.html?view=desktop" data-view="desktop">Desktop</a></span>
+  <span class="mockup-review__note">Design preview. Purchases and newsletter signups are not submitted.</span>
+</nav>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&amp;family=Figtree:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#1B120B;}
+*{box-sizing:border-box}
+h1,h2,h3,p{margin:0}
+a{color:inherit;text-decoration:none}
+::selection{background:#D98A3D;color:#1B120B;}
+.serif{font-family:'Fraunces',serif;font-weight:600;line-height:1.02;}
+.eyebrow{font-family:'Figtree',sans-serif;font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;}
+body,.body{font-family:'Figtree',sans-serif;color:#2A1E14;}
+.gold{background:linear-gradient(90deg,#E8B96A 0%,#FFE4AE 25%,#C98A3E 50%,#FFE4AE 75%,#E8B96A 100%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 6s linear infinite;}
+@keyframes shimmer{to{background-position:200% center;}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 28px;border-radius:100px;border:none;background:#D98A3D;color:#1B120B;font-family:'Figtree',sans-serif;font-weight:800;font-size:13px;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;}
+.btn-o{background:transparent;color:#FFF3DE;border:1.5px solid rgba(255,243,222,.5);}
+.btn-dark{background:#1B120B;color:#FFF3DE;}
+.marquee-track{display:flex;width:max-content;animation:mq 22s linear infinite;}
+@keyframes mq{to{transform:translateX(-50%);}}
+.hotspot{position:absolute;width:20px;height:20px;border-radius:50%;background:#D98A3D;border:2px solid #FFF3DE;cursor:pointer;box-shadow:0 0 0 0 rgba(217,138,61,.7);animation:pulse 2.2s ease-out infinite;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(217,138,61,.55);}70%{box-shadow:0 0 0 14px rgba(217,138,61,0);}100%{box-shadow:0 0 0 0 rgba(217,138,61,0);}}
+.chip{min-height:38px;padding:0 16px;border-radius:100px;border:1.5px solid #E8DCC5;font-family:'Figtree',sans-serif;font-weight:600;font-size:12px;cursor:pointer;background:#FFFDF9;color:#2A1E14;flex:0 0 auto;}
+.chip.active{background:#1B120B;color:#FFF3DE;border-color:#1B120B;}
+.pcard{border-radius:18px;background:#FFFDF9;overflow:hidden;position:relative;}
+.pcard-img{aspect-ratio:1;position:relative;overflow:hidden;}
+.iconbtn{min-height:36px;flex:1;border-radius:100px;border:none;font-family:'Figtree',sans-serif;font-weight:700;font-size:10px;cursor:pointer;}
+.drawer{position:fixed;top:0;right:0;height:100%;width:100%;background:#FFFDF9;z-index:100;box-shadow:-24px 0 60px rgba(0,0,0,.35);display:flex;flex-direction:column;}
+.scrim{position:fixed;inset:0;background:rgba(27,18,11,.55);z-index:90;}
+.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:94vw;max-height:90vh;overflow:auto;background:#FFFDF9;border-radius:20px;z-index:101;box-shadow:0 40px 100px rgba(0,0,0,.4);}
+.stepper-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid #2A1E14;background:transparent;font-family:'Figtree',sans-serif;font-weight:700;font-size:15px;cursor:pointer;}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1B120B;color:#FFF3DE;padding:12px 22px;border-radius:100px;z-index:110;font-family:'Figtree',sans-serif;font-weight:700;font-size:12px;display:flex;align-items:center;gap:8px;white-space:nowrap;}
+:focus-visible{outline:2px solid #D98A3D;outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.gold,.marquee-track,.hotspot{animation:none;}}
+</style>
+</helmet>
+
+<div id="top" style="width:100%;background:#FFF8EE;color:#2A1E14;font-family:'Figtree',sans-serif;overflow-x:clip;position:relative;">
+
+  <!-- MARQUEE -->
+  <div style="background:#1B120B;color:#FFF3DE;overflow:hidden;padding:8px 0;">
+    <div class="marquee-track">
+      <div style="display:flex;">
+        <sc-for list="{{marqueeItems}}" as="m" hint-placeholder-count="8">
+          <span class="eyebrow" style="padding:0 20px;white-space:nowrap;color:#E8C97A;">{{m}} <span style="color:#5A4530;">✦</span></span>
+        </sc-for>
+      </div>
+      <div style="display:flex;" aria-hidden="true">
+        <sc-for list="{{marqueeItems}}" as="m" hint-placeholder-count="8">
+          <span class="eyebrow" style="padding:0 20px;white-space:nowrap;color:#E8C97A;">{{m}} <span style="color:#5A4530;">✦</span></span>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <header style="position:sticky;top:0;z-index:40;background:rgba(255,248,238,.94);backdrop-filter:blur(10px);border-bottom:1px solid #F0D8B8;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2A1E14" stroke-width="1.6" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4.5-4.5"></path></svg>
+    <a href="#top" aria-label="Najeeah Styles home"><img src="./assets/2c11927fe8d629b30175d316f3985e66.png" alt="Najeeah Styles" style="height:26px;width:auto;display:block;"></a>
+    <button type="button" onClick="{{toggleCart}}" aria-label="Open cart" style="position:relative;background:none;border:none;cursor:pointer;padding:2px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1E14" stroke-width="1.6" aria-hidden="true"><path d="M3 6h2l2.4 12.2a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 2-1.6L22 8H6"></path><circle cx="10" cy="21.5" r="1.2"></circle><circle cx="18" cy="21.5" r="1.2"></circle></svg>
+      <sc-if value="{{hasCartItems}}" hint-placeholder-val="{{false}}"><span class="eyebrow" style="position:absolute;top:-7px;right:-9px;background:#D98A3D;color:#FFF3DE;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:8px;">{{cartCount}}</span></sc-if>
+    </button>
+  </header>
+  <nav aria-label="Main" style="display:flex;gap:6px;overflow-x:auto;padding:10px 18px;border-bottom:1px solid #F0D8B8;">
+    <a class="chip" href="#shop">Shop</a><a class="chip" href="#brand">Behind the Brand</a><a class="chip" href="#top">Support</a>
+  </nav>
+
+  <!-- HERO -->
+  <section style="position:relative;height:78vh;min-height:520px;overflow:hidden;">
+    <img src="./assets/72d22a31e069edce2c973493d11b3bcc.jpg" alt="" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:78% 20%;">
+    <div style="position:absolute;inset:0;background:linear-gradient(0deg,rgba(27,18,11,.75) 0%,rgba(27,18,11,.15) 45%,rgba(27,18,11,.05) 100%);"></div>
+
+    <button type="button" class="hotspot" style="left:60%;top:34%;" aria-label="Shop Seashell Glow Earrings" onClick="{{openQuick0}}"></button>
+
+    <div style="position:absolute;left:0;right:0;bottom:0;padding:26px 20px;display:flex;flex-direction:column;gap:16px;pointer-events:none;">
+      <div class="eyebrow" style="color:#E8C97A;">New Collection</div>
+      <h1 class="serif" style="font-size:48px;color:#FFF8EE;">Sun<span class="gold">kissed</span> Summer</h1>
+      <p style="font-size:14px;color:#F0E0C4;line-height:1.55;">Golden days. Glowing skin. Timeless jewelry.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;pointer-events:auto;">
+        <a class="btn" href="#shop">Shop the Collection</a>
+        <a class="btn btn-o" href="#brand">Our Story</a>
+      </div>
+      <span class="eyebrow" style="color:#F0E0C4;opacity:.75;font-size:9px;">✦ Tap the gold dot to shop the look ✦</span>
+    </div>
+  </section>
+
+  <!-- SHOP -->
+  <section id="shop" style="padding:56px 20px 24px;text-align:center;">
+    <div class="eyebrow" style="color:#D98A3D;">Our Glow Collection</div>
+    <h2 class="serif" style="font-size:30px;margin-top:12px;">Made for golden hour.</h2>
+    <div role="group" aria-label="Filter by category" style="display:flex;gap:8px;overflow-x:auto;margin-top:22px;padding-bottom:2px;">
+      <sc-for list="{{catChips}}" as="c" hint-placeholder-count="5">
+        <button type="button" class="chip" aria-pressed="{{c.active}}" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="padding:0 20px 56px;">
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">
+      <sc-for list="{{products}}" as="p" hint-placeholder-count="12">
+        <div class="pcard">
+          <div class="pcard-img">
+            <sc-if value="{{p.hasBadge}}" hint-placeholder-val="{{false}}"><span class="eyebrow" style="position:absolute;top:10px;left:10px;background:#1B120B;color:#FFF3DE;padding:4px 9px;border-radius:100px;font-size:8px;z-index:2;">{{p.badge}}</span></sc-if>
+            <img loading="lazy" src="{{p.img}}" alt="{{p.name}}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" onClick="{{p.openQuick}}">
+          </div>
+          <div style="padding:12px 12px 14px;text-align:left;">
+            <div class="eyebrow" style="color:#B08256;font-size:8px;">{{p.cat}}</div>
+            <div class="serif" style="font-size:14px;margin-top:3px;font-weight:600;line-height:1.2;">{{p.name}}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+              <span class="eyebrow" style="font-size:12px;letter-spacing:0;color:#D98A3D;">${{p.price}}</span>
+              <sc-if value="{{p.soldOut}}" hint-placeholder-val="{{false}}"><span class="eyebrow" style="font-size:8px;color:#A8452E;">Sold Out</span></sc-if>
+              <sc-if value="{{p.available}}" hint-placeholder-val="{{true}}"><button type="button" class="iconbtn" style="flex:none;background:#1B120B;color:#FFF3DE;padding:0 12px;" onClick="{{p.quickAdd}}">Add</button></sc-if>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- BRAND STORY -->
+  <section id="brand" style="position:relative;overflow:hidden;">
+    <img src="./assets/72d22a31e069edce2c973493d11b3bcc.jpg" alt="" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:75% 30%;">
+    <div style="position:absolute;inset:0;background:linear-gradient(0deg,rgba(27,18,11,.92) 20%,rgba(27,18,11,.55) 100%);"></div>
+    <div style="position:relative;padding:64px 20px;display:flex;flex-direction:column;gap:18px;">
+      <div class="eyebrow" style="color:#E8C97A;">Behind the Brand</div>
+      <h2 class="serif" style="font-size:32px;color:#FFF8EE;">Where luxury meets <span class="gold">timeless elegance</span>.</h2>
+      <p style="font-size:14px;color:#E4D3B8;line-height:1.7;">Discover our curated collection of jewelry that enhances your personal style. Crafted with passion, designed for those who seek sophistication in every detail.</p>
+      <div><a class="btn" href="#top">Read Our Story</a></div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section style="padding:56px 20px;text-align:center;">
+    <div class="eyebrow" style="color:#D98A3D;">Stay Golden</div>
+    <h2 class="serif" style="font-size:26px;margin-top:12px;">Join the list for early drops.</h2>
+    <sc-if value="{{notSubscribed}}" hint-placeholder-val="{{true}}">
+      <form style="display:flex;flex-direction:column;gap:10px;margin-top:22px;" data-demo-newsletter="">
+        <label for="nl-email-fm" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Email address</label>
+        <input id="nl-email-fm" type="email" required="{{true}}" placeholder="Your email" style="min-height:48px;border-radius:100px;border:1.5px solid #E8DCC5;background:#FFFDF9;padding:0 20px;font-family:'Figtree',sans-serif;font-size:14px;color:#2A1E14;">
+        <button type="button" class="btn" onClick="{{subscribe}}">Join</button>
+      </form>
+    </sc-if>
+    <sc-if value="{{subscribed}}" hint-placeholder-val="{{false}}"><p role="status" style="margin-top:22px;font-size:16px;line-height:1.5;">Demo signup complete. No subscription was submitted.</p></sc-if>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="background:#1B120B;padding:40px 20px;display:flex;flex-direction:column;align-items:center;gap:16px;">
+    <img src="./assets/2c11927fe8d629b30175d316f3985e66.png" alt="Najeeah Styles" style="height:22px;width:auto;filter:invert(1) brightness(1.4);">
+    <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;"><a class="eyebrow" style="color:#E4D3B8;" href="#shop">Shop</a><a class="eyebrow" style="color:#E4D3B8;" href="#brand">Behind the Brand</a><a class="eyebrow" style="color:#E4D3B8;" href="#top">Support</a></div>
+    <p class="eyebrow" style="color:#7A6448;font-size:9px;text-align:center;">© 2026 Najeeah Styles. All rights reserved.</p>
+  </footer>
+
+  <!-- CART DRAWER -->
+  <sc-if value="{{cartOpen}}" hint-placeholder-val="{{false}}">
+    <div class="scrim" onClick="{{toggleCart}}"></div>
+    <aside class="drawer" aria-label="Shopping cart">
+      <div style="padding:20px;border-bottom:1px solid #F0D8B8;display:flex;justify-content:space-between;align-items:center;">
+        <div class="serif" style="font-size:20px;">Your Bag</div>
+        <button type="button" onClick="{{toggleCart}}" aria-label="Close cart" style="background:none;border:none;cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2A1E14" stroke-width="1.8" aria-hidden="true"><path d="M4 4l16 16M20 4 4 20"></path></svg></button>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:16px 20px;">
+        <sc-if value="{{cartEmpty}}" hint-placeholder-val="{{true}}">
+          <p style="font-size:13px;color:#8A7A5C;padding:32px 0;text-align:center;">Your bag is empty. Add something golden.</p>
+        </sc-if>
+        <sc-for list="{{cartItems}}" as="i" hint-placeholder-count="0">
+          <div style="display:flex;gap:12px;padding:14px 0;border-bottom:1px solid #F1EADA;align-items:center;">
+            <div style="width:56px;height:56px;border-radius:10px;overflow:hidden;flex-shrink:0;"><img loading="lazy" src="{{i.img}}" alt="{{i.name}}" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div style="flex:1;">
+              <div style="font-weight:600;font-size:13px;">{{i.name}}</div>
+              <div class="eyebrow" style="font-size:10px;color:#D98A3D;margin-top:3px;">${{i.price}}</div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:7px;">
+                <button type="button" class="stepper-btn" style="width:24px;height:24px;font-size:12px;" onClick="{{i.dec}}">−</button>
+                <span class="eyebrow" style="font-size:11px;">{{i.qty}}</span>
+                <button type="button" class="stepper-btn" style="width:24px;height:24px;font-size:12px;" onClick="{{i.inc}}">+</button>
+                <button type="button" onClick="{{i.remove}}" style="margin-left:auto;background:none;border:none;color:#A8452E;font-family:'Figtree',sans-serif;font-size:10px;font-weight:600;cursor:pointer;">Remove</button>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="padding:18px 20px;border-top:1px solid #F0D8B8;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:14px;"><span class="eyebrow" style="font-size:12px;">Subtotal</span><span class="serif" style="font-size:18px;">${{cartTotal}}</span></div>
+        <button type="button" class="btn" style="width:100%;" data-demo-checkout="" disabled="{{cartEmpty}}">Preview checkout</button>
+      </div>
+    </aside>
+  </sc-if>
+
+  <!-- QUICK VIEW MODAL -->
+  <sc-if value="{{quickOpen}}" hint-placeholder-val="{{false}}">
+    <div class="scrim" onClick="{{closeQuick}}"></div>
+    <div class="modal">
+      <div style="position:relative;height:280px;overflow:hidden;">
+        <sc-if value="{{quickHasBadge}}" hint-placeholder-val="{{false}}"><span class="eyebrow" style="position:absolute;top:14px;left:14px;background:#1B120B;color:#FFF3DE;padding:5px 10px;border-radius:100px;font-size:9px;z-index:2;">{{quickBadge}}</span></sc-if>
+        <img loading="lazy" src="{{quickImg}}" alt="{{quickName}}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+        <button type="button" onClick="{{closeQuick}}" aria-label="Close" style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,.85);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2A1E14" stroke-width="1.8" aria-hidden="true"><path d="M4 4l16 16M20 4 4 20"></path></svg></button>
+      </div>
+      <div style="padding:24px;display:flex;flex-direction:column;gap:12px;">
+        <div class="eyebrow" style="color:#B08256;">{{quickCat}}</div>
+        <h3 class="serif" style="font-size:24px;">{{quickName}}</h3>
+        <div class="serif" style="font-size:20px;color:#D98A3D;">${{quickPrice}}</div>
+        <p style="font-size:13px;color:#6A5A44;line-height:1.65;">{{quickDesc}}</p>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:4px;">
+          <div style="display:flex;align-items:center;gap:10px;border:1.5px solid #E8DCC5;border-radius:100px;padding:5px 12px;">
+            <button type="button" class="stepper-btn" onClick="{{quickDec}}">−</button>
+            <span class="eyebrow" style="font-size:13px;min-width:12px;text-align:center;">{{quickQty}}</span>
+            <button type="button" class="stepper-btn" onClick="{{quickInc}}">+</button>
+          </div>
+        </div>
+        <sc-if value="{{quickSoldOut}}" hint-placeholder-val="{{false}}"><button type="button" class="btn btn-dark" style="opacity:.4;cursor:not-allowed;" disabled="{{true}}">Sold Out</button></sc-if>
+        <sc-if value="{{quickAvailable}}" hint-placeholder-val="{{true}}"><button type="button" class="btn" onClick="{{quickAddToCart}}">Add to Bag — ${{quickLineTotal}}</button></sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- TOAST -->
+  <sc-if value="{{toastOn}}" hint-placeholder-val="{{false}}">
+    <div class="toast"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D98A3D" stroke-width="2.4" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>{{toastMsg}}</div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  productsData() {
+    return [
+      { id: 'aurora-twist', name: "Aurora Twist Water Drop", cat: 'Earrings', price: 20, badge: 'New', img: './assets/f481ccb9b05c083de4a7057373a0f377.jpg' },
+      { id: 'golden-hour-backchain', name: "Golden Hour Backchain", cat: 'Backchains', price: 30, badge: '', img: './assets/b02709981727baa29ecb7345cd50ab64.jpg' },
+      { id: 'golden-pearl-oasis', name: "Golden Pearl Oasis", cat: 'Earrings', price: 20, badge: 'New', img: './assets/d367d791f1e72c51b53471a277f439d0.jpg' },
+      { id: 'lisa-pearl-ring', name: "Lisa Pearl Ring", cat: 'Rings', price: 20, badge: 'Sold Out', img: './assets/dd42754144ebb02094aab41513ce8b31.jpg' },
+      { id: 'luxe-link', name: "Luxe Link Earrings", cat: 'Earrings', price: 20, badge: '', img: './assets/674640782aa41d7220fa7d169012d2cc.jpg' },
+      { id: 'pearl-solstice', name: "Pearl Solstice Earrings", cat: 'Earrings', price: 30, badge: '', img: './assets/4003683f41a2308709b22233799b5903.jpg' },
+      { id: 'sarlit-teardrop', name: "Sarlit Teardrop Earrings", cat: 'Earrings', price: 20, badge: 'New', img: './assets/aa11ff1065e795a284da8f60f68b0cc7.jpg' },
+      { id: 'seashell-glow', name: "Seashell Glow Earrings", cat: 'Earrings', price: 30, badge: '', img: './assets/f848009724dd8095d692bf519d1678ff.jpg' },
+      { id: 'solar-bloom', name: "Solar Bloom", cat: 'Earrings', price: 20, badge: '', img: './assets/d94e350445cd0d1c0bfc49bc990c2e1b.jpg' },
+      { id: 'sunlit-pearls', name: "Sunlit Pearls Drops", cat: 'Earrings', price: 30, badge: 'New', img: './assets/92e13e683229db566a0c160bbe585cfd.jpg' },
+      { id: 'timeless-allure', name: "Timeless Allure Earrings", cat: 'Earrings', price: 25, badge: 'New', img: './assets/12cc72745edfaa6cf81e6223b6377167.jpg' },
+      { id: 'waves-of-serenity', name: "Waves of Serenity Choker", cat: 'Chokers', price: 20, badge: '', img: './assets/d390374b7410a9abfad30d7ea7a9f236.jpg' }
+    ];
+  }
+  catIcon(cat) {
+    const icons = {
+      Earrings: '<path d="M20 6a4 4 0 0 1 4 4c0 2.2-1.8 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="20" cy="10" r="2.4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M20 17 C 20 24, 26 24, 26 30 C 26 34, 22 35, 20 33" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>',
+      Rings: '<circle cx="20" cy="22" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="20" cy="11" r="3" fill="none" stroke="currentColor" stroke-width="1.4"/>',
+      Chokers: '<path d="M8 14 C 8 26, 32 26, 32 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="20" cy="25.5" r="2" fill="none" stroke="currentColor" stroke-width="1.3"/>',
+      Backchains: '<path d="M12 8 C 8 14, 8 26, 14 32 M28 8 C 32 14, 32 26, 26 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="12.5" cy="12" r="1.6" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="27.5" cy="12" r="1.6" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="15" cy="29" r="1.6" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="25" cy="29" r="1.6" fill="none" stroke="currentColor" stroke-width="1.2"/>'
+    };
+    return icons[cat] || icons.Earrings;
+  }
+  setCat(c) { this.setState({ cat: c }); }
+  common() {
+    const s = this.state || {};
+    const cat = s.cat || 'All';
+    const cats = ['All', 'Earrings', 'Rings', 'Chokers', 'Backchains'];
+    const products = this.productsData()
+      .filter(p => cat === 'All' || p.cat === cat)
+      .map(p => ({
+        id: p.id, name: p.name, cat: p.cat, price: p.price.toFixed(2),
+        hasBadge: !!p.badge, badge: p.badge, soldOut: p.badge === 'Sold Out', available: p.badge !== 'Sold Out',
+        icon: this.catIcon(p.cat), img: p.img
+      }));
+    const catChips = cats.map(c => ({ label: c, active: c === cat, pick: () => this.setCat(c) }));
+    return { products, catChips, activeCat: cat };
+  }
+
+  descFor(id) {
+    const d = {
+      'solar-bloom': 'A radiant burst of gold & crystal designed to mirror the brilliance of the sun. Bold, luminous, and made to glow with every movement.'
+    };
+    return d[id] || 'A hand-finished piece from the Sun Kissed Summer collection, designed to catch the light from golden hour to sunset dinner.';
+  }
+  toggleCart() { const s = this.state || {}; this.setState({ cartOpen: !s.cartOpen }); }
+  addToCart(id, qty) {
+    const product = this.productsData().find(p => p.id === id);
+    if (!product || product.badge === 'Sold Out' || !Number.isInteger(qty) || qty < 1) return;
+    const s = this.state || {};
+    const cart = Object.assign({}, s.cart || {});
+    cart[id] = (cart[id] || 0) + qty;
+    this.setState({ cart, toastOn: true, toastMsg: 'Added to your bag' });
+    setTimeout(() => { const s2 = this.state || {}; if (s2.toastOn) this.setState({ toastOn: false }); }, 2200);
+  }
+  changeQty(id, delta) {
+    const s = this.state || {};
+    const cart = Object.assign({}, s.cart || {});
+    const next = Math.max(0, (cart[id] || 0) + delta);
+    if (next === 0) delete cart[id]; else cart[id] = next;
+    this.setState({ cart });
+  }
+  removeFromCart(id) {
+    const s = this.state || {};
+    const cart = Object.assign({}, s.cart || {});
+    delete cart[id];
+    this.setState({ cart });
+  }
+  openQuick(id) { this.setState({ quickId: id, quickOpen: true, quickQty: 1 }); }
+  closeQuick() { this.setState({ quickOpen: false }); }
+  changeQuickQty(delta) {
+    const s = this.state || {};
+    this.setState({ quickQty: Math.max(1, (s.quickQty || 1) + delta) });
+  }
+  quickAddConfirm() {
+    const s = this.state || {};
+    this.addToCart(s.quickId, s.quickQty || 1);
+    this.setState({ quickOpen: false });
+  }
+  subscribe() {
+    const email = document.querySelector('#dc-root input[type="email"]');
+    if (email && email.reportValidity()) this.setState({ subscribed: true });
+  }
+  renderVals() {
+    const c = this.common();
+    const s = this.state || {};
+    const raw = this.productsData();
+    const byId = {};
+    raw.forEach(p => { byId[p.id] = p; });
+    const onS = 'background:#1B120B;color:#FFF3DE;border-color:#1B120B;';
+    const chips = c.catChips.map(ch => ({ label: ch.label, active: ch.active ? 'true' : 'false', pick: ch.pick, style: ch.active ? onS : '' }));
+
+    const products = c.products.map(p => ({
+      id: p.id, name: p.name, cat: p.cat, price: p.price, hasBadge: p.hasBadge, badge: p.badge, soldOut: p.soldOut, available: p.available, icon: p.icon, img: p.img,
+      openQuick: () => this.openQuick(p.id),
+      quickAdd: () => this.addToCart(p.id, 1)
+    }));
+
+    const cartObj = s.cart || {};
+    const cartItems = Object.keys(cartObj).map(id => {
+      const pr = byId[id];
+      if (!pr) return null;
+      const qty = cartObj[id];
+      return {
+        id, name: pr.name, price: pr.price.toFixed(2), qty,
+        icon: this.catIcon(pr.cat), img: pr.img,
+        inc: () => this.changeQty(id, 1), dec: () => this.changeQty(id, -1), remove: () => this.removeFromCart(id)
+      };
+    }).filter(Boolean);
+    const cartCount = cartItems.reduce((n, i) => n + i.qty, 0);
+    const cartTotal = cartItems.reduce((sum, i) => sum + parseFloat(i.price) * i.qty, 0).toFixed(2);
+
+    const qid = s.quickId || raw[0].id;
+    const qp = byId[qid] || raw[0];
+    const qty = s.quickQty || 1;
+
+    const marqueeItems = [
+      'Sun Kissed Summer', 'Where Luxury Meets Affordability', 'Free Shipping Over $50', 'Crafted With Passion', 'New Arrivals Weekly'
+    ];
+
+    return {
+      products, catChips: chips,
+      marqueeItems,
+      cartOpen: !!s.cartOpen, hasCartItems: cartCount > 0, cartCount, cartItems, cartEmpty: cartItems.length === 0, cartTotal,
+      toggleCart: () => this.toggleCart(),
+      openQuick0: () => this.openQuick('seashell-glow'),
+      quickOpen: !!s.quickOpen, closeQuick: () => this.closeQuick(),
+      quickCat: qp.cat, quickName: qp.name, quickPrice: qp.price.toFixed(2), quickIcon: this.catIcon(qp.cat), quickImg: qp.img,
+      quickHasBadge: !!qp.badge, quickBadge: qp.badge, quickSoldOut: qp.badge === 'Sold Out', quickAvailable: qp.badge !== 'Sold Out',
+      quickDesc: this.descFor(qid), quickQty: qty,
+      quickInc: () => this.changeQuickQty(1), quickDec: () => this.changeQuickQty(-1),
+      quickLineTotal: (qp.price * qty).toFixed(2),
+      quickAddToCart: () => this.quickAddConfirm(),
+      notSubscribed: !s.subscribed, subscribed: !!s.subscribed, subscribe: () => this.subscribe(),
+      toastOn: !!s.toastOn, toastMsg: s.toastMsg || ''
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en" data-mockup-layout="mobile" data-mockup-concept="b">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/mockups/neejah-styles/device-view.js" data-concept="b" data-layout="mobile"></script>
+<link rel="stylesheet" href="/mockups/neejah-styles/review.css">
+<title>Najeeah Styles — Boutique Classic (Mobile)</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<nav aria-label="Design review" class="mockup-review">
+  <a href="/mockups/neejah-styles/#options">← All options</a>
+  <span class="mockup-review__label">Option B · Boutique Classic · Mobile</span>
+  <span class="mockup-review__views" role="group" aria-label="Preview layout"><a href="/mockups/neejah-styles/Home%20%E2%80%94%20Choose%20a%20Direction-html/Option%20B%20%E2%80%94%20Boutique%20Classic%20(Mobile)-html/EditorialMobile.dc.html" data-view="auto">Auto</a><a href="/mockups/neejah-styles/Home%20%E2%80%94%20Choose%20a%20Direction-html/Option%20B%20%E2%80%94%20Boutique%20Classic%20(Mobile)-html/EditorialMobile.dc.html?view=mobile" data-view="mobile">Mobile</a><a href="/mockups/neejah-styles/Home%20%E2%80%94%20Choose%20a%20Direction-html/Option%20B%20%E2%80%94%20Boutique%20Classic%20(Desktop)-html/Editorial.dc.html?view=desktop" data-view="desktop">Desktop</a></span>
+  <span class="mockup-review__note">Design preview. Purchases and newsletter signups are not submitted.</span>
+</nav>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&amp;family=Work+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#FBFAF7;}
+*{box-sizing:border-box}
+h1,h2,h3,p{margin:0}
+a{color:inherit;text-decoration:none}
+.serif{font-family:'Playfair Display',serif;font-weight:600;line-height:1.08;}
+.eyebrow{font-family:'Work Sans',sans-serif;font-weight:600;font-size:10px;letter-spacing:.16em;text-transform:uppercase;}
+body,.body{font-family:'Work Sans',sans-serif;color:#131313;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 26px;border:1.5px solid #131313;background:#131313;color:#FBFAF7;font-family:'Work Sans',sans-serif;font-weight:600;font-size:13px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;}
+.chip{min-height:36px;padding:0 2px;font-family:'Work Sans',sans-serif;font-weight:500;font-size:12px;cursor:pointer;background:transparent;border:none;border-bottom:2px solid transparent;color:#8A8378;}
+.chip.active{color:#131313;border-color:#B08D57;}
+</style>
+</helmet>
+
+<div id="top" style="width:100%;background:#FBFAF7;color:#131313;font-family:'Work Sans',sans-serif;overflow-x:clip;">
+  <div style="background:#131313;color:#FBFAF7;text-align:center;padding:8px;"><span class="eyebrow" style="font-size:9px;">Free shipping over $50 · Sun Kissed Summer</span></div>
+  <header style="padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid #131313;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#131313" stroke-width="1.6" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4.5-4.5"></path></svg>
+    <img src="./assets/2c11927fe8d629b30175d316f3985e66.png" alt="Najeeah Styles" style="height:24px;width:auto;">
+    <span class="eyebrow" style="font-size:9px;">Bag (0)</span>
+  </header>
+
+  <section style="padding:32px 20px 0;display:flex;flex-direction:column;gap:18px;">
+    <div class="eyebrow" style="color:#B08D57;">New Collection</div>
+    <h1 class="serif" style="font-size:42px;">Sunkissed Summer</h1>
+    <p style="font-size:14px;color:#4A463D;line-height:1.6;">Golden days. Glowing skin. Timeless jewelry.</p>
+    <a class="btn" href="#shop" style="align-self:flex-start;">Shop the Collection</a>
+    <img src="./assets/72d22a31e069edce2c973493d11b3bcc.jpg" alt="" style="width:100%;height:340px;object-fit:cover;object-position:82% 18%;margin-top:8px;">
+  </section>
+
+  <section id="shop" style="padding:56px 20px 20px;">
+    <div style="border-bottom:1.5px solid #131313;padding-bottom:18px;">
+      <div class="eyebrow" style="color:#B08D57;">Our Glow Collection</div>
+      <h2 class="serif" style="font-size:28px;margin-top:10px;">Shop the edit.</h2>
+      <div role="group" aria-label="Filter by category" style="display:flex;gap:16px;margin-top:18px;overflow-x:auto;">
+        <sc-for list="{{catChips}}" as="c" hint-placeholder-count="5">
+          <button type="button" class="chip" aria-pressed="{{c.active}}" onClick="{{c.pick}}" style="{{c.style}}flex:0 0 auto;">{{c.label}}</button>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:0 20px 56px;">
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:#E9E5DC;">
+      <sc-for list="{{products}}" as="p" hint-placeholder-count="12">
+        <div style="background:#FBFAF7;padding:16px;display:flex;flex-direction:column;gap:10px;">
+          <div style="position:relative;aspect-ratio:1;background:#F4F1EA;display:flex;align-items:center;justify-content:center;">
+            <sc-if value="{{p.hasBadge}}" hint-placeholder-val="{{false}}"><span class="eyebrow" style="position:absolute;top:0;left:0;background:#B08D57;color:#FBFAF7;padding:4px 8px;font-size:8px;">{{p.badge}}</span></sc-if>
+            <img loading="lazy" src="{{p.img}}" alt="{{p.name}}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+          </div>
+          <div class="serif" style="font-size:13px;font-weight:600;line-height:1.2;">{{p.name}}</div>
+          <span class="eyebrow" style="font-size:11px;letter-spacing:0;">${{p.price}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="brand" style="padding:24px 20px 56px;">
+    <img src="./assets/72d22a31e069edce2c973493d11b3bcc.jpg" alt="" style="width:100%;height:280px;object-fit:cover;object-position:80% 20%;">
+    <div style="margin-top:24px;">
+      <div class="eyebrow" style="color:#B08D57;">Behind the Brand</div>
+      <h2 class="serif" style="font-size:26px;margin-top:12px;">Where luxury meets timeless elegance.</h2>
+      <p style="font-size:14px;color:#4A463D;line-height:1.7;margin-top:14px;">Crafted with passion, designed for those who seek sophistication in every detail.</p>
+    </div>
+  </section>
+
+  <section style="background:#131313;color:#FBFAF7;padding:56px 20px;text-align:center;">
+    <div class="eyebrow" style="color:#B08D57;">Stay in the Loop</div>
+    <h2 class="serif" style="font-size:24px;margin-top:10px;">Early access to new drops.</h2>
+    <form style="display:flex;flex-direction:column;gap:10px;margin-top:20px;" data-demo-newsletter="">
+      <label for="nl-email-bm" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Email address</label>
+      <input id="nl-email-bm" type="email" required="{{true}}" placeholder="Your email" style="min-height:46px;border:none;border-bottom:1.5px solid #FBFAF7;background:transparent;padding:0;font-family:'Work Sans',sans-serif;font-size:14px;color:#FBFAF7;text-align:center;">
+      <button type="submit" class="eyebrow" style="background:none;border:none;color:#FBFAF7;cursor:pointer;padding:8px;">Join →</button>
+    </form>
+  </section>
+
+  <footer style="padding:32px 20px;display:flex;flex-direction:column;align-items:center;gap:14px;">
+    <img src="./assets/2c11927fe8d629b30175d316f3985e66.png" alt="Najeeah Styles" style="height:20px;width:auto;">
+    <p class="eyebrow" style="color:#8A8378;font-size:9px;text-align:center;">© 2026 Najeeah Styles. All rights reserved.</p>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  productsData() {
+    return [
+      { id: 'aurora-twist', name: "Aurora Twist Water Drop", cat: 'Earrings', price: 20, badge: 'New', img: './assets/f481ccb9b05c083de4a7057373a0f377.jpg' },
+      { id: 'golden-hour-backchain', name: "Golden Hour Backchain", cat: 'Backchains', price: 30, badge: '', img: './assets/b02709981727baa29ecb7345cd50ab64.jpg' },
+      { id: 'golden-pearl-oasis', name: "Golden Pearl Oasis", cat: 'Earrings', price: 20, badge: 'New', img: './assets/d367d791f1e72c51b53471a277f439d0.jpg' },
+      { id: 'lisa-pearl-ring', name: "Lisa Pearl Ring", cat: 'Rings', price: 20, badge: 'Sold Out', img: './assets/dd42754144ebb02094aab41513ce8b31.jpg' },
+      { id: 'luxe-link', name: "Luxe Link Earrings", cat: 'Earrings', price: 20, badge: '', img: './assets/674640782aa41d7220fa7d169012d2cc.jpg' },
+      { id: 'pearl-solstice', name: "Pearl Solstice Earrings", cat: 'Earrings', price: 30, badge: '', img: './assets/4003683f41a2308709b22233799b5903.jpg' },
+      { id: 'sarlit-teardrop', name: "Sarlit Teardrop Earrings", cat: 'Earrings', price: 20, badge: 'New', img: './assets/aa11ff1065e795a284da8f60f68b0cc7.jpg' },
+      { id: 'seashell-glow', name: "Seashell Glow Earrings", cat: 'Earrings', price: 30, badge: '', img: './assets/f848009724dd8095d692bf519d1678ff.jpg' },
+      { id: 'solar-bloom', name: "Solar Bloom", cat: 'Earrings', price: 20, badge: '', img: './assets/d94e350445cd0d1c0bfc49bc990c2e1b.jpg' },
+      { id: 'sunlit-pearls', name: "Sunlit Pearls Drops", cat: 'Earrings', price: 30, badge: 'New', img: './assets/92e13e683229db566a0c160bbe585cfd.jpg' },
+      { id: 'timeless-allure', name: "Timeless Allure Earrings", cat: 'Earrings', price: 25, badge: 'New', img: './assets/12cc72745edfaa6cf81e6223b6377167.jpg' },
+      { id: 'waves-of-serenity', name: "Waves of Serenity Choker", cat: 'Chokers', price: 20, badge: '', img: './assets/d390374b7410a9abfad30d7ea7a9f236.jpg' }
+    ];
+  }
+  catIcon(cat) {
+    const icons = {
+      Earrings: '<path d="M20 6a4 4 0 0 1 4 4c0 2.2-1.8 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="20" cy="10" r="2.4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M20 17 C 20 24, 26 24, 26 30 C 26 34, 22 35, 20 33" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>',
+      Rings: '<circle cx="20" cy="22" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="20" cy="11" r="3" fill="none" stroke="currentColor" stroke-width="1.4"/>',
+      Chokers: '<path d="M8 14 C 8 26, 32 26, 32 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="20" cy="25.5" r="2" fill="none" stroke="currentColor" stroke-width="1.3"/>',
+      Backchains: '<path d="M12 8 C 8 14, 8 26, 14 32 M28 8 C 32 14, 32 26, 26 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="12.5" cy="12" r="1.6" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="27.5" cy="12" r="1.6" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="15" cy="29" r="1.6" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="25" cy="29" r="1.6" fill="none" stroke="currentColor" stroke-width="1.2"/>'
+    };
+    return icons[cat] || icons.Earrings;
+  }
+  setCat(c) { this.setState({ cat: c }); }
+  common() {
+    const s = this.state || {};
+    const cat = s.cat || 'All';
+    const cats = ['All', 'Earrings', 'Rings', 'Chokers', 'Backchains'];
+    const products = this.productsData()
+      .filter(p => cat === 'All' || p.cat === cat)
+      .map(p => ({
+        id: p.id, name: p.name, cat: p.cat, price: p.price.toFixed(2),
+        hasBadge: !!p.badge, badge: p.badge, soldOut: p.badge === 'Sold Out', available: p.badge !== 'Sold Out',
+        icon: this.catIcon(p.cat), img: p.img
+      }));
+    const catChips = cats.map(c => ({ label: c, active: c === cat, pick: () => this.setCat(c) }));
+    return { products, catChips, activeCat: cat };
+  }
+
+  renderVals() {
+    const c = this.common();
+    const chips = c.catChips.map(ch => ({ label: ch.label, active: ch.active ? 'true' : 'false', pick: ch.pick, style: ch.active ? 'color:#131313;border-color:#B08D57;' : '' }));
+    return { products: c.products, catChips: chips };
+  }
+}
+</script>
+</body>
+</html>
