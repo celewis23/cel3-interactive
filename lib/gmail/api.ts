@@ -449,6 +449,7 @@ export async function replyToThread(opts: {
   inReplyTo: string;
   references: string;
   cc?: string;
+  bcc?: string;
 }): Promise<{ messageId: string; threadId: string }> {
   const { gmail, email: from } = await getGmail();
   const subject = opts.subject.startsWith("Re:")
@@ -461,6 +462,7 @@ export async function replyToThread(opts: {
     body: opts.body,
     htmlBody: opts.htmlBody,
     cc: opts.cc,
+    bcc: opts.bcc,
     inReplyTo: opts.inReplyTo,
     references: opts.references,
   });
@@ -469,6 +471,38 @@ export async function replyToThread(opts: {
     requestBody: { raw, threadId: opts.threadId },
   });
   return { messageId: res.data.id ?? "", threadId: res.data.threadId ?? "" };
+}
+
+/**
+ * Forward a message as a new, unthreaded email (matches Gmail's own Forward
+ * semantics — it doesn't reuse inReplyTo/references). Original attachments
+ * are re-fetched server-side by attachment ID so the browser never has to
+ * download-then-reupload the original files.
+ */
+export async function forwardMessage(opts: {
+  to: string;
+  cc?: string;
+  bcc?: string;
+  subject: string;
+  htmlBody: string;
+  originalMessageId?: string;
+  attachmentRefs?: { attachmentId: string; filename: string; mimeType: string }[];
+}): Promise<{ messageId: string; threadId: string }> {
+  const attachments: MimeAttachment[] = [];
+  if (opts.originalMessageId && opts.attachmentRefs?.length) {
+    for (const ref of opts.attachmentRefs) {
+      const { data } = await getAttachment(opts.originalMessageId, ref.attachmentId);
+      attachments.push({ filename: ref.filename, mimeType: ref.mimeType, data });
+    }
+  }
+  return sendEmail({
+    to: opts.to,
+    cc: opts.cc,
+    bcc: opts.bcc,
+    subject: opts.subject,
+    htmlBody: opts.htmlBody,
+    attachments: attachments.length ? attachments : undefined,
+  });
 }
 
 export async function getGmailSignature(): Promise<string | null> {

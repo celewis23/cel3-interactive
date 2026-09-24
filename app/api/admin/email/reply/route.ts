@@ -20,6 +20,7 @@ async function handleActivityPOST(req: NextRequest) {
       inReplyTo,
       references,
       cc,
+      bcc,
     } = body;
     if (!threadId?.trim())
       return NextResponse.json(
@@ -43,6 +44,7 @@ async function handleActivityPOST(req: NextRequest) {
       inReplyTo: inReplyTo ?? "",
       references: references ?? "",
       cc: cc?.trim(),
+      bcc: bcc?.trim(),
     });
     return NextResponse.json({ ok: true, ...result }, { status: 201 });
   } catch (err) {
