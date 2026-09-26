@@ -15,6 +15,15 @@ import type {
   GmailThreadLink,
 } from "@/lib/gmail/types";
 import EmailTagInput, { type EmailSuggestion } from "./EmailTagInput";
+import {
+  formatMessageDate,
+  formatBytes,
+  attachmentUrl,
+  resolveCidReferences,
+  extractEmail,
+  extractName,
+  forwardedBlockHtml,
+} from "@/lib/gmail/emailViewHelpers";
 
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), { ssr: false });
 
@@ -43,17 +52,6 @@ interface AttachedFile {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function extractName(from: string): string {
-  const match = from.match(/^(.+?)\s*<.+>$/);
-  if (match) return match[1].trim().replace(/^"|"$/g, "");
-  return from.split("@")[0] ?? from;
-}
-
-function extractEmail(from: string): string {
-  const match = from.match(/<(.+?)>/) ?? from.match(/(\S+@\S+)/);
-  return match ? match[1] : from;
-}
-
 function getThreadParty(thread: GmailThreadSummary, label: Label): string {
   if (label === "SENT") return thread.participant || thread.to || thread.from;
   return thread.participant || thread.from || thread.to;
@@ -66,29 +64,6 @@ function formatTime(ms: number): string {
   if (dt.hasSame(now, "week")) return dt.toFormat("ccc");
   if (dt.year === now.year) return dt.toFormat("LLL d");
   return dt.toFormat("LLL d, yyyy");
-}
-
-function formatMessageDate(ms: number): string {
-  return DateTime.fromMillis(ms).toFormat("LLL d, yyyy 'at' h:mm a");
-}
-
-function formatBytes(n: number): string {
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function attachmentUrl(messageId: string, att: GmailAttachment, inline = false): string {
-  const p = new URLSearchParams({ filename: att.filename, mime: att.mimeType, ...(inline ? { inline: "1" } : {}) });
-  return `/api/admin/email/attachment/${messageId}/${att.attachmentId}?${p}`;
-}
-
-function resolveCidReferences(html: string, messageId: string, attachments: GmailAttachment[]): string {
-  return html.replace(/src="cid:([^"]+)"/gi, (_match, cid) => {
-    const att = attachments.find((a) => a.contentId === cid || a.contentId === cid.trim());
-    if (!att) return `src=""`;
-    return `src="${attachmentUrl(messageId, att, true)}"`;
-  });
 }
 
 function markThreadDetailRead(thread: GmailThreadDetail): GmailThreadDetail {
@@ -225,7 +200,17 @@ function AttachmentChip({ messageId, att }: { messageId: string; att: GmailAttac
 
 // ─── MessageCard ──────────────────────────────────────────────────────────────
 
-function MessageCard({ message, defaultOpen }: { message: GmailMessageParsed; defaultOpen: boolean }) {
+function MessageCard({
+  message,
+  defaultOpen,
+  onReply,
+  onForward,
+}: {
+  message: GmailMessageParsed;
+  defaultOpen: boolean;
+  onReply: (message: GmailMessageParsed) => void;
+  onForward: (message: GmailMessageParsed) => void;
+}) {
   const [collapsed, setCollapsed] = useState(!defaultOpen);
   return (
     <div className="overflow-hidden border-y border-white/8 bg-[#090b10]">
@@ -279,9 +264,197 @@ function MessageCard({ message, defaultOpen }: { message: GmailMessageParsed; de
               ))}
             </div>
           )}
+          <div className="flex items-center gap-2 px-5 py-3 border-t border-white/5">
+            <button
+              type="button"
+              onClick={() => onReply(message)}
+              className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-black px-3 py-1.5 text-xs text-white/60 transition-colors hover:border-white/20 hover:text-white"
+            >
+              <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+              </svg>
+              Reply
+            </button>
+            <button
+              type="button"
+              onClick={() => onForward(message)}
+              className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-black px-3 py-1.5 text-xs text-white/60 transition-colors hover:border-white/20 hover:text-white"
+            >
+              <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 15l6-6m0 0l-6-6m6 6H9a6 6 0 000 12h3" />
+              </svg>
+              Forward
+            </button>
+          </div>
         </div>
       )}
     </div>
+  );
+}
+
+// ─── Reply/forward panel (anchored to a specific message within EmailView) ────
+
+function ReplyForwardPanel({
+  mode,
+  targetLabel,
+  toEmails,
+  setToEmails,
+  ccEmails,
+  setCcEmails,
+  bccEmails,
+  setBccEmails,
+  showCc,
+  setShowCc,
+  showBcc,
+  setShowBcc,
+  subject,
+  setSubject,
+  bodyHtml,
+  setBodyHtml,
+  includeAttachments,
+  setIncludeAttachments,
+  attachmentCount,
+  recipientSuggestions,
+  recipientSearchLoading,
+  onRecipientInputChange,
+  sending,
+  error,
+  onSubmit,
+  onCancel,
+}: {
+  mode: "reply" | "forward";
+  targetLabel: string;
+  toEmails: string[];
+  setToEmails: (v: string[]) => void;
+  ccEmails: string[];
+  setCcEmails: (v: string[]) => void;
+  bccEmails: string[];
+  setBccEmails: (v: string[]) => void;
+  showCc: boolean;
+  setShowCc: (v: boolean) => void;
+  showBcc: boolean;
+  setShowBcc: (v: boolean) => void;
+  subject: string;
+  setSubject: (v: string) => void;
+  bodyHtml: string;
+  setBodyHtml: (v: string) => void;
+  includeAttachments: boolean;
+  setIncludeAttachments: (v: boolean) => void;
+  attachmentCount: number;
+  recipientSuggestions: EmailSuggestion[];
+  recipientSearchLoading: boolean;
+  onRecipientInputChange: (value: string) => void;
+  sending: boolean;
+  error: string;
+  onSubmit: (e: React.FormEvent) => void;
+  onCancel: () => void;
+}) {
+  return (
+    <form onSubmit={onSubmit} className="mt-3 space-y-4 rounded-2xl border border-white/10 bg-[#090b10] p-5">
+      <p className="text-xs text-white/40">
+        {mode === "reply" ? (
+          <>Replying to <span className="text-white/65">{targetLabel}</span></>
+        ) : (
+          <>Forwarding message from <span className="text-white/65">{targetLabel}</span></>
+        )}
+      </p>
+
+      <div className="flex items-start gap-3">
+        <span className="text-xs text-white/35 shrink-0 mt-2 w-6">To</span>
+        <div className="flex-1 min-w-0">
+          <EmailTagInput
+            emails={toEmails}
+            onChange={setToEmails}
+            required
+            suggestions={recipientSuggestions}
+            loadingSuggestions={recipientSearchLoading}
+            onInputChange={onRecipientInputChange}
+          />
+        </div>
+        <div className="flex items-center gap-2 shrink-0 mt-2">
+          {!showCc && <button type="button" onClick={() => setShowCc(true)} className="text-[11px] text-white/30 hover:text-white/60 transition-colors">Cc</button>}
+          {!showBcc && <button type="button" onClick={() => setShowBcc(true)} className="text-[11px] text-white/30 hover:text-white/60 transition-colors">Bcc</button>}
+        </div>
+      </div>
+
+      {showCc && (
+        <div className="flex items-start gap-3">
+          <span className="text-xs text-white/35 shrink-0 mt-2 w-6">Cc</span>
+          <div className="flex-1 min-w-0">
+            <EmailTagInput
+              emails={ccEmails}
+              onChange={setCcEmails}
+              suggestions={recipientSuggestions}
+              loadingSuggestions={recipientSearchLoading}
+              onInputChange={onRecipientInputChange}
+            />
+          </div>
+        </div>
+      )}
+
+      {showBcc && (
+        <div className="flex items-start gap-3">
+          <span className="text-xs text-white/35 shrink-0 mt-2 w-6">Bcc</span>
+          <div className="flex-1 min-w-0">
+            <EmailTagInput
+              emails={bccEmails}
+              onChange={setBccEmails}
+              suggestions={recipientSuggestions}
+              loadingSuggestions={recipientSearchLoading}
+              onInputChange={onRecipientInputChange}
+            />
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-start gap-3">
+        <span className="text-xs text-white/35 shrink-0 mt-2 w-6">Subj</span>
+        <input
+          type="text"
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+          className="flex-1 min-w-0 rounded-xl border border-white/10 bg-black px-3 py-2 text-sm text-white outline-none transition-colors focus:border-sky-400/50"
+        />
+      </div>
+
+      <RichTextEditor
+        value={bodyHtml}
+        onChange={setBodyHtml}
+        placeholder={mode === "reply" ? "Write your reply…" : "Add a note (optional)…"}
+        minHeight="180px"
+      />
+
+      {mode === "forward" && attachmentCount > 0 && (
+        <label className="flex items-center gap-2 text-sm text-white/60">
+          <input
+            type="checkbox"
+            checked={includeAttachments}
+            onChange={(e) => setIncludeAttachments(e.target.checked)}
+            className="h-4 w-4 rounded border-white/20 bg-black accent-sky-500"
+          />
+          Include {attachmentCount} attachment{attachmentCount !== 1 ? "s" : ""}
+        </label>
+      )}
+
+      {error && <p className="text-xs text-red-400">{error}</p>}
+
+      <div className="flex items-center gap-3">
+        <button
+          type="submit"
+          disabled={sending || toEmails.length === 0 || !bodyHtml.replace(/<[^>]+>/g, "").trim()}
+          className="bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors disabled:opacity-50"
+        >
+          {sending ? "Sending…" : mode === "reply" ? "Send Reply" : "Send Forward"}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-xl border border-white/10 bg-black px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
   );
 }
 
@@ -300,12 +473,23 @@ function EmailView({
   canGoPrevious: boolean;
   canGoNext: boolean;
 }) {
-  const [replyOpen, setReplyOpen] = useState(false);
-  const [replyHtml, setReplyHtml] = useState("");
-  const [replySending, setReplySending] = useState(false);
-  const [replyError, setReplyError] = useState("");
-  const [replySuccess, setReplySuccess] = useState(false);
+  const [composeMode, setComposeMode] = useState<"reply" | "forward" | null>(null);
+  const [composeTargetId, setComposeTargetId] = useState<string | null>(null);
+  const [toEmails, setToEmails] = useState<string[]>([]);
+  const [ccEmails, setCcEmails] = useState<string[]>([]);
+  const [bccEmails, setBccEmails] = useState<string[]>([]);
+  const [showCc, setShowCc] = useState(false);
+  const [showBcc, setShowBcc] = useState(false);
+  const [composeSubject, setComposeSubject] = useState("");
+  const [composeBody, setComposeBody] = useState("");
+  const [includeAttachments, setIncludeAttachments] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState("");
+  const [sendSuccess, setSendSuccess] = useState(false);
   const [signature, setSignature] = useState("");
+  const [recipientSuggestions, setRecipientSuggestions] = useState<EmailSuggestion[]>([]);
+  const [recipientSearchLoading, setRecipientSearchLoading] = useState(false);
+  const recipientSearchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
@@ -322,49 +506,136 @@ function EmailView({
   }, [threadId, data, onRead]);
 
   useEffect(() => {
-    if (replySuccess) {
-      const t = setTimeout(() => setReplySuccess(false), 4000);
+    if (sendSuccess) {
+      const t = setTimeout(() => setSendSuccess(false), 4000);
       return () => clearTimeout(t);
     }
-  }, [replySuccess]);
+  }, [sendSuccess]);
 
-  async function sendReply(e: React.FormEvent) {
+  // Reset any open compose panel when switching threads
+  useEffect(() => {
+    setComposeMode(null);
+    setComposeTargetId(null);
+  }, [threadId]);
+
+  function handleRecipientInputChange(value: string) {
+    if (recipientSearchTimeout.current) clearTimeout(recipientSearchTimeout.current);
+    const query = value.trim();
+    if (query.length < 2) { setRecipientSuggestions([]); setRecipientSearchLoading(false); return; }
+    setRecipientSearchLoading(true);
+    recipientSearchTimeout.current = setTimeout(() => {
+      fetch(`/api/admin/email/recipients?q=${encodeURIComponent(query)}`)
+        .then((res) => (res.ok ? res.json() : { suggestions: [] }))
+        .then((data: { suggestions?: EmailSuggestion[] }) => setRecipientSuggestions(data.suggestions ?? []))
+        .catch(() => setRecipientSuggestions([]))
+        .finally(() => setRecipientSearchLoading(false));
+    }, 180);
+  }
+
+  function closeCompose() {
+    setComposeMode(null);
+    setComposeTargetId(null);
+    setToEmails([]);
+    setCcEmails([]);
+    setBccEmails([]);
+    setShowCc(false);
+    setShowBcc(false);
+    setComposeSubject("");
+    setComposeBody("");
+    setSendError("");
+  }
+
+  function openReply(message: GmailMessageParsed) {
+    const replyTo = extractEmail(message.headers.from ?? "");
+    setComposeMode("reply");
+    setComposeTargetId(message.id);
+    setToEmails(replyTo ? [replyTo] : []);
+    setCcEmails([]);
+    setBccEmails([]);
+    setShowCc(false);
+    setShowBcc(false);
+    setComposeSubject(message.headers.subject ?? "");
+    setComposeBody(signature ? `<p><br></p><p><br></p>${signature}` : "");
+    setSendError("");
+  }
+
+  function openForward(message: GmailMessageParsed) {
+    setComposeMode("forward");
+    setComposeTargetId(message.id);
+    setToEmails([]);
+    setCcEmails([]);
+    setBccEmails([]);
+    setShowCc(false);
+    setShowBcc(false);
+    const subj = message.headers.subject ?? "";
+    setComposeSubject(subj.startsWith("Fwd:") ? subj : `Fwd: ${subj}`);
+    setIncludeAttachments(message.attachments.some((a) => !a.inline));
+    setComposeBody(`<p><br></p><p><br></p>${signature}${forwardedBlockHtml(message)}`);
+    setSendError("");
+  }
+
+  async function handleComposeSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!data?.thread) return;
-    const plainText = replyHtml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    const messages = data?.thread?.messages ?? [];
+    const target = messages.find((m) => m.id === composeTargetId);
+    if (!composeMode || !target || toEmails.length === 0) return;
+    const plainText = composeBody.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
     if (!plainText) return;
-    setReplySending(true);
-    setReplyError("");
-    const messages = data.thread.messages;
-    const lastMessage = messages[messages.length - 1];
-    const fromAddress = lastMessage?.headers.from ?? "";
-    const emailMatch = fromAddress.match(/<(.+?)>/) ?? fromAddress.match(/(\S+@\S+)/);
-    const toAddress = emailMatch ? emailMatch[1] : fromAddress;
+    setSending(true);
+    setSendError("");
+
     try {
-      const res = await fetch("/api/admin/email/reply", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          threadId,
-          to: toAddress,
-          subject: lastMessage?.headers.subject ?? "",
-          message: plainText,
-          htmlBody: replyHtml,
-          inReplyTo: lastMessage?.headers.messageId ?? "",
-          references: (
-            (lastMessage?.headers.references ?? "") + " " + (lastMessage?.headers.messageId ?? "")
-          ).trim(),
-        }),
-      });
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        throw new Error(d.error ?? `HTTP ${res.status}`);
+      if (composeMode === "reply") {
+        const res = await fetch("/api/admin/email/reply", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            threadId,
+            to: toEmails.join(", "),
+            cc: ccEmails.length > 0 ? ccEmails.join(", ") : undefined,
+            bcc: bccEmails.length > 0 ? bccEmails.join(", ") : undefined,
+            subject: composeSubject,
+            message: plainText,
+            htmlBody: composeBody,
+            inReplyTo: target.headers.messageId ?? "",
+            references: ((target.headers.references ?? "") + " " + (target.headers.messageId ?? "")).trim(),
+          }),
+        });
+        if (!res.ok) {
+          const d = await res.json().catch(() => ({}));
+          throw new Error(d.error ?? `HTTP ${res.status}`);
+        }
+      } else {
+        const attachmentRefs = includeAttachments
+          ? target.attachments
+              .filter((a) => !a.inline)
+              .map((a) => ({ attachmentId: a.attachmentId, filename: a.filename, mimeType: a.mimeType }))
+          : undefined;
+        const res = await fetch("/api/admin/email/forward", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to: toEmails.join(", "),
+            cc: ccEmails.length > 0 ? ccEmails.join(", ") : undefined,
+            bcc: bccEmails.length > 0 ? bccEmails.join(", ") : undefined,
+            subject: composeSubject,
+            htmlBody: composeBody,
+            originalMessageId: target.id,
+            attachmentRefs,
+          }),
+        });
+        if (!res.ok) {
+          const d = await res.json().catch(() => ({}));
+          throw new Error(d.error ?? `HTTP ${res.status}`);
+        }
       }
-      setReplyHtml(""); setReplyOpen(false); setReplySuccess(true);
+
+      closeCompose();
+      setSendSuccess(true);
     } catch (err: unknown) {
-      setReplyError(err instanceof Error ? err.message : "Failed to send reply");
+      setSendError(err instanceof Error ? err.message : "Failed to send");
     } finally {
-      setReplySending(false);
+      setSending(false);
     }
   }
 
@@ -405,15 +676,17 @@ function EmailView({
               <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
             </svg>
           </button>
-          <button
-            onClick={() => setReplyOpen(true)}
-            className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-black px-3 py-1.5 text-xs text-white/70 transition-colors hover:border-white/20 hover:text-white"
-          >
-            <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-            </svg>
-            Reply
-          </button>
+          {lastMessage && (
+            <button
+              onClick={() => openReply(lastMessage)}
+              className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-black px-3 py-1.5 text-xs text-white/70 transition-colors hover:border-white/20 hover:text-white"
+            >
+              <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+              </svg>
+              Reply
+            </button>
+          )}
         </div>
         <div className="hidden lg:flex items-center gap-1">
           <button
@@ -463,58 +736,57 @@ function EmailView({
             </div>
             <div className="space-y-3">
               {messages.map((message, i) => (
-                <MessageCard key={message.id} message={message} defaultOpen={i === messages.length - 1} />
+                <div key={message.id}>
+                  <MessageCard
+                    message={message}
+                    defaultOpen={i === messages.length - 1}
+                    onReply={openReply}
+                    onForward={openForward}
+                  />
+                  {composeMode && composeTargetId === message.id && (
+                    <div className="px-5">
+                      <ReplyForwardPanel
+                        key={`${composeMode}-${message.id}`}
+                        mode={composeMode}
+                        targetLabel={extractEmail(message.headers.from ?? "")}
+                        toEmails={toEmails}
+                        setToEmails={setToEmails}
+                        ccEmails={ccEmails}
+                        setCcEmails={setCcEmails}
+                        bccEmails={bccEmails}
+                        setBccEmails={setBccEmails}
+                        showCc={showCc}
+                        setShowCc={setShowCc}
+                        showBcc={showBcc}
+                        setShowBcc={setShowBcc}
+                        subject={composeSubject}
+                        setSubject={setComposeSubject}
+                        bodyHtml={composeBody}
+                        setBodyHtml={setComposeBody}
+                        includeAttachments={includeAttachments}
+                        setIncludeAttachments={setIncludeAttachments}
+                        attachmentCount={message.attachments.filter((a) => !a.inline).length}
+                        recipientSuggestions={recipientSuggestions}
+                        recipientSearchLoading={recipientSearchLoading}
+                        onRecipientInputChange={handleRecipientInputChange}
+                        sending={sending}
+                        error={sendError}
+                        onSubmit={handleComposeSubmit}
+                        onCancel={closeCompose}
+                      />
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
             <div className="px-5 pb-5 space-y-3">
-              {replySuccess && (
+              {sendSuccess && (
                 <div className="flex items-center gap-2 rounded-2xl border border-sky-500/20 bg-sky-500/10 px-4 py-3 text-sm text-sky-200">
                   <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  Reply sent!
+                  Sent!
                 </div>
-              )}
-              {replyOpen && (
-                <form onSubmit={sendReply} className="space-y-4 rounded-2xl border border-white/10 bg-[#090b10] p-5">
-                  <p className="text-xs text-white/40">
-                    Replying to <span className="text-white/65">{extractEmail(lastMessage?.headers.from ?? "")}</span>
-                  </p>
-                  <RichTextEditor
-                    value={replyHtml || (signature ? `<p><br></p><p><br></p>${signature}` : "")}
-                    onChange={setReplyHtml}
-                    placeholder="Write your reply…"
-                    minHeight="180px"
-                  />
-                  {replyError && <p className="text-xs text-red-400">{replyError}</p>}
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="submit"
-                      disabled={replySending || !replyHtml.replace(/<[^>]+>/g, "").trim()}
-                      className="bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors disabled:opacity-50"
-                    >
-                      {replySending ? "Sending…" : "Send Reply"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setReplyOpen(false); setReplyHtml(""); setReplyError(""); }}
-                      className="rounded-xl border border-white/10 bg-black px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              )}
-              {!replyOpen && (
-                <button
-                  onClick={() => setReplyOpen(true)}
-                  className="flex items-center gap-2 rounded-xl border border-white/10 bg-black px-4 py-2 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
-                >
-                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-                  </svg>
-                  Reply
-                </button>
               )}
             </div>
           </div>
