@@ -28,6 +28,9 @@
 .brand-sheet svg{flex-shrink:0}
 .brand-sheet:hover{background:#302936}
 .client-home a:focus-visible,.client-home button:focus-visible{outline:3px solid #ffb42e;outline-offset:-4px}
+.client-home .creator-credit{color:#ffb42e;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.client-home .creator-credit:hover{color:#fff1c9;text-decoration-thickness:2px}
+.client-home .creator-credit:focus-visible{outline-offset:4px}
 .decision-bar>*{min-width:0}
 .client-home button:disabled,.client-home textarea:disabled{opacity:.65;cursor:wait !important}
 @media(max-width:1199px){
