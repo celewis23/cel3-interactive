@@ -1,0 +1,52 @@
+.mockup-review{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 16px;padding:8px 20px;background:#16161a;color:#f5f4ef;font:600 13px/1.5 system-ui,sans-serif;box-sizing:border-box}
+.mockup-review a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 10px;color:#f5f4ef;text-underline-offset:4px}
+.mockup-review a:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.mockup-review__views{display:flex;gap:2px}
+.mockup-review__views a{text-decoration:none;border-radius:8px}
+.mockup-review__views a[aria-current="page"]{background:#39393f}
+.mockup-review__label{font-weight:400}
+.mockup-review__note{flex-basis:100%;padding:0 10px 4px;font-size:12px;font-weight:400}
+[data-mockup-layout] #dc-root{width:100%;max-width:1440px;margin-inline:auto}
+[data-mockup-layout="mobile"] #dc-root,[data-mockup-layout="rsvp"] #dc-root,
+[data-mockup-layout="mobile"] .mockup-review,[data-mockup-layout="rsvp"] .mockup-review{max-width:390px;margin-inline:auto}
+.mockup-canvas section[id]{scroll-margin-top:16px}
+.mockup-canvas input{min-width:0}
+.mockup-dialog{box-sizing:border-box;width:440px;max-width:calc(100% - 32px);max-height:calc(100% - 32px);padding:24px;border:1px solid #4a4448;border-radius:16px;background:#1a171c;color:#f5eee4;font:16px/1.6 system-ui,sans-serif}
+.mockup-dialog::backdrop{background:#0009}
+.mockup-dialog h2{margin:0;font-size:24px;line-height:1.3}
+.mockup-dialog button{min-height:44px;padding:8px 18px;border:0;border-radius:999px;background:#ffb42e;color:#121014;font:700 15px/1.4 system-ui,sans-serif;cursor:pointer}
+.mockup-dialog nav{display:flex;flex-direction:column;margin-top:20px;gap:4px}
+.mockup-dialog a{display:flex;align-items:center;min-height:44px;color:#f5eee4}
+.client-home{overflow-x:clip}
+.client-home *{box-sizing:border-box}
+.client-home header{flex-wrap:wrap}
+.client-home header img{flex-shrink:0}
+.client-intro>*{max-width:100%;min-width:0}
+.concept-cards .card{min-width:0}
+.concept-art{container-type:inline-size;flex-shrink:0}
+.brand-sheet{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px;padding:18px 26px;border-top:1px solid #4a4448;background:#221e25;font:600 14px/1.5 'Archivo',sans-serif;text-underline-offset:4px}
+.brand-sheet svg{flex-shrink:0}
+.brand-sheet:hover{background:#302936}
+.client-home a:focus-visible,.client-home button:focus-visible{outline:3px solid #ffb42e;outline-offset:-4px}
+.decision-bar>*{min-width:0}
+.client-home button:disabled,.client-home textarea:disabled{opacity:.65;cursor:wait !important}
+@media(max-width:1199px){
+  .client-home{padding:32px !important;gap:36px !important}
+  .client-intro{flex-direction:column;align-items:flex-start !important;gap:24px !important}
+  .client-intro h1{font-size:clamp(42px,8vw,72px) !important}
+  .client-intro p{width:auto !important;max-width:720px}
+  .concept-cards{grid-template-columns:minmax(0,1fr) !important;width:100%;max-width:600px;align-self:center}
+  .decision-bar{flex-direction:column;align-items:stretch !important;padding:24px !important}
+  .decision-bar>div{width:auto !important;flex-shrink:1 !important}
+  .decision-bar button{margin-left:0 !important}
+}
+@media(max-width:599px){
+  .client-home{padding:24px 20px !important}
+  .client-home header>span{margin-left:0 !important;line-height:1.6}
+  .card-copy{padding:22px !important}
+  .card-copy h2{font-size:24px !important}
+  .brand-sheet{padding:18px 22px}
+  .concept-art .disp{font-size:clamp(38px,16cqw,66px) !important}
+  .concept-art .bd{font-size:clamp(52px,21cqw,92px) !important}
+  .concept-art .ub{font-size:clamp(28px,10cqw,44px) !important}
+}

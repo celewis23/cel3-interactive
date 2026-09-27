@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en" data-mockup-layout="desktop" data-mockup-concept="a">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/mockups/electric-sun-society/device-view.js" data-concept="a" data-layout="desktop"></script>
+<link rel="stylesheet" href="/mockups/electric-sun-society/review.css">
+<title>Electric Sun Society — Vibes At Sunset</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<nav aria-label="Design review" class="mockup-review"><a href="/mockups/electric-sun-society/#options">← All options</a><span class="mockup-review__label">Option A · The Headliner · Desktop</span><span class="mockup-review__views" role="group" aria-label="Preview layout"><a href="/mockups/electric-sun-society/Choose%20a%20direction-html/A%20%C2%B7%20Homepage%20%E2%80%94%20Desktop-html/Main.dc.html" data-view="auto">Auto</a><a href="/mockups/electric-sun-society/Choose%20a%20direction-html/A%20%C2%B7%20Homepage%20%E2%80%94%20Mobile-html/Mobile.dc.html?view=mobile" data-view="mobile">Mobile</a><a href="/mockups/electric-sun-society/Choose%20a%20direction-html/A%20%C2%B7%20Homepage%20%E2%80%94%20Desktop-html/Main.dc.html?view=desktop" data-view="desktop">Desktop</a></span><span class="mockup-review__note">Concept preview. RSVP, signups and participation actions are demos; nothing is submitted.</span></nav>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&amp;family=Instrument+Serif:ital@0;1&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<style>
+body{margin:0;background:#0D0A0F;font-family:'Archivo',system-ui,sans-serif;color:#FFF1D6;-webkit-font-smoothing:antialiased}
+.disp{font-family:'Archivo',sans-serif;font-stretch:125%;font-weight:900;letter-spacing:-0.01em}
+.wide{font-family:'Archivo',sans-serif;font-stretch:125%;font-weight:700}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.08em;text-transform:uppercase}
+a{color:#FFB42E;text-decoration:none}a:hover{color:#FFD27A}
+</style>
+</helmet>
+<div class="mockup-canvas" data-native-width="1440" style="width: 1440px; height: 7360px; background: #0D0A0F; overflow: hidden; position: relative">
+
+<!-- ============ HERO ============ -->
+<section id="top" style="position: relative; width: 1440px; height: 960px; overflow: hidden">
+  <div style="position: absolute; left: 0; top: 0; width: 1440px; height: 600px; display: flex; flex-direction: column">
+    <sc-for list="{{bands}}" as="band" hint-placeholder-count="8">
+      <div style="{{band.style}}"></div>
+    </sc-for>
+  </div>
+  <div style="position: absolute; left: 340px; top: 220px; width: 760px; height: 760px; border-radius: 50%; overflow: hidden">
+    <sc-for list="{{heroBars}}" as="b" hint-placeholder-count="8">
+      <div style="{{b.style}}"></div>
+    </sc-for>
+  </div>
+  <div style="position: absolute; left: 0; top: 600px; width: 1440px; height: 360px; background: #0D0A0F"></div>
+  <div style="position: absolute; left: 340px; top: 616px; width: 760px; height: 160px">
+    <sc-for list="{{reflect}}" as="r" hint-placeholder-count="9">
+      <div style="{{r.style}}"></div>
+    </sc-for>
+  </div>
+
+  <header style="position: absolute; left: 0; top: 0; width: 1440px; height: 96px; box-sizing: border-box; padding: 0 56px; display: flex; align-items: center; gap: 40px">
+    <a href="#top" aria-label="Electric Sun Society home" style="display: flex; align-items: center; gap: 14px">
+      <img src="./assets/0eb12a2d674df8eecf721674811375cb.png" alt="Electric Sun Society" style="width: 56px; height: 56px; border-radius: 50%; display: block">
+    </a>
+    <nav aria-label="Primary" style="display: flex; gap: 32px; font-size: 15px; font-weight: 500">
+      <a href="#ritual" style="color: #FFF1D6">Vibes At Sunset</a>
+      <a href="#season" style="color: #FFF1D6">2026 Season</a>
+      <a href="#afterdark" style="color: #FFF1D6">After Dark</a>
+      <a href="#story" style="color: #FFF1D6">Our Story</a>
+      <a href="#involved" style="color: #FFF1D6">Get Involved</a>
+    </nav>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 16px">
+      <div class="mono" style="font-size: 12px; color: #FFF1D6; padding: 10px 16px; border: 1px solid rgba(255,241,214,0.35); border-radius: 999px; display: flex; align-items: center; gap: 10px">
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: #FFB42E; display: inline-block"></span>
+        <span>{{countdown}}</span>
+      </div>
+      <a href="/mockups/electric-sun-society/Choose%20a%20direction-html/A%20%C2%B7%20RSVP%20flow%20%E2%80%94%20Oct%208%20finale-html/RSVP.dc.html" style="background: #FFB42E; color: #0D0A0F; font-weight: 700; font-size: 15px; padding: 14px 22px; border-radius: 999px; min-height: 48px; box-sizing: border-box; display: flex; align-items: center">RSVP free</a>
+    </div>
+  </header>
+
+  <div class="mono" style="position: absolute; left: 150px; top: 300px; font-size: 13px; color: {{inkOnSky}}">Electric Sun Society presents</div>
+  <div class="serif" style="position: absolute; left: 144px; top: 326px; font-size: 118px; line-height: 1; color: {{inkOnSky}}">Vibes at</div>
+  <h1 class="disp" style="position: absolute; left: 0; top: 442px; width: 1440px; margin: 0; text-align: center; font-size: 214px; line-height: 1; color: #0D0A0F">SUNSET</h1>
+
+  <div style="position: absolute; left: 64px; top: 648px; width: 250px; display: flex; flex-direction: column; gap: 14px">
+    <div class="mono" style="align-self: flex-start; font-size: 11px; color: #0D0A0F; background: #F2561D; padding: 6px 10px; font-weight: 600">Season finale</div>
+    <div class="serif" style="font-size: 30px; line-height: 1.1; color: #FFF1D6">The last sunset of the 2026 season.</div>
+  </div>
+  <div class="mono" style="position: absolute; right: 64px; top: 652px; font-size: 11px; line-height: 1.8; color: #BFB0A2; text-align: right">37.539° N · 77.452° W<br>Richmond, Virginia</div>
+
+  <div style="position: absolute; left: 64px; top: 836px; width: 1312px; display: flex; align-items: flex-end; gap: 40px; padding-top: 24px; border-top: 1px solid rgba(255,241,214,0.18)">
+    <div style="display: flex; flex-direction: column; gap: 8px"><span class="mono" style="font-size: 11px; color: #FFB42E">Date</span><span style="font-size: 20px; font-weight: 600">Thu · Oct 8</span></div>
+    <div style="display: flex; flex-direction: column; gap: 8px"><span class="mono" style="font-size: 11px; color: #FFB42E">Time</span><span style="font-size: 20px; font-weight: 600">5–9 PM</span></div>
+    <div style="display: flex; flex-direction: column; gap: 8px"><span class="mono" style="font-size: 11px; color: #FFB42E">Where</span><span style="font-size: 20px; font-weight: 600">Virginia War Memorial</span></div>
+    <div style="display: flex; flex-direction: column; gap: 8px"><span class="mono" style="font-size: 11px; color: #FFB42E">Sunset</span><span style="font-size: 20px; font-weight: 600">6:43 PM</span></div>
+    <div style="display: flex; flex-direction: column; gap: 8px"><span class="mono" style="font-size: 11px; color: #FFB42E">Entry</span><span style="font-size: 20px; font-weight: 600">Free with RSVP</span></div>
+    <div style="margin-left: auto; display: flex; gap: 12px">
+      <a href="/mockups/electric-sun-society/vibes-at-sunset-demo.ics" download="Vibes-At-Sunset-Demo.ics" style="color: #FFF1D6; border: 1px solid rgba(255,241,214,0.5); font-weight: 600; font-size: 15px; padding: 0 22px; height: 56px; border-radius: 999px; display: flex; align-items: center">Add to calendar</a>
+      <a href="/mockups/electric-sun-society/Choose%20a%20direction-html/A%20%C2%B7%20RSVP%20flow%20%E2%80%94%20Oct%208%20finale-html/RSVP.dc.html" style="background: #FFB42E; color: #0D0A0F; font-weight: 700; font-size: 16px; padding: 0 28px; height: 56px; border-radius: 999px; display: flex; align-items: center">RSVP — it’s free</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MARQUEE ============ -->
+<div class="wide" style="width: 1440px; height: 80px; background: #F2561D; color: #0D0A0F; display: flex; align-items: center; gap: 28px; padding-left: 40px; box-sizing: border-box; overflow: hidden; white-space: nowrap; font-size: 22px; text-transform: uppercase; font-weight: 800">
+  <span>Amapiano</span><span style="width: 10px; height: 10px; border-radius: 50%; background: #0D0A0F; flex-shrink: 0"></span>
+  <span>Afro house</span><span style="width: 10px; height: 10px; border-radius: 50%; background: #0D0A0F; flex-shrink: 0"></span>
+  <span>Afro-tech</span><span style="width: 10px; height: 10px; border-radius: 50%; background: #0D0A0F; flex-shrink: 0"></span>
+  <span>Yoga &amp; wellness</span><span style="width: 10px; height: 10px; border-radius: 50%; background: #0D0A0F; flex-shrink: 0"></span>
+  <span>Visual art</span><span style="width: 10px; height: 10px; border-radius: 50%; background: #0D0A0F; flex-shrink: 0"></span>
+  <span>Food trucks</span><span style="width: 10px; height: 10px; border-radius: 50%; background: #0D0A0F; flex-shrink: 0"></span>
+  <span>Local vendors</span><span style="width: 10px; height: 10px; border-radius: 50%; background: #0D0A0F; flex-shrink: 0"></span>
+  <span>Free</span><span style="width: 10px; height: 10px; border-radius: 50%; background: #0D0A0F; flex-shrink: 0"></span>
+  <span>RVA</span>
+</div>
+
+<!-- ============ THE RITUAL ============ -->
+<section id="ritual" style="width: 1440px; height: 840px; box-sizing: border-box; padding: 96px 64px; display: flex; flex-direction: column; gap: 56px; background: #0D0A0F">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end">
+    <h2 class="disp" style="margin: 0; font-size: 76px; line-height: 0.95; color: #FFF1D6">Four hours.<br>One sun.</h2>
+    <div style="width: 440px; display: flex; flex-direction: column; gap: 14px">
+      <div class="mono" style="font-size: 12px; color: #FFB42E">How an evening moves</div>
+      <p style="margin: 0; font-size: 18px; line-height: 1.5; color: #CDBFAE">Vibes is built around one moment. Everything before it is a slow warm-up. Everything after it is afterglow.</p>
+    </div>
+  </div>
+  <svg width="1312" height="220" viewBox="0 0 1312 220" role="img" aria-label="The sun’s path from 5 PM to 9 PM, setting at 6:43 PM">
+    <line x1="0" y1="150" x2="1312" y2="150" stroke="#FFF1D6" style="stroke-width: 1; opacity: 0.25"></line>
+    <path d="M0 20 C 240 28, 470 80, 563 150" fill="none" stroke="#FFB42E" style="stroke-width: 2"></path>
+    <path d="M563 150 C 660 196, 900 212, 1312 216" fill="none" stroke="#FFB42E" style="stroke-width: 2; stroke-dasharray: 4 8; opacity: 0.6"></path>
+    <path d="M533 150 A30 30 0 0 1 593 150 Z" fill="#FFB42E"></path>
+    <rect x="533" y="136" width="60" height="3" fill="#0D0A0F"></rect>
+    <rect x="533" y="144" width="60" height="2" fill="#0D0A0F"></rect>
+    <line x1="1" y1="150" x2="1" y2="162" stroke="#FFF1D6" style="stroke-width: 1; opacity: 0.5"></line>
+    <line x1="328" y1="150" x2="328" y2="162" stroke="#FFF1D6" style="stroke-width: 1; opacity: 0.5"></line>
+    <line x1="820" y1="150" x2="820" y2="162" stroke="#FFF1D6" style="stroke-width: 1; opacity: 0.5"></line>
+    <line x1="1311" y1="150" x2="1311" y2="162" stroke="#FFF1D6" style="stroke-width: 1; opacity: 0.5"></line>
+    <text x="608" y="120" fill="#FFB42E" style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.08em">SUNSET · 6:43 PM</text>
+  </svg>
+  <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 32px">
+    <div style="display: flex; flex-direction: column; gap: 10px"><span class="mono" style="font-size: 12px; color: #FFB42E">5:00 PM</span><span class="wide" style="font-size: 22px; font-weight: 800">Doors</span><span style="font-size: 15px; line-height: 1.5; color: #CDBFAE">Blankets down. Food trucks and local vendors open up.</span></div>
+    <div style="display: flex; flex-direction: column; gap: 10px"><span class="mono" style="font-size: 12px; color: #FFB42E">Golden hour</span><span class="wide" style="font-size: 22px; font-weight: 800">Move</span><span style="font-size: 15px; line-height: 1.5; color: #CDBFAE">Yoga and wellness on the lawn while the selectors warm it up.</span></div>
+    <div style="display: flex; flex-direction: column; gap: 10px"><span class="mono" style="font-size: 12px; color: #FFB42E">6:43 PM</span><span class="wide" style="font-size: 22px; font-weight: 800">The sunset</span><span style="font-size: 15px; line-height: 1.5; color: #CDBFAE">Everyone turns toward the light. The drop is the sun.</span></div>
+    <div style="display: flex; flex-direction: column; gap: 10px"><span class="mono" style="font-size: 12px; color: #FFB42E">Blue hour</span><span class="wide" style="font-size: 22px; font-weight: 800">Afterglow</span><span style="font-size: 15px; line-height: 1.5; color: #CDBFAE">Amapiano, Afro house and Afro-tech carry it into the dark.</span></div>
+    <div style="display: flex; flex-direction: column; gap: 10px"><span class="mono" style="font-size: 12px; color: #FFB42E">9:00 PM</span><span class="wide" style="font-size: 22px; font-weight: 800">Leave it better</span><span style="font-size: 15px; line-height: 1.5; color: #CDBFAE">Lights up. Our crew comes back next morning to leave it cleaner than we found it.</span></div>
+  </div>
+</section>
+
+<!-- ============ ORIGIN ============ -->
+<section id="story" style="width: 1440px; height: 940px; box-sizing: border-box; padding: 120px 64px; background: #F4E9D8; color: #0D0A0F; display: flex; gap: 72px">
+  <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 24px">
+    <div class="mono" style="font-size: 12px; color: #B43A14">Our story</div>
+    <div class="disp" style="font-size: 200px; line-height: 0.85; color: #0D0A0F">2018.</div>
+    <p class="serif" style="margin: 0; font-size: 46px; line-height: 1.08; width: 700px">One Bluetooth speaker. One hill. One sunset — and Richmond kept showing up.</p>
+    <p style="margin: 0; font-size: 18px; line-height: 1.55; color: #4A3A34; width: 620px">Vibes At Sunset began when J. Kirven brought a speaker to Libby Hill Park to play music and watch the sun go down. In 2022 the ritual became Electric Sun Society — a nonprofit creative collective for African electronic music, visual art and wellness.</p>
+    <div style="margin-top: auto; display: flex; gap: 56px; padding-top: 28px; border-top: 2px solid #0D0A0F">
+      <div style="display: flex; flex-direction: column; gap: 6px"><span class="disp" style="font-size: 56px; line-height: 1; color: #B43A14">~200</span><span style="font-size: 14px; color: #4A3A34">at the early gatherings</span></div>
+      <div style="display: flex; flex-direction: column; gap: 6px"><span class="disp" style="font-size: 56px; line-height: 1; color: #B43A14">2,000+</span><span style="font-size: 14px; color: #4A3A34">on the hill, August 2026</span></div>
+      <div style="display: flex; flex-direction: column; gap: 6px"><span class="disp" style="font-size: 56px; line-height: 1; color: #B43A14">$0</span><span style="font-size: 14px; color: #4A3A34">admission, every Vibes this season</span></div>
+    </div>
+  </div>
+  <figure style="margin: 0; width: 480px; height: 700px; flex-shrink: 0; position: relative; background: #0D0A0F; overflow: hidden">
+    <div style="position: absolute; left: 90px; top: 380px; width: 300px; height: 300px; border-radius: 50%; overflow: hidden">
+      <sc-for list="{{sunEmber}}" as="b" hint-placeholder-count="8"><div style="{{b.style}}"></div></sc-for>
+    </div>
+    <div class="mono" style="position: absolute; left: 24px; top: 24px; font-size: 11px; color: #FFB42E">Plate 01</div>
+    <figcaption class="mono" style="position: absolute; left: 24px; right: 24px; bottom: 24px; font-size: 11px; line-height: 1.7; color: #FFF1D6">[Photo] Libby Hill Park, golden hour — the crowd on the slope</figcaption>
+  </figure>
+</section>
+
+<!-- ============ NEW HILL ============ -->
+<section style="width: 1440px; height: 860px; box-sizing: border-box; padding: 112px 64px; background: #2A1030; display: flex; gap: 88px">
+  <div style="width: 624px; display: flex; flex-direction: column; gap: 28px">
+    <div class="mono" style="font-size: 12px; color: #FFB42E">Oct 8 · The finale moves</div>
+    <h2 class="disp" style="margin: 0; font-size: 92px; line-height: 0.95; color: #FFF1D6">New hill.<br>Same sun.</h2>
+    <p style="margin: 0; font-size: 18px; line-height: 1.55; color: #E6D3C8; width: 580px">Vibes outgrew Libby Hill. Years after one speaker on the grass, more than 2,000 of you were on the slope — so the season finale moves to the Virginia War Memorial: a plaza above the James with room for everybody and parking of its own.</p>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; padding-top: 24px; border-top: 1px solid rgba(255,241,214,0.2)">
+      <div style="display: flex; flex-direction: column; gap: 6px"><span class="disp" style="font-size: 40px; color: #FFB42E">1,500</span><span style="font-size: 14px; color: #E6D3C8">plaza capacity</span></div>
+      <div style="display: flex; flex-direction: column; gap: 6px"><span class="disp" style="font-size: 40px; color: #FFB42E">175</span><span style="font-size: 14px; color: #E6D3C8">dedicated parking spaces</span></div>
+      <div style="display: flex; flex-direction: column; gap: 6px"><span class="disp" style="font-size: 40px; color: #FFB42E">Free</span><span style="font-size: 14px; color: #E6D3C8">RSVP required this time</span></div>
+    </div>
+    <p class="serif" style="margin: 0; margin-top: auto; font-size: 24px; line-height: 1.3; color: #FFF1D6">Thank you, Libby Hill — for every sunset. Thank you, VITCO — for Sept 25.</p>
+  </div>
+  <div style="flex-grow: 1; height: 636px; position: relative; background: #1C0A20; border: 1px solid #4A2450; overflow: hidden">
+    <svg width="600" height="636" viewBox="0 0 600 636" role="img" aria-label="Map sketch: Virginia War Memorial on South Belvidere Street above the James River, west of downtown">
+      <line x1="236" y1="0" x2="236" y2="636" stroke="#FFF1D6" style="stroke-width: 10; opacity: 0.08"></line>
+      <line x1="0" y1="250" x2="600" y2="250" stroke="#FFF1D6" style="stroke-width: 6; opacity: 0.06"></line>
+      <line x1="0" y1="150" x2="600" y2="110" stroke="#FFF1D6" style="stroke-width: 6; opacity: 0.06"></line>
+      <path d="M-20 470 C 110 420, 210 520, 340 470 S 520 360, 640 390" fill="none" stroke="#3E1C4A" style="stroke-width: 64"></path>
+      <path d="M-20 470 C 110 420, 210 520, 340 470 S 520 360, 640 390" fill="none" stroke="#FFB42E" style="stroke-width: 1.5; opacity: 0.55; stroke-dasharray: 2 6"></path>
+      <text x="80" y="540" fill="#E6D3C8" style="font-family: 'Instrument Serif', serif; font-style: italic; font-size: 26px">James River</text>
+      <text x="248" y="40" fill="#BFB0A2" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em">S BELVIDERE ST</text>
+      <text x="560" y="232" fill="#BFB0A2" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-anchor: end">DOWNTOWN →</text>
+      <text x="560" y="96" fill="#8E7A86" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-anchor: end">LIBBY HILL, 2018–2026 →</text>
+      <circle cx="236" cy="360" r="46" fill="#F2561D" style="opacity: 0.18"></circle>
+      <circle cx="236" cy="360" r="24" fill="#F2561D" style="opacity: 0.35"></circle>
+      <circle cx="236" cy="360" r="10" fill="#FFB42E"></circle>
+    </svg>
+    <div style="position: absolute; left: 290px; top: 322px; display: flex; flex-direction: column; gap: 6px">
+      <span class="wide" style="font-size: 20px; font-weight: 800; color: #FFF1D6">Virginia War Memorial</span>
+      <span style="font-size: 14px; color: #E6D3C8">621 S Belvidere St · above the James</span>
+    </div>
+    <div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 20px 24px; display: flex; gap: 28px; background: #150818; border-top: 1px solid #4A2450; font-size: 14px; color: #E6D3C8">
+      <span><strong style="color: #FFF1D6">Park</strong> at the memorial — come early</span>
+      <span><strong style="color: #FFF1D6">Bike</strong> or walk from Oregon Hill</span>
+      <span><strong style="color: #FFF1D6">Rideshare</strong> [drop-off TBC]</span>
+    </div>
+    <div class="mono" style="position: absolute; right: 20px; top: 16px; font-size: 10px; color: #8E7A86">Not to scale</div>
+  </div>
+</section>
+
+<!-- ============ SEASON ============ -->
+<section id="season" style="width: 1440px; height: 940px; box-sizing: border-box; padding: 104px 64px; background: #0D0A0F; display: flex; flex-direction: column; gap: 48px">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end">
+    <h2 class="disp" style="margin: 0; font-size: 64px; line-height: 1; color: #FFF1D6">The 2026 season</h2>
+    <div class="mono" style="font-size: 12px; color: #BFB0A2">Richmond, VA · All free</div>
+  </div>
+  <div style="display: flex; flex-direction: column">
+    <div style="height: 96px; display: flex; align-items: center; border-top: 1px solid #FFB42E">
+      <span class="disp" style="width: 260px; font-size: 40px; color: #8C7F74">Jun 11</span>
+      <span style="width: 360px; font-size: 18px; font-weight: 600; color: #CDBFAE">Libby Hill Park</span>
+      <span style="flex-grow: 1; font-size: 16px; color: #8C7F74">With special guest DJ Lonnie B</span>
+      <span class="mono" style="width: 200px; text-align: right; font-size: 12px; color: #8C7F74">Done</span>
+    </div>
+    <div style="height: 96px; display: flex; align-items: center; border-top: 2px solid #FFB42E">
+      <span class="disp" style="width: 260px; font-size: 40px; color: #8C7F74">Jul 16</span>
+      <span style="width: 360px; font-size: 18px; font-weight: 600; color: #CDBFAE">Libby Hill Park</span>
+      <span style="flex-grow: 1; font-size: 16px; color: #8C7F74">Music, wellness, food and community</span>
+      <span class="mono" style="width: 200px; text-align: right; font-size: 12px; color: #8C7F74">Done</span>
+    </div>
+    <div style="height: 96px; display: flex; align-items: center; border-top: 3px solid #FFB42E">
+      <span class="disp" style="width: 260px; font-size: 40px; color: #8C7F74">August</span>
+      <span style="width: 360px; font-size: 18px; font-weight: 600; color: #CDBFAE">Libby Hill Park</span>
+      <span style="flex-grow: 1; font-size: 16px; color: #8C7F74">2,000+ on the hill — the biggest Vibes yet</span>
+      <span class="mono" style="width: 200px; text-align: right; font-size: 12px; color: #8C7F74">Done</span>
+    </div>
+    <div style="height: 96px; display: flex; align-items: center; border-top: 5px solid #FFB42E">
+      <span class="disp" style="width: 260px; font-size: 40px; color: #8C7F74; text-decoration: line-through">Sep 10</span>
+      <span style="width: 360px; font-size: 18px; font-weight: 600; color: #CDBFAE">—</span>
+      <span style="flex-grow: 1; font-size: 16px; color: #8C7F74">Called off while we found a new home</span>
+      <span class="mono" style="width: 200px; text-align: right; font-size: 12px; color: #8C7F74">Canceled</span>
+    </div>
+    <div style="height: 96px; display: flex; align-items: center; border-top: 8px solid #FFB42E">
+      <span class="disp" style="width: 260px; font-size: 40px; color: #8C7F74">Sep 25</span>
+      <span style="width: 360px; font-size: 18px; font-weight: 600; color: #CDBFAE">VITCO · 1010 N Meadow St</span>
+      <span style="flex-grow: 1; font-size: 16px; color: #8C7F74">Under the streetcar stage</span>
+      <span class="mono" style="width: 200px; text-align: right; font-size: 12px; color: #8C7F74">Done · thank you</span>
+    </div>
+    <div style="height: 132px; display: flex; align-items: center; background: #FFB42E; color: #0D0A0F; padding: 0 28px; margin-top: 12px">
+      <span class="disp" style="width: 232px; font-size: 48px">Oct 08</span>
+      <span style="width: 360px; font-size: 20px; font-weight: 700">Virginia War Memorial</span>
+      <span style="flex-grow: 1; font-size: 17px; font-weight: 500">Season finale · Sunset at 6:43 PM · 5–9 PM</span>
+      <a href="/mockups/electric-sun-society/Choose%20a%20direction-html/A%20%C2%B7%20RSVP%20flow%20%E2%80%94%20Oct%208%20finale-html/RSVP.dc.html" style="background: #0D0A0F; color: #FFB42E; font-weight: 700; font-size: 16px; padding: 0 28px; height: 56px; border-radius: 999px; display: flex; align-items: center">RSVP →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PILLARS ============ -->
+<section style="width: 1440px; height: 640px; box-sizing: border-box; padding: 104px 64px; background: #F4E9D8; color: #0D0A0F; display: flex; flex-direction: column; gap: 64px">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end">
+    <h2 class="disp" style="margin: 0; font-size: 64px; line-height: 1">Everything under the sun.</h2>
+    <p class="serif" style="margin: 0; font-size: 26px; color: #4A3A34">Not a concert. A gathering.</p>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px">
+    <div style="display: flex; flex-direction: column; gap: 18px">
+      <div style="width: 96px; height: 96px; border-radius: 50%; overflow: hidden; position: relative"><sc-for list="{{sunEmber}}" as="b" hint-placeholder-count="8"><div style="{{b.style}}"></div></sc-for></div>
+      <h3 class="wide" style="margin: 0; font-size: 28px; font-weight: 800">Sound</h3>
+      <p style="margin: 0; font-size: 16px; line-height: 1.55; color: #4A3A34">Amapiano, Afro house and Afro-tech from J. Kirven and guest selectors.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 18px">
+      <div style="width: 96px; height: 96px; border-radius: 50%; overflow: hidden; position: relative"><sc-for list="{{sunPlum}}" as="b" hint-placeholder-count="8"><div style="{{b.style}}"></div></sc-for></div>
+      <h3 class="wide" style="margin: 0; font-size: 28px; font-weight: 800">Body</h3>
+      <p style="margin: 0; font-size: 16px; line-height: 1.55; color: #4A3A34">Yoga and wellness on the lawn before the dance floor takes over.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 18px">
+      <div style="width: 96px; height: 96px; border-radius: 50%; overflow: hidden; position: relative"><sc-for list="{{sunGoldDeep}}" as="b" hint-placeholder-count="8"><div style="{{b.style}}"></div></sc-for></div>
+      <h3 class="wide" style="margin: 0; font-size: 28px; font-weight: 800">Art</h3>
+      <p style="margin: 0; font-size: 16px; line-height: 1.55; color: #4A3A34">Live visual art and local artists — a vibe you can actually see.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 18px">
+      <div style="width: 96px; height: 96px; border-radius: 50%; overflow: hidden; position: relative"><sc-for list="{{sunInk}}" as="b" hint-placeholder-count="8"><div style="{{b.style}}"></div></sc-for></div>
+      <h3 class="wide" style="margin: 0; font-size: 28px; font-weight: 800">Table</h3>
+      <p style="margin: 0; font-size: 16px; line-height: 1.55; color: #4A3A34">Food trucks and local vendors. Bring a blanket. Bring your people.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AFTER DARK ============ -->
+<section id="afterdark" style="width: 1440px; height: 660px; box-sizing: border-box; background: #000000; position: relative; overflow: hidden">
+  <div style="position: absolute; left: 0; top: 0; width: 1440px; height: 160px">
+    <sc-for list="{{darkStripes}}" as="s" hint-placeholder-count="8"><div style="{{s.style}}"></div></sc-for>
+  </div>
+  <div style="position: absolute; left: 64px; top: 200px; width: 1312px; display: flex; gap: 96px">
+    <div style="width: 576px; display: flex; flex-direction: column; gap: 24px">
+      <div class="mono" style="font-size: 12px; color: #F2561D">After dark · 21+</div>
+      <h2 class="disp" style="margin: 0; font-size: 52px; line-height: 1.02; color: #FFF1D6">When the sun’s down, the Society’s still up.</h2>
+      <p style="margin: 0; font-size: 18px; line-height: 1.55; color: #CDBFAE">Electric Sun Society nights take amapiano, Afro house and Afro-tech indoors — late, immersive, and built for the dance floor.</p>
+    </div>
+    <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 16px">
+      <div style="border: 1px solid #3A3036; padding: 28px; display: flex; align-items: center; gap: 24px">
+        <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px">
+          <span class="mono" style="font-size: 11px; color: #F2561D">Next night</span>
+          <span class="wide" style="font-size: 26px; font-weight: 800; color: #FFF1D6">[Date] · [Venue]</span>
+          <span style="font-size: 15px; color: #CDBFAE">[Lineup] · Doors [time] · 21+</span>
+        </div>
+        <a href="https://www.eventbrite.com/o/electric-sun-society-120741740968" target="_blank" rel="noopener noreferrer" style="border: 1px solid #F2561D; color: #FFF1D6; font-weight: 600; font-size: 15px; padding: 0 22px; height: 52px; border-radius: 999px; display: flex; align-items: center">Tickets</a>
+      </div>
+      <div style="border: 1px solid #3A3036; padding: 28px; display: flex; flex-direction: column; gap: 8px">
+        <span class="mono" style="font-size: 11px; color: #BFB0A2">From the archive</span>
+        <span class="wide" style="font-size: 22px; font-weight: 800; color: #FFF1D6">ESS @ LOSO — 2727 W Broad St</span>
+        <span style="font-size: 15px; color: #CDBFAE">J. Kirven, Raneshounds, Ohemghi · Jan 2025 · 9 PM – 2 AM</span>
+      </div>
+      <div style="border: 1px dashed #3A3036; padding: 20px 28px; font-size: 14px; color: #BFB0A2">[Embed: latest J. Kirven mix — SoundCloud / Mixcloud]</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GET INVOLVED ============ -->
+<section id="involved" style="width: 1440px; height: 620px; box-sizing: border-box; padding: 96px 64px; background: #F2561D; color: #0D0A0F; display: flex; flex-direction: column; gap: 48px">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end">
+    <h2 class="disp" style="margin: 0; font-size: 76px; line-height: 1">Pull up. Plug in.</h2>
+    <p style="margin: 0; width: 400px; font-size: 18px; line-height: 1.5; font-weight: 500">Vibes is built by the community that shows up for it. Here’s how to be part of the next one.</p>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px">
+    <div style="background: #0D0A0F; color: #FFF1D6; padding: 28px; height: 276px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+      <span class="mono" style="font-size: 12px; color: #FFB42E">01</span>
+      <h3 class="wide" style="margin: 0; font-size: 26px; font-weight: 800">Vend</h3>
+      <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #CDBFAE">Food trucks, makers and local brands — apply for a spot at the next Vibes.</p>
+      <a href="#mockup-action" data-demo-topic="vend" style="margin-top: auto; font-weight: 700; font-size: 15px">Apply →</a>
+    </div>
+    <div style="background: #0D0A0F; color: #FFF1D6; padding: 28px; height: 276px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+      <span class="mono" style="font-size: 12px; color: #FFB42E">02</span>
+      <h3 class="wide" style="margin: 0; font-size: 26px; font-weight: 800">Play &amp; create</h3>
+      <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #CDBFAE">DJs, visual artists, yoga and wellness practitioners — pitch us your set.</p>
+      <a href="#mockup-action" data-demo-topic="pitch" style="margin-top: auto; font-weight: 700; font-size: 15px">Pitch us →</a>
+    </div>
+    <div style="background: #0D0A0F; color: #FFF1D6; padding: 28px; height: 276px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+      <span class="mono" style="font-size: 12px; color: #FFB42E">03</span>
+      <h3 class="wide" style="margin: 0; font-size: 26px; font-weight: 800">Crew</h3>
+      <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #CDBFAE">Help run the night and join the morning-after clean up. We leave it better than we found it.</p>
+      <a href="#mockup-action" data-demo-topic="crew" style="margin-top: auto; font-weight: 700; font-size: 15px">Join the crew →</a>
+    </div>
+    <div style="background: #0D0A0F; color: #FFF1D6; padding: 28px; height: 276px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+      <span class="mono" style="font-size: 12px; color: #FFB42E">04</span>
+      <h3 class="wide" style="margin: 0; font-size: 26px; font-weight: 800">Support</h3>
+      <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #CDBFAE">We’re a nonprofit collective. Donations and sponsors keep Vibes free for everyone.</p>
+      <a href="#mockup-action" data-demo-topic="give" style="margin-top: auto; font-weight: 700; font-size: 15px">Give →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section style="width: 1440px; height: 600px; position: relative; overflow: hidden; background: #0D0A0F">
+  <div style="position: absolute; left: 0; top: 112px; width: 1440px; display: flex; flex-direction: column; align-items: center; gap: 20px">
+    <h2 class="disp" style="margin: 0; font-size: 64px; line-height: 1; color: #FFF1D6">Chase the sun with us.</h2>
+    <p style="margin: 0; font-size: 18px; color: #CDBFAE">One email before every Vibes. No spam — just sunsets.</p>
+    <form style="display: flex; gap: 12px; align-items: flex-end">
+      <label style="display: flex; flex-direction: column; gap: 8px">
+        <span class="mono" style="font-size: 11px; color: #FFB42E">Email</span>
+        <input type="email" required="{{true}}" placeholder="you@richmond.com" style="width: 380px; height: 56px; box-sizing: border-box; padding: 0 20px; background: transparent; border: 1px solid rgba(255,241,214,0.4); border-radius: 999px; color: #FFF1D6; font-size: 16px; font-family: 'Archivo', sans-serif">
+      </label>
+      <button type="button" data-demo-newsletter="" style="height: 56px; padding: 0 28px; background: #FFB42E; color: #0D0A0F; border: 0; border-radius: 999px; font-weight: 700; font-size: 16px; font-family: 'Archivo', sans-serif; cursor: pointer">Keep me posted</button>
+    </form>
+  </div>
+  <div style="position: absolute; left: 220px; top: 360px; width: 1000px; height: 1000px; border-radius: 50%; overflow: hidden">
+    <sc-for list="{{footSun}}" as="b" hint-placeholder-count="8"><div style="{{b.style}}"></div></sc-for>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer style="width: 1440px; height: 220px; box-sizing: border-box; padding: 48px 64px; background: #0D0A0F; border-top: 1px solid #2A2226; display: flex; flex-direction: column; gap: 32px">
+  <div style="display: flex; align-items: center; gap: 20px">
+    <img src="./assets/0eb12a2d674df8eecf721674811375cb.png" alt="Electric Sun Society" style="width: 72px; height: 72px; border-radius: 50%">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <span class="wide" style="font-size: 18px; font-weight: 800">Electric Sun Society</span>
+      <span style="font-size: 14px; color: #BFB0A2">A nonprofit creative collective · Richmond, VA · Est. 2022</span>
+    </div>
+    <nav aria-label="Footer" style="margin-left: auto; display: flex; gap: 28px; font-size: 15px">
+      <a href="#ritual" style="color: #FFF1D6">Vibes At Sunset</a>
+      <a href="#afterdark" style="color: #FFF1D6">After Dark</a>
+      <a href="#involved" style="color: #FFF1D6">Get Involved</a>
+      <a href="https://www.instagram.com/electricsunsociety/" target="_blank" rel="noopener noreferrer">@electricsunsociety</a>
+      <a href="https://www.eventbrite.com/o/electric-sun-society-120741740968" target="_blank" rel="noopener noreferrer">Eventbrite</a>
+    </nav>
+  </div>
+  <div class="mono" style="font-size: 11px; color: #8C7F74; display: flex; justify-content: space-between"><span>© 2026 Electric Sun Society</span><span>Leave it better than you found it</span></div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"sky":{"editor":"enum","options":["Golden hour","Sunset","Blue hour"],"default":"Golden hour","section":"Hero"},"$preview":{"width":1440,"height":7360}}'>
+class Component extends DCLogic {
+  componentDidMount() { this.t = setInterval(() => this.forceUpdate(), 30000); }
+  componentWillUnmount() { clearInterval(this.t); }
+  bars(end, color) {
+    const h = [9, 7.5, 6, 4.6, 3.3, 2.2, 1.2], g = [2, 2.6, 3.2, 3.9, 4.6, 5.3, 6];
+    const solid = end * 0.5, k = (end - solid) / 61.4;
+    const out = [{ top: 0, h: solid }]; let y = solid;
+    for (let i = 0; i < h.length; i++) { y += g[i] * k; out.push({ top: y, h: h[i] * k }); y += h[i] * k; }
+    return out.map((b) => ({ style: 'position:absolute;left:0;right:0;top:' + b.top.toFixed(2) + '%;height:' + b.h.toFixed(2) + '%;background:' + color }));
+  }
+  renderVals() {
+    const skies = {
+      'Golden hour': { bands: ['#2A1030','#4A1538','#7A1E3E','#B0303A','#DD4A26','#F26E1E','#FF9A26','#FFC24A'], sun: '#FFF1C9', ink: '#0D0A0F' },
+      'Sunset': { bands: ['#140C2A','#2A1440','#4B1B4E','#7A2455','#AE3352','#DB4F45','#F27A3A','#FFAA4A'], sun: '#FFE2A8', ink: '#0D0A0F' },
+      'Blue hour': { bands: ['#070B1E','#0E1634','#1B2150','#2F2A66','#4F3475','#7C3F78','#B45470','#E77E66'], sun: '#FFD1A0', ink: '#FFF1D6' }
+    };
+    const s = skies[this.props.sky] || skies['Golden hour'];
+    const bands = s.bands.map((c) => ({ style: 'height:75px;background:' + c }));
+    const rw = [86, 74, 62, 50, 40, 31, 23, 16, 10], rh = [8, 6.5, 5, 4, 3, 2.4, 1.8, 1.4, 1];
+    let ry = 0;
+    const reflect = rw.map((w, i) => { const st = 'position:absolute;top:' + ry + 'px;left:' + ((100 - w) / 2) + '%;width:' + w + '%;height:' + rh[i] + 'px;background:' + s.sun + ';opacity:' + (0.85 - i * 0.07).toFixed(2); ry += rh[i] + 6 + i * 2.5; return { style: st }; });
+    const sh = [22, 16, 12, 8, 5, 3, 2, 1]; let sy = 0;
+    const darkStripes = sh.map((h, i) => { const st = 'position:absolute;left:0;right:0;top:' + sy + 'px;height:' + h + 'px;background:#F2561D'; sy += h + 6 + i * 2.5; return { style: st }; });
+    const target = new Date('2026-10-08T18:43:00-04:00').getTime();
+    const ms = target - Date.now();
+    let countdown = 'Sunset tonight';
+    if (ms > 0) { const d = Math.floor(ms / 864e5), hr = Math.floor(ms / 36e5) % 24, m = Math.floor(ms / 6e4) % 60; countdown = 'Sunset in ' + d + 'd ' + hr + 'h ' + m + 'm'; }
+    else if (ms < -3 * 36e5) { countdown = 'See you next season'; }
+    return {
+      bands, reflect, darkStripes, countdown,
+      inkOnSky: s.ink,
+      heroBars: this.bars(50, s.sun),
+      sunEmber: this.bars(100, '#D9431A'),
+      sunPlum: this.bars(100, '#2A1030'),
+      sunGoldDeep: this.bars(100, '#E08A12'),
+      sunInk: this.bars(100, '#0D0A0F'),
+      footSun: this.bars(26, '#FFB42E')
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en" data-mockup-layout="rsvp" data-mockup-concept="a">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/mockups/electric-sun-society/device-view.js" data-concept="a" data-layout="rsvp"></script>
+<link rel="stylesheet" href="/mockups/electric-sun-society/review.css">
+<title>RSVP — Vibes At Sunset finale</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<nav aria-label="Design review" class="mockup-review"><a href="/mockups/electric-sun-society/#options">← All options</a><span class="mockup-review__label">Option A · The Headliner · RSVP demo</span><a href="/mockups/electric-sun-society/Choose%20a%20direction-html/A%20%C2%B7%20Homepage%20%E2%80%94%20Desktop-html/Main.dc.html" data-concept="a">← Back to design</a><span class="mockup-review__note">Concept preview. RSVP, signups and participation actions are demos; nothing is submitted.</span></nav>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&amp;family=Instrument+Serif:ital@0;1&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap">
+<style>
+body{margin:0;background:#0D0A0F;font-family:'Archivo',system-ui,sans-serif;color:#FFF1D6;-webkit-font-smoothing:antialiased}
+.disp{font-family:'Archivo',sans-serif;font-stretch:125%;font-weight:900;letter-spacing:-0.01em}
+.wide{font-family:'Archivo',sans-serif;font-stretch:125%;font-weight:700}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-style:italic;font-weight:400}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:0.08em;text-transform:uppercase}
+a{color:#FFB42E;text-decoration:none}a:hover{color:#FFD27A}
+input::placeholder{color:#8C7F74}
+</style>
+</helmet>
+<div class="mockup-canvas" data-native-width="390" style="width: 390px; height: 844px; background: #0D0A0F; overflow: hidden; position: relative">
+
+<!-- sky header, shared -->
+<div style="position: absolute; left: 0; top: 0; width: 390px; height: 160px; overflow: hidden">
+  <div style="display: flex; flex-direction: column">
+    <div style="height: 40px; background: #2A1030"></div>
+    <div style="height: 40px; background: #7A1E3E"></div>
+    <div style="height: 40px; background: #DD4A26"></div>
+    <div style="height: 40px; background: #FF9A26"></div>
+  </div>
+  <div style="position: absolute; left: 115px; top: 80px; width: 160px; height: 160px; border-radius: 50%; overflow: hidden">
+    <sc-for list="{{sun}}" as="b" hint-placeholder-count="8"><div style="{{b.style}}"></div></sc-for>
+  </div>
+  <a href="/mockups/electric-sun-society/Choose%20a%20direction-html/A%20%C2%B7%20Homepage%20%E2%80%94%20Desktop-html/Main.dc.html" data-concept="a" style="position: absolute; left: 12px; top: 12px; color: #FFF1D6; font-size: 14px; font-weight: 600; height: 44px; padding: 0 8px; display: flex; align-items: center">← Home</a>
+  <div class="mono" style="position: absolute; right: 20px; top: 26px; font-size: 10px; color: #FFF1D6">Oct 8 · Finale</div>
+</div>
+<div style="position: absolute; left: 0; top: 160px; width: 390px; height: 2px; background: #0D0A0F"></div>
+
+<sc-if value="{{isForm}}" hint-placeholder-val="{{true}}">
+<form onSubmit="{{onSubmit}}" style="position: absolute; left: 20px; top: 180px; width: 350px; display: flex; flex-direction: column; gap: 14px">
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <h1 class="disp" style="margin: 0; font-size: 30px; line-height: 1">Save your spot</h1>
+    <p style="margin: 0; font-size: 14px; color: #CDBFAE">Free · Thu Oct 8 · 5–9 PM · Virginia War Memorial</p>
+  </div>
+  <label style="display: flex; flex-direction: column; gap: 6px">
+    <span class="mono" style="font-size: 10px; color: #FFB42E">Name</span>
+    <input type="text" required="{{true}}" value="{{name}}" onChange="{{onName}}" placeholder="First name" style="height: 48px; box-sizing: border-box; padding: 0 16px; background: #1A1418; border: 1px solid #3A3036; border-radius: 12px; color: #FFF1D6; font-size: 16px; font-family: 'Archivo', sans-serif">
+  </label>
+  <label style="display: flex; flex-direction: column; gap: 6px">
+    <span class="mono" style="font-size: 10px; color: #FFB42E">Email</span>
+    <input type="email" required="{{true}}" value="{{email}}" onChange="{{onEmail}}" placeholder="you@richmond.com" style="height: 48px; box-sizing: border-box; padding: 0 16px; background: #1A1418; border: 1px solid #3A3036; border-radius: 12px; color: #FFF1D6; font-size: 16px; font-family: 'Archivo', sans-serif">
+  </label>
+  <div style="display: flex; align-items: center; justify-content: space-between">
+    <span class="mono" style="font-size: 10px; color: #FFB42E">How many of you?</span>
+    <div style="display: flex; align-items: center; gap: 16px">
+      <button type="button" onClick="{{dec}}" aria-label="Fewer people" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid #3A3036; background: transparent; color: #FFF1D6; font-size: 20px; cursor: pointer">−</button>
+      <span class="disp" style="font-size: 24px; width: 24px; text-align: center">{{party}}</span>
+      <button type="button" onClick="{{inc}}" aria-label="More people" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid #3A3036; background: transparent; color: #FFF1D6; font-size: 20px; cursor: pointer">+</button>
+    </div>
+  </div>
+  <fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 8px">
+    <legend class="mono" style="font-size: 10px; color: #FFB42E; padding: 0; margin-bottom: 8px">How are you getting there?</legend>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+      <sc-for list="{{modes}}" as="m" hint-placeholder-count="4">
+        <button type="button" onClick="{{m.pick}}" style="{{m.style}}">{{m.label}}</button>
+      </sc-for>
+    </div>
+  </fieldset>
+  <label style="display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 14px; color: #CDBFAE; cursor: pointer">
+    <input type="checkbox" checked="{{crew}}" onChange="{{toggleCrew}}" style="width: 20px; height: 20px; accent-color: #FFB42E; margin: 0">
+    <span>Count me in for the clean-up crew</span>
+  </label>
+  <button type="button" onClick="{{submit}}" style="height: 56px; background: #FFB42E; color: #0D0A0F; border: 0; border-radius: 999px; font-weight: 700; font-size: 16px; font-family: 'Archivo', sans-serif; cursor: pointer">RSVP — it’s free</button>
+</form>
+</sc-if>
+
+<sc-if value="{{isDone}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; left: 20px; top: 184px; width: 350px; display: flex; flex-direction: column; gap: 20px">
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <span class="mono" style="font-size: 10px; color: #FFB42E">Demo RSVP — nothing submitted</span>
+    <h1 class="serif" style="margin: 0; font-size: 44px; line-height: 1.02">See you at golden hour, {{displayName}}.</h1>
+  </div>
+  <div style="background: #FFF1D6; color: #0D0A0F; border-radius: 16px; overflow: hidden">
+    <div style="padding: 20px; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline"><span class="disp" style="font-size: 32px">Oct 08</span><span class="mono" style="font-size: 10px; font-weight: 600">Admit {{party}}</span></div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+        <div style="display: flex; flex-direction: column; gap: 2px"><span class="mono" style="font-size: 9px; color: #6A5A54">Doors</span><span style="font-size: 15px; font-weight: 600">5:00 PM</span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px"><span class="mono" style="font-size: 9px; color: #6A5A54">Sunset</span><span style="font-size: 15px; font-weight: 600">6:43 PM</span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px"><span class="mono" style="font-size: 9px; color: #6A5A54">Where</span><span style="font-size: 15px; font-weight: 600">Va. War Memorial</span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px"><span class="mono" style="font-size: 9px; color: #6A5A54">Arriving by</span><span style="font-size: 15px; font-weight: 600">{{modeLabel}}</span></div>
+      </div>
+    </div>
+    <div style="height: 0; border-top: 2px dashed #0D0A0F; margin: 0 12px"></div>
+    <div style="padding: 16px 20px; font-size: 14px; line-height: 1.5; color: #3A2A26">{{tip}}</div>
+  </div>
+  <sc-if value="{{crew}}" hint-placeholder-val="{{false}}">
+    <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #CDBFAE">Demo crew selection. No RSVP or email has been submitted.</p>
+  </sc-if>
+  <div style="display: flex; gap: 10px">
+    <a href="/mockups/electric-sun-society/vibes-at-sunset-demo.ics" download="Vibes-At-Sunset-Demo.ics" style="flex-grow: 1; background: #FFB42E; color: #0D0A0F; font-weight: 700; font-size: 15px; height: 52px; border-radius: 999px; display: flex; align-items: center; justify-content: center">Add to calendar</a>
+    <button type="button" onClick="{{reset}}" style="flex-grow: 1; background: transparent; color: #FFF1D6; border: 1px solid rgba(255,241,214,0.4); font-weight: 600; font-size: 15px; height: 52px; border-radius: 999px; font-family: 'Archivo', sans-serif; cursor: pointer">Edit RSVP</button>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  submitPreview() {
+    const form = document.querySelector('#dc-root form');
+    if (form && form.reportValidity()) this.setState({ step: 'done' });
+  }
+  constructor(props) { super(props); this.state = { step: 'form', name: '', email: '', party: 2, mode: 'park', crew: false }; }
+  bars(end, color) {
+    const h = [9, 7.5, 6, 4.6, 3.3, 2.2, 1.2], g = [2, 2.6, 3.2, 3.9, 4.6, 5.3, 6];
+    const solid = end * 0.5, k = (end - solid) / 61.4;
+    const out = [{ top: 0, h: solid }]; let y = solid;
+    for (let i = 0; i < h.length; i++) { y += g[i] * k; out.push({ top: y, h: h[i] * k }); y += h[i] * k; }
+    return out.map((b) => ({ style: 'position:absolute;left:0;right:0;top:' + b.top.toFixed(2) + '%;height:' + b.h.toFixed(2) + '%;background:' + color }));
+  }
+  renderVals() {
+    const st = this.state;
+    const opts = [
+      { id: 'walk', label: 'Walk / bike', tip: 'Walking or biking in? Easiest way in, easiest way out. Bike rack details coming by email.' },
+      { id: 'park', label: 'Park on site', tip: 'The memorial has 175 spaces and they will go fast. Aim to arrive by 5:30 for golden hour.' },
+      { id: 'ride', label: 'Rideshare', tip: 'Rideshare drop-off details land in your inbox the week of the event.' },
+      { id: 'bus', label: 'GRTC bus', tip: 'Riding GRTC? Plan your route to 621 S Belvidere St before you head out.' }
+    ];
+    const cur = opts.find((o) => o.id === st.mode) || opts[1];
+    const base = 'height:48px;border-radius:12px;font-size:14px;font-weight:600;font-family:Archivo,sans-serif;cursor:pointer;';
+    const modes = opts.map((o) => ({
+      label: o.label,
+      pick: () => this.setState({ mode: o.id }),
+      style: base + (o.id === st.mode ? 'background:#FFB42E;color:#0D0A0F;border:1px solid #FFB42E' : 'background:transparent;color:#FFF1D6;border:1px solid #3A3036')
+    }));
+    return {
+      sun: this.bars(50, '#FFF1C9'),
+      isForm: st.step === 'form', isDone: st.step === 'done',
+      onSubmit: (event) => { event.preventDefault(); this.submitPreview(); },
+      name: st.name, email: st.email, party: st.party, crew: st.crew, modes,
+      displayName: st.name.trim() || 'friend',
+      modeLabel: cur.label, tip: cur.tip,
+      onName: (e) => this.setState({ name: e.target.value }),
+      onEmail: (e) => this.setState({ email: e.target.value }),
+      dec: () => this.setState({ party: Math.max(1, st.party - 1) }),
+      inc: () => this.setState({ party: Math.min(6, st.party + 1) }),
+      toggleCrew: () => this.setState({ crew: !st.crew }),
+      submit: () => this.submitPreview(),
+      reset: () => this.setState({ step: 'form' })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en" data-mockup-layout="rsvp" data-mockup-concept="c">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/mockups/electric-sun-society/device-view.js" data-concept="c" data-layout="rsvp"></script>
+<link rel="stylesheet" href="/mockups/electric-sun-society/review.css">
+<title>Concept C — Pre-save the finale</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<nav aria-label="Design review" class="mockup-review"><a href="/mockups/electric-sun-society/#options">← All options</a><span class="mockup-review__label">Option C · Sound System · RSVP demo</span><a href="/mockups/electric-sun-society/Choose%20a%20direction-html/C%20%C2%B7%20Homepage%20%E2%80%94%20Desktop-html/HomeC.dc.html" data-concept="c">← Back to design</a><span class="mockup-review__note">Concept preview. RSVP, signups and participation actions are demos; nothing is submitted.</span></nav>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300..900&amp;family=Hanken+Grotesk:wght@400..700&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<style>
+body{margin:0;background:#07060D;font-family:'Hanken Grotesk',system-ui,sans-serif;color:#F1EEFF;-webkit-font-smoothing:antialiased}
+.ub{font-family:'Unbounded',sans-serif;font-weight:800;letter-spacing:-0.02em}
+.sm{font-family:'Space Mono',ui-monospace,monospace;letter-spacing:0.06em;text-transform:uppercase}
+a{color:#E8FF3A;text-decoration:none}
+input::placeholder{color:#6F6893}
+</style>
+</helmet>
+<div class="mockup-canvas" data-native-width="390" style="width: 390px; height: 844px; background: #07060D; position: relative; overflow: hidden">
+  <a href="/mockups/electric-sun-society/Choose%20a%20direction-html/C%20%C2%B7%20Homepage%20%E2%80%94%20Desktop-html/HomeC.dc.html" data-concept="c" style="position: absolute; left: 12px; top: 12px; color: #F1EEFF; font-size: 14px; font-weight: 600; height: 44px; padding: 0 8px; display: flex; align-items: center; z-index: 2">← Back</a>
+  <span class="sm" style="position: absolute; right: 20px; top: 27px; font-size: 10px; color: #A9A3C4">Pre-save</span>
+
+<sc-if value="{{isForm}}" hint-placeholder-val="{{true}}">
+  <div style="position: absolute; left: 95px; top: 64px; width: 200px; height: 170px; border-radius: 8px; background: #E8FF3A; overflow: hidden">
+    <div style="position: absolute; left: 100px; top: 20px; width: 150px; height: 150px; border-radius: 50%; background: #FF7A1A; border: 10px solid #07060D; box-sizing: border-box"></div>
+    <span class="ub" style="position: absolute; left: 14px; bottom: 12px; font-size: 28px; font-weight: 900; color: #07060D">10.08</span>
+    <span class="sm" style="position: absolute; left: 14px; top: 14px; font-size: 9px; color: #07060D; font-weight: 700">ESS · Finale</span>
+  </div>
+  <div style="position: absolute; left: 20px; top: 248px; width: 350px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center">
+    <h1 class="ub" style="margin: 0; font-size: 22px; font-weight: 800">Season Finale</h1>
+    <span style="font-size: 13px; color: #A9A3C4">Vibes At Sunset · Thu Oct 8 · Va. War Memorial · Free</span>
+  </div>
+  <form onSubmit="{{onSubmit}}" style="position: absolute; left: 16px; top: 316px; width: 358px; display: flex; flex-direction: column; gap: 12px">
+    <label style="display: flex; flex-direction: column; gap: 6px"><span class="sm" style="font-size: 10px; color: #E8FF3A">Name</span><input type="text" required="{{true}}" value="{{name}}" onChange="{{onName}}" placeholder="First name" style="height: 48px; box-sizing: border-box; padding: 0 16px; background: #13111E; border: 1px solid #2A2640; border-radius: 14px; color: #F1EEFF; font-size: 16px; font-family: 'Hanken Grotesk', sans-serif"></label>
+    <label style="display: flex; flex-direction: column; gap: 6px"><span class="sm" style="font-size: 10px; color: #E8FF3A">Email</span><input type="email" required="{{true}}" value="{{email}}" onChange="{{onEmail}}" placeholder="you@richmond.com" style="height: 48px; box-sizing: border-box; padding: 0 16px; background: #13111E; border: 1px solid #2A2640; border-radius: 14px; color: #F1EEFF; font-size: 16px; font-family: 'Hanken Grotesk', sans-serif"></label>
+    <div style="display: flex; align-items: center; justify-content: space-between; height: 48px">
+      <span class="sm" style="font-size: 10px; color: #E8FF3A">Crew size</span>
+      <div style="display: flex; align-items: center; gap: 14px; background: #13111E; border: 1px solid #2A2640; border-radius: 999px; padding: 2px">
+        <button type="button" onClick="{{dec}}" aria-label="Fewer people" style="width: 44px; height: 44px; border-radius: 50%; border: 0; background: #2A2640; color: #F1EEFF; font-size: 18px">−</button>
+        <span class="sm" style="font-size: 18px; font-weight: 700; width: 20px; text-align: center">{{party}}</span>
+        <button type="button" onClick="{{inc}}" aria-label="More people" style="width: 44px; height: 44px; border-radius: 50%; border: 0; background: #2A2640; color: #F1EEFF; font-size: 18px">+</button>
+      </div>
+    </div>
+    <fieldset style="margin: 0; padding: 0; border: 0">
+      <legend class="sm" style="font-size: 10px; color: #E8FF3A; padding: 0; margin-bottom: 8px">Getting there</legend>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+        <sc-for list="{{modes}}" as="m" hint-placeholder-count="4"><button type="button" onClick="{{m.pick}}" style="{{m.style}}">{{m.label}}</button></sc-for>
+      </div>
+    </fieldset>
+    <div style="display: flex; align-items: center; justify-content: space-between; min-height: 48px">
+      <span style="font-size: 14px; color: #C9C3E4">Join the clean-up crew</span>
+      <button type="button" role="switch" aria-checked="{{crewAria}}" aria-label="Join the clean-up crew" onClick="{{toggleCrew}}" style="{{switchStyle}}"><span style="{{knobStyle}}"></span></button>
+    </div>
+  </form>
+  <button type="button" onClick="{{submit}}" style="position: absolute; left: 16px; top: 764px; width: 358px; height: 56px; background: #E8FF3A; color: #07060D; border: 0; border-radius: 999px; font-weight: 700; font-size: 16px; font-family: 'Hanken Grotesk', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px"><svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><path d="M1 1 L11 7 L1 13 Z" fill="#07060D"></path></svg>Pre-save (RSVP)</button>
+</sc-if>
+
+<sc-if value="{{isDone}}" hint-placeholder-val="{{false}}">
+  <div style="position: absolute; left: 75px; top: 72px; width: 240px; height: 240px; border-radius: 50%; background: #13111E; border: 1px solid #2A2640; display: flex; align-items: center; justify-content: center">
+    <div style="width: 196px; height: 196px; border-radius: 50%; border: 1px solid #2A2640; display: flex; align-items: center; justify-content: center"><div style="width: 150px; height: 150px; border-radius: 50%; border: 1px solid #2A2640; display: flex; align-items: center; justify-content: center"><div style="width: 92px; height: 92px; border-radius: 50%; background: #FF7A1A; display: flex; align-items: center; justify-content: center"><div style="width: 14px; height: 14px; border-radius: 50%; background: #07060D"></div></div></div></div>
+  </div>
+  <div style="position: absolute; left: 20px; top: 334px; width: 350px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center">
+    <span class="sm" style="font-size: 10px; color: #E8FF3A">Pre-saved to your calendar</span>
+    <h1 class="ub" style="margin: 0; font-size: 26px; line-height: 1.15">Demo RSVP, {{displayName}}.</h1>
+  </div>
+  <div style="position: absolute; left: 16px; top: 440px; width: 358px; box-sizing: border-box; padding: 18px 20px; background: #13111E; border: 1px solid #2A2640; border-radius: 18px; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; justify-content: space-between"><span class="sm" style="font-size: 11px; color: #A9A3C4">Admit</span><span class="sm" style="font-size: 13px; font-weight: 700">{{party}}</span></div>
+    <div style="display: flex; justify-content: space-between"><span class="sm" style="font-size: 11px; color: #A9A3C4">Doors</span><span class="sm" style="font-size: 13px">5:00 PM</span></div>
+    <div style="display: flex; justify-content: space-between"><span class="sm" style="font-size: 11px; color: #E8FF3A">The drop</span><span class="sm" style="font-size: 13px; color: #E8FF3A; font-weight: 700">6:43 PM</span></div>
+    <div style="display: flex; justify-content: space-between"><span class="sm" style="font-size: 11px; color: #A9A3C4">Getting there</span><span class="sm" style="font-size: 13px">{{modeLabel}}</span></div>
+    <p style="margin: 4px 0 0; padding-top: 12px; border-top: 1px solid #2A2640; font-size: 14px; line-height: 1.5; color: #C9C3E4">{{tip}}</p>
+  </div>
+  <sc-if value="{{crew}}" hint-placeholder-val="{{false}}"><p style="position: absolute; left: 20px; top: 694px; width: 350px; margin: 0; font-size: 13px; color: #A9A3C4; text-align: center">Demo crew selection. No email will be sent.</p></sc-if>
+  <div style="position: absolute; left: 16px; top: 752px; width: 358px; display: flex; gap: 10px">
+    <a href="/mockups/electric-sun-society/vibes-at-sunset-demo.ics" download="Vibes-At-Sunset-Demo.ics" style="flex-grow: 1; height: 56px; background: #E8FF3A; color: #07060D; border-radius: 999px; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center">Download event details</a>
+    <button type="button" onClick="{{reset}}" style="flex-grow: 1; height: 56px; background: transparent; color: #F1EEFF; border: 1px solid #4A4466; border-radius: 999px; font-weight: 600; font-size: 15px; font-family: 'Hanken Grotesk', sans-serif; cursor: pointer">Edit</button>
+  </div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  submitPreview() {
+    const form = document.querySelector('#dc-root form');
+    if (form && form.reportValidity()) this.setState({ step: 'done' });
+  }
+  constructor(props) { super(props); this.state = { step: 'form', name: '', email: '', party: 2, mode: 'park', crew: false }; }
+  renderVals() {
+    const st = this.state;
+    const opts = [
+      { id: 'walk', label: 'Walk / bike', tip: 'Walking or biking in — easiest way in and out. Bike parking details come by email.' },
+      { id: 'park', label: 'Park on site', tip: 'The memorial has 175 spaces and they’ll go fast. Aim for 5:30 to catch golden hour.' },
+      { id: 'ride', label: 'Rideshare', tip: 'Rideshare drop-off details hit your inbox the week of the event.' },
+      { id: 'bus', label: 'GRTC bus', tip: 'Riding GRTC? Plan your route to 621 S Belvidere St before you head out.' }
+    ];
+    const cur = opts.find((o) => o.id === st.mode) || opts[1];
+    const modes = opts.map((o) => ({
+      label: o.label,
+      pick: () => this.setState({ mode: o.id }),
+      style: 'height:44px;border-radius:999px;font-size:14px;font-weight:600;font-family:Hanken Grotesk,sans-serif;cursor:pointer;' + (o.id === st.mode ? 'background:#E8FF3A;color:#07060D;border:1px solid #E8FF3A' : 'background:#13111E;color:#F1EEFF;border:1px solid #2A2640')
+    }));
+    return {
+      isForm: st.step === 'form', isDone: st.step === 'done',
+      onSubmit: (event) => { event.preventDefault(); this.submitPreview(); },
+      name: st.name, email: st.email, party: st.party, crew: st.crew, modes,
+      crewAria: st.crew ? 'true' : 'false',
+      switchStyle: 'width:56px;height:32px;border-radius:999px;border:0;padding:3px;cursor:pointer;display:flex;align-items:center;justify-content:' + (st.crew ? 'flex-end' : 'flex-start') + ';background:' + (st.crew ? '#E8FF3A' : '#2A2640'),
+      knobStyle: 'width:26px;height:26px;border-radius:50%;display:block;background:' + (st.crew ? '#07060D' : '#A9A3C4'),
+      displayName: st.name.trim() || 'friend', modeLabel: cur.label, tip: cur.tip,
+      onName: (e) => this.setState({ name: e.target.value }),
+      onEmail: (e) => this.setState({ email: e.target.value }),
+      dec: () => this.setState({ party: Math.max(1, st.party - 1) }),
+      inc: () => this.setState({ party: Math.min(6, st.party + 1) }),
+      toggleCrew: () => this.setState({ crew: !st.crew }),
+      submit: () => this.submitPreview(),
+      reset: () => this.setState({ step: 'form' })
+    };
+  }
+}
+</script>
+</body>
+</html>

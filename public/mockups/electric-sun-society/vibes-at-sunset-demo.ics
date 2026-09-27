@@ -1,0 +1,15 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//CEL3 Interactive//Electric Sun Society Mockup//EN
+BEGIN:VEVENT
+UID:vibes-at-sunset-demo-20261008@cel3interactive.com
+DTSTAMP:20260926T000000Z
+DTSTART:20261008T210000Z
+DTEND:20261009T010000Z
+SUMMARY:DEMO - Vibes At Sunset concept preview
+LOCATION:Virginia War Memorial\, 621 S Belvidere St\, Richmond VA
+DESCRIPTION:Sample calendar entry from a design mockup. This is not an RS
+ VP or a confirmed event listing. Verify details with the organizer.
+STATUS:TENTATIVE
+END:VEVENT
+END:VCALENDAR
