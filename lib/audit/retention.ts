@@ -1,7 +1,7 @@
 import { sanityWriteClient } from "@/lib/sanity.write";
 import { sql } from "@/lib/postgres";
 
-export const ROUTINE_RETENTION_DAYS = 2;
+export const ROUTINE_RETENTION_DAYS = 1;
 const BATCH_SIZE = 250;
 const MAX_BATCHES = 10;
 const RUN_BUDGET_MS = 40_000;

@@ -1,7 +1,7 @@
 import deployment from "@/vercel.json";
 
 export const ACTIVITY_JOBS = [
-  { id: "audit-retention", route: "/api/cron/audit-retention", name: "Activity log archive", description: "Archives routine checks older than two days to Postgres, then frees their Sanity storage." },
+  { id: "audit-retention", route: "/api/cron/audit-retention", name: "Activity log archive", description: "Archives routine checks older than one day to Postgres, then frees their Sanity storage." },
   { id: "billing-enforcement", route: "/api/cron/billing-enforcement", name: "Overdue invoice collections", description: "Checks invoices, sends reminders, and applies the saved collections rules." },
   { id: "task-reminders", route: "/api/cron/task-reminders", name: "Task reminders", description: "Checks for due tasks and reminders." },
   { id: "lead-generator", route: "/api/cron/lead-generator", name: "Lead discovery", description: "Checks every minute; discovery follows your lead generator schedule." },

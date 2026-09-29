@@ -62,11 +62,11 @@ test("archives only expired routine job checks; preserves client records, failur
     event("action", { kind: "action" }), event("important", { routine: false }),
     ...["failed", "partial", "running", "success", "accepted"].map(status => event(status, { status })),
     event("recent", { timestamp: "2026-09-29T15:00:00.000Z" }),
-    event("boundary", { timestamp: "2026-09-27T16:00:00.000Z" }), event("legacy", { timestamp: null }),
+    event("boundary", { timestamp: "2026-09-28T16:00:00.000Z" }), event("legacy", { timestamp: null }),
   ];
   const old = event("old", { metadata: { reason: "Nothing due" } });
   const f = fixture([old, ...protectedDocs]);
-  assert.deepEqual(await f.run(), { archived: 1, removed: 1, remaining: 0, cutoff: "2026-09-27T16:00:00.000Z" });
+  assert.deepEqual(await f.run(), { archived: 1, removed: 1, remaining: 0, cutoff: "2026-09-28T16:00:00.000Z" });
   assert.deepEqual(f.dataset, protectedDocs);
   assert.deepEqual(f.archive.get("old:old-v1"), old);
 });
