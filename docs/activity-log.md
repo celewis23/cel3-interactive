@@ -19,7 +19,13 @@ The log covers actions handled by this website, not changes made directly in Str
 
 Audit writes are awaited by request handlers and registered with Next.js `after()` for background work. Logging remains best effort: if the audit database is unavailable, the business action keeps its original response so a logging outage does not encourage duplicate actions. Server logs report failed audit writes. No automatic collections settings, billing rules, or schedules are enabled by this feature.
 
-Request/response bodies, query strings, cookies, signing tokens, and uploads are not copied into generic request events. Explicit audit details redact common credential fields and limit nested values. Audit history has no delete endpoint or automatic retention cutoff.
+Request/response bodies, query strings, cookies, signing tokens, and uploads are not copied into generic request events. Explicit audit details redact common credential fields and limit nested values. Audit history has no public delete endpoint.
+
+## Routine check retention
+
+Every hour, `/api/cron/audit-retention` archives automatic job checks marked both `routine: true` and `status: skipped` once they are older than two days. Full documents are saved in the existing Postgres database's `audit_event_archive` table before removal from Sanity. Apply `db/migrations/012_audit_archive.sql` before deploying, and configure `CRON_SECRET` for the authenticated scheduler.
+
+Client requests, business actions, failures, partial results, and unfinished runs are never selected. Recent routine runs remain visible in Activity Log; older routine checks are recoverable from the SQL archive. Archive rows are identified by Sanity project, dataset, document ID, and revision. A failed archive stops cleanup, and a document changed during archival is retained. Each run processes at most 2,500 records; later runs resume any backlog. The archive job appears in job health, including failures and missed hourly runs.
 
 ## Maintaining coverage
 

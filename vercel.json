@@ -1,6 +1,10 @@
 {
   "crons": [
     {
+      "path": "/api/cron/audit-retention",
+      "schedule": "17 * * * *"
+    },
+    {
       "path": "/api/admin/notifications/email",
       "schedule": "* * * * *"
     },

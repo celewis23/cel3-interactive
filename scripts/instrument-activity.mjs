@@ -3,6 +3,7 @@ import { join, relative } from "node:path";
 import ts from "typescript";
 
 const readActions = new Set([
+  "/api/cron/audit-retention",
   "/api/cron/billing-enforcement", "/api/cron/task-reminders", "/api/cron/lead-generator", "/api/cron/campaigns",
   "/api/admin/notifications/email", "/api/admin/email/auth/callback", "/api/portal/auth/verify",
   "/api/campaign/unsubscribe/[token]",

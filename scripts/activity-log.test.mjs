@@ -218,6 +218,7 @@ test("job health distinguishes an unobserved, missing, and interrupted run", () 
   assert.equal(jobs.jobHealth("0 13 * * *", null, now), "unobserved");
   assert.equal(jobs.jobHealth("0 13 * * *", { timestamp: "2026-09-15T13:00:00Z", status: "success" }, now), "overdue");
   assert.equal(jobs.jobHealth("* * * * *", { timestamp: "2026-09-16T14:00:00Z", status: "running" }, now), "unfinished");
+  assert.equal(jobs.jobHealth("17 * * * *", { timestamp: "2026-09-16T13:17:00Z", status: "success" }, now), "overdue");
   assert.equal(jobs.jobHealth("0 13 * * *", { timestamp: "2026-09-16T13:00:00Z", status: "skipped" }, now), "skipped");
   assert.equal(jobs.findActivityJob("/api/admin/automations/process-pending", "GET"), undefined);
   assert.equal(jobs.ACTIVITY_JOBS.find((job) => job.id === "campaigns").schedule, null);
