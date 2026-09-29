@@ -109,6 +109,17 @@ test("cleanup is bounded and subsequent runs finish a backlog", async () => {
   assert.equal(f.archive.size, 2501);
 });
 
+test("slow cleanup yields before the function timeout and leaves a resumable backlog", async t => {
+  let elapsed = 0;
+  t.mock.method(Date, "now", () => now.getTime() + elapsed);
+  const f = fixture(Array.from({ length: 251 }, (_, i) => event(`slow-${i}`)), {
+    afterArchive: () => { elapsed = 40_000; },
+  });
+  const result = await f.run();
+  assert.equal(result.removed, 250);
+  assert.equal(result.remaining, 1);
+});
+
 test("retention endpoint requires the configured secret and reports archive failures", async t => {
   const previous = process.env.CRON_SECRET;
   t.after(() => { if (previous === undefined) delete process.env.CRON_SECRET; else process.env.CRON_SECRET = previous; });

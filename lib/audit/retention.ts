@@ -4,6 +4,7 @@ import { sql } from "@/lib/postgres";
 export const ROUTINE_RETENTION_DAYS = 2;
 const BATCH_SIZE = 250;
 const MAX_BATCHES = 10;
+const RUN_BUDGET_MS = 40_000;
 
 // Never expire business actions, errors, partial results, or unfinished runs.
 export const ROUTINE_ACTIVITY_FILTER = `_type == "auditEvent" && kind == "job"
@@ -16,13 +17,14 @@ type ArchivedEvent = { _id: string; _rev: string; [key: string]: unknown };
  * Revision matching protects records changed while the archive was being saved.
  * Bounded batches and idempotent upserts make interrupted/concurrent runs safe. */
 export async function archiveRoutineActivity(now = new Date()) {
+  const startedAt = Date.now();
   const cutoff = new Date(now.getTime() - ROUTINE_RETENTION_DAYS * 86_400_000).toISOString();
   const { projectId, dataset } = sanityWriteClient.config();
   if (!projectId || !dataset) throw new Error("Missing audit archive source configuration");
   let archived = 0;
   let removed = 0;
 
-  for (let batch = 0; batch < MAX_BATCHES; batch++) {
+  for (let batch = 0; batch < MAX_BATCHES && Date.now() - startedAt < RUN_BUDGET_MS; batch++) {
     const documents = await sanityWriteClient.fetch<ArchivedEvent[]>(
       `*[${ROUTINE_ACTIVITY_FILTER}] | order(timestamp asc, _id asc)[0...${BATCH_SIZE}]`,
       { cutoff },

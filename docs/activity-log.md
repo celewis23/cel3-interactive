@@ -25,7 +25,7 @@ Request/response bodies, query strings, cookies, signing tokens, and uploads are
 
 Every hour, `/api/cron/audit-retention` archives automatic job checks marked both `routine: true` and `status: skipped` once they are older than two days. Full documents are saved in the existing Postgres database's `audit_event_archive` table before removal from Sanity. Apply `db/migrations/012_audit_archive.sql` before deploying, and configure `CRON_SECRET` for the authenticated scheduler.
 
-Client requests, business actions, failures, partial results, and unfinished runs are never selected. Recent routine runs remain visible in Activity Log; older routine checks are recoverable from the SQL archive. Archive rows are identified by Sanity project, dataset, document ID, and revision. A failed archive stops cleanup, and a document changed during archival is retained. Each run processes at most 2,500 records; later runs resume any backlog. The archive job appears in job health, including failures and missed hourly runs.
+Client requests, business actions, failures, partial results, and unfinished runs are never selected. Recent routine runs remain visible in Activity Log; older routine checks are recoverable from the SQL archive. Archive rows are identified by Sanity project, dataset, document ID, and revision. A failed archive stops cleanup, and a document changed during archival is retained. Each run processes at most 2,500 records and stops starting batches after 40 seconds; later runs resume any backlog. The archive job appears in job health, including failures and missed hourly runs.
 
 ## Maintaining coverage
 
