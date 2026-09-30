@@ -10,7 +10,8 @@ const readActions = new Set([
 ]);
 // Page-view/click telemetry already has its own analytics store; it is not a
 // business action. Excluding it also avoids generating a log for every visit.
-const excluded = new Set(["/api/analytics/collect"]);
+// Download POSTs are private reads: never retain the access code in activity logs.
+const excluded = new Set(["/api/analytics/collect", "/api/downloads/[slug]"]);
 const check = process.argv.includes("--check");
 let changed = 0;
 let covered = 0;

@@ -12,6 +12,7 @@ const CHROME_EXCLUDED_PREFIXES = [
   "/forms",
   "/contracts",
   "/estimates",
+  "/downloads",
 ];
 
 function shouldShowSiteChrome(pathname: string) {

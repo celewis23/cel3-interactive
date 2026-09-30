@@ -47,3 +47,6 @@ next-env.d.ts
 
 # local data repair backups
 repair-backups/
+
+# Private client handoff source, archives, and access codes
+client-packages/
