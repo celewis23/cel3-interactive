@@ -86,7 +86,20 @@ export default function RichTextEditor({
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ codeBlock: false }),
+      StarterKit.configure({
+        codeBlock: false,
+        // Override the app's list reset and preserve formatting in email HTML.
+        bulletList: {
+          HTMLAttributes: {
+            style: "list-style-type: disc; padding-left: 1.5em; margin: 0.5em 0;",
+          },
+        },
+        orderedList: {
+          HTMLAttributes: {
+            style: "list-style-type: decimal; padding-left: 1.5em; margin: 0.5em 0;",
+          },
+        },
+      }),
       Underline,
       Link.configure({
         openOnClick: false,
