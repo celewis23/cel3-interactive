@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en" data-mockup-layout="desktop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/mockups/youmatterrva/review.css">
+<title>You Matter — Order-First Companion</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<nav aria-label="Design review" class="mockup-review">
+  <a href="/mockups/youmatterrva/#options">&larr; All options</a>
+  <span class="mockup-review__label">Concept D · Order-First Companion</span>
+  <span class="mockup-review__note">Interactive demo. Orders and payments are not sent.</span>
+</nav>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=Instrument+Sans:wght@400;500;600;700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&amp;family=DM+Sans:wght@400;500;600;700&amp;family=Fraunces:opsz,wght@9..144,500;9..144,600&amp;family=Manrope:wght@400;500;600;700;800&amp;family=DM+Serif+Display&amp;family=Outfit:wght@400;500;600;700&amp;family=Playfair+Display:wght@800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+input{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 100%; background: {{t.bg}}; color: {{t.ink}}; font-family: {{t.body}}; font-size: 15px; line-height: 1.5">
+
+<header style="background: {{t.surface}}; border-bottom: 1px solid {{t.line}}">
+<div style="max-width: 1360px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px">
+<a href="#top" aria-label="You Matter Juice Bar &amp; More — home" style="display: inline-flex; flex-direction: column; align-items: center; line-height: 1; text-decoration: none">
+<span style="display: flex; align-items: center; font-family: 'Playfair Display', serif; font-weight: 800; font-size: 30px; color: #2F8F3E">Y<svg width="30" height="30" viewBox="0 0 40 40" aria-hidden="true" style="margin: 0 1px"><circle cx="20" cy="20" r="16.5" fill="none" stroke="#2F8F3E" stroke-width="3"></circle><path d="M4.6 17 A16.5 16.5 0 0 1 35.4 17" fill="none" stroke="#F07A1A" stroke-width="3"></path><path d="M20 25.5 C13 20.5 11.5 14 16 12.6 C18.2 12 19.6 13.4 20 15 C20.4 13.4 21.8 12 24 12.6 C28.5 14 27 20.5 20 25.5 Z" fill="#D2232A"></path><path d="M20 14.6 C19 11.8 17.2 10.4 15.2 10.6 C16.4 12.8 18.2 14.2 20 14.6 Z" fill="#2F8F3E"></path><path d="M20 14.6 C21 11.8 22.8 10.4 24.8 10.6 C23.6 12.8 21.8 14.2 20 14.6 Z" fill="#2F8F3E"></path><path d="M20 31.5 C14.5 31.5 10.5 29 9.5 25 C14.5 25 18.5 27 20 31.5 Z" fill="#2F8F3E"></path><path d="M20 31.5 C25.5 31.5 29.5 29 30.5 25 C25.5 25 21.5 27 20 31.5 Z" fill="#2F8F3E"></path></svg>U</span>
+<span style="font-family: 'Playfair Display', serif; font-weight: 800; font-size: 13px; color: #E0501A; letter-spacing: 0.1em; margin-top: 2px">MATTER</span>
+</a>
+<div role="group" aria-label="Order type" style="display: flex; background: {{t.soft}}; border-radius: 999px; padding: 4px">
+<sc-for list="{{modes}}" as="m" hint-placeholder-count="2">
+<button type="button" onClick="{{m.pick}}" aria-pressed="{{m.on}}" style="{{m.style}}">{{m.label}}</button>
+</sc-for>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: {{t.muted}}">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
+4040 MacArthur Ave · <span style="color: #1F7A3F; font-weight: 600">Open now</span> · {{modeNote}}
+</div>
+<label style="flex: 1 1 220px; display: flex; align-items: center; gap: 8px; background: {{t.soft}}; border-radius: 999px; padding: 0 16px; min-height: 44px; color: {{t.muted}}">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search the menu</span>
+<input type="search" placeholder="Search juices, bowls, soups…" style="border: 0; background: transparent; font-size: 15px; flex: 1; min-width: 0; outline: none; color: {{t.ink}}">
+</label>
+<a href="#bag" style="display: inline-flex; align-items: center; gap: 8px; background: {{t.ink}}; color: {{t.surface}}; text-decoration: none; font-weight: 700; padding: 12px 18px; border-radius: 999px; min-height: 44px; box-sizing: border-box">Bag · {{count}} · {{total}}</a>
+</div>
+</header>
+
+<main id="top" style="max-width: 1360px; margin: 0 auto; padding: 28px 24px 64px">
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 28px">
+<button type="button" onClick="{{promoFriday}}" style="text-align: left; border: 0; cursor: pointer; background: {{t.p1}}; color: {{t.p1i}}; border-radius: {{t.radius}}; padding: 0; min-height: 180px; display: flex; overflow: hidden; font-family: inherit">
+<span style="flex: 1; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{t.p1k}}">1st Fridays</span>
+<span style="font-family: {{t.head}}; font-weight: 700; font-size: 26px; line-height: 1.05">Cleansing Beet &amp; Sweet Root specials</span>
+<span style="font-weight: 600">Shop the specials →</span>
+</span>
+<img src="./assets/8d39e96a4e1e222b4818f363023e5545.jpg" alt="" style="width: 38%; object-fit: cover; display: block">
+</button>
+<button type="button" onClick="{{promoFall}}" style="text-align: left; border: 0; cursor: pointer; background: {{t.p2}}; color: {{t.p2i}}; border-radius: {{t.radius}}; padding: 0; min-height: 180px; display: flex; overflow: hidden; font-family: inherit">
+<span style="flex: 1; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{t.p2k}}">New for fall</span>
+<span style="font-family: {{t.head}}; font-weight: 700; font-size: 26px; line-height: 1.05">Soups, Pumpkin Spice &amp; apple cider</span>
+<span style="font-weight: 600">Order fall favorites →</span>
+</span>
+<img src="./assets/4c5dce8ceb5abb25d0cde3bff26b80b4.jpg" alt="" style="width: 38%; object-fit: cover; display: block">
+</button>
+<button type="button" onClick="{{promoCleanse}}" style="text-align: left; border: 0; cursor: pointer; background: {{t.p3}}; color: {{t.p3i}}; border-radius: {{t.radius}}; padding: 0; min-height: 180px; display: flex; overflow: hidden; font-family: inherit">
+<span style="flex: 1; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{t.p3k}}">Plan ahead</span>
+<span style="font-family: {{t.head}}; font-weight: 700; font-size: 26px; line-height: 1.05">1, 3 &amp; 7-day juice cleanses</span>
+<span style="font-weight: 600">Schedule a pickup →</span>
+</span>
+<img src="./assets/e64f3d0cbe31ab5041987d868636e04f.jpg" alt="" style="width: 38%; object-fit: cover; display: block">
+</button>
+</div>
+
+<div role="tablist" aria-label="Menu categories" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px">
+<sc-for list="{{cats}}" as="c" hint-placeholder-count="8">
+<button type="button" role="tab" aria-selected="{{c.on}}" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}} <span style="opacity: 0.6; font-weight: 500">{{c.n}}</span></button>
+</sc-for>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+
+<section aria-label="Menu items" style="flex: 999 1 560px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px">
+<sc-for list="{{items}}" as="it" hint-placeholder-count="6">
+<article style="background: {{t.surface}}; border-radius: {{t.radius}}; overflow: hidden; display: flex; flex-direction: column">
+<button type="button" onClick="{{it.open}}" aria-label="{{it.openLabel}}" style="{{it.photoStyle}}">
+<sc-if value="{{it.hasImg}}" hint-placeholder-val="{{ false }}"><img src="{{it.img}}" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover"></sc-if>
+<sc-if value="{{it.noImg}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center"><span style="background: #FFFFFF; border-radius: 10px; padding: 14px 18px; width: 58%; text-align: center; box-shadow: 0 6px 18px rgba(0,0,0,0.12); display: block"><span style="display: block; font-family: 'Playfair Display', serif; font-weight: 800; font-size: 13px; color: #2F8F3E; line-height: 1">YOU <span style="color: #E0501A">MATTER</span></span><span style="display: block; height: 1px; background: #E6E4DD; margin: 9px 0"></span><span style="display: block; font-weight: 700; font-size: 13px; line-height: 1.2; letter-spacing: 0.04em; text-transform: uppercase; color: #111111">{{it.n}}</span></span></span></sc-if>
+<sc-if value="{{it.hasTag}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; top: 12px; left: 12px; background: {{t.ink}}; color: {{t.surface}}; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 6px 10px; border-radius: 999px">{{it.tag}}</span></sc-if>
+</button>
+<div style="padding: 16px; display: flex; gap: 12px; align-items: flex-start">
+<div style="flex: 1; min-width: 0">
+<h3 style="margin: 0; font-family: {{t.head}}; font-weight: 700; font-size: 18px; line-height: 1.2">{{it.n}}</h3>
+<p style="margin: 4px 0 8px; font-size: 13px; color: {{t.muted}}">{{it.d}}</p>
+<span style="font-weight: 700">{{it.price}}</span>
+</div>
+<button type="button" onClick="{{it.quick}}" aria-label="{{it.quickLabel}}" style="{{it.quickStyle}}">{{it.quickText}}</button>
+</div>
+</article>
+</sc-for>
+</section>
+
+<aside id="bag" aria-label="Item details and bag" style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+
+<sc-if value="{{hasDetail}}" hint-placeholder-val="{{ false }}">
+<div style="background: {{t.surface}}; border-radius: {{t.radius}}; overflow: hidden">
+<div style="{{detail.photoStyle}}"><sc-if value="{{detail.hasImg}}" hint-placeholder-val="{{ false }}"><img src="{{detail.img}}" alt="{{detail.n}}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover"></sc-if></div>
+<div style="padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; gap: 12px; align-items: flex-start">
+<div>
+<h3 style="margin: 0; font-family: {{t.head}}; font-weight: 700; font-size: 24px; line-height: 1.1">{{detail.n}}</h3>
+<p style="margin: 6px 0 0; font-size: 14px; color: {{t.muted}}">{{detail.d}}</p>
+</div>
+<button type="button" onClick="{{closeDetail}}" aria-label="Close item details" style="flex: none; width: 40px; height: 40px; border-radius: 50%; border: 0; background: {{t.soft}}; cursor: pointer; color: {{t.ink}}; font-size: 18px">×</button>
+</div>
+<div>
+<div style="font-weight: 700; font-size: 14px; margin-bottom: 8px">Boost it <span style="font-weight: 500; color: {{t.muted}}">· optional</span></div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{addins}}" as="a" hint-placeholder-count="4">
+<button type="button" onClick="{{a.toggle}}" aria-pressed="{{a.on}}" style="{{a.style}}">{{a.label}} <span style="opacity: 0.7">{{a.price}}</span></button>
+</sc-for>
+</div>
+</div>
+<button type="button" onClick="{{addDetail}}" style="background: {{t.accent}}; color: {{t.accentInk}}; border: 0; border-radius: 999px; padding: 15px; font: inherit; font-weight: 700; font-size: 16px; cursor: pointer; min-height: 48px">Add to bag · {{detailPrice}}</button>
+</div>
+</div>
+</sc-if>
+
+<div style="background: {{t.surface}}; border-radius: {{t.radius}}; padding: 22px">
+
+<sc-if value="{{isDone}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 16px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: {{t.muted}}">Order {{orderNo}} · {{slotLabel}}</div>
+<h3 style="margin: 0; font-family: {{t.head}}; font-weight: 700; font-size: 28px; line-height: 1.1">{{statusTitle}}</h3>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{stages}}" as="g" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="{{g.bar}}"></span>
+<span style="font-size: 12px; font-weight: 600; color: {{t.muted}}">{{g.label}}</span>
+</div>
+</sc-for>
+</div>
+<p style="margin: 0; font-size: 14px; color: {{t.muted}}">Status comes straight from the Square order on the counter. When the team taps “Ready,” you get a text.</p>
+<sc-if value="{{canAdvance}}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{advance}}" style="background: {{t.soft}}; color: {{t.ink}}; border: 1px dashed {{t.muted}}; border-radius: 12px; padding: 12px; font: inherit; font-weight: 600; font-size: 14px; cursor: pointer; min-height: 44px">Demo: advance kitchen status</button>
+</sc-if>
+<button type="button" onClick="{{reset}}" style="background: {{t.ink}}; color: {{t.surface}}; border: 0; border-radius: 999px; padding: 14px; font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; min-height: 48px">Start a new order</button>
+</div>
+</sc-if>
+
+<sc-if value="{{notDone}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px">
+<h3 style="margin: 0; font-family: {{t.head}}; font-weight: 700; font-size: 22px">Your bag</h3>
+<span style="font-size: 13px; color: {{t.muted}}">{{modeLabel}}</span>
+</div>
+<sc-if value="{{isEmpty}}" hint-placeholder-val="{{ true }}">
+<p style="margin: 0; padding: 20px 0; color: {{t.muted}}">Your bag is empty. Tap + on anything to add it, or tap a photo to customize.</p>
+</sc-if>
+<sc-if value="{{hasItems}}" hint-placeholder-val="{{ false }}">
+<sc-for list="{{lines}}" as="l" hint-placeholder-count="2">
+<div style="display: flex; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid {{t.line}}">
+<span style="width: 44px; height: 44px; border-radius: 12px; flex: none; overflow: hidden; background: {{l.t}}"><sc-if value="{{l.hasImg}}" hint-placeholder-val="{{ false }}"><img src="{{l.img}}" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block"></sc-if></span>
+<div style="flex: 1; min-width: 0">
+<div style="font-weight: 700; font-size: 14px">{{l.n}}</div>
+<sc-if value="{{l.hasMods}}" hint-placeholder-val="{{ false }}"><div style="font-size: 12px; color: {{t.muted}}">+ {{l.mods}}</div></sc-if>
+<div style="font-size: 13px; font-weight: 600">{{l.price}}</div>
+</div>
+<div style="display: flex; align-items: center; gap: 2px; background: {{t.soft}}; border-radius: 999px">
+<button type="button" onClick="{{l.dec}}" aria-label="Remove one" style="width: 36px; height: 36px; border: 0; background: transparent; cursor: pointer; font-size: 17px; color: {{t.ink}}">−</button>
+<span style="min-width: 16px; text-align: center; font-weight: 700; font-size: 14px">{{l.q}}</span>
+<button type="button" onClick="{{l.inc}}" aria-label="Add one" style="width: 36px; height: 36px; border: 0; background: transparent; cursor: pointer; font-size: 17px; color: {{t.ink}}">+</button>
+</div>
+</div>
+</sc-for>
+
+<div style="margin-top: 14px">
+<div style="font-weight: 700; font-size: 14px; margin-bottom: 8px">{{slotHeading}}</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{slots}}" as="s" hint-placeholder-count="4">
+<button type="button" onClick="{{s.pick}}" aria-pressed="{{s.on}}" style="{{s.style}}">{{s.label}}</button>
+</sc-for>
+</div>
+</div>
+
+<label style="display: flex; flex-direction: column; gap: 6px; margin-top: 14px; font-weight: 700; font-size: 14px">Mobile number for updates
+<input type="tel" value="(804) 555-0142" style="border: 1px solid {{t.line}}; border-radius: 12px; padding: 11px 14px; font-size: 15px; min-height: 44px; box-sizing: border-box; background: {{t.surface}}; color: {{t.ink}}">
+</label>
+
+<div style="margin-top: 16px; display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; justify-content: space-between"><span>Subtotal</span><strong>{{total}}</strong></div>
+<div style="display: flex; justify-content: space-between; font-size: 13px; color: {{t.muted}}"><span>Tax &amp; tip</span><span>Next step, via Square</span></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 14px">
+<button type="button" onClick="{{place}}" style="background: {{t.ink}}; color: {{t.surface}}; border: 0; border-radius: 14px; padding: 14px; font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; min-height: 48px">Apple Pay</button>
+<button type="button" onClick="{{place}}" style="background: {{t.accent}}; color: {{t.accentInk}}; border: 0; border-radius: 14px; padding: 14px; font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; min-height: 48px">Pay with card</button>
+</div>
+</sc-if>
+</sc-if>
+</div>
+</aside>
+</div>
+</main>
+
+<footer style="background: {{t.foot}}; color: {{t.footInk}}; padding: 40px 24px">
+<div style="max-width: 1360px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; font-size: 14px">
+<span><strong style="color: #FFFFFF; font-family: {{t.head}}">You Matter Juice Bar &amp; More</strong> · 4040 MacArthur Ave, Richmond, VA 23227 · [HOURS] · <a href="tel:+18042156356" style="color: #FFFFFF">(804) 215-6356</a></span>
+<span>Menu, prices &amp; availability sync live with Square · {{skinName}}</span>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"skin":{"editor":"enum","options":["D","A","B","C"],"default":"D"},"$preview":{"width":1440,"height":2900}}'>
+var SKINS = {
+  D: {name:'Order-first default', ink:'#111111', bg:'#F4F3EF', surface:'#FFFFFF', soft:'#F4F3EF', line:'#E6E4DD', muted:'#5E5B55', accent:'#FF6B1A', accentInk:'#111111', accentSoft:'#FFF1E8', head:"'Space Grotesk', sans-serif", body:"'Instrument Sans', sans-serif", radius:'20px',
+      p1:'#8E1F4F', p1i:'#FFFFFF', p1k:'#F6C4D2', p2:'#FF6B1A', p2i:'#111111', p2k:'#111111', p3:'#1E3A2B', p3i:'#FFFFFF', p3k:'#B8E3C6', foot:'#111111', footInk:'#D8D5CE'},
+  A: {name:'Paired with Concept A', ink:'#12352A', bg:'#FBFBF6', surface:'#FFFFFF', soft:'#EEF3E6', line:'#E1E6DA', muted:'#55685E', accent:'#D7F05A', accentInk:'#10201A', accentSoft:'#F3FAD0', head:"'Bricolage Grotesque', sans-serif", body:"'DM Sans', sans-serif", radius:'22px',
+      p1:'#8E1F4F', p1i:'#FFFFFF', p1k:'#F6C4D2', p2:'#D7F05A', p2i:'#10201A', p2k:'#12352A', p3:'#12352A', p3i:'#FFFFFF', p3k:'#D7F05A', foot:'#12352A', footInk:'#C9D6CC'},
+  B: {name:'Paired with Concept B', ink:'#2A1420', bg:'#FBF1EE', surface:'#FFFFFF', soft:'#F6E6E1', line:'#EBD6D0', muted:'#6B4E58', accent:'#7A1840', accentInk:'#FFFFFF', accentSoft:'#F6DCE3', head:"'Fraunces', serif", body:"'Manrope', sans-serif", radius:'28px',
+      p1:'#7A1840', p1i:'#FFFFFF', p1k:'#F6C4D2', p2:'#F3DCC8', p2i:'#2A1420', p2k:'#8A3F12', p3:'#2A1420', p3i:'#FFFFFF', p3k:'#F2A7BC', foot:'#2A1420', footInk:'#D9C2CA'},
+  C: {name:'Paired with Concept C', ink:'#163A24', bg:'#FFF8EE', surface:'#FFFFFF', soft:'#FCEFD9', line:'#EFE2CC', muted:'#5E6B5F', accent:'#F07A1A', accentInk:'#1C1A17', accentSoft:'#FFE7D1', head:"'DM Serif Display', serif", body:"'Outfit', sans-serif", radius:'24px',
+      p1:'#D9262B', p1i:'#FFFFFF', p1k:'#FFD6D0', p2:'#F07A1A', p2i:'#1C1A17', p2k:'#1C1A17', p3:'#1E7A3E', p3i:'#FFFFFF', p3k:'#CFF2D8', foot:'#163A24', footInk:'#D7E4D6'}
+};
+var MENU = [
+  {id:'detox', n:'Detox', c:'juice', d:'Apple, celery, ginger, lemon, pear, spinach', p:10, t:'#7FA650', img:'./assets/a77eaad2f4734588ef75c03b96c75f89.jpg', tag:'#1 seller'},
+  {id:'green', n:'Energizing Green', c:'juice', d:'Green apple, cucumber, kale, lemon, parsley, pineapple', p:10, t:'#4E8F3A', img:'./assets/4adf2e8ec02c0de4aa9bbb2cdbd7ee78.jpg'},
+  {id:'beet', n:'Cleansing Beet', c:'juice', d:'Apple, beet, carrot, ginger, lemon', p:10, t:'#8E1F4F', img:'./assets/8d39e96a4e1e222b4818f363023e5545.jpg', tag:'1st Fridays'},
+  {id:'gold', n:'Liquid Gold', c:'juice', d:'Pear, pineapple, ginger', p:10, t:'#E3A21A', img:'./assets/2589d8a19105eb3837b27d6105cd741a.jpg'},
+  {id:'rejuv', n:'Rejuvenate', c:'juice', d:'Carrot, ginger, lemon, orange, pineapple', p:10, t:'#E8742A', img:'./assets/da306a8cc7b3686c4fee584c4b760848.jpg'},
+  {id:'lemon', n:'Apple Lemonade', c:'juice', d:'Apple, lemon', p:9, t:'#D8C47A', img:'./assets/db4f93fcbb8bc9912fb716cfbd9e025f.jpg'},
+  {id:'acider', n:'Apple Cider', c:'juice', d:'Apple, orange, lemon, ginger, cinnamon, nutmeg, clove', p:10, t:'#C98A3A', img:'./assets/009461a72559eb9b417670135d2b9d48.jpg', tag:'Fall'},
+  {id:'applg', n:'Apple Ginger', c:'juice', d:'Cold-pressed · 16oz', p:9, t:'#C98A3A', img:'./assets/3c7f6565e965c2fadd407dab0084bb33.jpg'},
+  {id:'root', n:'Sweet Root', c:'juice', d:'Cold-pressed · 16oz', p:10, t:'#D9622B', tag:'1st Fridays'},
+  {id:'celery', n:'Celery Juice', c:'juice', d:'Straight celery · 16oz', p:9, t:'#9DBF6A'},
+  {id:'pumpkin', n:'Pumpkin Spice', c:'smoothie', d:'Organic pumpkin, apple, banana, ginger, allspice, maple syrup', p:9.5, t:'#C8742E', img:'./assets/559123c8eaf6957dfd56eb0c6d092263.jpg', tag:'Fall'},
+  {id:'paradise', n:'Paradise Punch', c:'smoothie', d:'Strawberry, pineapple, mango, lemon, ginger, apple juice', p:9.5, t:'#E8644A', img:'./assets/8f1f2967c5c0630061e82ee715151ba8.jpg'},
+  {id:'sunrise', n:'Sunrise', c:'smoothie', d:'Peaches, pineapple, strawberries, orange juice', p:9.5, t:'#E98A5A', img:'./assets/5f01d1bcc632773114e7b6b725fa6b00.jpg'},
+  {id:'coffee', n:'Coffee Lovers', c:'smoothie', d:'Cold brew, banana, cacao, cauliflower, oat milk, raw agave', p:9.5, t:'#6A4532', img:'./assets/9e9d4faa4f5dfc9f7cbf4538a85c266a.jpg'},
+  {id:'banana', n:'Banana Pudding', c:'smoothie', d:'Topped with crushed vanilla wafers', p:9.5, t:'#E8CF8A', img:'./assets/f7bd0dd6f75719059c3d26feb7181ed1.jpg'},
+  {id:'berry', n:'Berry Bliss', c:'smoothie', d:'Mixed berries, ginger, almond milk', p:9.5, t:'#6B2A5E', img:'./assets/d16aa762a41d3dfed4a4e59f523afc20.jpg'},
+  {id:'carrot', n:'Carrot Top', c:'smoothie', d:'Smoothie', p:9.5, t:'#E8742A', img:'./assets/5c7c4fbb7a9968c3e7cdc6b3ffbc4cd0.jpg'},
+  {id:'lean', n:'Lean Green', c:'smoothie', d:'Smoothie', p:9.5, t:'#8DB43A', img:'./assets/f61a57e68a18e6cb604f70d2e29ee310.jpg'},
+  {id:'dragon', n:'Dragon Fruit', c:'smoothie', d:'Smoothie', p:9.5, t:'#E0457B', img:'./assets/af66d98d591a6fed3850eaf13a4fd346.jpg'},
+  {id:'sb', n:'Strawberry & Banana', c:'smoothie', d:'Smoothie', p:9.5, t:'#F08A7A', img:'./assets/623671b06e2cad1bd48bb7109658fc6d.jpg'},
+  {id:'tropb', n:'Tropical Breeze', c:'smoothie', d:'Smoothie', p:9.5, t:'#F0806A', img:'./assets/e95e00132ef3215a2d60ddff2bcbd647.jpg'},
+  {id:'beetdrop', n:'Beet Drop', c:'smoothie', d:'Smoothie', p:9.5, t:'#A51D2D', img:'./assets/9495034e36f409a381d13a56b2e6825a.jpg'},
+  {id:'byo', n:'Create Your Own', c:'smoothie', d:'Your base, your fruit, your boosts', p:10, t:'#3E6E8E', tag:'Build it'},
+  {id:'acai', n:'Super Berry Açaí', c:'bowl', d:'Açaí, banana, mixed berries, apple juice. Topped with blueberries, strawberries, granola, honey, walnuts', p:12, t:'#4A2340', img:'./assets/4fc9fc8ee55b9bc8fd6664c7369b46c8.jpg'},
+  {id:'gm', n:'Green Machine', c:'bowl', d:'Topped with granola, pineapple & coconut', p:12, t:'#5F8F45', img:'./assets/ae6b4b7bb408bb973d9977b316bcd747.jpg'},
+  {id:'honey', n:'Honey Berry', c:'bowl', d:'Smoothie bowl', p:12, t:'#B5476B', img:'./assets/d97c28c8403a50282398345c4b965d61.jpg'},
+  {id:'avo', n:'Avocado Toast', c:'food', d:'Whole grain, avocado, cucumber, tomato, everything seasoning', p:9, t:'#7C9A4B', img:'./assets/1a29f89195a834494eaef1d2d85de0d4.jpg'},
+  {id:'nut', n:'Nut Butter Toast', c:'food', d:'Nut butter, banana, strawberries, blueberries, chia', p:7, t:'#B98A55', img:'./assets/4c8041bdff286dba49888a4827b42b53.jpg'},
+  {id:'yogurt', n:'Yogurt Bowl', c:'food', d:'Yogurt, strawberries, blueberries, pineapple, walnuts', p:8, t:'#E9DCC8', img:'./assets/94297036c2cc2a9f303e0f538eb4d97e.jpg'},
+  {id:'oats', n:'Overnight Oats', c:'food', d:'Topped with strawberries, blueberries & walnuts', p:7, t:'#CDB894', img:'./assets/a116dc53d42640b7424258e3a0e88fa5.jpg'},
+  {id:'bake', n:'Chicken, Potato & Egg Bake', c:'food', d:'Hot plate', p:10, t:'#C9A15A'},
+  {id:'chickpea', n:'Chickpea Soup', c:'soup', d:'Chickpeas, potatoes & carrots · 16oz', p:9, t:'#E0A53A', img:'./assets/4c5dce8ceb5abb25d0cde3bff26b80b4.jpg', tag:'New'},
+  {id:'potpie', n:'Chicken Pot Pie Soup', c:'soup', d:'16oz', p:9, t:'#D4A85A'},
+  {id:'curry', n:'Curry Chicken Soup', c:'soup', d:'16oz', p:9, t:'#D08A2E'},
+  {id:'jerk', n:'Jerk Chicken Soup', c:'soup', d:'Spicy · 16oz', p:9, t:'#A8402A'},
+  {id:'cider', n:'Hot Spiced Apple Cider', c:'drink', d:'Served hot with a cinnamon stick', p:5, t:'#B5651D', img:'./assets/0d5b1d3e6232006fdc0df0e94c932c21.jpg', tag:'Fall'},
+  {id:'chai', n:'Iced Chai Latte', c:'drink', d:'20oz', p:6.5, t:'#B98A55', img:'./assets/830331e6746dd101d28e14f61c3e208f.jpg'},
+  {id:'matcha', n:'Iced Matcha', c:'drink', d:'Plant-based milk · 20oz', p:6.5, t:'#7FA35A', img:'./assets/2524d3cd79baaf40e1f6ab6701373a73.jpg'},
+  {id:'cookie', n:'Cookie Butter Cold Brew', c:'drink', d:'20oz', p:6.5, t:'#8A5A3B'},
+  {id:'vanilla', n:'French Vanilla Cold Brew', c:'drink', d:'20oz', p:6.5, t:'#C9A57A'},
+  {id:'protein', n:'Cold Brew Protein Coffee', c:'drink', d:'20oz', p:7.5, t:'#4E3B2E'},
+  {id:'water', n:'Spring Water', c:'drink', d:'16.9oz', p:2, t:'#DDE6EE', img:'./assets/68788393533b76129fe362837213b8b4.jpg'},
+  {id:'c1', n:'1-Day Juice Cleanse', c:'cleanse', d:'6 × 16oz juices', p:55, t:'#2F5D3A', img:'./assets/e64f3d0cbe31ab5041987d868636e04f.jpg'},
+  {id:'c3', n:'3-Day Juice Cleanse', c:'cleanse', d:'18 × 16oz juices', p:150, t:'#2F5D3A'},
+  {id:'moon', n:'Blue Moon Wellness Reset', c:'cleanse', d:'21 × 16oz juices', p:170, t:'#2A3F6E'},
+  {id:'c7', n:'7-Day Juice Cleanse', c:'cleanse', d:'42 juices + 7 wellness shots', p:330, t:'#2F5D3A'},
+  {id:'hormbles', n:'Hormbles Chormbles', c:'shelf', d:'Protein candy · 10g protein, 0g sugar', p:3.5, t:'#F2D43A', img:'./assets/5b7dfade8adb8a33ed2d0a48cd56961b.jpg'},
+  {id:'wbeauty', n:'WonderBeauty Gummies', c:'shelf', d:'Watermelon · hair, skin & nails', p:25, t:'#9B4FA8', img:'./assets/2e0a37dde11fc041aa0b1c7cd1a4ef1f.jpg'},
+  {id:'wcalm', n:'WonderCalm Gummies', c:'shelf', d:'Summer peach mushroom gummies', p:25, t:'#8CC7A8', img:'./assets/fe613a3d79f383d9ebf4faef7e0dbb30.jpg'},
+  {id:'wday', n:'WonderDay Gummies', c:'shelf', d:'Wild raspberry mushroom gummies', p:25, t:'#E8A86A', img:'./assets/4bd98c49c938af9ff8479649a20045e1.jpg'},
+  {id:'wgreens', n:'WonderGreens Gummies', c:'shelf', d:'Green apple veggie gummies', p:25, t:'#A8D08A', img:'./assets/c8f46315c0f49664567f9eb9fb367883.jpg'},
+  {id:'wsleep', n:'WonderSleep Gummies', c:'shelf', d:'Wild elderberry mushroom gummies', p:25, t:'#7A8BA8', img:'./assets/56e155f0944d3ed82a4394b2507e751e.jpg'},
+  {id:'spp', n:'Sweet Potato Pie', c:'shelf', d:'Slice', p:5, t:'#C7702F'},
+  {id:'seamoss', n:'Sea Moss', c:'shelf', d:'Plain', p:12, t:'#B9A27A'},
+  {id:'kombucha', n:'Kombucha', c:'shelf', d:'Bottle', p:5, t:'#C9A23A'}
+];
+var CATS = [['juice','Juices'],['smoothie','Smoothies'],['bowl','Bowls'],['food','Food'],['soup','Soups'],['drink','Coffee & tea'],['cleanse','Cleanses'],['shelf','Wellness shelf']];
+var ADDINS = [['seamoss','Sea moss',1.99],['protein','Protein',1.99],['ginger','Ginger',0.99],['honey','Honey',0.99]];
+var NOW_SLOTS = ['ASAP · 12 min','10:30','10:45','11:00'];
+var LATER_SLOTS = ['Sat 9:00','Sat 10:00','Sun 10:00','Mon 8:00'];
+var STAGES = ['Received','Making it','Ready'];
+var TITLES = ['Got it — order received.','We’re making it now.','Ready on the pickup shelf!'];
+function ink(h){var r=parseInt(h.substr(1,2),16),g=parseInt(h.substr(3,2),16),b=parseInt(h.substr(5,2),16);return (0.299*r+0.587*g+0.114*b)>150?'#111111':'#FFFFFF';}
+function money(n){return '$'+n.toFixed(2);}
+function byId(id){for(var i=0;i<MENU.length;i++){if(MENU[i].id===id)return MENU[i];}return null;}
+function addinPrice(mods){var t=0;mods.forEach(function(k){ADDINS.forEach(function(a){if(a[0]===k)t+=a[2];});});return t;}
+function photo(m,h){return 'position:relative;overflow:hidden;border:0;padding:0;width:100%;cursor:pointer;height:'+h+'px;background:'+m.t+';display:block;font:inherit;text-align:left';}
+class Component extends DCLogic {
+  constructor(props){ super(props); this.state = {cat:'juice', cart:[], step:'menu', mode:'now', slot:0, detail:'paradise', mods:['ginger'], orderNo:'', stage:0}; }
+  addLine(id, mods){
+    var key=id+'|'+mods.slice().sort().join(','), cart=this.state.cart.map(function(l){return Object.assign({},l);}), found=false;
+    cart.forEach(function(l){ if(l.key===key){ l.q+=1; found=true; } });
+    if(!found) cart.push({key:key, id:id, mods:mods.slice(), q:1});
+    this.setState({cart:cart, step:'menu'});
+  }
+  bump(key, d){
+    var cart=this.state.cart.map(function(l){return Object.assign({},l);}).filter(function(l){ if(l.key===key) l.q+=d; return l.q>0; });
+    this.setState({cart:cart});
+  }
+  renderVals(){
+    var s=this.state, self=this, T=SKINS[this.props.skin] || SKINS.D;
+    var pill=function(on){ return 'border:0;border-radius:999px;padding:9px 16px;min-height:40px;cursor:pointer;font:inherit;font-weight:600;font-size:14px;background:'+(on?T.ink:'transparent')+';color:'+(on?T.surface:T.ink); };
+    var modes=[['now','Pickup now'],['later','Schedule']].map(function(m){ var on=s.mode===m[0];
+      return {label:m[1], on:on?'true':'false', pick:function(){self.setState({mode:m[0], slot:0});}, style:pill(on)}; });
+    var cats=CATS.map(function(k){ var on=s.cat===k[0], n=MENU.filter(function(m){return m.c===k[0];}).length;
+      return {label:k[1], n:n, on:on?'true':'false', pick:function(){self.setState({cat:k[0]});},
+        style:'border:0;border-radius:14px;padding:12px 18px;min-height:44px;cursor:pointer;font:inherit;font-weight:600;font-size:15px;background:'+(on?T.ink:T.surface)+';color:'+(on?T.surface:T.ink)}; });
+    var qtyOf=function(id){ var q=0; s.cart.forEach(function(l){ if(l.id===id) q+=l.q; }); return q; };
+    var items=MENU.filter(function(m){return m.c===s.cat;}).map(function(m){ var q=qtyOf(m.id);
+      return {n:m.n, d:m.d, tag:m.tag||'', hasTag:!!m.tag, price:money(m.p), img:m.img||'', hasImg:!!m.img, noImg:!m.img,
+        photoStyle: photo(m,200), openLabel:'Customize '+m.n, open:function(){ self.setState({detail:m.id, mods:[]}); },
+        quick:function(){ self.addLine(m.id, []); }, quickLabel: q ? 'Add another '+m.n+', '+q+' in bag' : 'Add '+m.n,
+        quickText: q ? String(q) : '+',
+        quickStyle:'flex:none;width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;font:inherit;font-weight:700;font-size:18px;background:'+(q?T.ink:T.accent)+';color:'+(q?T.surface:T.accentInk) }; });
+    var dm=s.detail?byId(s.detail):null, detail={};
+    if(dm) detail={n:dm.n, d:dm.d, img:dm.img||'', hasImg:!!dm.img, photoStyle: photo(dm,200).replace('cursor:pointer;','')};
+    var addins=ADDINS.map(function(a){ var on=s.mods.indexOf(a[0])>=0;
+      return {label:a[1], price:'+'+money(a[2]), on:on?'true':'false',
+        toggle:function(){ var m=s.mods.slice(); var i=m.indexOf(a[0]); if(i>=0) m.splice(i,1); else m.push(a[0]); self.setState({mods:m}); },
+        style:'border:1.5px solid '+(on?T.ink:T.line)+';background:'+(on?T.ink:T.surface)+';color:'+(on?T.surface:T.ink)+';border-radius:999px;padding:9px 14px;min-height:40px;cursor:pointer;font:inherit;font-weight:600;font-size:13px'}; });
+    var total=0, count=0;
+    var lines=s.cart.map(function(l){ var m=byId(l.id), unit=m.p+addinPrice(l.mods); total+=unit*l.q; count+=l.q;
+      var names=l.mods.map(function(k){ var nm=k; ADDINS.forEach(function(a){ if(a[0]===k) nm=a[1]; }); return nm; });
+      return {n:m.n, t:m.t, img:m.img||'', hasImg:!!m.img, q:l.q, price:money(unit*l.q), hasMods:names.length>0, mods:names.join(', '),
+        inc:function(){self.bump(l.key,1);}, dec:function(){self.bump(l.key,-1);}}; });
+    var slotSet = s.mode==='now' ? NOW_SLOTS : LATER_SLOTS;
+    var slots=slotSet.map(function(l,i){ var on=s.slot===i;
+      return {label:l, on:on?'true':'false', pick:function(){self.setState({slot:i});},
+        style:'border:1.5px solid '+(on?T.ink:T.line)+';background:'+(on?T.accentSoft:T.surface)+';color:'+T.ink+';border-radius:10px;padding:8px 12px;min-height:40px;cursor:pointer;font:inherit;font-weight:600;font-size:13px'}; });
+    var stages=STAGES.map(function(l,i){ return {label:l, bar:'display:block;height:6px;border-radius:3px;background:'+(i<=s.stage?T.ink:T.line)}; });
+    return {
+      t:T, skinName:T.name,
+      modes:modes, cats:cats, items:items, addins:addins, lines:lines, slots:slots, stages:stages,
+      hasDetail:!!dm, detail:detail, detailPrice: dm?money(dm.p+addinPrice(s.mods)):'',
+      closeDetail:function(){ self.setState({detail:null}); },
+      addDetail:function(){ self.addLine(s.detail, s.mods); self.setState({detail:null}); },
+      count:count, total:money(total), isEmpty:count===0, hasItems:count>0,
+      modeNote: s.mode==='now' ? 'Ready in ~12 min' : 'Order up to 7 days ahead',
+      modeLabel: s.mode==='now' ? 'Pickup today' : 'Scheduled pickup',
+      slotHeading: s.mode==='now' ? 'Pickup time' : 'Pickup day & time',
+      slotLabel: slotSet[s.slot],
+      isDone:s.step==='done', notDone:s.step!=='done', orderNo:s.orderNo,
+      statusTitle:TITLES[s.stage], canAdvance:s.stage<2,
+      advance:function(){ self.setState({stage:Math.min(2,s.stage+1)}); },
+      place:function(){ if(count) self.setState({step:'done', stage:0, detail:null, orderNo:'#YM-'+(1000+Math.floor(Math.random()*8999))}); },
+      reset:function(){ self.setState({step:'menu', cart:[], slot:0, stage:0}); },
+      promoFriday:function(){ self.setState({cat:'juice'}); },
+      promoFall:function(){ self.setState({cat:'soup'}); },
+      promoCleanse:function(){ self.setState({cat:'cleanse', mode:'later', slot:0}); }
+    };
+  }
+}
+</script>
+</body>
+</html>

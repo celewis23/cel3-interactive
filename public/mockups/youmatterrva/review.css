@@ -1,0 +1,25 @@
+.mockup-review {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  padding: 8px 20px;
+  background: #16161a;
+  color: #f5f4ef;
+  font: 600 13px/1.5 system-ui, sans-serif;
+  box-sizing: border-box;
+}
+.mockup-review a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 10px;
+  color: #f5f4ef;
+  text-underline-offset: 4px;
+}
+.mockup-review a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.mockup-review__label { font-weight: 400; }
+[data-mockup-layout="desktop"] #dc-root section[id] { scroll-margin-top: 100px; }
+.mockup-review__note { flex-basis: 100%; padding: 0 10px 4px; font-size: 12px; font-weight: 400; }

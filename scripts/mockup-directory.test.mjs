@@ -102,5 +102,5 @@ test("directory HTML is only read after cookie verification; static index cannot
   assert.match(await unlocked.text(), /UnlockingRVA/); assert.equal(unlocked.headers.get("vary"), "Cookie");
   assert.equal(existsSync("public/mockups/index.html"), false);
   assert.match(readFileSync("next.config.ts", "utf8"), /source: "\/mockups\/index.html", destination: "\/mockups"/);
-  for (const client of ["unlockingrva", "electric-sun-society", "neejah-styles", "secret-squares", "frith-yorkies", "glue-craft-studio"]) assert.equal(existsSync(`public/mockups/${client}/index.html`), true);
+  for (const client of ["unlockingrva", "electric-sun-society", "neejah-styles", "secret-squares", "frith-yorkies", "glue-craft-studio", "youmatterrva"]) assert.equal(existsSync(`public/mockups/${client}/index.html`), true);
 });

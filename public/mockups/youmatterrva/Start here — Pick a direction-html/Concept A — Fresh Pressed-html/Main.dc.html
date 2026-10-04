@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en" data-mockup-layout="desktop">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/mockups/youmatterrva/review.css">
+<title>You Matter — Fresh Pressed</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<nav aria-label="Design review" class="mockup-review">
+  <a href="/mockups/youmatterrva/#options">&larr; All options</a>
+  <span class="mockup-review__label">Concept A · Fresh Pressed</span>
+  <span class="mockup-review__note">Interactive demo. Orders, cleanse bookings and sign-ups are not sent.</span>
+</nav>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=DM+Sans:wght@400;500;600;700&amp;family=DM+Mono:wght@500&amp;family=Playfair+Display:wght@800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#12352A}a:hover{color:#0B231B}
+input,textarea{font-family:'DM Sans',sans-serif}
+</style>
+</helmet>
+<div style="width: 100%; background: #FBFBF6; color: #10201A; font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.5">
+
+<header style="background: #12352A; color: #F4F7EC">
+<div style="max-width: 1280px; margin: 0 auto; padding: 18px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<a href="#top" aria-label="You Matter Juice Bar &amp; More — home" style="display: flex; align-items: center; gap: 14px; color: #F4F7EC; text-decoration: none">
+<span style="background: #FFFFFF; border-radius: 16px; padding: 8px 14px 7px; display: inline-flex; flex-direction: column; align-items: center; line-height: 1">
+<span style="display: flex; align-items: center; font-family: 'Playfair Display', serif; font-weight: 800; font-size: 30px; color: #2F8F3E">Y<svg width="30" height="30" viewBox="0 0 40 40" aria-hidden="true" style="margin: 0 1px"><circle cx="20" cy="20" r="16.5" fill="none" stroke="#2F8F3E" stroke-width="3"></circle><path d="M4.6 17 A16.5 16.5 0 0 1 35.4 17" fill="none" stroke="#F07A1A" stroke-width="3"></path><path d="M20 25.5 C13 20.5 11.5 14 16 12.6 C18.2 12 19.6 13.4 20 15 C20.4 13.4 21.8 12 24 12.6 C28.5 14 27 20.5 20 25.5 Z" fill="#D2232A"></path><path d="M20 14.6 C19 11.8 17.2 10.4 15.2 10.6 C16.4 12.8 18.2 14.2 20 14.6 Z" fill="#2F8F3E"></path><path d="M20 14.6 C21 11.8 22.8 10.4 24.8 10.6 C23.6 12.8 21.8 14.2 20 14.6 Z" fill="#2F8F3E"></path><path d="M20 31.5 C14.5 31.5 10.5 29 9.5 25 C14.5 25 18.5 27 20 31.5 Z" fill="#2F8F3E"></path><path d="M20 31.5 C25.5 31.5 29.5 29 30.5 25 C25.5 25 21.5 27 20 31.5 Z" fill="#2F8F3E"></path></svg>U</span>
+<span style="font-family: 'Playfair Display', serif; font-weight: 800; font-size: 13px; color: #E0501A; letter-spacing: 0.1em; margin-top: 2px">MATTER</span>
+</span>
+<span style="font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #D7F05A">juice bar &amp; more</span>
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 28px; font-weight: 500; font-size: 15px">
+<a href="#order" style="color: #F4F7EC; text-decoration: none">Menu</a>
+<a href="#cleanses" style="color: #F4F7EC; text-decoration: none">Cleanses</a>
+<a href="#story" style="color: #F4F7EC; text-decoration: none">Our story</a>
+<a href="#visit" style="color: #F4F7EC; text-decoration: none">Visit</a>
+</nav>
+<a href="#order" style="display: inline-flex; align-items: center; gap: 10px; background: #D7F05A; color: #10201A; text-decoration: none; font-weight: 700; padding: 12px 20px; border-radius: 999px; min-height: 44px; box-sizing: border-box">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7z"></path><path d="M9 7a3 3 0 0 1 6 0"></path></svg>
+Order ahead · {{count}}
+</a>
+</div>
+</header>
+
+<section id="top" style="background: #12352A; color: #F4F7EC; padding: 56px 24px 96px">
+<div style="max-width: 1280px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 48px; align-items: center">
+<div style="flex: 1 1 480px; min-width: 0">
+<div style="font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #D7F05A; margin-bottom: 20px">4040 MacArthur Ave · Bellevue, Richmond</div>
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(48px, 7vw, 104px); line-height: 0.92; letter-spacing: -0.04em">Pressed fresh.<br>Made for you.</h1>
+<p style="margin: 28px 0 0; font-size: 20px; max-width: 520px; color: #C9D6CC">Cold-pressed juice, smoothies, açaí bowls and real food from Bellevue's neighborhood juice bar. Order ahead and it's ready when you walk in.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px">
+<a href="#order" style="background: #D7F05A; color: #10201A; text-decoration: none; font-weight: 700; padding: 16px 28px; border-radius: 999px; font-size: 17px">Start your order</a>
+<a href="#cleanses" style="border: 1.5px solid #5D7F70; color: #F4F7EC; text-decoration: none; font-weight: 600; padding: 16px 28px; border-radius: 999px; font-size: 17px">Book a cleanse</a>
+</div>
+</div>
+<div style="flex: 1 1 520px; min-width: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: end">
+<img src="./assets/4adf2e8ec02c0de4aa9bbb2cdbd7ee78.jpg" alt="Energizing Green cold-pressed juice bottle" style="width: 100%; height: 360px; object-fit: cover; object-position: 55% 50%; border-radius: 160px 160px 20px 20px; display: block">
+<img src="./assets/8d39e96a4e1e222b4818f363023e5545.jpg" alt="Cleansing Beet cold-pressed juice in front of the You Matter storefront sign" style="width: 100%; height: 440px; object-fit: cover; object-position: 58% 40%; border-radius: 160px 160px 20px 20px; display: block">
+<img src="./assets/a77eaad2f4734588ef75c03b96c75f89.jpg" alt="Detox cold-pressed juice bottle" style="width: 100%; height: 320px; object-fit: cover; object-position: 45% 45%; border-radius: 160px 160px 20px 20px; display: block">
+</div>
+</div>
+</section>
+
+<section style="max-width: 1280px; margin: -48px auto 0; padding: 0 24px; position: relative">
+<div style="background: #D7F05A; border-radius: 24px; padding: 24px 28px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between">
+<div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap">
+<span style="background: #10201A; color: #D7F05A; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; padding: 8px 12px; border-radius: 999px">Today · 1st Friday</span>
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: -0.02em">First Friday specials: Cleansing Beet &amp; Sweet Root</span>
+</div>
+<button type="button" onClick="{{addFriday}}" style="background: #10201A; color: #FFFFFF; border: 0; font: 700 15px 'DM Sans', sans-serif; padding: 14px 22px; border-radius: 999px; cursor: pointer; min-height: 44px">Add both to bag</button>
+</div>
+</section>
+
+<section id="order" style="max-width: 1280px; margin: 0 auto; padding: 88px 24px 40px">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 28px">
+<div>
+<div style="font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #4B6B5C">Order ahead for pickup</div>
+<h2 style="margin: 8px 0 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 56px; letter-spacing: -0.035em; line-height: 1">The menu</h2>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #3E5A4D">
+<span style="width: 8px; height: 8px; border-radius: 50%; background: #2E9E5B"></span>
+Live from the counter — sold-out items hide automatically
+</div>
+</div>
+
+<div role="tablist" aria-label="Menu categories" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px">
+<sc-for list="{{cats}}" as="c" hint-placeholder-count="8">
+<button type="button" role="tab" aria-selected="{{c.on}}" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button>
+</sc-for>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start">
+<div style="flex: 999 1 560px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px">
+<sc-for list="{{items}}" as="it" hint-placeholder-count="6">
+<article style="background: #FFFFFF; border: 1px solid #E1E6DA; border-radius: 22px; overflow: hidden; display: flex; flex-direction: column">
+<div style="{{it.photoStyle}}">
+<sc-if value="{{it.hasImg}}" hint-placeholder-val="{{ false }}">
+<img src="{{it.img}}" alt="{{it.n}}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover">
+</sc-if>
+<sc-if value="{{it.hasTag}}" hint-placeholder-val="{{ false }}">
+<span style="position: absolute; top: 14px; left: 14px; background: #FFFFFF; color: #10201A; font: 600 12px 'DM Sans', sans-serif; padding: 6px 10px; border-radius: 999px">{{it.tag}}</span>
+</sc-if>
+<sc-if value="{{it.noImg}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center">
+<div style="background: #FFFFFF; border-radius: 10px; padding: 14px 18px; width: 58%; text-align: center; box-shadow: 0 6px 18px rgba(0,0,0,0.12)">
+<div style="font-family: 'Playfair Display', serif; font-weight: 800; font-size: 13px; color: #2F8F3E; line-height: 1">YOU <span style="color: #E0501A">MATTER</span></div>
+<div style="height: 1px; background: #D9DED5; margin: 9px 0"></div>
+<div style="font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 13px; line-height: 1.2; letter-spacing: 0.04em; text-transform: uppercase; color: #10201A">{{it.n}}</div>
+</div>
+</div>
+</sc-if>
+</div>
+<div style="padding: 18px 18px 20px; display: flex; flex-direction: column; gap: 8px; flex: 1">
+<div style="display: flex; justify-content: space-between; gap: 12px; align-items: baseline">
+<h3 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px; letter-spacing: -0.02em; line-height: 1.15">{{it.n}}</h3>
+<span style="font-weight: 600; font-size: 15px; white-space: nowrap">{{it.price}}</span>
+</div>
+<p style="margin: 0; font-size: 14px; color: #55685E; flex: 1">{{it.d}}</p>
+<button type="button" onClick="{{it.add}}" style="{{it.btnStyle}}">{{it.btnLabel}}</button>
+</div>
+</article>
+</sc-for>
+</div>
+
+<aside aria-label="Your order" style="flex: 1 1 340px; min-width: 0; background: #FFFFFF; border: 1px solid #E1E6DA; border-radius: 24px; padding: 24px; box-sizing: border-box">
+
+<sc-if value="{{isDone}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="width: 52px; height: 52px; border-radius: 50%; background: #D7F05A; display: flex; align-items: center; justify-content: center">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#10201A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>
+</div>
+<div>
+<div style="font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #4B6B5C">Order {{orderNo}}</div>
+<h3 style="margin: 6px 0 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 30px; letter-spacing: -0.03em; line-height: 1.05">You're all set, {{custName}}.</h3>
+<p style="margin: 10px 0 0; color: #55685E">Pickup {{slotLabel}} at 4040 MacArthur Ave. We'll text you the second it's ready.</p>
+</div>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px">
+<li style="display: flex; gap: 12px; align-items: center"><span style="width: 24px; height: 24px; border-radius: 50%; background: #12352A; color: #D7F05A; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center">1</span><span><strong>Received</strong> — sent to the Square register</span></li>
+<li style="display: flex; gap: 12px; align-items: center"><span style="width: 24px; height: 24px; border-radius: 50%; background: #E7ECE3; color: #3E5A4D; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center">2</span><span style="color: #55685E">Being pressed &amp; blended</span></li>
+<li style="display: flex; gap: 12px; align-items: center"><span style="width: 24px; height: 24px; border-radius: 50%; background: #E7ECE3; color: #3E5A4D; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center">3</span><span style="color: #55685E">Ready at the pickup shelf</span></li>
+</ol>
+<button type="button" onClick="{{reset}}" style="background: transparent; border: 1.5px solid #12352A; color: #12352A; font: 700 15px 'DM Sans', sans-serif; padding: 14px; border-radius: 999px; cursor: pointer; min-height: 44px">Start a new order</button>
+</div>
+</sc-if>
+
+<sc-if value="{{notDone}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px">
+<h3 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -0.03em">Your bag</h3>
+<span style="font-size: 14px; color: #55685E">{{countLabel}}</span>
+</div>
+
+<sc-if value="{{isEmpty}}" hint-placeholder-val="{{ true }}">
+<div style="border: 1.5px dashed #CBD5C5; border-radius: 18px; padding: 28px 20px; text-align: center; color: #55685E">
+<p style="margin: 0; font-weight: 600; color: #10201A">Nothing here yet.</p>
+<p style="margin: 6px 0 0; font-size: 14px">Tap “Add to order” on anything in the menu.</p>
+</div>
+</sc-if>
+
+<sc-if value="{{hasItems}}" hint-placeholder-val="{{ false }}">
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column">
+<sc-for list="{{lines}}" as="l" hint-placeholder-count="2">
+<li style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #EEF1EA">
+<span style="width: 40px; height: 40px; border-radius: 12px; flex: none; overflow: hidden; background: {{l.t}}"><sc-if value="{{l.hasImg}}" hint-placeholder-val="{{ false }}"><img src="{{l.img}}" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block"></sc-if></span>
+<div style="flex: 1; min-width: 0">
+<div style="font-weight: 600; font-size: 15px">{{l.n}}</div>
+<div style="font-size: 13px; color: #55685E">{{l.each}} each</div>
+</div>
+<div style="display: flex; align-items: center; border: 1px solid #DDE3D7; border-radius: 999px">
+<button type="button" onClick="{{l.dec}}" aria-label="Remove one" style="width: 36px; height: 36px; border: 0; background: transparent; cursor: pointer; font-size: 18px; color: #10201A">−</button>
+<span style="min-width: 18px; text-align: center; font-weight: 600; font-size: 14px">{{l.q}}</span>
+<button type="button" onClick="{{l.inc}}" aria-label="Add one" style="width: 36px; height: 36px; border: 0; background: transparent; cursor: pointer; font-size: 18px; color: #10201A">+</button>
+</div>
+</li>
+</sc-for>
+</ul>
+
+<div style="margin-top: 20px">
+<div style="font-weight: 600; font-size: 14px; margin-bottom: 10px">Pickup time</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{slots}}" as="s" hint-placeholder-count="5">
+<button type="button" onClick="{{s.pick}}" aria-pressed="{{s.on}}" style="{{s.style}}">{{s.label}}</button>
+</sc-for>
+</div>
+</div>
+
+<sc-if value="{{isCheckout}}" hint-placeholder-val="{{ false }}">
+<div style="margin-top: 20px; display: flex; flex-direction: column; gap: 12px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Name for the order
+<input type="text" value="Jordan" style="border: 1px solid #CBD5C5; border-radius: 12px; padding: 12px 14px; font-size: 15px; min-height: 44px; box-sizing: border-box">
+</label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Mobile (for your ready text)
+<input type="tel" value="(804) 555-0142" style="border: 1px solid #CBD5C5; border-radius: 12px; padding: 12px 14px; font-size: 15px; min-height: 44px; box-sizing: border-box">
+</label>
+<div style="display: flex; gap: 8px">
+<button type="button" style="flex: 1; background: #10201A; color: #FFFFFF; border: 0; border-radius: 12px; padding: 12px; font: 600 14px 'DM Sans', sans-serif; min-height: 44px; cursor: pointer">Apple Pay</button>
+<button type="button" style="flex: 1; background: #FFFFFF; color: #10201A; border: 1px solid #CBD5C5; border-radius: 12px; padding: 12px; font: 600 14px 'DM Sans', sans-serif; min-height: 44px; cursor: pointer">Card</button>
+</div>
+</div>
+</sc-if>
+
+<div style="margin-top: 22px; padding-top: 18px; border-top: 1px solid #EEF1EA; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; font-size: 15px"><span>Subtotal</span><strong>{{subtotal}}</strong></div>
+<div style="display: flex; justify-content: space-between; font-size: 13px; color: #55685E"><span>Tax</span><span>Calculated by Square at payment</span></div>
+</div>
+
+<sc-if value="{{isMenu}}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{toCheckout}}" style="margin-top: 18px; width: 100%; background: #12352A; color: #FFFFFF; border: 0; border-radius: 999px; padding: 16px; font: 700 16px 'DM Sans', sans-serif; cursor: pointer; min-height: 48px">Checkout · {{subtotal}}</button>
+</sc-if>
+<sc-if value="{{isCheckout}}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{place}}" style="margin-top: 18px; width: 100%; background: #D7F05A; color: #10201A; border: 0; border-radius: 999px; padding: 16px; font: 800 16px 'DM Sans', sans-serif; cursor: pointer; min-height: 48px">Place order · {{subtotal}}</button>
+<button type="button" onClick="{{back}}" style="margin-top: 8px; width: 100%; background: transparent; color: #3E5A4D; border: 0; padding: 10px; font: 600 14px 'DM Sans', sans-serif; cursor: pointer; min-height: 44px">Keep browsing</button>
+</sc-if>
+</sc-if>
+</sc-if>
+</aside>
+</div>
+</section>
+
+<section id="cleanses" style="background: #EEF3E6; padding: 88px 24px; margin-top: 48px">
+<div style="max-width: 1280px; margin: 0 auto">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 20px; margin-bottom: 36px">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 56px; letter-spacing: -0.035em; line-height: 1; max-width: 640px">Reset on your schedule.</h2>
+<p style="margin: 0; max-width: 420px; color: #3E5A4D">Pick a cleanse, choose your pickup day, and we press the whole set fresh for you that morning.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px">
+<sc-for list="{{cleanses}}" as="k" hint-placeholder-count="4">
+<article style="background: #FFFFFF; border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 14px; min-height: 260px; box-sizing: border-box">
+<div style="font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #4B6B5C">{{k.d}}</div>
+<h3 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 30px; letter-spacing: -0.03em; line-height: 1.05; flex: 1">{{k.n}}</h3>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+<strong style="font-size: 18px">{{k.price}}</strong>
+<button type="button" onClick="{{k.add}}" style="background: #12352A; color: #FFFFFF; border: 0; border-radius: 999px; padding: 12px 18px; font: 700 14px 'DM Sans', sans-serif; cursor: pointer; min-height: 44px">Reserve</button>
+</div>
+</article>
+</sc-for>
+</div>
+<div style="margin-top: 40px; background: #FFFFFF; border-radius: 28px; overflow: hidden; display: flex; flex-wrap: wrap">
+<img src="./assets/e64f3d0cbe31ab5041987d868636e04f.jpg" alt="A You Matter cleanse kit: Glow, Detoxifying Green and Cleansing Beet bottles with an affirmation card" style="flex: 1 1 380px; min-width: 0; width: 100%; height: 440px; object-fit: cover; display: block">
+<div style="flex: 1 1 440px; min-width: 0; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; gap: 22px">
+<h3 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 34px; letter-spacing: -0.03em; line-height: 1.05">How the reset works</h3>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 18px">
+<li style="display: flex; gap: 14px"><span style="flex: none; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #12352A; background: #D7F05A; border-radius: 999px; padding: 6px 10px; height: fit-content">Before</span><span style="color: #2E4A3D">Two to three days out, cut back on caffeine, processed foods, added sugar and alcohol. Notice how your body and head space feel. A small journal comes in your kit.</span></li>
+<li style="display: flex; gap: 14px"><span style="flex: none; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #12352A; background: #D7F05A; border-radius: 999px; padding: 6px 10px; height: fit-content">During</span><span style="color: #2E4A3D">One juice every two hours, six a day, each followed by at least 16oz of water. Hungry? Reach for seeds, nuts, watermelon or raw veggies. Read your daily affirmations, meditate, move lightly.</span></li>
+<li style="display: flex; gap: 14px"><span style="flex: none; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #12352A; background: #D7F05A; border-radius: 999px; padding: 6px 10px; height: fit-content">After</span><span style="color: #2E4A3D">You did it. Ease back in with soups, leafy salads, healthy fats, seeds, nuts, fresh fruit and vegetables.</span></li>
+</ol>
+</div>
+</div>
+</div>
+</section>
+
+<section id="story" style="padding: 104px 24px">
+<div style="max-width: 1280px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 56px; align-items: center">
+<img src="./assets/4fc9fc8ee55b9bc8fd6664c7369b46c8.jpg" alt="An açaí bowl held up in front of the You Matter window on MacArthur Avenue" style="flex: 1 1 420px; min-width: 0; width: 100%; height: 520px; border-radius: 28px; object-fit: cover; object-position: 50% 40%; display: block">
+<div style="flex: 1 1 480px; min-width: 0">
+<div style="font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #4B6B5C">Our story</div>
+<h2 style="margin: 12px 0 24px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 56px; letter-spacing: -0.035em; line-height: 1">The name is the whole point.</h2>
+<p style="margin: 0 0 16px; font-size: 18px; color: #2E4A3D">Tricia Walker started with a mobile juice cart, then brought it home to MacArthur Avenue in 2024. Everything on the menu is made to take care of your body — and the name is there to take care of the rest.</p>
+<p style="margin: 0 0 28px; font-size: 18px; color: #2E4A3D">Every visit comes with a reminder that you matter, and the counter keeps mental-health resources out in the open for anyone who needs them.</p>
+<a href="#visit" style="font-weight: 700; color: #12352A">Come say hi →</a>
+</div>
+</div>
+</section>
+
+<section id="visit" style="background: #12352A; color: #F4F7EC; padding: 88px 24px">
+<div style="max-width: 1280px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 48px">
+<div style="flex: 1 1 360px; min-width: 0">
+<h2 style="margin: 0 0 24px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 56px; letter-spacing: -0.035em; line-height: 1">Find us in Bellevue.</h2>
+<p style="margin: 0 0 8px; font-size: 20px">4040 MacArthur Ave<br>Richmond, VA 23227</p>
+<p style="margin: 0 0 8px; color: #C9D6CC">[HOURS]</p>
+<p style="margin: 0; color: #C9D6CC"><a href="tel:+18042156356" style="color: #F4F7EC">(804) 215-6356</a> · [INSTAGRAM]</p>
+</div>
+<div style="flex: 1 1 520px; min-width: 0; height: 320px; border-radius: 24px; background: #1E4A3B; color: #C9D6CC; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase">Map · 4040 MacArthur Ave</div>
+</div>
+<div style="max-width: 1280px; margin: 72px auto 0; padding-top: 24px; border-top: 1px solid #2D5546; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 14px; color: #A9BEB1">
+<span>© 2026 You Matter Juice Bar &amp; More</span>
+<span>Online ordering powered by Square</span>
+</div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4300}}'>
+var IMG = {lemon:'./assets/db4f93fcbb8bc9912fb716cfbd9e025f.jpg', avo:'./assets/1a29f89195a834494eaef1d2d85de0d4.jpg', banana:'./assets/f7bd0dd6f75719059c3d26feb7181ed1.jpg', yogurt:'./assets/94297036c2cc2a9f303e0f538eb4d97e.jpg', dragon:'./assets/af66d98d591a6fed3850eaf13a4fd346.jpg'};
+var MENU = [
+  {id:'lemon', n:'Apple Lemonade', c:'juice', d:'Apple, lemon · no added sugar, vegan', p:9, t:'#D8C47A', img:IMG.lemon},
+  {id:'detox', n:'Detox', c:'juice', d:'Apple, celery, ginger, lemon, pear, spinach', p:10, t:'#7FA650', ph:1, tag:'Most popular'},
+  {id:'green', n:'Energizing Green', c:'juice', d:'Green apple, cucumber, kale, lemon, parsley, pineapple', p:10, t:'#4E8F3A', ph:1},
+  {id:'beet', n:'Cleansing Beet', c:'juice', d:'Apple, beet, carrot, ginger, lemon', p:10, t:'#8E1F4F', ph:1, tag:'1st Fridays'},
+  {id:'gold', n:'Liquid Gold', c:'juice', d:'Cold-pressed · 16oz', p:10, t:'#E3A21A'},
+  {id:'root', n:'Sweet Root', c:'juice', d:'Cold-pressed · 16oz', p:10, t:'#D9622B', tag:'1st Fridays'},
+  {id:'celery', n:'Celery Juice', c:'juice', d:'Straight celery · 16oz', p:9, t:'#9DBF6A'},
+  {id:'berry', n:'Berry Bliss', c:'smoothie', d:'Mixed berries, ginger, almond milk', p:9.5, t:'#6B2A5E', ph:1},
+  {id:'banana', n:'Banana Pudding', c:'smoothie', d:'Topped with crushed vanilla wafers', p:9.5, t:'#E8CF8A', img:IMG.banana},
+  {id:'dragon', n:'Dragon Fruit', c:'smoothie', d:'Smoothie', p:9.5, t:'#E0457B', img:IMG.dragon},
+  {id:'pumpkin', n:'Pumpkin Spice', c:'smoothie', d:'Seasonal smoothie', p:9.5, t:'#C8742E', tag:'Fall'},
+  {id:'cpb', n:'Chocolate Peanut Butter', c:'smoothie', d:'Smoothie', p:9.5, t:'#6A4532'},
+  {id:'byo', n:'Create Your Own', c:'smoothie', d:'Pick your base, fruit and add-ins', p:10, t:'#3E6E8E'},
+  {id:'acai', n:'Super Berry Açaí', c:'bowl', d:'Açaí, banana, berries, apple juice — topped with blueberries, strawberries, granola, honey, walnuts', p:12, t:'#4A2340', ph:1},
+  {id:'gm', n:'Green Machine', c:'bowl', d:'Smoothie bowl', p:12, t:'#5F8F45'},
+  {id:'honey', n:'Honey Berry', c:'bowl', d:'Smoothie bowl', p:12, t:'#B5476B'},
+  {id:'avo', n:'Avocado Toast', c:'food', d:'Whole grain, mashed avocado, cucumber, tomato, everything bagel seasoning', p:9, t:'#7C9A4B', img:IMG.avo},
+  {id:'yogurt', n:'Yogurt Bowl', c:'food', d:'Yogurt, strawberries, blueberries, pineapple, walnuts', p:8, t:'#E9DCC8', img:IMG.yogurt},
+  {id:'nut', n:'Nut Butter Toast', c:'food', d:'Toast', p:7, t:'#B98A55'},
+  {id:'oats', n:'Overnight Oats', c:'food', d:'Grab-and-go', p:7, t:'#CDB894'},
+  {id:'bake', n:'Chicken, Potato & Egg Bake', c:'food', d:'Hot plate', p:10, t:'#C9A15A'},
+  {id:'potpie', n:'Chicken Pot Pie Soup', c:'soup', d:'16oz', p:9, t:'#D4A85A', tag:'New'},
+  {id:'curry', n:'Curry Chicken Soup', c:'soup', d:'16oz', p:9, t:'#D08A2E'},
+  {id:'jerk', n:'Jerk Chicken Soup', c:'soup', d:'Spicy · 16oz', p:9, t:'#A8402A'},
+  {id:'cookie', n:'Cookie Butter Cold Brew', c:'drink', d:'20oz', p:6.5, t:'#8A5A3B'},
+  {id:'vanilla', n:'French Vanilla Cold Brew', c:'drink', d:'20oz', p:6.5, t:'#C9A57A'},
+  {id:'matcha', n:'Iced Strawberry Matcha', c:'drink', d:'Plant-based milk', p:7, t:'#8DB46A'},
+  {id:'cider', n:'Hot Spiced Apple Cider', c:'drink', d:'Seasonal', p:5, t:'#B5651D', tag:'Fall'},
+  {id:'spp', n:'Sweet Potato Pie', c:'treat', d:'Slice', p:5, t:'#C7702F'},
+  {id:'ccspp', n:'Cheesecake Sweet Potato Pie', c:'treat', d:'Slice', p:6, t:'#D9A066'},
+  {id:'c1', n:'1-Day Juice Cleanse', c:'cleanse', d:'6 × 16oz juices', p:55, t:'#2F5D3A'},
+  {id:'c3', n:'3-Day Juice Cleanse', c:'cleanse', d:'18 × 16oz juices', p:150, t:'#2F5D3A'},
+  {id:'c7', n:'7-Day Juice Cleanse', c:'cleanse', d:'42 juices + 7 wellness shots', p:330, t:'#2F5D3A'},
+  {id:'moon', n:'Blue Moon Wellness Reset', c:'cleanse', d:'21 × 16oz juices', p:170, t:'#2A3F6E'}
+];
+var P = {detox:'./assets/a77eaad2f4734588ef75c03b96c75f89.jpg', green:'./assets/4adf2e8ec02c0de4aa9bbb2cdbd7ee78.jpg', beet:'./assets/8d39e96a4e1e222b4818f363023e5545.jpg', gold:'./assets/2589d8a19105eb3837b27d6105cd741a.jpg', berry:'./assets/d16aa762a41d3dfed4a4e59f523afc20.jpg', pumpkin:'./assets/3fb71cd8ca002129fcbe5ce023d0df82.jpg', acai:'./assets/4fc9fc8ee55b9bc8fd6664c7369b46c8.jpg', gm:'./assets/ae6b4b7bb408bb973d9977b316bcd747.jpg', nut:'./assets/4c8041bdff286dba49888a4827b42b53.jpg', oats:'./assets/a116dc53d42640b7424258e3a0e88fa5.jpg', coffee:'./assets/9e9d4faa4f5dfc9f7cbf4538a85c266a.jpg', chai:'./assets/830331e6746dd101d28e14f61c3e208f.jpg'};
+var DESC = {gold:'Pear, pineapple, ginger', nut:'Nut butter, banana, strawberries, blueberries, chia', oats:'Topped with strawberries, blueberries & walnuts', gm:'Topped with granola, pineapple & coconut', coffee:'Cold brew, banana, cacao, cauliflower, oat milk, raw agave'};
+var EXTRA = [
+  {id:'carrot', n:'Carrot Top', c:'smoothie', d:'Smoothie', p:9.5, t:'#E8742A', img:'./assets/5c7c4fbb7a9968c3e7cdc6b3ffbc4cd0.jpg'},
+  {id:'coffee', n:'Coffee Lovers', c:'smoothie', d:'', p:9.5, t:'#6A4532'},
+  {id:'sunrise', n:'Sunrise', c:'smoothie', d:'Peaches, pineapple, strawberries, orange juice', p:9.5, t:'#E98A5A', img:'./assets/5f01d1bcc632773114e7b6b725fa6b00.jpg'},
+  {id:'paradise', n:'Paradise Punch', c:'smoothie', d:'Strawberry, pineapple, mango, lemon, ginger, apple juice', p:9.5, t:'#E8644A', img:'./assets/8f1f2967c5c0630061e82ee715151ba8.jpg'},
+  {id:'lean', n:'Lean Green', c:'smoothie', d:'Smoothie', p:9.5, t:'#8DB43A', img:'./assets/f61a57e68a18e6cb604f70d2e29ee310.jpg'},
+  {id:'beetdrop', n:'Beet Drop', c:'smoothie', d:'Smoothie', p:9.5, t:'#A51D2D', img:'./assets/9495034e36f409a381d13a56b2e6825a.jpg'},
+  {id:'chai', n:'Iced Chai Latte', c:'drink', d:'20oz', p:6.5, t:'#B98A55'},
+  {id:'imatcha', n:'Iced Matcha', c:'drink', d:'Plant-based milk · 20oz', p:6.5, t:'#7FA35A', img:'./assets/2524d3cd79baaf40e1f6ab6701373a73.jpg'},
+  {id:'hormbles', n:'Hormbles Chormbles', c:'treat', d:'Protein candy · 10g protein, 0g sugar', p:3.5, t:'#F2D43A', img:'./assets/5b7dfade8adb8a33ed2d0a48cd56961b.jpg'}
+];
+EXTRA.forEach(function(x){ if(!MENU.some(function(m){return m.id===x.id;})) MENU.push(x); });
+MENU.forEach(function(m){ if(P[m.id]) m.img=P[m.id]; if(DESC[m.id]) m.d=DESC[m.id]; });
+var P2 = {pumpkin:'./assets/559123c8eaf6957dfd56eb0c6d092263.jpg', honey:'./assets/d97c28c8403a50282398345c4b965d61.jpg', applg:'./assets/3c7f6565e965c2fadd407dab0084bb33.jpg', cider:'./assets/0d5b1d3e6232006fdc0df0e94c932c21.jpg', rejuv:'./assets/da306a8cc7b3686c4fee584c4b760848.jpg', c1:'./assets/e64f3d0cbe31ab5041987d868636e04f.jpg', gummy:'./assets/56e155f0944d3ed82a4394b2507e751e.jpg'};
+var DESC2 = {pumpkin:'Organic pumpkin, apple, banana, ginger, allspice, maple syrup', rejuv:'Carrot, ginger, lemon, orange, pineapple', cider:'Served hot with a cinnamon stick'};
+var EXTRA2 = [
+  {id:'rejuv', n:'Rejuvenate', c:'juice', d:'', p:10, t:'#E8742A'},
+  {id:'applg', n:'Apple Ginger', c:'juice', d:'Cold-pressed · 16oz', p:9, t:'#C98A3A'},
+  {id:'acider', n:'Apple Cider', c:'juice', d:'Apple, orange, lemon, ginger, cinnamon, nutmeg, clove', p:10, t:'#C98A3A', img:'./assets/009461a72559eb9b417670135d2b9d48.jpg', tag:'Fall'},
+  {id:'sb', n:'Strawberry & Banana', c:'smoothie', d:'Smoothie', p:9.5, t:'#F08A7A', img:'./assets/623671b06e2cad1bd48bb7109658fc6d.jpg'},
+  {id:'tropb', n:'Tropical Breeze', c:'smoothie', d:'Smoothie', p:9.5, t:'#F0806A', img:'./assets/e95e00132ef3215a2d60ddff2bcbd647.jpg'},
+  {id:'honey', n:'Honey Berry', c:'bowl', d:'Smoothie bowl', p:12, t:'#B5476B'},
+  {id:'cider', n:'Hot Spiced Apple Cider', c:'drink', d:'', p:5, t:'#B5651D', tag:'Fall'},
+  {id:'water', n:'Spring Water', c:'drink', d:'16.9oz', p:2, t:'#DDE6EE', img:'./assets/68788393533b76129fe362837213b8b4.jpg'},
+  {id:'gummy', n:'WonderSleep Gummies', c:'treat', d:'Wild elderberry mushroom gummies', p:25, t:'#7A8BA8'},
+  {id:'wbeauty', n:'WonderBeauty Gummies', c:'treat', d:'Watermelon · hair, skin & nails', p:25, t:'#9B4FA8', img:'./assets/2e0a37dde11fc041aa0b1c7cd1a4ef1f.jpg'},
+  {id:'wcalm', n:'WonderCalm Gummies', c:'treat', d:'Summer peach mushroom gummies', p:25, t:'#8CC7A8', img:'./assets/fe613a3d79f383d9ebf4faef7e0dbb30.jpg'},
+  {id:'wday', n:'WonderDay Gummies', c:'treat', d:'Wild raspberry mushroom gummies', p:25, t:'#E8A86A', img:'./assets/4bd98c49c938af9ff8479649a20045e1.jpg'},
+  {id:'wgreens', n:'WonderGreens Gummies', c:'treat', d:'Green apple veggie gummies', p:25, t:'#A8D08A', img:'./assets/c8f46315c0f49664567f9eb9fb367883.jpg'}
+];
+EXTRA2.forEach(function(x){ if(!MENU.some(function(m){return m.id===x.id;})) MENU.push(x); });
+MENU.forEach(function(m){ if(P2[m.id]) m.img=P2[m.id]; if(DESC2[m.id]) m.d=DESC2[m.id]; });
+(function(){ var i=0; while(i<MENU.length && MENU[i].c!=='soup') i++; MENU.splice(i,0,{id:'chickpea', n:'Chickpea Soup', c:'soup', d:'Chickpeas, potatoes & carrots · 16oz', p:9, t:'#E0A53A', img:'./assets/4c5dce8ceb5abb25d0cde3bff26b80b4.jpg'}); })();
+var CATS = [['juice','Cold-pressed'],['smoothie','Smoothies'],['bowl','Bowls'],['food','Food'],['soup','Soups'],['drink','Coffee & tea'],['treat','Treats & wellness'],['cleanse','Cleanses']];
+var SLOTS = ['ASAP · ~15 min','10:30 AM','10:45 AM','11:00 AM','11:15 AM'];
+function ink(h){var r=parseInt(h.substr(1,2),16),g=parseInt(h.substr(3,2),16),b=parseInt(h.substr(5,2),16);return (0.299*r+0.587*g+0.114*b)>150?'#10201A':'#FFFFFF';}
+function money(n){return '$'+n.toFixed(2);}
+function byId(id){for(var i=0;i<MENU.length;i++){if(MENU[i].id===id)return MENU[i];}return null;}
+class Component extends DCLogic {
+  constructor(props){ super(props); this.state = {cat:'juice', cart:{}, step:'menu', slot:0, orderNo:''}; }
+  add(id){ var c=Object.assign({},this.state.cart); c[id]=(c[id]||0)+1; this.setState({cart:c, step:this.state.step==='done'?'menu':this.state.step}); }
+  sub(id){ var c=Object.assign({},this.state.cart); c[id]=(c[id]||0)-1; if(c[id]<=0) delete c[id]; var st=this.state.step; if(Object.keys(c).length===0) st='menu'; this.setState({cart:c, step:st}); }
+  renderVals(){
+    var s=this.state, self=this;
+    var cats=CATS.map(function(k){ var on=s.cat===k[0]; return {label:k[1], on:on?'true':'false', pick:function(){self.setState({cat:k[0]});}, style:'border:1.5px solid '+(on?'#12352A':'#CBD5C5')+';background:'+(on?'#12352A':'#FFFFFF')+';color:'+(on?'#FFFFFF':'#10201A')+';font:600 15px "DM Sans",sans-serif;padding:10px 18px;border-radius:999px;cursor:pointer;min-height:44px'}; });
+    var items=MENU.filter(function(m){return m.c===s.cat;}).map(function(m){
+      var q=s.cart[m.id]||0;
+      return {n:m.n, d:m.d, tag:m.tag||'', hasTag:!!m.tag, price:money(m.p), img:m.img||'', hasImg:!!m.img, noImg:!m.img,
+        photoLabel: m.ph ? 'Photo · '+m.n : 'Product photo',
+        photoStyle:'position:relative;height:190px;background:'+m.t+';color:'+ink(m.t)+';display:flex;align-items:flex-end;padding:14px;box-sizing:border-box;font:500 11px/1 "DM Mono",monospace;letter-spacing:.1em;text-transform:uppercase',
+        btnLabel: q ? 'Added · '+q+' in bag' : 'Add to order',
+        btnStyle:'margin-top:6px;border:1.5px solid #12352A;background:'+(q?'#12352A':'#FFFFFF')+';color:'+(q?'#FFFFFF':'#12352A')+';font:700 14px "DM Sans",sans-serif;padding:11px;border-radius:999px;cursor:pointer;min-height:44px',
+        add:function(){self.add(m.id);} };
+    });
+    var lines=[], sub=0, count=0;
+    Object.keys(s.cart).forEach(function(id){ var m=byId(id), q=s.cart[id]; sub+=m.p*q; count+=q;
+      lines.push({n:m.n, q:q, t:m.t, img:m.img||'', hasImg:!!m.img, each:money(m.p), inc:function(){self.add(id);}, dec:function(){self.sub(id);}}); });
+    var slots=SLOTS.map(function(l,i){ var on=s.slot===i; return {label:l, on:on?'true':'false', pick:function(){self.setState({slot:i});}, style:'border:1.5px solid '+(on?'#12352A':'#DDE3D7')+';background:'+(on?'#EEF3E6':'#FFFFFF')+';color:#10201A;font:600 13px "DM Sans",sans-serif;padding:8px 12px;border-radius:10px;cursor:pointer;min-height:40px'}; });
+    var cleanses=MENU.filter(function(m){return m.c==='cleanse';}).map(function(m){ return {n:m.n, d:m.d, price:money(m.p), add:function(){self.add(m.id);}}; });
+    return {
+      cats:cats, items:items, lines:lines, slots:slots, cleanses:cleanses,
+      count:count, countLabel: count===1?'1 item':count+' items',
+      subtotal:money(sub), isEmpty:count===0, hasItems:count>0,
+      isMenu:s.step==='menu', isCheckout:s.step==='checkout', isDone:s.step==='done', notDone:s.step!=='done',
+      slotLabel: s.slot===0 ? 'in about 15 minutes' : 'at '+SLOTS[s.slot],
+      orderNo:s.orderNo, custName:'Jordan',
+      toCheckout:function(){ if(count) self.setState({step:'checkout'}); },
+      back:function(){ self.setState({step:'menu'}); },
+      place:function(){ self.setState({step:'done', orderNo:'#YM-'+(1000+Math.floor(Math.random()*8999)), cart:{}}); },
+      reset:function(){ self.setState({step:'menu', cart:{}, slot:0}); },
+      addFriday:function(){ var c=Object.assign({},s.cart); c.beet=(c.beet||0)+1; c.root=(c.root||0)+1; self.setState({cart:c, cat:'juice', step:s.step==='done'?'menu':s.step}); }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -17,6 +17,7 @@ const nextConfig: NextConfig = {
       { source: "/mockups/unlockingrva", destination: "/mockups/unlockingrva/index.html" },
       // Keep the spelling in the client's share link working as well.
       { source: "/mockups/ulockingrva", destination: "/mockups/unlockingrva/index.html" },
+      { source: "/mockups/youmatterrva", destination: "/mockups/youmatterrva/index.html" },
     ];
   },
 };
