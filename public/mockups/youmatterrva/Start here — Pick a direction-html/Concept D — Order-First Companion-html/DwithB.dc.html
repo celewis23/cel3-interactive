@@ -28,6 +28,10 @@
 <style>
 body{margin:0}
 input{font-family:inherit}
+@media(max-width:680px){
+  .d-location{display:none !important}
+  header>div{gap:10px !important;padding:12px 16px !important}
+}
 </style>
 </helmet>
 <div style="width: 100%; background: {{t.bg}}; color: {{t.ink}}; font-family: {{t.body}}; font-size: 15px; line-height: 1.5">
@@ -43,7 +47,7 @@ input{font-family:inherit}
 <button type="button" onClick="{{m.pick}}" aria-pressed="{{m.on}}" style="{{m.style}}">{{m.label}}</button>
 </sc-for>
 </div>
-<div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: {{t.muted}}">
+<div class="d-location" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: {{t.muted}}">
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
 4040 MacArthur Ave · <span style="color: #1F7A3F; font-weight: 600">Open now</span> · {{modeNote}}
 </div>

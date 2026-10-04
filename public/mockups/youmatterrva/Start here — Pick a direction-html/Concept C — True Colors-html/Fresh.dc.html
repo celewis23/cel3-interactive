@@ -23,6 +23,26 @@
 body{margin:0}
 a{color:#163A24}a:hover{color:#C2410C}
 input{font-family:'Outfit',sans-serif}
+@media(max-width:680px){
+  .c-hero-photos{height:320px !important}
+  .c-hero-photos>img{width:100% !important;height:100% !important;border-radius:22px !important}
+  .c-hero-photos figure,.c-hero-photos>div{display:none !important}
+  .c-cleanse-img{height:220px !important}
+  .c-cleanse-cards{grid-template-columns:1fr !important}
+  .c-fall-card{height:260px !important}
+  .c-story-photo{height:320px !important}
+  .c-story-photo img{width:100% !important;height:280px !important}
+  .c-visit-map{height:200px !important}
+  #top{padding:24px 20px 40px !important}
+  #menu{padding:40px 20px 24px !important}
+  #cleanses{padding:48px 20px !important;margin-top:28px !important}
+  #fall{padding:48px 20px !important}
+  #story{padding:56px 20px !important}
+  #visit{padding:28px 20px 48px !important}
+  .c-craving{padding:48px 20px 20px !important}
+  .c-snapped{padding:48px 20px 28px !important}
+  header nav[aria-label="Main"]{gap:16px !important;font-size:14px !important}
+}
 </style>
 </helmet>
 <div style="width: 100%; background: #FFF8EE; color: #163A24; font-family: 'Outfit', sans-serif; font-size: 16px; line-height: 1.55">
@@ -55,7 +75,7 @@ input{font-family:'Outfit',sans-serif}
 <a href="#cleanses" style="border: 2px solid #163A24; color: #163A24; text-decoration: none; font-weight: 700; padding: 15px 28px; border-radius: 999px; font-size: 17px">Start a cleanse</a>
 </div>
 </div>
-<div style="flex: 1 1 480px; min-width: 0; position: relative; height: 600px">
+<div class="c-hero-photos" style="flex: 1 1 480px; min-width: 0; position: relative; height: 600px">
 <img src="./assets/4fc9fc8ee55b9bc8fd6664c7369b46c8.jpg" alt="An açaí bowl held up in front of the You Matter window decal" style="position: absolute; left: 0; top: 0; width: 74%; height: 540px; object-fit: cover; object-position: 50% 55%; border-radius: 36px; display: block">
 <figure style="position: absolute; right: 0; top: 36px; width: 210px; margin: 0; background: #FFFFFF; padding: 10px 10px 6px; border-radius: 6px; box-shadow: 0 14px 34px rgba(22,58,36,0.18); transform: rotate(4deg)">
 <img src="./assets/2589d8a19105eb3837b27d6105cd741a.jpg" alt="Liquid Gold cold-pressed juice" style="width: 100%; height: 210px; object-fit: cover; display: block">
@@ -78,9 +98,9 @@ input{font-family:'Outfit',sans-serif}
 </div>
 </section>
 
-<section style="max-width: 1280px; margin: 0 auto; padding: 88px 24px 24px">
+<section class="c-craving" style="max-width: 1280px; margin: 0 auto; padding: 88px 24px 24px">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 28px">
-<h2 style="margin: 0; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: 56px; line-height: 1; letter-spacing: -0.01em">What are you craving?</h2>
+<h2 style="margin: 0; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: clamp(32px, 7vw, 56px); line-height: 1; letter-spacing: -0.01em">What are you craving?</h2>
 <p style="margin: 0; font-family: 'Caveat', cursive; font-size: 28px; color: #C2410C">tap one to jump to the menu</p>
 </div>
 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px">
@@ -98,7 +118,7 @@ input{font-family:'Outfit',sans-serif}
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 24px">
 <div>
 <p style="margin: 0; font-family: 'Caveat', cursive; font-size: 28px; color: #C2410C">made fresh, just for you</p>
-<h2 style="margin: 0; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: 64px; line-height: 1">Order for pickup</h2>
+<h2 style="margin: 0; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: clamp(36px, 8vw, 64px); line-height: 1">Order for pickup</h2>
 </div>
 <p style="margin: 0; font-size: 14px; color: #5E6B5F; display: flex; align-items: center; gap: 8px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #1E7A3E"></span>Synced with our Square register. If it's sold out, it won't show.</p>
 </div>
@@ -227,10 +247,10 @@ input{font-family:'Outfit',sans-serif}
 <section id="cleanses" style="background: #FFE7A8; padding: 88px 24px; margin-top: 48px">
 <div style="max-width: 1280px; margin: 0 auto">
 <p style="margin: 0; font-family: 'Caveat', cursive; font-size: 30px; color: #C2410C">i am proud of myself</p>
-<h2 style="margin: 0 0 32px; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: 64px; line-height: 1">Reset, gently.</h2>
+<h2 style="margin: 0 0 32px; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: clamp(36px, 8vw, 64px); line-height: 1">Reset, gently.</h2>
 <div style="display: flex; flex-wrap: wrap; gap: 28px; align-items: stretch">
-<img src="./assets/e64f3d0cbe31ab5041987d868636e04f.jpg" alt="A You Matter cleanse kit with Glow, Detoxifying Green and Cleansing Beet juices and an affirmation card" style="flex: 1 1 380px; min-width: 0; width: 100%; height: 460px; object-fit: cover; border-radius: 32px; display: block">
-<div style="flex: 1 1 520px; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
+<img src="./assets/e64f3d0cbe31ab5041987d868636e04f.jpg" alt="A You Matter cleanse kit with Glow, Detoxifying Green and Cleansing Beet juices and an affirmation card" class="c-cleanse-img" style="flex: 1 1 380px; min-width: 0; width: 100%; height: 460px; object-fit: cover; border-radius: 32px; display: block">
+<div class="c-cleanse-cards" style="flex: 1 1 520px; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
 <sc-for list="{{cleanses}}" as="k" hint-placeholder-count="4">
 <article style="background: #FFFFFF; border-radius: 24px; padding: 22px; display: flex; flex-direction: column; gap: 10px">
 <h3 style="margin: 0; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: 26px; line-height: 1.05">{{k.n}}</h3>
@@ -262,12 +282,12 @@ input{font-family:'Outfit',sans-serif}
 
 <section id="fall" style="max-width: 1280px; margin: 0 auto; padding: 88px 24px">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 28px">
-<h2 style="margin: 0; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: 56px; line-height: 1">Fall at <span style="font-style: italic; color: #C2410C">You Matter</span></h2>
+<h2 style="margin: 0; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: clamp(32px, 7vw, 56px); line-height: 1">Fall at <span style="font-style: italic; color: #C2410C">You Matter</span></h2>
 <p style="margin: 0; color: #5E6B5F; max-width: 420px">Cozy season is here. Soup by the pint, pumpkin in a cup and apple cider two ways.</p>
 </div>
 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px">
 <sc-for list="{{falls}}" as="f" hint-placeholder-count="4">
-<article style="position: relative; border-radius: 28px; overflow: hidden; height: 380px">
+<article class="c-fall-card" style="position: relative; border-radius: 28px; overflow: hidden; height: 380px">
 <img src="{{f.img}}" alt="{{f.n}}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover">
 <div style="position: absolute; left: 12px; right: 12px; bottom: 12px; background: #FFF8EE; border-radius: 18px; padding: 14px 16px; display: flex; align-items: center; gap: 10px">
 <div style="flex: 1; min-width: 0"><div style="font-family: 'DM Serif Display', serif; font-size: 20px; line-height: 1.1">{{f.n}}</div><div style="font-size: 14px; color: #5E6B5F">{{f.price}}</div></div>
@@ -282,7 +302,7 @@ input{font-family:'Outfit',sans-serif}
 <div style="max-width: 1280px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 56px; align-items: center">
 <div style="flex: 1 1 460px; min-width: 0">
 <p style="margin: 0; font-family: 'Caveat', cursive; font-size: 30px; color: #FFB37A">kindness over everything</p>
-<h2 style="margin: 4px 0 22px; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: 64px; line-height: 1">Because you matter.</h2>
+<h2 style="margin: 4px 0 22px; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: clamp(36px, 8vw, 64px); line-height: 1">Because you matter.</h2>
 <p style="margin: 0 0 16px; font-size: 18px; color: #D7E4D6">Tricia Walker started with a mobile juice cart, then brought it home to MacArthur Avenue in 2024. Everything here is made to take care of your body, and the name is there to take care of the rest.</p>
 <p style="margin: 0 0 26px; font-size: 18px; color: #D7E4D6">Affirmation cards live on the counter, and mental-health resources are always out in the open for anyone who needs them.</p>
 <div style="display: inline-flex; align-items: center; gap: 12px; background: #FFF8EE; color: #163A24; border-radius: 18px; padding: 14px 18px">
@@ -290,7 +310,7 @@ input{font-family:'Outfit',sans-serif}
 <span style="font-size: 15px">Need to talk? Call or text 988, any time, free and confidential.</span>
 </div>
 </div>
-<div style="flex: 1 1 420px; min-width: 0; position: relative; height: 520px">
+<div class="c-story-photo" style="flex: 1 1 420px; min-width: 0; position: relative; height: 520px">
 <img src="./assets/14d630a611620c0a846b695cb655d294.jpg" alt="A smoothie held up in front of the You Matter window" style="position: absolute; right: 0; top: 0; width: 82%; height: 480px; object-fit: cover; border-radius: 32px; display: block">
 <div style="position: absolute; left: 0; bottom: 0; width: 230px; background: #2F4A6B; color: #FFFFFF; border-radius: 12px; padding: 26px 20px; text-align: center; transform: rotate(-4deg); box-shadow: 0 16px 34px rgba(0,0,0,0.3)">
 <div style="font-family: 'DM Serif Display', serif; font-size: 20px; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.04em">I am proud of myself and my achievements</div>
@@ -299,9 +319,9 @@ input{font-family:'Outfit',sans-serif}
 </div>
 </section>
 
-<section style="max-width: 1280px; margin: 0 auto; padding: 88px 24px 40px">
+<section class="c-snapped" style="max-width: 1280px; margin: 0 auto; padding: 88px 24px 40px">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 24px">
-<h2 style="margin: 0; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: 48px; line-height: 1">Snapped at the window</h2>
+<h2 style="margin: 0; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: clamp(28px, 6vw, 48px); line-height: 1">Snapped at the window</h2>
 <p style="margin: 0; font-family: 'Caveat', cursive; font-size: 26px; color: #C2410C">tag us [INSTAGRAM]</p>
 </div>
 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px">
@@ -316,12 +336,12 @@ input{font-family:'Outfit',sans-serif}
 <section id="visit" style="max-width: 1280px; margin: 0 auto; padding: 48px 24px 88px">
 <div style="background: #1E7A3E; color: #FFFFFF; border-radius: 36px; padding: 48px; display: flex; flex-wrap: wrap; gap: 40px; align-items: center">
 <div style="flex: 1 1 360px; min-width: 0">
-<h2 style="margin: 0 0 18px; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: 56px; line-height: 1">Come see us on MacArthur.</h2>
+<h2 style="margin: 0 0 18px; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: clamp(32px, 7vw, 56px); line-height: 1">Come see us on MacArthur.</h2>
 <p style="margin: 0 0 6px; font-size: 20px">4040 MacArthur Ave, Richmond, VA 23227</p>
 <p style="margin: 0 0 6px; font-size: 18px"><a href="tel:+18042156356" style="color: #FFFFFF">(804) 215-6356</a></p>
 <p style="margin: 0; font-size: 18px; color: #CFF2D8">[HOURS]</p>
 </div>
-<div style="flex: 1 1 420px; min-width: 0; height: 280px; border-radius: 24px; background: #17663A; display: flex; align-items: center; justify-content: center; color: #CFF2D8; font-weight: 600">Map · 4040 MacArthur Ave</div>
+<div class="c-visit-map" style="flex: 1 1 420px; min-width: 0; height: 280px; border-radius: 24px; background: #17663A; display: flex; align-items: center; justify-content: center; color: #CFF2D8; font-weight: 600">Map · 4040 MacArthur Ave</div>
 </div>
 </section>
 
