@@ -21,5 +21,8 @@
 }
 .mockup-review a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .mockup-review__label { font-weight: 400; }
+.mockup-review__views { display: flex; gap: 2px; }
+.mockup-review__views a { text-decoration: none; border-radius: 8px; min-height: 36px; padding: 0 8px; }
+.mockup-review__views a[aria-current="page"] { background: #39393f; }
 [data-mockup-layout="desktop"] #dc-root section[id] { scroll-margin-top: 100px; }
 .mockup-review__note { flex-basis: 100%; padding: 0 10px 4px; font-size: 12px; font-weight: 400; }
