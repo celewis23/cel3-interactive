@@ -1,4 +1,7 @@
 "use client";
+import ComposeAttachments from "./ComposeAttachments";
+import { sendComposerMessage, attachedFilesFrom, type AttachedFile } from "./compose-files";
+import { hasMessageContent } from "@/lib/gmail/mime";
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
@@ -7,13 +10,7 @@ import EmailTagInput, { type EmailSuggestion } from "./EmailTagInput";
 
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), { ssr: false });
 
-interface AttachedFile {
-  id: string;
-  name: string;
-  size: number;
-  mimeType: string;
-  file: File;
-}
+
 
 interface Props {
   initialTo?: string;
@@ -42,220 +39,6 @@ function loadGapiScript(): Promise<void> {
   return gapiScriptPromise;
 }
 
-function formatBytes(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function encodeBytesToBase64(bytes: Uint8Array): string {
-  let binary = "";
-  const chunkSize = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    const chunk = bytes.subarray(i, i + chunkSize);
-    binary += String.fromCharCode(...chunk);
-  }
-  return btoa(binary);
-}
-
-function encodeTextToBase64(value: string): string {
-  return encodeBytesToBase64(new TextEncoder().encode(value));
-}
-
-function wrapBase64(value: string): string {
-  return value.match(/.{1,76}/g)?.join("\r\n") ?? value;
-}
-
-function encodeMimeText(value: string): string {
-  return wrapBase64(encodeTextToBase64(value));
-}
-
-function encodeHeader(value: string): string {
-  if (!/[^\x00-\x7F]/.test(value)) return value;
-  return `=?UTF-8?B?${encodeTextToBase64(value)}?=`;
-}
-
-function escapeHeaderParam(value: string): string {
-  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-}
-
-function encodeRfc2231Param(value: string): string {
-  return encodeURIComponent(value).replace(
-    /['()*]/g,
-    (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`
-  );
-}
-
-function formatFilenameParams(filename: string): string {
-  const params = [`filename="${escapeHeaderParam(filename)}"`];
-  if (/[^\x20-\x7E]/.test(filename)) {
-    params.push(`filename*=UTF-8''${encodeRfc2231Param(filename)}`);
-  }
-  return params.join("; ");
-}
-
-function htmlToPlainText(html: string): string {
-  return html
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/p>/gi, "\n")
-    .replace(/<\/div>/gi, "\n")
-    .replace(/<\/li>/gi, "\n")
-    .replace(/<li[^>]*>/gi, "  • ")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
-
-async function buildRawGmailMessage(opts: {
-  to: string;
-  subject: string;
-  htmlBody: string;
-  cc?: string;
-  bcc?: string;
-  attachments?: AttachedFile[];
-}): Promise<string> {
-  const uid = Date.now().toString(36);
-  const altBoundary = `alt_${uid}`;
-  const mixBoundary = `mix_${uid}`;
-  const plainBody = htmlToPlainText(opts.htmlBody);
-  const hasAttachments = !!opts.attachments?.length;
-
-  const headerLines = [
-    `To: ${opts.to}`,
-    ...(opts.cc ? [`Cc: ${opts.cc}`] : []),
-    ...(opts.bcc ? [`Bcc: ${opts.bcc}`] : []),
-    `Subject: ${encodeHeader(opts.subject)}`,
-    "MIME-Version: 1.0",
-    `Content-Type: ${
-      hasAttachments
-        ? `multipart/mixed; boundary="${mixBoundary}"`
-        : `multipart/alternative; boundary="${altBoundary}"`
-    }`,
-  ].join("\r\n");
-
-  const altBlock = [
-    `--${altBoundary}`,
-    "Content-Type: text/plain; charset=UTF-8",
-    "Content-Transfer-Encoding: base64",
-    "",
-    encodeMimeText(plainBody),
-    "",
-    `--${altBoundary}`,
-    "Content-Type: text/html; charset=UTF-8",
-    "Content-Transfer-Encoding: base64",
-    "",
-    encodeMimeText(opts.htmlBody),
-    "",
-    `--${altBoundary}--`,
-  ].join("\r\n");
-
-  let bodyContent = altBlock;
-
-  if (hasAttachments) {
-    const parts: string[] = [
-      `--${mixBoundary}`,
-      `Content-Type: multipart/alternative; boundary="${altBoundary}"`,
-      "",
-      altBlock,
-    ];
-
-    for (const attachment of opts.attachments ?? []) {
-      const bytes = new Uint8Array(await attachment.file.arrayBuffer());
-      parts.push(
-        `--${mixBoundary}`,
-        `Content-Type: ${attachment.mimeType || "application/octet-stream"}; ${formatFilenameParams(attachment.name)}`,
-        `Content-Disposition: attachment; ${formatFilenameParams(attachment.name)}`,
-        "Content-Transfer-Encoding: base64",
-        "",
-        wrapBase64(encodeBytesToBase64(bytes))
-      );
-    }
-
-    parts.push(`--${mixBoundary}--`);
-    bodyContent = parts.join("\r\n");
-  }
-
-  return `${headerLines}\r\n\r\n${bodyContent}`;
-}
-
-function estimateMimeMessageSize(opts: {
-  htmlBody: string;
-  subject: string;
-  to: string[];
-  cc: string[];
-  bcc: string[];
-  attachments: AttachedFile[];
-}): number {
-  const plainBody = htmlToPlainText(opts.htmlBody);
-  const textBytes = new TextEncoder().encode(plainBody).length;
-  const htmlBytes = new TextEncoder().encode(opts.htmlBody).length;
-  const encodedBodyBytes =
-    Math.ceil(textBytes / 3) * 4 + Math.ceil(htmlBytes / 3) * 4;
-  const encodedAttachmentBytes = opts.attachments.reduce((sum, attachment) => {
-    const base64Bytes = Math.ceil(attachment.size / 3) * 4;
-    const lineBreaks = Math.ceil(base64Bytes / 76) * 2;
-    const headerBytes = 512 + attachment.name.length * 4;
-    return sum + base64Bytes + lineBreaks + headerBytes;
-  }, 0);
-  const headerBytes =
-    2048 +
-    opts.subject.length * 4 +
-    opts.to.join(", ").length * 2 +
-    opts.cc.join(", ").length * 2 +
-    opts.bcc.join(", ").length * 2;
-
-  return headerBytes + encodedBodyBytes + encodedAttachmentBytes;
-}
-
-function toBase64Url(value: string): string {
-  return encodeTextToBase64(value)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/g, "");
-}
-
-async function sendViaGmailApi(opts: {
-  accessToken: string;
-  to: string;
-  subject: string;
-  htmlBody: string;
-  cc?: string;
-  bcc?: string;
-  attachments?: AttachedFile[];
-}) {
-  const rawMessage = await buildRawGmailMessage(opts);
-  const res = await fetch(
-    "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
-    {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${opts.accessToken}`,
-      "Content-Type": "application/json",
-    },
-      body: JSON.stringify({
-        raw: toBase64Url(rawMessage),
-      }),
-    }
-  );
-
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    const message =
-      (data as { error?: { message?: string } }).error?.message ??
-      `Failed to send email (${res.status})`;
-    throw new Error(message);
-  }
-}
-
-const GMAIL_ATTACHMENT_LIMIT_BYTES = 25 * 1024 * 1024;
-const GMAIL_MESSAGE_UPLOAD_LIMIT_BYTES = 35 * 1024 * 1024;
-
 export default function ComposeClient({ initialTo = "" }: Props) {
   const [toEmails, setToEmails] = useState<string[]>(
     initialTo ? [initialTo] : []
@@ -268,6 +51,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
   const [htmlBody, setHtmlBody] = useState("");
   const [attachments, setAttachments] = useState<AttachedFile[]>([]);
   const [sending, setSending] = useState(false);
+  const [imagesLoading, setImagesLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
   const [driveLoading, setDriveLoading] = useState(false);
@@ -282,7 +66,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
     fetch("/api/admin/email/signature")
       .then((r) => r.ok ? r.json() : { html: "" })
       .then(({ html }: { html: string }) => {
-        if (html) setHtmlBody(`<p><br></p><p><br></p>${html}`);
+        if (html) setHtmlBody(previous => hasMessageContent(previous) ? previous : `<p><br></p><p><br></p>${html}`);
       })
       .catch(() => {});
   }, []);
@@ -323,10 +107,6 @@ export default function ComposeClient({ initialTo = "" }: Props) {
       file: f,
     }));
     setAttachments((prev) => [...prev, ...next]);
-  }
-
-  function removeAttachment(id: string) {
-    setAttachments((prev) => prev.filter((a) => a.id !== id));
   }
 
   function handleRecipientInputChange(value: string) {
@@ -396,87 +176,26 @@ export default function ComposeClient({ initialTo = "" }: Props) {
     }
   }
 
-  const htmlBodyRef = useRef(htmlBody);
-  htmlBodyRef.current = htmlBody;
-  const setHtmlBodyRef = useRef(setHtmlBody);
-  setHtmlBodyRef.current = setHtmlBody;
-
-  const driveListenerRegistered = useRef(false);
-  if (!driveListenerRegistered.current && typeof window !== "undefined") {
-    driveListenerRegistered.current = true;
-    window.addEventListener("drive-file-picked", (e: Event) => {
-      const { name, url } = (e as CustomEvent<{ name: string; url: string }>).detail;
-      const link = `<p><a href="${url}" target="_blank" rel="noopener noreferrer">📄 ${name}</a></p>`;
-      setHtmlBodyRef.current((prev) => prev + link);
-    });
-  }
+  useEffect(() => {
+    const picked = (event: Event) => {
+      const { name, url } = (event as CustomEvent<{ name: string; url: string }>).detail;
+      const link = document.createElement("a");
+      link.href = url; link.textContent = name; link.target = "_blank"; link.rel = "noopener noreferrer";
+      setHtmlBody(previous => previous + `<p>${link.outerHTML}</p>`);
+    };
+    window.addEventListener("drive-file-picked", picked);
+    return () => window.removeEventListener("drive-file-picked", picked);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (toEmails.length === 0 || !subject.trim() || !htmlBody.trim()) return;
+    if (toEmails.length === 0 || !subject.trim() || imagesLoading || (!hasMessageContent(htmlBody) && !attachments.length)) return;
     setSending(true);
     setError("");
 
     try {
-      if (attachments.length > 0) {
-        const totalAttachmentSize = attachments.reduce((sum, att) => sum + att.size, 0);
-        if (totalAttachmentSize > GMAIL_ATTACHMENT_LIMIT_BYTES) {
-          throw new Error(
-            "Gmail only allows up to 25 MB in attachments. For anything larger, use Drive links instead."
-          );
-        }
-
-        const estimatedMimeSize = estimateMimeMessageSize({
-          htmlBody,
-          subject: subject.trim(),
-          to: toEmails,
-          cc: ccEmails,
-          bcc: bccEmails,
-          attachments,
-        });
-        if (estimatedMimeSize > GMAIL_MESSAGE_UPLOAD_LIMIT_BYTES) {
-          throw new Error(
-            "This email is too large after encoding. Try a slightly smaller file or use a Drive link."
-          );
-        }
-
-        const configRes = await fetch("/api/admin/email/drive-config");
-        const config = await configRes.json().catch(() => ({}));
-        if (!configRes.ok || !config.accessToken) {
-          throw new Error(
-            "Gmail is not connected. Reconnect Gmail and try again."
-          );
-        }
-
-        await sendViaGmailApi({
-          accessToken: config.accessToken as string,
-          to: toEmails.join(", "),
-          subject: subject.trim(),
-          htmlBody,
-          cc: ccEmails.length > 0 ? ccEmails.join(", ") : undefined,
-          bcc: bccEmails.length > 0 ? bccEmails.join(", ") : undefined,
-          attachments,
-        });
-      } else {
-        const fd = new FormData();
-        fd.append("to", toEmails.join(", "));
-        fd.append("subject", subject.trim());
-        fd.append("htmlBody", htmlBody);
-        if (ccEmails.length > 0) fd.append("cc", ccEmails.join(", "));
-        if (bccEmails.length > 0) fd.append("bcc", bccEmails.join(", "));
-
-        const res = await fetch("/api/admin/email/send", {
-          method: "POST",
-          body: fd,
-        });
-
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(
-            (data as { error?: string }).error ?? `HTTP ${res.status}`
-          );
-        }
-      }
+      await sendComposerMessage({ to: toEmails.join(", "), subject: subject.trim(), htmlBody,
+        cc: ccEmails.join(", ") || undefined, bcc: bccEmails.join(", ") || undefined, attachments });
 
       setDone(true);
     } catch (err: unknown) {
@@ -520,7 +239,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
     );
   }
 
-  const isEmpty = !htmlBody.replace(/<[^>]*>/g, "").trim();
+  const isEmpty = !hasMessageContent(htmlBody) && !attachments.length;
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-4">
@@ -619,6 +338,9 @@ export default function ComposeClient({ initialTo = "" }: Props) {
         <RichTextEditor
           value={htmlBody}
           onChange={setHtmlBody}
+          onAttachFiles={addFiles}
+          onImagesLoading={setImagesLoading}
+          disabled={sending}
           placeholder="Write your message…"
           minHeight="420px"
           editorHeight="clamp(420px, calc(100vh - 26rem), 640px)"
@@ -626,29 +348,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
         />
       </div>
 
-      {/* Attachments list */}
-      {attachments.length > 0 && (
-        <div className="space-y-1.5">
-          {attachments.map((att) => (
-            <div key={att.id} className="flex items-center gap-3 rounded-xl border border-white/10 bg-black px-3 py-2">
-              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" className="text-white/40 shrink-0">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-              </svg>
-              <span className="flex-1 text-sm text-white/80 truncate">{att.name}</span>
-              <span className="text-xs text-white/35 shrink-0">{formatBytes(att.size)}</span>
-              <button
-                type="button"
-                onClick={() => removeAttachment(att.id)}
-                className="text-white/30 hover:text-red-400 transition-colors shrink-0"
-              >
-                <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+      <ComposeAttachments files={attachments} onChange={setAttachments} disabled={sending} />
 
       {/* Error */}
       {error && (
@@ -665,7 +365,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
         {/* Send */}
         <button
           type="submit"
-          disabled={sending || toEmails.length === 0 || !subject.trim() || isEmpty}
+          disabled={sending || imagesLoading || toEmails.length === 0 || !subject.trim() || isEmpty}
           className="flex items-center gap-2 rounded-xl bg-sky-500 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-sky-400 disabled:opacity-50"
         >
           {sending ? (

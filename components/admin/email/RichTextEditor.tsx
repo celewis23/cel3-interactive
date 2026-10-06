@@ -1,5 +1,6 @@
 "use client";
 
+import { INLINE_IMAGE_TYPE, MAX_ATTACHMENT_BYTES } from "@/lib/gmail/mime";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
@@ -68,6 +69,9 @@ interface Props {
   minHeight?: string;
   editorHeight?: string;
   unboxed?: boolean;
+  onAttachFiles?: (files: File[]) => void;
+  onImagesLoading?: (loading: boolean) => void;
+  disabled?: boolean;
 }
 
 export default function RichTextEditor({
@@ -77,14 +81,54 @@ export default function RichTextEditor({
   minHeight = "240px",
   editorHeight = "420px",
   unboxed = false,
+  onAttachFiles, onImagesLoading, disabled = false,
 }: Props) {
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const imageUploadRef = useRef<HTMLInputElement>(null);
+  const [imageError, setImageError] = useState("");
+  const [imagesLoading, setImagesLoading] = useState(false);
+  const callbacks = useRef({ onAttachFiles, onImagesLoading, disabled });
+  callbacks.current = { onAttachFiles, onImagesLoading, disabled };
+  const lastEmitted = useRef(value);
+  const pending = useRef(0);
+  const editorHandle = useRef<ReturnType<typeof useEditor>>(null);
+
+  async function insertImages(files: File[], position?: number) {
+    const activeEditor = editorHandle.current;
+    if (!activeEditor || activeEditor.isDestroyed || callbacks.current.disabled) return;
+    setImageError("");
+    if (files.some(file => !INLINE_IMAGE_TYPE.test(file.type))) {
+      setImageError("Choose PNG, JPEG, GIF, or WebP images. Other formats can be attached as files."); return;
+    }
+    if (files.reduce((n, file) => n + file.size, 0) > MAX_ATTACHMENT_BYTES) {
+      setImageError("Images must total 25 MB or less. Use smaller images or a Drive link."); return;
+    }
+    pending.current += 1;
+    setImagesLoading(true); callbacks.current.onImagesLoading?.(true);
+    try {
+      const content = await Promise.all(files.map(file => new Promise<{ type: string; attrs: { src: string; alt: string } }>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({ type: "image", attrs: { src: String(reader.result), alt: file.name } });
+        reader.onerror = () => reject(new Error(`Could not load ${file.name}.`));
+        reader.readAsDataURL(file);
+      })));
+      if (!activeEditor.isDestroyed) {
+        const at = Math.min(position ?? activeEditor.state.selection.from, activeEditor.state.doc.content.size);
+        activeEditor.chain().focus().insertContentAt(at, content).run();
+      }
+    } catch (err) { setImageError(err instanceof Error ? err.message : "Could not load image."); }
+    finally {
+      pending.current -= 1;
+      if (!activeEditor.isDestroyed) { setImagesLoading(pending.current > 0); callbacks.current.onImagesLoading?.(pending.current > 0); }
+    }
+  }
 
   const editor = useEditor({
+    immediatelyRender: false,
+    editable: !disabled,
     extensions: [
       StarterKit.configure({
         codeBlock: false,
@@ -110,12 +154,14 @@ export default function RichTextEditor({
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Image.configure({
         inline: true,
+        allowBase64: true,
         HTMLAttributes: { style: "max-width: 100%; height: auto;" },
       }),
     ],
     content: value,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      lastEmitted.current = editor.getHTML();
+      onChange(lastEmitted.current);
     },
     editorProps: {
       attributes: {
@@ -123,45 +169,36 @@ export default function RichTextEditor({
         style: `min-height: ${minHeight}; height: 100%;`,
       },
       handlePaste(view, event) {
-        // Handle pasted images
-        const items = Array.from(event.clipboardData?.items ?? []);
-        const imageItem = items.find((item) => item.type.startsWith("image/"));
-        if (imageItem) {
-          event.preventDefault();
-          const file = imageItem.getAsFile();
-          if (!file) return false;
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const src = e.target?.result as string;
-            if (src) {
-              view.dispatch(
-                view.state.tr.replaceSelectionWith(
-                  view.state.schema.nodes.image.create({ src })
-                )
-              );
-            }
-          };
-          reader.readAsDataURL(file);
-          return true;
+        const files = Array.from(event.clipboardData?.files ?? []).filter(file => INLINE_IMAGE_TYPE.test(file.type));
+        if (!files.length) return false;
+        event.preventDefault();
+        void insertImages(files, view.state.selection.from);
+        return true;
+      },
+      handleDrop(view, event, _slice, moved) {
+        if (moved || !event.dataTransfer?.files.length) return false;
+        event.preventDefault();
+        if (callbacks.current.disabled) return true;
+        const files = Array.from(event.dataTransfer.files);
+        const images = files.filter(file => INLINE_IMAGE_TYPE.test(file.type));
+        const others = files.filter(file => !INLINE_IMAGE_TYPE.test(file.type));
+        if (images.length) void insertImages(images, view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos);
+        if (others.length) {
+          if (callbacks.current.onAttachFiles) callbacks.current.onAttachFiles(others);
+          else setImageError("This image format cannot be placed inline. Choose PNG, JPEG, GIF, or WebP.");
         }
-        return false;
+        return true;
       },
     },
   });
 
-  // Sync external value changes (e.g. reset or signature injection)
+  useEffect(() => { editorHandle.current = editor; editor?.setEditable(!disabled); }, [editor, disabled]);
+
+  // Accept resets, signatures and switching reply/forward without resetting the typing cursor.
   useEffect(() => {
-    if (!editor) return;
-    if (value === "" && editor.getHTML() !== "<p></p>") {
-      editor.commands.clearContent();
-    } else if (value && value !== editor.getHTML()) {
-      // Only set content if it looks like an initial/signature injection
-      // and the editor is empty or has only empty paragraphs
-      const currentIsEmpty = editor.getHTML().replace(/<p><\/p>/g, "").trim() === "";
-      if (currentIsEmpty && value) {
-        editor.commands.setContent(value);
-      }
-    }
+    if (!editor || value === lastEmitted.current || value === editor.getHTML()) return;
+    lastEmitted.current = value;
+    editor.commands.setContent(value, { emitUpdate: false });
   }, [editor, value]);
 
   const applyLink = useCallback(() => {
@@ -183,16 +220,7 @@ export default function RichTextEditor({
   }
 
   function handleImageUpload(files: FileList | null) {
-    if (!editor || !files) return;
-    Array.from(files).forEach((file) => {
-      if (!file.type.startsWith("image/")) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const src = e.target?.result as string;
-        if (src) editor.chain().focus().setImage({ src }).run();
-      };
-      reader.readAsDataURL(file);
-    });
+    if (files) void insertImages(Array.from(files));
   }
 
   if (!editor) return null;
@@ -421,6 +449,8 @@ export default function RichTextEditor({
         </div>
       )}
 
+      {imagesLoading && <p role="status" className="px-3 py-2 text-xs text-sky-200">Adding images…</p>}
+      {imageError && <p role="alert" className="px-3 py-2 text-xs text-red-300">{imageError}</p>}
       {/* Editor canvas — white bg like an email */}
       <div className={`relative overflow-hidden bg-white ${unboxed ? "" : "rounded-b-xl"}`} style={{ height: editorHeight, minHeight }}>
         {editor.isEmpty && (

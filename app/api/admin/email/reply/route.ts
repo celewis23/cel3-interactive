@@ -1,3 +1,5 @@
+import { readComposeRequest } from "@/lib/gmail/compose-request";
+import { hasMessageContent } from "@/lib/gmail/mime";
 import { withActivity } from "@/lib/audit/withActivity";
 // POST /api/admin/email/reply — reply within a thread
 export const runtime = "nodejs";
@@ -10,7 +12,7 @@ async function handleActivityPOST(req: NextRequest) {
   const authErr = await requirePermission(req, "email", "edit");
   if (authErr) return authErr;
   try {
-    const body = await req.json();
+    const { body, attachments } = await readComposeRequest(req);
     const {
       threadId,
       to,
@@ -30,7 +32,7 @@ async function handleActivityPOST(req: NextRequest) {
     if (!to?.trim())
       return NextResponse.json({ error: "to is required" }, { status: 400 });
     const plainText = emailBody?.trim() ?? (htmlBody ? htmlBody.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "");
-    if (!plainText)
+    if (!plainText && !hasMessageContent(htmlBody ?? "") && !attachments.length)
       return NextResponse.json(
         { error: "message is required" },
         { status: 400 }
@@ -38,6 +40,7 @@ async function handleActivityPOST(req: NextRequest) {
     const result = await replyToThread({
       threadId,
       to: to.trim(),
+      attachments,
       subject: subject ?? "(no subject)",
       body: plainText,
       htmlBody: htmlBody?.trim(),

@@ -2,7 +2,8 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/admin/permissions";
-import { getAttachment } from "@/lib/gmail/api";
+import { getVerifiedAttachment } from "@/lib/gmail/api";
+import { attachmentHeaders } from "@/lib/gmail/attachment-preview";
 
 type Params = { params: Promise<{ messageId: string; attachmentId: string }> };
 
@@ -12,23 +13,10 @@ export async function GET(req: NextRequest, { params }: Params) {
 
   try {
     const { messageId, attachmentId } = await params;
-    const filename = req.nextUrl.searchParams.get("filename") ?? "attachment";
-    const mimeType = req.nextUrl.searchParams.get("mime") ?? "application/octet-stream";
     const inline = req.nextUrl.searchParams.get("inline") === "1";
-
-    const { data } = await getAttachment(messageId, attachmentId);
-
-    const safeName = filename.replace(/[^\w\s.\-()]/g, "").trim() || "attachment";
-    const disposition = inline ? "inline" : `attachment; filename="${safeName}"`;
-
-    return new NextResponse(data.buffer as ArrayBuffer, {
-      headers: {
-        "Content-Type": mimeType,
-        "Content-Disposition": disposition,
-        "Content-Length": String(data.length),
-        // Allow inline images to be loaded in the iframe/img src
-        "Cache-Control": "private, max-age=3600",
-      },
+    const { data, attachment } = await getVerifiedAttachment(messageId, attachmentId);
+    return new NextResponse(new Uint8Array(data), {
+      headers: attachmentHeaders(attachment.filename, attachment.mimeType, inline, data.length),
     });
   } catch (err) {
     console.error("ATTACHMENT_FETCH_ERROR:", err);

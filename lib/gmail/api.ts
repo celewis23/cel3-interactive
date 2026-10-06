@@ -1,3 +1,4 @@
+import { buildRawMessage, htmlToPlainText, type MimeAttachment } from "./mime";
 import { google } from "googleapis";
 import type { gmail_v1 } from "googleapis";
 import { getAuthenticatedClient } from "./client";
@@ -54,14 +55,14 @@ function extractParts(
   const filename = payload.filename ?? "";
 
   // Collect attachments and inline parts that have an attachmentId
-  if (hasAttachmentId && (isAttachment || isInline || filename)) {
+  if (hasAttachmentId && (isAttachment || isInline || filename || contentId)) {
     result.attachments.push({
       attachmentId: payload.body!.attachmentId!,
       filename: filename || `attachment`,
       mimeType: payload.mimeType ?? "application/octet-stream",
       size: payload.body?.size ?? 0,
       contentId: contentId || undefined,
-      inline: isInline && !!contentId,
+      inline: !!contentId && !isAttachment,
     });
     return;
   }
@@ -257,160 +258,7 @@ export async function getUnreadCount(): Promise<number> {
   }
 }
 
-export interface MimeAttachment {
-  filename: string;
-  mimeType: string;
-  data: Buffer;
-}
-
-function wrapBase64(value: string): string {
-  return value.match(/.{1,76}/g)?.join("\r\n") ?? value;
-}
-
-function encodeMimePartText(value: string): string {
-  return wrapBase64(Buffer.from(value, "utf-8").toString("base64"));
-}
-
-function htmlToPlainText(html: string): string {
-  return html
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/p>/gi, "\n")
-    .replace(/<\/div>/gi, "\n")
-    .replace(/<\/li>/gi, "\n")
-    .replace(/<li[^>]*>/gi, "  • ")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
-
-/** RFC 2047 encode a header value when it contains non-ASCII characters */
-function encodeHeader(value: string): string {
-  if (!/[^\x00-\x7F]/.test(value)) return value;
-  return `=?UTF-8?B?${Buffer.from(value, "utf-8").toString("base64")}?=`;
-}
-
-function escapeHeaderParam(value: string): string {
-  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-}
-
-function encodeRfc2231Param(value: string): string {
-  return encodeURIComponent(value)
-    .replace(/['()*]/g, (char) =>
-      `%${char.charCodeAt(0).toString(16).toUpperCase()}`
-    );
-}
-
-function formatFilenameParams(filename: string): string[] {
-  const safeQuoted = escapeHeaderParam(filename);
-  const params = [`filename="${safeQuoted}"`];
-  if (/[^\x20-\x7E]/.test(filename)) {
-    params.push(`filename*=UTF-8''${encodeRfc2231Param(filename)}`);
-  }
-  return params;
-}
-
-function buildRawMessage(opts: {
-  to: string;
-  from: string;
-  subject: string;
-  body: string;
-  htmlBody?: string;
-  cc?: string;
-  bcc?: string;
-  inReplyTo?: string;
-  references?: string;
-  attachments?: MimeAttachment[];
-}): string {
-  const uid = Date.now().toString(36);
-  const B_ALT = `alt_${uid}`;
-  const B_MIX = `mix_${uid}`;
-
-  const hasHtml = !!opts.htmlBody;
-  const hasAttachments = !!(opts.attachments?.length);
-
-  let topContentType: string;
-  if (hasAttachments) {
-    topContentType = `multipart/mixed; boundary="${B_MIX}"`;
-  } else if (hasHtml) {
-    topContentType = `multipart/alternative; boundary="${B_ALT}"`;
-  } else {
-    topContentType = "text/plain; charset=UTF-8";
-  }
-
-  const headerLines = [
-    `To: ${opts.to}`,
-    `From: ${opts.from}`,
-    ...(opts.cc ? [`Cc: ${opts.cc}`] : []),
-    ...(opts.bcc ? [`Bcc: ${opts.bcc}`] : []),
-    `Subject: ${encodeHeader(opts.subject)}`,
-    ...(opts.inReplyTo ? [`In-Reply-To: ${opts.inReplyTo}`] : []),
-    ...(opts.references ? [`References: ${opts.references}`] : []),
-    "MIME-Version: 1.0",
-    `Content-Type: ${topContentType}`,
-    ...(!hasAttachments && !hasHtml ? ["Content-Transfer-Encoding: base64"] : []),
-  ].join("\r\n");
-
-  // Build the alt block (text + html)
-  const altBlock = hasHtml
-    ? [
-        `--${B_ALT}`,
-        "Content-Type: text/plain; charset=UTF-8",
-        "Content-Transfer-Encoding: base64",
-        "",
-        encodeMimePartText(opts.body),
-        "",
-        `--${B_ALT}`,
-        "Content-Type: text/html; charset=UTF-8",
-        "Content-Transfer-Encoding: base64",
-        "",
-        encodeMimePartText(opts.htmlBody ?? ""),
-        "",
-        `--${B_ALT}--`,
-      ].join("\r\n")
-    : null;
-
-  let bodyContent: string;
-  if (hasAttachments) {
-    const innerPart = hasHtml
-      ? [`Content-Type: multipart/alternative; boundary="${B_ALT}"`, "", altBlock!].join("\r\n")
-      : [
-          "Content-Type: text/plain; charset=UTF-8",
-          "Content-Transfer-Encoding: base64",
-          "",
-          encodeMimePartText(opts.body),
-        ].join("\r\n");
-
-    const parts: string[] = [`--${B_MIX}`, innerPart];
-
-    for (const att of opts.attachments!) {
-      const wrapped = wrapBase64(att.data.toString("base64"));
-      const filenameParams = formatFilenameParams(att.filename).join("; ");
-      const safeMimeType = att.mimeType || "application/octet-stream";
-      parts.push(
-        `--${B_MIX}`,
-        `Content-Type: ${safeMimeType}; ${filenameParams}`,
-        `Content-Disposition: attachment; ${filenameParams}`,
-        "Content-Transfer-Encoding: base64",
-        "",
-        wrapped,
-      );
-    }
-    parts.push(`--${B_MIX}--`);
-    bodyContent = parts.join("\r\n");
-  } else if (hasHtml) {
-    bodyContent = altBlock!;
-  } else {
-    bodyContent = encodeMimePartText(opts.body);
-  }
-
-  return Buffer.from(`${headerLines}\r\n\r\n${bodyContent}`).toString("base64url");
-}
+export type { MimeAttachment } from "./mime";
 
 export async function sendEmail(opts: {
   to: string;
@@ -445,6 +293,7 @@ export async function replyToThread(opts: {
   to: string;
   subject: string;
   body: string;
+  attachments?: MimeAttachment[];
   htmlBody?: string;
   inReplyTo: string;
   references: string;
@@ -465,6 +314,7 @@ export async function replyToThread(opts: {
     bcc: opts.bcc,
     inReplyTo: opts.inReplyTo,
     references: opts.references,
+    attachments: opts.attachments,
   });
   const res = await gmail.users.messages.send({
     userId: "me",
@@ -485,14 +335,15 @@ export async function forwardMessage(opts: {
   bcc?: string;
   subject: string;
   htmlBody: string;
+  attachments?: MimeAttachment[];
   originalMessageId?: string;
   attachmentRefs?: { attachmentId: string; filename: string; mimeType: string }[];
 }): Promise<{ messageId: string; threadId: string }> {
-  const attachments: MimeAttachment[] = [];
+  const attachments: MimeAttachment[] = [...(opts.attachments ?? [])];
   if (opts.originalMessageId && opts.attachmentRefs?.length) {
     for (const ref of opts.attachmentRefs) {
-      const { data } = await getAttachment(opts.originalMessageId, ref.attachmentId);
-      attachments.push({ filename: ref.filename, mimeType: ref.mimeType, data });
+      const { data, attachment } = await getVerifiedAttachment(opts.originalMessageId, ref.attachmentId);
+      attachments.push({ filename: attachment.filename, mimeType: attachment.mimeType, data });
     }
   }
   return sendEmail({
@@ -538,4 +389,14 @@ export async function getAttachment(
   const raw = res.data.data ?? "";
   const buf = Buffer.from(raw.replace(/-/g, "+").replace(/_/g, "/"), "base64");
   return { data: buf, size: res.data.size ?? buf.length };
+}
+
+/** Fetch metadata from Gmail, never trust a filename or MIME type in a URL. */
+export async function getVerifiedAttachment(messageId: string, attachmentId: string) {
+  const { gmail } = await getGmail();
+  const message = await gmail.users.messages.get({ userId: "me", id: messageId, format: "full" });
+  const attachment = extractBody(message.data.payload ?? {}).attachments.find(a => a.attachmentId === attachmentId);
+  if (!attachment) throw new Error("Attachment not found in this message");
+  const { data } = await getAttachment(messageId, attachmentId);
+  return { attachment, data };
 }

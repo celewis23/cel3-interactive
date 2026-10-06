@@ -657,8 +657,8 @@ export default function MessengerClient({
     : "messenger-shell relative isolate z-0 min-h-[620px] w-full max-w-full overflow-hidden rounded-2xl border border-white/8 bg-white/3 md:h-[calc(100dvh-13rem)] md:min-h-0";
 
   return (
-    <div className={rootClass}>
-      <div className={`${selectedId ? "hidden md:flex" : "flex"} flex-wrap items-start justify-between gap-4`}>
+    <div className={`${rootClass} ${mode === "admin" ? "lg:flex-1 lg:gap-0 lg:overflow-hidden" : ""}`}>
+      <div className={`${selectedId ? "hidden md:flex" : "flex"} flex-wrap items-start justify-between gap-4 ${mode === "admin" ? "lg:shrink-0 lg:border-b lg:border-white/8 lg:px-6 lg:py-4" : ""}`}>
         <div>
           <h1 className="text-2xl font-semibold text-white">{mode === "admin" ? "Client Messages" : "Messages"}</h1>
           <p className="mt-1 text-sm text-white/40">
@@ -676,7 +676,7 @@ export default function MessengerClient({
         <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-300">{error}</div>
       )}
 
-      <div className={shellClass}>
+      <div className={`${shellClass} ${mode === "admin" ? "lg:flex-1 lg:h-auto lg:min-h-0 lg:rounded-none lg:border-0" : ""}`}>
         <aside className={`messenger-list ${selectedId ? "hidden" : "block"} h-full min-h-0 border-white/8 md:flex md:flex-col`}>
           <div className="shrink-0 border-b border-white/8 p-4">
             <div className="mb-3 flex items-center justify-between gap-3">
@@ -748,7 +748,7 @@ export default function MessengerClient({
           </div>
         </aside>
 
-        <section className={`messenger-thread ${selectedId ? "grid" : "hidden"} h-full min-h-0 w-full max-w-full overflow-hidden grid-rows-[auto,minmax(0,1fr),auto] md:grid`}>
+        <section className={`messenger-thread ${selectedId ? "grid" : "hidden"} h-full min-h-0 w-full max-w-full overflow-hidden grid-rows-[auto_minmax(0,1fr)_auto] md:grid`}>
           <div className="shrink-0 flex min-w-0 items-center justify-between gap-3 border-b border-white/8 px-4 py-4 md:px-5">
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <button

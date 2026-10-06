@@ -1,4 +1,8 @@
 "use client";
+import AttachmentChip from "./AttachmentPreview";
+import ComposeAttachments from "./ComposeAttachments";
+import { sendComposerMessage, attachedFilesFrom, type AttachedFile } from "./compose-files";
+import { hasMessageContent } from "@/lib/gmail/mime";
 
 // NOTE: dangerouslySetInnerHTML is used for rendering HTML email bodies.
 // This is acceptable for an internal admin tool where the operator controls the Gmail account.
@@ -10,13 +14,10 @@ import type {
   GmailThreadDetail,
   GmailMessageParsed,
   GmailThreadLink,
-  GmailAttachment,
 } from "@/lib/gmail/types";
 import EmailTagInput, { type EmailSuggestion } from "./EmailTagInput";
 import {
   formatMessageDate,
-  formatBytes,
-  attachmentUrl,
   resolveCidReferences,
   extractEmail,
   extractName,
@@ -35,55 +36,6 @@ interface Props {
   thread: GmailThreadDetail;
   link: GmailThreadLink | null;
 }
-
-function AttachmentChip({
-  messageId,
-  att,
-}: {
-  messageId: string;
-  att: GmailAttachment;
-}) {
-  const isImage = att.mimeType.startsWith("image/");
-  const isPdf = att.mimeType === "application/pdf";
-
-  return (
-    <a
-      href={attachmentUrl(messageId, att)}
-      target="_blank"
-      rel="noopener noreferrer"
-      download={att.filename}
-      className="group inline-flex items-center gap-2 rounded-xl border border-white/10 bg-black px-3 py-2 transition-colors hover:border-white/20 hover:bg-white/5"
-    >
-      {/* Icon */}
-      <span className="shrink-0 text-white/40 group-hover:text-white/60 transition-colors">
-        {isImage ? (
-          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-          </svg>
-        ) : isPdf ? (
-          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-          </svg>
-        ) : (
-          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-          </svg>
-        )}
-      </span>
-      <span className="text-sm text-white/70 group-hover:text-white transition-colors truncate max-w-[180px]">
-        {att.filename}
-      </span>
-      {att.size > 0 && (
-        <span className="text-xs text-white/30 shrink-0">{formatBytes(att.size)}</span>
-      )}
-      <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="text-white/25 group-hover:text-white/50 transition-colors shrink-0">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-      </svg>
-    </a>
-  );
-}
-
-// ─── Single message card ───────────────────────────────────────────────────
 
 function MessageCard({
   message,
@@ -223,6 +175,8 @@ function ComposePanel({
   setSubject,
   bodyHtml,
   setBodyHtml,
+  files, setFiles,
+  imagesLoading, setImagesLoading,
   includeAttachments,
   setIncludeAttachments,
   attachmentCount,
@@ -248,6 +202,10 @@ function ComposePanel({
   setShowBcc: (v: boolean) => void;
   subject: string;
   setSubject: (v: string) => void;
+  files: AttachedFile[];
+  setFiles: (v: AttachedFile[]) => void;
+  imagesLoading: boolean;
+  setImagesLoading: (v: boolean) => void;
   bodyHtml: string;
   setBodyHtml: (v: string) => void;
   includeAttachments: boolean;
@@ -339,10 +297,15 @@ function ComposePanel({
         <RichTextEditor
           value={bodyHtml}
           onChange={setBodyHtml}
+          onAttachFiles={added => setFiles([...files, ...attachedFilesFrom(added)])}
+          onImagesLoading={setImagesLoading}
+          disabled={sending}
           placeholder={mode === "reply" ? "Write your reply…" : "Add a note (optional)…"}
           minHeight="200px"
         />
       </div>
+
+      <ComposeAttachments files={files} onChange={setFiles} disabled={sending} />
 
       {mode === "forward" && attachmentCount > 0 && (
         <label className="flex items-center gap-2 text-sm text-white/60">
@@ -361,7 +324,7 @@ function ComposePanel({
       <div className="flex items-center gap-3">
         <button
           type="submit"
-          disabled={sending || toEmails.length === 0 || !bodyHtml.replace(/<[^>]+>/g, "").trim()}
+          disabled={sending || imagesLoading || toEmails.length === 0 || (!hasMessageContent(bodyHtml) && files.length === 0)}
           className="bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors disabled:opacity-50"
         >
           {sending ? "Sending…" : mode === "reply" ? "Send Reply" : "Send Forward"}
@@ -579,6 +542,8 @@ export default function ThreadClient({ thread, link }: Props) {
   const [showBcc, setShowBcc] = useState(false);
   const [composeSubject, setComposeSubject] = useState("");
   const [composeBody, setComposeBody] = useState("");
+  const [composeFiles, setComposeFiles] = useState<AttachedFile[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(false);
   const [includeAttachments, setIncludeAttachments] = useState(true);
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState("");
@@ -642,6 +607,8 @@ export default function ThreadClient({ thread, link }: Props) {
   }
 
   function closeCompose() {
+    setComposeFiles([]);
+    setImagesLoading(false);
     setComposeMode(null);
     setComposeTargetId(null);
     setToEmails([]);
@@ -655,6 +622,8 @@ export default function ThreadClient({ thread, link }: Props) {
   }
 
   function openReply(message: GmailMessageParsed) {
+    setComposeFiles([]);
+    setImagesLoading(false);
     const replyTo = extractEmail(message.headers.from ?? "");
     setComposeMode("reply");
     setComposeTargetId(message.id);
@@ -669,6 +638,8 @@ export default function ThreadClient({ thread, link }: Props) {
   }
 
   function openForward(message: GmailMessageParsed) {
+    setComposeFiles([]);
+    setImagesLoading(false);
     setComposeMode("forward");
     setComposeTargetId(message.id);
     setToEmails([]);
@@ -687,56 +658,24 @@ export default function ThreadClient({ thread, link }: Props) {
     e.preventDefault();
     const target = messages.find((m) => m.id === composeTargetId);
     if (!composeMode || !target || toEmails.length === 0) return;
-    const plainText = composeBody.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-    if (!plainText) return;
+    if (imagesLoading || (!hasMessageContent(composeBody) && composeFiles.length === 0)) return;
     setSending(true);
     setSendError("");
 
     try {
-      if (composeMode === "reply") {
-        const res = await fetch("/api/admin/email/reply", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            threadId: thread.id,
-            to: toEmails.join(", "),
-            cc: ccEmails.length > 0 ? ccEmails.join(", ") : undefined,
-            bcc: bccEmails.length > 0 ? bccEmails.join(", ") : undefined,
-            subject: composeSubject,
-            message: plainText,
-            htmlBody: composeBody,
-            inReplyTo: target.headers.messageId ?? "",
-            references: ((target.headers.references ?? "") + " " + (target.headers.messageId ?? "")).trim(),
-          }),
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error ?? `HTTP ${res.status}`);
-        }
-      } else {
-        const attachmentRefs = includeAttachments
-          ? target.attachments
-              .filter((a) => !a.inline)
-              .map((a) => ({ attachmentId: a.attachmentId, filename: a.filename, mimeType: a.mimeType }))
-          : undefined;
-        const res = await fetch("/api/admin/email/forward", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            to: toEmails.join(", "),
-            cc: ccEmails.length > 0 ? ccEmails.join(", ") : undefined,
-            bcc: bccEmails.length > 0 ? bccEmails.join(", ") : undefined,
-            subject: composeSubject,
-            htmlBody: composeBody,
-            originalMessageId: target.id,
-            attachmentRefs,
-          }),
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error ?? `HTTP ${res.status}`);
-        }
-      }
+      await sendComposerMessage({
+        mode: composeMode,
+        to: toEmails.join(", "), cc: ccEmails.join(", ") || undefined, bcc: bccEmails.join(", ") || undefined,
+        subject: composeSubject, htmlBody: composeBody, attachments: composeFiles,
+        ...(composeMode === "reply" ? {
+          threadId: thread.id,
+          inReplyTo: target.headers.messageId ?? "",
+          references: ((target.headers.references ?? "") + " " + (target.headers.messageId ?? "")).trim(),
+        } : {
+          originalMessageId: target.id,
+          attachmentRefs: includeAttachments ? target.attachments.filter(a => !a.inline) : undefined,
+        }),
+      });
 
       closeCompose();
       setSendSuccess(true);
@@ -774,6 +713,8 @@ export default function ThreadClient({ thread, link }: Props) {
                 setSubject={setComposeSubject}
                 bodyHtml={composeBody}
                 setBodyHtml={setComposeBody}
+                files={composeFiles} setFiles={setComposeFiles}
+                imagesLoading={imagesLoading} setImagesLoading={setImagesLoading}
                 includeAttachments={includeAttachments}
                 setIncludeAttachments={setIncludeAttachments}
                 attachmentCount={message.attachments.filter((a) => !a.inline).length}

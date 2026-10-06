@@ -1,4 +1,8 @@
 "use client";
+import AttachmentChip from "./AttachmentPreview";
+import ComposeAttachments from "./ComposeAttachments";
+import { sendComposerMessage, attachedFilesFrom, type AttachedFile } from "./compose-files";
+import { hasMessageContent } from "@/lib/gmail/mime";
 
 // NOTE: dangerouslySetInnerHTML is used for rendering HTML email bodies.
 // Acceptable for an internal admin tool where the operator controls the Gmail account.
@@ -11,14 +15,11 @@ import type {
   GmailThreadSummary,
   GmailThreadDetail,
   GmailMessageParsed,
-  GmailAttachment,
   GmailThreadLink,
 } from "@/lib/gmail/types";
 import EmailTagInput, { type EmailSuggestion } from "./EmailTagInput";
 import {
   formatMessageDate,
-  formatBytes,
-  attachmentUrl,
   resolveCidReferences,
   extractEmail,
   extractName,
@@ -43,12 +44,7 @@ const FOLDERS: FolderDef[] = [
   { key: "TRASH",   label: "Trash"   },
 ];
 
-interface AttachedFile {
-  id: string;
-  name: string;
-  size: number;
-  file: File;
-}
+
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -171,35 +167,6 @@ function ThreadRow({
 
 // ─── AttachmentChip ───────────────────────────────────────────────────────────
 
-function AttachmentChip({ messageId, att }: { messageId: string; att: GmailAttachment }) {
-  const isImage = att.mimeType.startsWith("image/");
-  return (
-    <a
-      href={attachmentUrl(messageId, att)}
-      target="_blank"
-      rel="noopener noreferrer"
-      download={att.filename}
-      className="group inline-flex items-center gap-2 rounded-xl border border-white/10 bg-black px-3 py-2 transition-colors hover:border-white/20 hover:bg-white/5"
-    >
-      <span className="shrink-0 text-white/40 group-hover:text-white/60 transition-colors">
-        {isImage ? (
-          <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-          </svg>
-        ) : (
-          <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-          </svg>
-        )}
-      </span>
-      <span className="text-xs text-white/65 group-hover:text-white transition-colors truncate max-w-[160px]">{att.filename}</span>
-      {att.size > 0 && <span className="text-[11px] text-white/30 shrink-0">{formatBytes(att.size)}</span>}
-    </a>
-  );
-}
-
-// ─── MessageCard ──────────────────────────────────────────────────────────────
-
 function MessageCard({
   message,
   defaultOpen,
@@ -311,6 +278,8 @@ function ReplyForwardPanel({
   setSubject,
   bodyHtml,
   setBodyHtml,
+  files, setFiles,
+  imagesLoading, setImagesLoading,
   includeAttachments,
   setIncludeAttachments,
   attachmentCount,
@@ -336,6 +305,10 @@ function ReplyForwardPanel({
   setShowBcc: (v: boolean) => void;
   subject: string;
   setSubject: (v: string) => void;
+  files: AttachedFile[];
+  setFiles: (v: AttachedFile[]) => void;
+  imagesLoading: boolean;
+  setImagesLoading: (v: boolean) => void;
   bodyHtml: string;
   setBodyHtml: (v: string) => void;
   includeAttachments: boolean;
@@ -420,9 +393,14 @@ function ReplyForwardPanel({
       <RichTextEditor
         value={bodyHtml}
         onChange={setBodyHtml}
+          onAttachFiles={added => setFiles([...files, ...attachedFilesFrom(added)])}
+          onImagesLoading={setImagesLoading}
+          disabled={sending}
         placeholder={mode === "reply" ? "Write your reply…" : "Add a note (optional)…"}
         minHeight="180px"
       />
+
+      <ComposeAttachments files={files} onChange={setFiles} disabled={sending} />
 
       {mode === "forward" && attachmentCount > 0 && (
         <label className="flex items-center gap-2 text-sm text-white/60">
@@ -441,7 +419,7 @@ function ReplyForwardPanel({
       <div className="flex items-center gap-3">
         <button
           type="submit"
-          disabled={sending || toEmails.length === 0 || !bodyHtml.replace(/<[^>]+>/g, "").trim()}
+          disabled={sending || imagesLoading || toEmails.length === 0 || (!hasMessageContent(bodyHtml) && files.length === 0)}
           className="bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors disabled:opacity-50"
         >
           {sending ? "Sending…" : mode === "reply" ? "Send Reply" : "Send Forward"}
@@ -482,6 +460,8 @@ function EmailView({
   const [showBcc, setShowBcc] = useState(false);
   const [composeSubject, setComposeSubject] = useState("");
   const [composeBody, setComposeBody] = useState("");
+  const [composeFiles, setComposeFiles] = useState<AttachedFile[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(false);
   const [includeAttachments, setIncludeAttachments] = useState(true);
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState("");
@@ -533,6 +513,8 @@ function EmailView({
   }
 
   function closeCompose() {
+    setComposeFiles([]);
+    setImagesLoading(false);
     setComposeMode(null);
     setComposeTargetId(null);
     setToEmails([]);
@@ -546,6 +528,8 @@ function EmailView({
   }
 
   function openReply(message: GmailMessageParsed) {
+    setComposeFiles([]);
+    setImagesLoading(false);
     const replyTo = extractEmail(message.headers.from ?? "");
     setComposeMode("reply");
     setComposeTargetId(message.id);
@@ -560,6 +544,8 @@ function EmailView({
   }
 
   function openForward(message: GmailMessageParsed) {
+    setComposeFiles([]);
+    setImagesLoading(false);
     setComposeMode("forward");
     setComposeTargetId(message.id);
     setToEmails([]);
@@ -579,56 +565,24 @@ function EmailView({
     const messages = data?.thread?.messages ?? [];
     const target = messages.find((m) => m.id === composeTargetId);
     if (!composeMode || !target || toEmails.length === 0) return;
-    const plainText = composeBody.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-    if (!plainText) return;
+    if (imagesLoading || (!hasMessageContent(composeBody) && composeFiles.length === 0)) return;
     setSending(true);
     setSendError("");
 
     try {
-      if (composeMode === "reply") {
-        const res = await fetch("/api/admin/email/reply", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            threadId,
-            to: toEmails.join(", "),
-            cc: ccEmails.length > 0 ? ccEmails.join(", ") : undefined,
-            bcc: bccEmails.length > 0 ? bccEmails.join(", ") : undefined,
-            subject: composeSubject,
-            message: plainText,
-            htmlBody: composeBody,
-            inReplyTo: target.headers.messageId ?? "",
-            references: ((target.headers.references ?? "") + " " + (target.headers.messageId ?? "")).trim(),
-          }),
-        });
-        if (!res.ok) {
-          const d = await res.json().catch(() => ({}));
-          throw new Error(d.error ?? `HTTP ${res.status}`);
-        }
-      } else {
-        const attachmentRefs = includeAttachments
-          ? target.attachments
-              .filter((a) => !a.inline)
-              .map((a) => ({ attachmentId: a.attachmentId, filename: a.filename, mimeType: a.mimeType }))
-          : undefined;
-        const res = await fetch("/api/admin/email/forward", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            to: toEmails.join(", "),
-            cc: ccEmails.length > 0 ? ccEmails.join(", ") : undefined,
-            bcc: bccEmails.length > 0 ? bccEmails.join(", ") : undefined,
-            subject: composeSubject,
-            htmlBody: composeBody,
-            originalMessageId: target.id,
-            attachmentRefs,
-          }),
-        });
-        if (!res.ok) {
-          const d = await res.json().catch(() => ({}));
-          throw new Error(d.error ?? `HTTP ${res.status}`);
-        }
-      }
+      await sendComposerMessage({
+        mode: composeMode,
+        to: toEmails.join(", "), cc: ccEmails.join(", ") || undefined, bcc: bccEmails.join(", ") || undefined,
+        subject: composeSubject, htmlBody: composeBody, attachments: composeFiles,
+        ...(composeMode === "reply" ? {
+          threadId: threadId,
+          inReplyTo: target.headers.messageId ?? "",
+          references: ((target.headers.references ?? "") + " " + (target.headers.messageId ?? "")).trim(),
+        } : {
+          originalMessageId: target.id,
+          attachmentRefs: includeAttachments ? target.attachments.filter(a => !a.inline) : undefined,
+        }),
+      });
 
       closeCompose();
       setSendSuccess(true);
@@ -763,6 +717,8 @@ function EmailView({
                         setSubject={setComposeSubject}
                         bodyHtml={composeBody}
                         setBodyHtml={setComposeBody}
+                files={composeFiles} setFiles={setComposeFiles}
+                imagesLoading={imagesLoading} setImagesLoading={setImagesLoading}
                         includeAttachments={includeAttachments}
                         setIncludeAttachments={setIncludeAttachments}
                         attachmentCount={message.attachments.filter((a) => !a.inline).length}
@@ -898,6 +854,7 @@ function ComposePanel({
   attachedFiles, setAttachedFiles,
 }: ComposePanelProps) {
   const [sending, setSending] = useState(false);
+  const [imagesLoading, setImagesLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
   const [recipientSuggestions, setRecipientSuggestions] = useState<EmailSuggestion[]>([]);
@@ -926,12 +883,9 @@ function ComposePanel({
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
-    if (toEmails.length === 0 || !subject.trim() || !html.replace(/<[^>]+>/g, "").trim()) return;
+    if (toEmails.length === 0 || !subject.trim() || (imagesLoading || (!hasMessageContent(html) && !attachedFiles.length && !driveLinks.length))) return;
     setSending(true); setError("");
     try {
-      const fd = new FormData();
-      fd.append("to", toEmails.join(", "));
-      fd.append("subject", subject.trim());
       let finalHtml = html;
       if (driveLinks.length > 0) {
         const linksHtml = driveLinks
@@ -939,15 +893,8 @@ function ComposePanel({
           .join("");
         finalHtml = html + `<br><div style="margin-top:8px;">${linksHtml}</div>`;
       }
-      fd.append("htmlBody", finalHtml);
-      if (ccEmails.length > 0) fd.append("cc", ccEmails.join(", "));
-      if (bccEmails.length > 0) fd.append("bcc", bccEmails.join(", "));
-      for (const att of attachedFiles) fd.append("attachments", att.file);
-      const res = await fetch("/api/admin/email/send", { method: "POST", body: fd });
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        throw new Error((d as { error?: string }).error ?? `HTTP ${res.status}`);
-      }
+      await sendComposerMessage({ to: toEmails.join(", "), subject: subject.trim(), htmlBody: finalHtml,
+        cc: ccEmails.join(", ") || undefined, bcc: bccEmails.join(", ") || undefined, attachments: attachedFiles });
       setDone(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to send");
@@ -966,7 +913,7 @@ function ComposePanel({
     setDriveInputOpen(false);
   }
 
-  const isEmpty = !html.replace(/<[^>]*>/g, "").trim();
+  const isEmpty = !hasMessageContent(html) && !attachedFiles.length && !driveLinks.length;
 
   // Mode toggle button shown in header
   const modeToggle = (
@@ -1135,27 +1082,18 @@ function ComposePanel({
             <RichTextEditor
               value={html}
               onChange={setHtml}
+              onAttachFiles={added => setAttachedFiles([...attachedFiles, ...attachedFilesFrom(added)])}
+              onImagesLoading={setImagesLoading}
+              disabled={sending}
               placeholder="Write your message…"
               minHeight={editorMinHeight}
               unboxed
             />
           </div>
 
-          {/* Attached files + Drive links — inline below editor */}
-          {(attachedFiles.length > 0 || driveLinks.length > 0) && (
+          <ComposeAttachments files={attachedFiles} onChange={setAttachedFiles} disabled={sending} />
+          {driveLinks.length > 0 && (
             <div className="px-4 pb-3 flex flex-wrap gap-2">
-              {attachedFiles.map((att) => (
-                <div key={att.id} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-black px-3 py-1.5">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" className="text-white/40 shrink-0">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                  </svg>
-                  <span className="text-xs text-white/65 truncate max-w-[120px]">{att.name}</span>
-                  <span className="text-[11px] text-white/30">{formatBytes(att.size)}</span>
-                  <button type="button" onClick={() => setAttachedFiles(attachedFiles.filter((a) => a.id !== att.id))} className="text-white/25 hover:text-red-400 transition-colors">
-                    <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                  </button>
-                </div>
-              ))}
               {driveLinks.map((link) => (
                 <div key={link.id} className="inline-flex items-center gap-2 rounded-xl border border-sky-400/20 bg-sky-400/8 px-3 py-1.5">
                   {/* Google Drive icon */}
@@ -1260,7 +1198,7 @@ function ComposePanel({
             </button>
             <button
               type="submit"
-              disabled={sending || toEmails.length === 0 || !subject.trim() || isEmpty}
+              disabled={sending || imagesLoading || toEmails.length === 0 || !subject.trim() || isEmpty}
               className="flex items-center gap-1.5 bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium px-4 py-1.5 rounded-xl transition-colors disabled:opacity-50"
             >
               {sending ? (
@@ -1487,7 +1425,7 @@ export default function InboxClient({ email, connectedNotice }: Props) {
     fetch("/api/admin/email/signature")
       .then(r => r.ok ? r.json() : { html: "" })
       .then(({ html: sig }: { html: string }) => {
-        setComposeHtml(sig ? `<p><br></p><p><br></p>${sig}` : "");
+        setComposeHtml(previous => hasMessageContent(previous) ? previous : sig ? `<p><br></p><p><br></p>${sig}` : "");
       })
       .catch(() => {});
   }

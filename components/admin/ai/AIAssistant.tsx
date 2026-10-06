@@ -65,7 +65,7 @@ const STORAGE_KEY = "cel3-admin-ai-chat";
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-export default function AIAssistant({ theme }: { theme: AdminTheme }) {
+export default function AIAssistant({ theme, aboveComposer = false }: { theme: AdminTheme; aboveComposer?: boolean }) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -74,7 +74,8 @@ export default function AIAssistant({ theme }: { theme: AdminTheme }) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const { consumeDragClick, dragHandleProps } = useDraggableFloatingButton({
-    storageKey: "cel3-admin-ai-assistant-position",
+    storageKey: aboveComposer ? "cel3-admin-ai-assistant-messages-position" : "cel3-admin-ai-assistant-position",
+    desktopBottom: aboveComposer ? 128 : 24,
   });
 
   // Auto-scroll
@@ -197,7 +198,7 @@ export default function AIAssistant({ theme }: { theme: AdminTheme }) {
           if (consumeDragClick()) return;
           setOpen(!open);
         }}
-        className={`fixed bottom-[76px] right-4 lg:bottom-6 lg:right-6 z-50 w-12 h-12 cursor-grab rounded-full shadow-2xl flex items-center justify-center transition-colors duration-200 active:cursor-grabbing ${
+        className={`fixed bottom-[76px] right-4 ${aboveComposer ? "lg:bottom-32" : "lg:bottom-6"} lg:right-6 z-50 w-12 h-12 cursor-grab rounded-full shadow-2xl flex items-center justify-center transition-colors duration-200 active:cursor-grabbing ${
           open
             ? floatingOpenClass
             : floatingClosedClass
