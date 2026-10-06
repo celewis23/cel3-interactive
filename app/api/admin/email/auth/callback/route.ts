@@ -5,6 +5,7 @@ export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
 import { createOAuthClient, storeTokens } from "@/lib/gmail/client";
 import { google } from "googleapis";
+import { oauthCallbackErrorCode, oauthErrorStatus, type OAuthCallbackStage } from "@/lib/gmail/oauthErrors";
 
 async function handleActivityGET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -33,16 +34,20 @@ async function handleActivityGET(req: NextRequest) {
     );
   }
 
+  let stage: OAuthCallbackStage = "token_exchange";
   try {
     const oauth2Client = createOAuthClient();
     const { tokens } = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(tokens);
 
     // Get user email address
+    stage = "profile_lookup";
     const oauth2 = google.oauth2({ version: "v2", auth: oauth2Client });
     const userInfo = await oauth2.userinfo.get();
-    const email = userInfo.data.email ?? "";
+    const email = userInfo.data.email;
+    if (!email) throw new Error("Google account email is missing");
 
+    stage = "connection_save";
     await storeTokens(tokens, email);
 
     const response = NextResponse.redirect(
@@ -52,9 +57,11 @@ async function handleActivityGET(req: NextRequest) {
     response.cookies.set("gmail_oauth_state", "", { maxAge: 0, path: "/" });
     return response;
   } catch (err) {
-    console.error("EMAIL_ERROR:", err);
+    const errorCode = oauthCallbackErrorCode(err, stage);
+    // OAuth/provider errors can contain credentials and authorization codes.
+    console.error("EMAIL_OAUTH_ERROR:", { stage, code: errorCode, status: oauthErrorStatus(err) });
     return NextResponse.redirect(
-      new URL("/admin/email?error=token_exchange", req.url)
+      new URL(`/admin/email?error=${errorCode}`, req.url)
     );
   }
 }

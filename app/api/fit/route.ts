@@ -50,9 +50,8 @@ function getReplyInbox() {
 }
 
 function getStudioLink(docId: string) {
-  const base =
-    process.env.SANITY_STUDIO_URL?.trim() || "https://studio.cel3interactive.com";
-  return `${base}/desk/fitRequest;${docId}`;
+  const base = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.cel3interactive.com").replace(/\/$/, "");
+  return `${base}/admin/fit-requests?request=${encodeURIComponent(docId)}`;
 }
 
 function getSiteUrl(req: Request) {

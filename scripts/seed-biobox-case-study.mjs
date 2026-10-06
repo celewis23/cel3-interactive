@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { createClient } from "@sanity/client";
+import { documentStore as client } from "../lib/documents/store.mjs";
 
 function loadEnvFile(filePath) {
   if (!fs.existsSync(filePath)) return;
@@ -33,22 +33,7 @@ function loadEnvFile(filePath) {
 const rootDir = process.cwd();
 loadEnvFile(path.join(rootDir, ".env.local"));
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
-const apiVersion = process.env.NEXT_PUBLIC_SANITY_API_VERSION;
-const token = process.env.SANITY_API_WRITE_TOKEN;
-
-if (!projectId || !dataset || !apiVersion || !token) {
-  throw new Error("Missing Sanity environment variables required to seed BioBox.");
-}
-
-const client = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  token,
-  useCdn: false,
-});
+if (!process.env.DATABASE_URL) throw new Error("Missing DATABASE_URL");
 
 const body = [
   {

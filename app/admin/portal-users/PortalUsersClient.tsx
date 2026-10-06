@@ -578,7 +578,7 @@ export default function PortalUsersClient({
                 type="text"
                 value={form.pipelineContactId}
                 onChange={(e) => setForm((f) => ({ ...f, pipelineContactId: e.target.value }))}
-                placeholder="Sanity _id"
+                placeholder="Client record ID"
                 className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder-white/20 outline-none focus:border-sky-500/50 transition-colors font-mono"
               />
             </div>

@@ -55,10 +55,12 @@ async function handleActivityDELETE(
     }
 
     // Unlink assets in this folder
-    await sanityWriteClient
-      .patch({ query: `*[_type == "assetItem" && folderId == $id]`, params: { id } })
-      .set({ folderId: null })
-      .commit();
+    const assets = await sanityServer.fetch<{ _id: string }[]>(
+      `*[_type == "assetItem" && folderId == $id]{ _id }`, { id }
+    );
+    const unlink = sanityWriteClient.transaction();
+    for (const asset of assets) unlink.patch(asset._id, patch => patch.set({ folderId: null }));
+    await unlink.commit();
 
     await sanityWriteClient.delete(id);
     return NextResponse.json({ ok: true });

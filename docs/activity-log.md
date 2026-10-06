@@ -13,7 +13,7 @@ Filters cover search, source, outcome, date, job, and related run. Routine check
 
 ## Boundaries
 
-The log covers actions handled by this website, not changes made directly in Stripe, Sanity, or another service unless the website processes them. Page views, analytics collection, and ordinary reads are not duplicated here. Requests rejected before reaching a route handler cannot be captured by its wrapper. Historical actions that were never logged cannot be reconstructed.
+The log covers actions handled by this website, not changes made directly in Stripe, Google Drive, or another service unless the website processes them. Page views, analytics collection, and ordinary reads are not duplicated here. Requests rejected before reaching a route handler cannot be captured by its wrapper. Historical actions that were never logged cannot be reconstructed.
 
 “Accepted for processing” is not a completed result. A successful send records the provider accepting the send operation; it does not confirm delivery or reading. Job cards show observed runs and expected schedules, not independent uptime monitoring. A process that stops after writing its start leaves a visible unfinished run.
 
@@ -21,11 +21,9 @@ Audit writes are awaited by request handlers and registered with Next.js `after(
 
 Request/response bodies, query strings, cookies, signing tokens, and uploads are not copied into generic request events. Explicit audit details redact common credential fields and limit nested values. Audit history has no public delete endpoint.
 
-## Routine check retention
+## Activity retention
 
-Every hour, `/api/cron/audit-retention` archives automatic job checks marked both `routine: true` and `status: skipped` once they are older than one day. This keeps about 4,500 routine checks in Sanity at the current schedule, leaving room for business records even on a 10,000-document allowance. Full documents are saved in the existing Postgres database's `audit_event_archive` table before removal from Sanity. Apply `db/migrations/012_audit_archive.sql` before deploying, and configure `CRON_SECRET` for the authenticated scheduler.
-
-Client requests, business actions, failures, partial results, and unfinished runs are never selected. Recent routine runs remain visible in Activity Log; older routine checks are recoverable from the SQL archive. Archive rows are identified by Sanity project, dataset, document ID, and revision. A failed archive stops cleanup, and a document changed during archival is retained. Each run processes at most 2,500 records and stops starting batches after 40 seconds; later runs resume any backlog. The archive job appears in job health, including failures and missed hourly runs.
+The hourly archive job keeps completed activity searchable for 30 days and routine skipped checks for one day. Older records are compressed into Postgres archive batches before their live revisions are removed. Unfinished runs remain online. The local drive collector verifies a complete copy before pruning cloud archives. See [Postgres data and archiving](postgres-data-store.md) for storage, recovery, and collector instructions.
 
 ## Maintaining coverage
 

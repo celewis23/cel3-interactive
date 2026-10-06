@@ -1,10 +1,10 @@
 import deployment from "@/vercel.json";
 
 export const ACTIVITY_JOBS = [
-  { id: "audit-retention", route: "/api/cron/audit-retention", name: "Activity log archive", description: "Archives routine checks older than one day to Postgres, then frees their Sanity storage." },
+  { id: "audit-retention", route: "/api/cron/audit-retention", name: "Activity log archive", description: "Compresses routine checks after one day and completed activity after 30 days for external-drive archiving." },
   { id: "billing-enforcement", route: "/api/cron/billing-enforcement", name: "Overdue invoice collections", description: "Checks invoices, sends reminders, and applies the saved collections rules." },
   { id: "task-reminders", route: "/api/cron/task-reminders", name: "Task reminders", description: "Checks for due tasks and reminders." },
-  { id: "lead-generator", route: "/api/cron/lead-generator", name: "Lead discovery", description: "Checks every minute; discovery follows your lead generator schedule." },
+  { id: "lead-generator", route: "/api/cron/lead-generator", name: "Lead discovery", description: "Checks every 15 minutes; discovery follows your lead generator schedule." },
   { id: "email-notifications", route: "/api/admin/notifications/email", name: "Email notifications", description: "Checks for new email and sends configured notifications." },
   { id: "campaigns", route: "/api/cron/campaigns", name: "Scheduled campaigns", description: "Sends campaigns whose scheduled time has arrived." },
   { id: "automation-processor", route: "/api/admin/automations/process-pending", name: "Delayed automations", description: "Resumes delayed automation steps and checks scheduled triggers." },
@@ -21,6 +21,7 @@ export function jobHealth(schedule: string | null, lastRun: { timestamp: string;
   const age = now - Date.parse(lastRun.timestamp);
   if (lastRun.status === "running" && age > 10 * 60_000) return "unfinished";
   if (schedule === "* * * * *" && age > 10 * 60_000) return "overdue";
+  if (schedule === "*/15 * * * *" && age > 35 * 60_000) return "overdue";
   if (schedule === "17 * * * *" && age > 90 * 60_000) return "overdue";
   if (schedule === "0 13 * * *") {
     const expected = new Date(now);

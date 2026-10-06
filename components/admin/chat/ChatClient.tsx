@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { urlFor } from "@/lib/documents/images";
 
 // ─── localStorage helpers ─────────────────────────────────────────────────────
 
@@ -78,7 +79,7 @@ function resolveSender(
 }
 
 // Matches image URLs: Sanity CDN (any path) or any URL ending in an image extension
-const IMAGE_URL_RE = /https?:\/\/cdn\.sanity\.io\/images\/[^\s"'<>]+|https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|gif|webp|avif)(?:[?#][^\s"'<>]*)?/gi;
+const IMAGE_URL_RE = /https?:\/\/[^\s"'<>]+\/api\/media\/media\.[a-f0-9]{48}|https?:\/\/cdn\.sanity\.io\/images\/[^\s"'<>]+|https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|gif|webp|avif)(?:[?#][^\s"'<>]*)?/gi;
 // Matches any remaining URL (for clickable links)
 const ANY_URL_RE = /https?:\/\/[^\s"'<>]+/g;
 
@@ -107,7 +108,7 @@ function parseMessageText(text: string): TextSegment[] {
   let pos = 0;
   for (const m of imageMatches) {
     if ((m.index ?? 0) > pos) segments.push({ kind: "text", value: text.slice(pos, m.index) });
-    segments.push({ kind: "image", url: m[0] });
+    segments.push({ kind: "image", url: urlFor(m[0]).url() });
     pos = (m.index ?? 0) + m[0].length;
   }
   if (pos < text.length) segments.push({ kind: "text", value: text.slice(pos) });

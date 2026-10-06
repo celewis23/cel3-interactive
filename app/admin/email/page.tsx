@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { getStoredTokens } from "@/lib/gmail/client";
+import { oauthErrorMessage } from "@/lib/gmail/oauthErrors";
 import InboxClient from "@/components/admin/email/InboxClient";
 
 export default async function EmailPage({
@@ -41,11 +42,7 @@ export default async function EmailPage({
                 d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
               />
             </svg>
-            {sp.error === "access_denied"
-              ? "Authorization was denied. Please try again."
-              : sp.error === "token_exchange_failed"
-              ? "Token exchange failed. Please try again."
-              : decodeURIComponent(sp.error)}
+            {oauthErrorMessage(sp.error)}
           </div>
         )}
 

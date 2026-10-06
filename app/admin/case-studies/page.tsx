@@ -3,19 +3,10 @@ import { sanityServer } from "@/lib/sanityServer";
 import { cookies } from "next/headers";
 import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
 import { redirect } from "next/navigation";
-import imageUrlBuilder from "@sanity/image-url";
-import { createClient } from "next-sanity";
+import { imageBuilder as builder } from "@/lib/documents/images";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
-  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION!,
-  useCdn: false,
-});
-const builder = imageUrlBuilder(client);
 
 type Project = {
   _id: string;
