@@ -76,13 +76,13 @@ input{font-family:'Outfit',sans-serif}
 </div>
 </div>
 <div class="c-hero-photos" style="flex: 1 1 480px; min-width: 0; position: relative; height: 600px">
-<img src="./assets/4fc9fc8ee55b9bc8fd6664c7369b46c8.jpg" alt="An açaí bowl held up in front of the You Matter window decal" style="position: absolute; left: 0; top: 0; width: 74%; height: 540px; object-fit: cover; object-position: 50% 55%; border-radius: 36px; display: block">
+<img src="/mockups/youmatterrva/photography-placeholder.svg" alt="Professional photography coming soon" style="position: absolute; left: 0; top: 0; width: 74%; height: 540px; object-fit: cover; object-position:50% 50%; border-radius: 36px; display: block">
 <figure style="position: absolute; right: 0; top: 36px; width: 210px; margin: 0; background: #FFFFFF; padding: 10px 10px 6px; border-radius: 6px; box-shadow: 0 14px 34px rgba(22,58,36,0.18); transform: rotate(4deg)">
-<img src="./assets/2589d8a19105eb3837b27d6105cd741a.jpg" alt="Liquid Gold cold-pressed juice" style="width: 100%; height: 210px; object-fit: cover; display: block">
+<img src="/mockups/youmatterrva/photography-placeholder.svg" alt="Professional photography coming soon" style="width: 100%; height: 210px; object-fit: cover; display: block">
 <figcaption style="font-family: 'Caveat', cursive; font-size: 24px; text-align: center; color: #163A24">Liquid Gold</figcaption>
 </figure>
 <figure style="position: absolute; right: 40px; bottom: 0; width: 196px; margin: 0; background: #FFFFFF; padding: 10px 10px 6px; border-radius: 6px; box-shadow: 0 14px 34px rgba(22,58,36,0.18); transform: rotate(-5deg)">
-<img src="./assets/8f1f2967c5c0630061e82ee715151ba8.jpg" alt="Paradise Punch smoothie" style="width: 100%; height: 196px; object-fit: cover; display: block">
+<img src="/mockups/youmatterrva/photography-placeholder.svg" alt="Professional photography coming soon" style="width: 100%; height: 196px; object-fit: cover; display: block">
 <figcaption style="font-family: 'Caveat', cursive; font-size: 24px; text-align: center; color: #163A24">Paradise Punch</figcaption>
 </figure>
 <div style="position: absolute; left: -12px; bottom: 26px; width: 136px; height: 136px; border-radius: 50%; background: #1E7A3E; border: 7px solid #F07A1A; color: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-sizing: border-box; transform: rotate(-8deg)">
@@ -106,7 +106,7 @@ input{font-family:'Outfit',sans-serif}
 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px">
 <sc-for list="{{tiles}}" as="c" hint-placeholder-count="6">
 <a href="#menu" onClick="{{c.pick}}" style="text-decoration: none; color: #163A24; display: flex; flex-direction: column; gap: 10px">
-<img src="{{c.img}}" alt="" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 28px; display: block">
+<img src="{{c.img}}" alt="Professional photography coming soon" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 28px; display: block">
 <span style="font-family: 'DM Serif Display', serif; font-size: 24px; line-height: 1">{{c.label}}</span>
 <span style="font-size: 14px; color: #5E6B5F; margin-top: -6px">{{c.n}} items</span>
 </a>
@@ -134,7 +134,7 @@ input{font-family:'Outfit',sans-serif}
 <sc-for list="{{items}}" as="it" hint-placeholder-count="6">
 <article style="background: #FFFFFF; border-radius: 26px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 1px 0 #EFE2CC">
 <div style="{{it.photoStyle}}">
-<sc-if value="{{it.hasImg}}" hint-placeholder-val="{{ false }}"><img src="{{it.img}}" alt="{{it.n}}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover"></sc-if>
+<sc-if value="{{it.hasImg}}" hint-placeholder-val="{{ false }}"><img src="{{it.img}}" alt="Professional photography coming soon" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover"></sc-if>
 <sc-if value="{{it.noImg}}" hint-placeholder-val="{{ true }}">
 <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center">
 <div style="background: #FFFFFF; border-radius: 10px; padding: 14px 18px; width: 58%; text-align: center; box-shadow: 0 6px 18px rgba(0,0,0,0.12)">
@@ -189,7 +189,7 @@ input{font-family:'Outfit',sans-serif}
 <ul style="list-style: none; margin: 0; padding: 0">
 <sc-for list="{{lines}}" as="l" hint-placeholder-count="2">
 <li style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px dashed #EFE2CC">
-<span style="width: 46px; height: 46px; border-radius: 50%; flex: none; overflow: hidden; background: {{l.t}}"><sc-if value="{{l.hasImg}}" hint-placeholder-val="{{ false }}"><img src="{{l.img}}" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block"></sc-if></span>
+<span style="width: 46px; height: 46px; border-radius: 50%; flex: none; overflow: hidden; background: {{l.t}}"><sc-if value="{{l.hasImg}}" hint-placeholder-val="{{ false }}"><img src="{{l.img}}" alt="Professional photography coming soon" style="width: 100%; height: 100%; object-fit: cover; display: block"></sc-if></span>
 <div style="flex: 1; min-width: 0">
 <div style="font-weight: 700; font-size: 15px">{{l.n}}</div>
 <div style="font-size: 13px; color: #5E6B5F">{{l.each}} each</div>
@@ -249,7 +249,7 @@ input{font-family:'Outfit',sans-serif}
 <p style="margin: 0; font-family: 'Caveat', cursive; font-size: 30px; color: #C2410C">i am proud of myself</p>
 <h2 style="margin: 0 0 32px; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: clamp(36px, 8vw, 64px); line-height: 1">Reset, gently.</h2>
 <div style="display: flex; flex-wrap: wrap; gap: 28px; align-items: stretch">
-<img src="./assets/e64f3d0cbe31ab5041987d868636e04f.jpg" alt="A You Matter cleanse kit with Glow, Detoxifying Green and Cleansing Beet juices and an affirmation card" class="c-cleanse-img" style="flex: 1 1 380px; min-width: 0; width: 100%; height: 460px; object-fit: cover; border-radius: 32px; display: block">
+<img src="/mockups/youmatterrva/photography-placeholder.svg" alt="Professional photography coming soon" class="c-cleanse-img" style="flex: 1 1 380px; min-width: 0; width: 100%; height: 460px; object-fit: cover; border-radius: 32px; display: block">
 <div class="c-cleanse-cards" style="flex: 1 1 520px; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
 <sc-for list="{{cleanses}}" as="k" hint-placeholder-count="4">
 <article style="background: #FFFFFF; border-radius: 24px; padding: 22px; display: flex; flex-direction: column; gap: 10px">
@@ -288,7 +288,7 @@ input{font-family:'Outfit',sans-serif}
 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px">
 <sc-for list="{{falls}}" as="f" hint-placeholder-count="4">
 <article class="c-fall-card" style="position: relative; border-radius: 28px; overflow: hidden; height: 380px">
-<img src="{{f.img}}" alt="{{f.n}}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover">
+<img src="{{f.img}}" alt="Professional photography coming soon" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover">
 <div style="position: absolute; left: 12px; right: 12px; bottom: 12px; background: #FFF8EE; border-radius: 18px; padding: 14px 16px; display: flex; align-items: center; gap: 10px">
 <div style="flex: 1; min-width: 0"><div style="font-family: 'DM Serif Display', serif; font-size: 20px; line-height: 1.1">{{f.n}}</div><div style="font-size: 14px; color: #5E6B5F">{{f.price}}</div></div>
 <button type="button" onClick="{{f.add}}" aria-label="{{f.aria}}" style="flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; background: #F07A1A; color: #1C1A17; font: 800 20px 'Outfit', sans-serif; cursor: pointer">+</button>
@@ -311,7 +311,7 @@ input{font-family:'Outfit',sans-serif}
 </div>
 </div>
 <div class="c-story-photo" style="flex: 1 1 420px; min-width: 0; position: relative; height: 520px">
-<img src="./assets/14d630a611620c0a846b695cb655d294.jpg" alt="A smoothie held up in front of the You Matter window" style="position: absolute; right: 0; top: 0; width: 82%; height: 480px; object-fit: cover; border-radius: 32px; display: block">
+<img src="/mockups/youmatterrva/photography-placeholder.svg" alt="Professional photography coming soon" style="position: absolute; right: 0; top: 0; width: 82%; height: 480px; object-fit: cover; border-radius: 32px; display: block">
 <div style="position: absolute; left: 0; bottom: 0; width: 230px; background: #2F4A6B; color: #FFFFFF; border-radius: 12px; padding: 26px 20px; text-align: center; transform: rotate(-4deg); box-shadow: 0 16px 34px rgba(0,0,0,0.3)">
 <div style="font-family: 'DM Serif Display', serif; font-size: 20px; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.04em">I am proud of myself and my achievements</div>
 </div>
@@ -322,14 +322,14 @@ input{font-family:'Outfit',sans-serif}
 <section class="c-snapped" style="max-width: 1280px; margin: 0 auto; padding: 88px 24px 40px">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 24px">
 <h2 style="margin: 0; font-family: 'DM Serif Display', serif; font-weight: 400; font-size: clamp(28px, 6vw, 48px); line-height: 1">Snapped at the window</h2>
-<p style="margin: 0; font-family: 'Caveat', cursive; font-size: 26px; color: #C2410C">tag us [INSTAGRAM]</p>
+<p style="margin: 0; font-family: 'Caveat', cursive; font-size: 26px; color: #C2410C">tag us @youmatter_rva</p>
 </div>
 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px">
-<img src="./assets/d16aa762a41d3dfed4a4e59f523afc20.jpg" alt="Berry Bliss smoothie at the window" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 22px; display: block">
-<img src="./assets/559123c8eaf6957dfd56eb0c6d092263.jpg" alt="Pumpkin Spice smoothie at the window" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 22px; display: block">
-<img src="./assets/e95e00132ef3215a2d60ddff2bcbd647.jpg" alt="Tropical Breeze smoothie at the window" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 22px; display: block">
-<img src="./assets/2589d8a19105eb3837b27d6105cd741a.jpg" alt="Liquid Gold juice at the window" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 22px; display: block">
-<img src="./assets/009461a72559eb9b417670135d2b9d48.jpg" alt="Apple Cider juice at the window" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 22px; display: block">
+<img src="/mockups/youmatterrva/photography-placeholder.svg" alt="Professional photography coming soon" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 22px; display: block">
+<img src="/mockups/youmatterrva/photography-placeholder.svg" alt="Professional photography coming soon" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 22px; display: block">
+<img src="/mockups/youmatterrva/photography-placeholder.svg" alt="Professional photography coming soon" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 22px; display: block">
+<img src="/mockups/youmatterrva/photography-placeholder.svg" alt="Professional photography coming soon" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 22px; display: block">
+<img src="/mockups/youmatterrva/photography-placeholder.svg" alt="Professional photography coming soon" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 22px; display: block">
 </div>
 </section>
 
@@ -356,61 +356,61 @@ input{font-family:'Outfit',sans-serif}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":5600}}'>
 var MENU = [
-  {id:'detox', n:'Detox', c:'juice', d:'Apple, celery, ginger, lemon, pear, spinach', p:10, t:'#7FA650', img:'./assets/a77eaad2f4734588ef75c03b96c75f89.jpg', tag:'Most loved'},
-  {id:'green', n:'Energizing Green', c:'juice', d:'Green apple, cucumber, kale, lemon, parsley, pineapple', p:10, t:'#4E8F3A', img:'./assets/4adf2e8ec02c0de4aa9bbb2cdbd7ee78.jpg'},
-  {id:'beet', n:'Cleansing Beet', c:'juice', d:'Apple, beet, carrot, ginger, lemon', p:10, t:'#8E1F4F', img:'./assets/8d39e96a4e1e222b4818f363023e5545.jpg', tag:'1st Fridays'},
-  {id:'gold', n:'Liquid Gold', c:'juice', d:'Pear, pineapple, ginger', p:10, t:'#E3A21A', img:'./assets/2589d8a19105eb3837b27d6105cd741a.jpg'},
-  {id:'rejuv', n:'Rejuvenate', c:'juice', d:'Carrot, ginger, lemon, orange, pineapple', p:10, t:'#E8742A', img:'./assets/da306a8cc7b3686c4fee584c4b760848.jpg'},
-  {id:'lemon', n:'Apple Lemonade', c:'juice', d:'Apple, lemon', p:9, t:'#D8C47A', img:'./assets/db4f93fcbb8bc9912fb716cfbd9e025f.jpg'},
-  {id:'acider', n:'Apple Cider', c:'juice', d:'Apple, orange, lemon, ginger, cinnamon, nutmeg, clove', p:10, t:'#C98A3A', img:'./assets/009461a72559eb9b417670135d2b9d48.jpg', tag:'Fall'},
-  {id:'applg', n:'Apple Ginger', c:'juice', d:'Cold-pressed, 16oz', p:9, t:'#C98A3A', img:'./assets/3c7f6565e965c2fadd407dab0084bb33.jpg'},
+  {id:'detox', n:'Detox', c:'juice', d:'Apple, celery, ginger, lemon, pear, spinach', p:10, t:'#7FA650', img:'/mockups/youmatterrva/photography-placeholder.svg', tag:'Most loved'},
+  {id:'green', n:'Energizing Green', c:'juice', d:'Green apple, cucumber, kale, lemon, parsley, pineapple', p:10, t:'#4E8F3A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'beet', n:'Cleansing Beet', c:'juice', d:'Apple, beet, carrot, ginger, lemon', p:10, t:'#8E1F4F', img:'/mockups/youmatterrva/photography-placeholder.svg', tag:'1st Fridays'},
+  {id:'gold', n:'Liquid Gold', c:'juice', d:'Pear, pineapple, ginger', p:10, t:'#E3A21A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'rejuv', n:'Rejuvenate', c:'juice', d:'Carrot, ginger, lemon, orange, pineapple', p:10, t:'#E8742A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'lemon', n:'Apple Lemonade', c:'juice', d:'Apple, lemon', p:9, t:'#D8C47A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'acider', n:'Apple Cider', c:'juice', d:'Apple, orange, lemon, ginger, cinnamon, nutmeg, clove', p:10, t:'#C98A3A', img:'/mockups/youmatterrva/photography-placeholder.svg', tag:'Fall'},
+  {id:'applg', n:'Apple Ginger', c:'juice', d:'Cold-pressed, 16oz', p:9, t:'#C98A3A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
   {id:'root', n:'Sweet Root', c:'juice', d:'Cold-pressed, 16oz', p:10, t:'#D9622B', tag:'1st Fridays'},
   {id:'celery', n:'Celery Juice', c:'juice', d:'Straight celery, 16oz', p:9, t:'#9DBF6A'},
-  {id:'pumpkin', n:'Pumpkin Spice', c:'smoothie', d:'Organic pumpkin, apple, banana, ginger, allspice, maple syrup', p:9.5, t:'#C8742E', img:'./assets/559123c8eaf6957dfd56eb0c6d092263.jpg', tag:'Fall'},
-  {id:'paradise', n:'Paradise Punch', c:'smoothie', d:'Strawberry, pineapple, mango, lemon, ginger, apple juice', p:9.5, t:'#E8644A', img:'./assets/8f1f2967c5c0630061e82ee715151ba8.jpg'},
-  {id:'sunrise', n:'Sunrise', c:'smoothie', d:'Peaches, pineapple, strawberries, orange juice', p:9.5, t:'#E98A5A', img:'./assets/5f01d1bcc632773114e7b6b725fa6b00.jpg'},
-  {id:'coffee', n:'Coffee Lovers', c:'smoothie', d:'Cold brew, banana, cacao, cauliflower, oat milk, raw agave', p:9.5, t:'#6A4532', img:'./assets/9e9d4faa4f5dfc9f7cbf4538a85c266a.jpg'},
-  {id:'banana', n:'Banana Pudding', c:'smoothie', d:'Topped with crushed vanilla wafers', p:9.5, t:'#E8CF8A', img:'./assets/f7bd0dd6f75719059c3d26feb7181ed1.jpg'},
-  {id:'berry', n:'Berry Bliss', c:'smoothie', d:'Mixed berries, ginger, almond milk', p:9.5, t:'#6B2A5E', img:'./assets/d16aa762a41d3dfed4a4e59f523afc20.jpg'},
-  {id:'carrot', n:'Carrot Top', c:'smoothie', d:'Smoothie', p:9.5, t:'#E8742A', img:'./assets/5c7c4fbb7a9968c3e7cdc6b3ffbc4cd0.jpg'},
-  {id:'lean', n:'Lean Green', c:'smoothie', d:'Smoothie', p:9.5, t:'#8DB43A', img:'./assets/f61a57e68a18e6cb604f70d2e29ee310.jpg'},
-  {id:'dragon', n:'Dragon Fruit', c:'smoothie', d:'Smoothie', p:9.5, t:'#E0457B', img:'./assets/af66d98d591a6fed3850eaf13a4fd346.jpg'},
-  {id:'sb', n:'Strawberry & Banana', c:'smoothie', d:'Smoothie', p:9.5, t:'#F08A7A', img:'./assets/623671b06e2cad1bd48bb7109658fc6d.jpg'},
-  {id:'tropb', n:'Tropical Breeze', c:'smoothie', d:'Smoothie', p:9.5, t:'#F0806A', img:'./assets/e95e00132ef3215a2d60ddff2bcbd647.jpg'},
-  {id:'beetdrop', n:'Beet Drop', c:'smoothie', d:'Smoothie', p:9.5, t:'#A51D2D', img:'./assets/9495034e36f409a381d13a56b2e6825a.jpg'},
+  {id:'pumpkin', n:'Pumpkin Spice', c:'smoothie', d:'Organic pumpkin, apple, banana, ginger, allspice, maple syrup', p:9.5, t:'#C8742E', img:'/mockups/youmatterrva/photography-placeholder.svg', tag:'Fall'},
+  {id:'paradise', n:'Paradise Punch', c:'smoothie', d:'Strawberry, pineapple, mango, lemon, ginger, apple juice', p:9.5, t:'#E8644A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'sunrise', n:'Sunrise', c:'smoothie', d:'Peaches, pineapple, strawberries, orange juice', p:9.5, t:'#E98A5A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'coffee', n:'Coffee Lovers', c:'smoothie', d:'Cold brew, banana, cacao, cauliflower, oat milk, raw agave', p:9.5, t:'#6A4532', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'banana', n:'Banana Pudding', c:'smoothie', d:'Topped with crushed vanilla wafers', p:9.5, t:'#E8CF8A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'berry', n:'Berry Bliss', c:'smoothie', d:'Mixed berries, ginger, almond milk', p:9.5, t:'#6B2A5E', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'carrot', n:'Carrot Top', c:'smoothie', d:'Smoothie', p:9.5, t:'#E8742A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'lean', n:'Lean Green', c:'smoothie', d:'Smoothie', p:9.5, t:'#8DB43A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'dragon', n:'Dragon Fruit', c:'smoothie', d:'Smoothie', p:9.5, t:'#E0457B', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'sb', n:'Strawberry & Banana', c:'smoothie', d:'Smoothie', p:9.5, t:'#F08A7A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'tropb', n:'Tropical Breeze', c:'smoothie', d:'Smoothie', p:9.5, t:'#F0806A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'beetdrop', n:'Beet Drop', c:'smoothie', d:'Smoothie', p:9.5, t:'#A51D2D', img:'/mockups/youmatterrva/photography-placeholder.svg'},
   {id:'byo', n:'Create Your Own', c:'smoothie', d:'Your base, your fruit, your boosts', p:10, t:'#3E6E8E'},
-  {id:'acai', n:'Super Berry Açaí', c:'bowl', d:'Açaí, banana, mixed berries, apple juice. Topped with blueberries, strawberries, granola, honey, walnuts', p:12, t:'#4A2340', img:'./assets/4fc9fc8ee55b9bc8fd6664c7369b46c8.jpg'},
-  {id:'gm', n:'Green Machine', c:'bowl', d:'Topped with granola, pineapple & coconut', p:12, t:'#5F8F45', img:'./assets/ae6b4b7bb408bb973d9977b316bcd747.jpg'},
-  {id:'honey', n:'Honey Berry', c:'bowl', d:'Smoothie bowl', p:12, t:'#B5476B', img:'./assets/d97c28c8403a50282398345c4b965d61.jpg'},
-  {id:'avo', n:'Avocado Toast', c:'food', d:'Whole grain, avocado, cucumber, tomato, everything seasoning', p:9, t:'#7C9A4B', img:'./assets/1a29f89195a834494eaef1d2d85de0d4.jpg'},
-  {id:'nut', n:'Nut Butter Toast', c:'food', d:'Nut butter, banana, strawberries, blueberries, chia', p:7, t:'#B98A55', img:'./assets/4c8041bdff286dba49888a4827b42b53.jpg'},
-  {id:'yogurt', n:'Yogurt Bowl', c:'food', d:'Yogurt, strawberries, blueberries, pineapple, walnuts', p:8, t:'#E9DCC8', img:'./assets/94297036c2cc2a9f303e0f538eb4d97e.jpg'},
-  {id:'oats', n:'Overnight Oats', c:'food', d:'Topped with strawberries, blueberries & walnuts', p:7, t:'#CDB894', img:'./assets/a116dc53d42640b7424258e3a0e88fa5.jpg'},
+  {id:'acai', n:'Super Berry Açaí', c:'bowl', d:'Açaí, banana, mixed berries, apple juice. Topped with blueberries, strawberries, granola, honey, walnuts', p:12, t:'#4A2340', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'gm', n:'Green Machine', c:'bowl', d:'Topped with granola, pineapple & coconut', p:12, t:'#5F8F45', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'honey', n:'Honey Berry', c:'bowl', d:'Smoothie bowl', p:12, t:'#B5476B', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'avo', n:'Avocado Toast', c:'food', d:'Whole grain, avocado, cucumber, tomato, everything seasoning', p:9, t:'#7C9A4B', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'nut', n:'Nut Butter Toast', c:'food', d:'Nut butter, banana, strawberries, blueberries, chia', p:7, t:'#B98A55', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'yogurt', n:'Yogurt Bowl', c:'food', d:'Yogurt, strawberries, blueberries, pineapple, walnuts', p:8, t:'#E9DCC8', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'oats', n:'Overnight Oats', c:'food', d:'Topped with strawberries, blueberries & walnuts', p:7, t:'#CDB894', img:'/mockups/youmatterrva/photography-placeholder.svg'},
   {id:'bake', n:'Chicken, Potato & Egg Bake', c:'food', d:'Hot plate', p:10, t:'#C9A15A'},
-  {id:'chickpea', n:'Chickpea Soup', c:'soup', d:'Chickpeas, potatoes & carrots, 16oz', p:9, t:'#E0A53A', img:'./assets/4c5dce8ceb5abb25d0cde3bff26b80b4.jpg', tag:'New'},
+  {id:'chickpea', n:'Chickpea Soup', c:'soup', d:'Chickpeas, potatoes & carrots, 16oz', p:9, t:'#E0A53A', img:'/mockups/youmatterrva/photography-placeholder.svg', tag:'New'},
   {id:'potpie', n:'Chicken Pot Pie Soup', c:'soup', d:'16oz', p:9, t:'#D4A85A'},
   {id:'curry', n:'Curry Chicken Soup', c:'soup', d:'16oz', p:9, t:'#D08A2E'},
   {id:'jerk', n:'Jerk Chicken Soup', c:'soup', d:'Spicy, 16oz', p:9, t:'#A8402A'},
-  {id:'cider', n:'Hot Spiced Apple Cider', c:'drink', d:'Served hot with a cinnamon stick', p:5, t:'#B5651D', img:'./assets/0d5b1d3e6232006fdc0df0e94c932c21.jpg', tag:'Fall'},
-  {id:'chai', n:'Iced Chai Latte', c:'drink', d:'20oz', p:6.5, t:'#B98A55', img:'./assets/830331e6746dd101d28e14f61c3e208f.jpg'},
-  {id:'matcha', n:'Iced Matcha', c:'drink', d:'Plant-based milk, 20oz', p:6.5, t:'#7FA35A', img:'./assets/2524d3cd79baaf40e1f6ab6701373a73.jpg'},
+  {id:'cider', n:'Hot Spiced Apple Cider', c:'drink', d:'Served hot with a cinnamon stick', p:5, t:'#B5651D', img:'/mockups/youmatterrva/photography-placeholder.svg', tag:'Fall'},
+  {id:'chai', n:'Iced Chai Latte', c:'drink', d:'20oz', p:6.5, t:'#B98A55', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'matcha', n:'Iced Matcha', c:'drink', d:'Plant-based milk, 20oz', p:6.5, t:'#7FA35A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
   {id:'cookie', n:'Cookie Butter Cold Brew', c:'drink', d:'20oz', p:6.5, t:'#8A5A3B'},
   {id:'vanilla', n:'French Vanilla Cold Brew', c:'drink', d:'20oz', p:6.5, t:'#C9A57A'},
-  {id:'water', n:'Spring Water', c:'drink', d:'16.9oz', p:2, t:'#DDE6EE', img:'./assets/68788393533b76129fe362837213b8b4.jpg'},
-  {id:'hormbles', n:'Hormbles Chormbles', c:'shelf', d:'Protein candy. 10g protein, 0g sugar', p:3.5, t:'#F2D43A', img:'./assets/5b7dfade8adb8a33ed2d0a48cd56961b.jpg'},
-  {id:'wbeauty', n:'WonderBeauty Gummies', c:'shelf', d:'Watermelon. Hair, skin & nails', p:25, t:'#9B4FA8', img:'./assets/2e0a37dde11fc041aa0b1c7cd1a4ef1f.jpg'},
-  {id:'wcalm', n:'WonderCalm Gummies', c:'shelf', d:'Summer peach mushroom gummies', p:25, t:'#8CC7A8', img:'./assets/fe613a3d79f383d9ebf4faef7e0dbb30.jpg'},
-  {id:'wday', n:'WonderDay Gummies', c:'shelf', d:'Wild raspberry mushroom gummies', p:25, t:'#E8A86A', img:'./assets/4bd98c49c938af9ff8479649a20045e1.jpg'},
-  {id:'wgreens', n:'WonderGreens Gummies', c:'shelf', d:'Green apple veggie gummies', p:25, t:'#A8D08A', img:'./assets/c8f46315c0f49664567f9eb9fb367883.jpg'},
-  {id:'wsleep', n:'WonderSleep Gummies', c:'shelf', d:'Wild elderberry mushroom gummies', p:25, t:'#7A8BA8', img:'./assets/56e155f0944d3ed82a4394b2507e751e.jpg'},
+  {id:'water', n:'Spring Water', c:'drink', d:'16.9oz', p:2, t:'#DDE6EE', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'hormbles', n:'Hormbles Chormbles', c:'shelf', d:'Protein candy. 10g protein, 0g sugar', p:3.5, t:'#F2D43A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'wbeauty', n:'WonderBeauty Gummies', c:'shelf', d:'Watermelon. Hair, skin & nails', p:25, t:'#9B4FA8', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'wcalm', n:'WonderCalm Gummies', c:'shelf', d:'Summer peach mushroom gummies', p:25, t:'#8CC7A8', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'wday', n:'WonderDay Gummies', c:'shelf', d:'Wild raspberry mushroom gummies', p:25, t:'#E8A86A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'wgreens', n:'WonderGreens Gummies', c:'shelf', d:'Green apple veggie gummies', p:25, t:'#A8D08A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'wsleep', n:'WonderSleep Gummies', c:'shelf', d:'Wild elderberry mushroom gummies', p:25, t:'#7A8BA8', img:'/mockups/youmatterrva/photography-placeholder.svg'},
   {id:'spp', n:'Sweet Potato Pie', c:'shelf', d:'Slice', p:5, t:'#C7702F'},
-  {id:'c1', n:'1-Day Juice Cleanse', c:'cleanse', d:'6 × 16oz juices', p:55, t:'#2F5D3A', img:'./assets/e64f3d0cbe31ab5041987d868636e04f.jpg'},
+  {id:'c1', n:'1-Day Juice Cleanse', c:'cleanse', d:'6 × 16oz juices', p:55, t:'#2F5D3A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
   {id:'c3', n:'3-Day Juice Cleanse', c:'cleanse', d:'18 × 16oz juices', p:150, t:'#2F5D3A'},
   {id:'moon', n:'Blue Moon Wellness Reset', c:'cleanse', d:'21 × 16oz juices', p:170, t:'#2A3F6E'},
   {id:'c7', n:'7-Day Juice Cleanse', c:'cleanse', d:'42 juices + 7 wellness shots', p:330, t:'#2F5D3A'}
 ];
 var CATS = [['juice','Cold-pressed'],['smoothie','Smoothies'],['bowl','Bowls'],['food','Food'],['soup','Soups'],['drink','Coffee, tea & cider'],['shelf','Wellness shelf'],['cleanse','Cleanses']];
-var TILES = [['juice','Cold-pressed juice','./assets/a77eaad2f4734588ef75c03b96c75f89.jpg'],['smoothie','Smoothies','./assets/8f1f2967c5c0630061e82ee715151ba8.jpg'],['bowl','Bowls','./assets/ae6b4b7bb408bb973d9977b316bcd747.jpg'],['food','Toasts & bites','./assets/1a29f89195a834494eaef1d2d85de0d4.jpg'],['soup','Soups','./assets/4c5dce8ceb5abb25d0cde3bff26b80b4.jpg'],['shelf','Wellness shelf','./assets/2e0a37dde11fc041aa0b1c7cd1a4ef1f.jpg']];
+var TILES = [['juice','Cold-pressed juice','/mockups/youmatterrva/photography-placeholder.svg'],['smoothie','Smoothies','/mockups/youmatterrva/photography-placeholder.svg'],['bowl','Bowls','/mockups/youmatterrva/photography-placeholder.svg'],['food','Toasts & bites','/mockups/youmatterrva/photography-placeholder.svg'],['soup','Soups','/mockups/youmatterrva/photography-placeholder.svg'],['shelf','Wellness shelf','/mockups/youmatterrva/photography-placeholder.svg']];
 var FALL = ['pumpkin','acider','cider','chickpea'];
 var SLOTS = ['ASAP, about 15 min','10:30 AM','10:45 AM','11:00 AM','11:15 AM'];
 var AFFIRM = ['I am enough.','Life is better with you.','I am proud of myself and my achievements.','Kindness over everything.'];

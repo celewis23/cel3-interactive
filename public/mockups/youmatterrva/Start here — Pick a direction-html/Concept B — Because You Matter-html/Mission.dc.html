@@ -64,8 +64,8 @@ input{font-family:'Manrope',sans-serif}
 </div>
 </div>
 <div class="b-hero-photos" style="flex: 1 1 420px; min-width: 0; position: relative; height: 560px">
-<img src="./assets/14d630a611620c0a846b695cb655d294.jpg" alt="A smoothie held up in front of the You Matter window decal on MacArthur Avenue" style="position: absolute; top: 0; left: 0; width: calc(100% - 60px); height: calc(100% - 60px); object-fit: cover; object-position: 45% 50%; border-radius: 300px 300px 28px 28px; display: block">
-<img src="./assets/94297036c2cc2a9f303e0f538eb4d97e.jpg" alt="Yogurt bowl with strawberries, blueberries, pineapple and walnuts" style="position: absolute; right: 0; bottom: 0; width: 220px; height: 220px; border-radius: 50%; border: 8px solid #FBF1EE; object-fit: cover; box-sizing: border-box; display: block">
+<img src="/mockups/youmatterrva/photography-placeholder.svg" alt="Professional photography coming soon" style="position: absolute; top: 0; left: 0; width: calc(100% - 60px); height: calc(100% - 60px); object-fit: cover; object-position:50% 50%; border-radius: 300px 300px 28px 28px; display: block">
+<img src="/mockups/youmatterrva/photography-placeholder.svg" alt="Professional photography coming soon" style="position: absolute; right: 0; bottom: 0; width: 220px; height: 220px; border-radius: 50%; border: 8px solid #FBF1EE; object-fit: cover; box-sizing: border-box; display: block">
 </div>
 </section>
 
@@ -92,7 +92,7 @@ input{font-family:'Manrope',sans-serif}
 <ul style="list-style: none; margin: 0; padding: 0">
 <sc-for list="{{items}}" as="it" hint-placeholder-count="5">
 <li style="display: flex; gap: 20px; align-items: center; padding: 22px 0; border-bottom: 1px solid #EBD6D0">
-<div style="{{it.thumbStyle}}"><sc-if value="{{it.hasImg}}" hint-placeholder-val="{{ false }}"><img src="{{it.img}}" alt="{{it.n}}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{it.noImg}}" hint-placeholder-val="{{ true }}"><span>{{it.thumb}}</span></sc-if></div>
+<div style="{{it.thumbStyle}}"><sc-if value="{{it.hasImg}}" hint-placeholder-val="{{ false }}"><img src="{{it.img}}" alt="Professional photography coming soon" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover"></sc-if><sc-if value="{{it.noImg}}" hint-placeholder-val="{{ true }}"><span>{{it.thumb}}</span></sc-if></div>
 <div style="flex: 1; min-width: 0">
 <div style="display: flex; align-items: baseline; gap: 10px">
 <h3 style="margin: 0; font-family: 'Fraunces', serif; font-weight: 600; font-size: 24px; letter-spacing: -0.01em">{{it.n}}</h3>
@@ -176,9 +176,9 @@ input{font-family:'Manrope',sans-serif}
 <button type="button" onClick="{{toSoups}}" style="background: #2A1420; color: #FFFFFF; border: 0; border-radius: 999px; padding: 16px 26px; font: 700 16px 'Manrope', sans-serif; cursor: pointer; min-height: 48px">Order soups</button>
 </div>
 <div class="b-fall-photos" style="flex: 1 1 480px; min-width: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px">
-<img src="./assets/4c5dce8ceb5abb25d0cde3bff26b80b4.jpg" alt="Chickpea soup with potatoes and carrots in the pot" style="width: 100%; height: 260px; border-radius: 20px; object-fit: cover; display: block">
+<img src="/mockups/youmatterrva/photography-placeholder.svg" alt="Professional photography coming soon" style="width: 100%; height: 260px; border-radius: 20px; object-fit: cover; display: block">
 <div style="height: 260px; border-radius: 20px; background: #A8402A; color: #FFFFFF; display: flex; align-items: flex-end; padding: 14px; box-sizing: border-box; font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase">Photo · Jerk Chicken</div>
-<img src="./assets/559123c8eaf6957dfd56eb0c6d092263.jpg" alt="Pumpkin Spice smoothie in front of the You Matter window" style="width: 100%; height: 260px; border-radius: 20px; object-fit: cover; display: block">
+<img src="/mockups/youmatterrva/photography-placeholder.svg" alt="Professional photography coming soon" style="width: 100%; height: 260px; border-radius: 20px; object-fit: cover; display: block">
 </div>
 </div>
 </section>
@@ -223,7 +223,7 @@ input{font-family:'Manrope',sans-serif}
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4300}}'>
-var IMG = {lemon:'./assets/db4f93fcbb8bc9912fb716cfbd9e025f.jpg', avo:'./assets/1a29f89195a834494eaef1d2d85de0d4.jpg', banana:'./assets/f7bd0dd6f75719059c3d26feb7181ed1.jpg', yogurt:'./assets/94297036c2cc2a9f303e0f538eb4d97e.jpg', dragon:'./assets/af66d98d591a6fed3850eaf13a4fd346.jpg'};
+var IMG = {lemon:'/mockups/youmatterrva/photography-placeholder.svg', avo:'/mockups/youmatterrva/photography-placeholder.svg', banana:'/mockups/youmatterrva/photography-placeholder.svg', yogurt:'/mockups/youmatterrva/photography-placeholder.svg', dragon:'/mockups/youmatterrva/photography-placeholder.svg'};
 var MENU = [
   {id:'lemon', n:'Apple Lemonade', c:'juice', d:'Apple, lemon. No added sugar, vegan', p:9, t:'#D8C47A', img:IMG.lemon},
   {id:'detox', n:'Detox', c:'juice', d:'Apple, celery, ginger, lemon, pear, spinach', p:10, t:'#7FA650', ph:1, tag:'Favorite'},
@@ -258,42 +258,42 @@ var MENU = [
   {id:'moon', n:'Blue Moon Wellness Reset', c:'cleanse', d:'21 × 16oz juices', p:170, t:'#2A3F6E'},
   {id:'c7', n:'7-Day Juice Cleanse', c:'cleanse', d:'42 juices + 7 wellness shots', p:330, t:'#2F5D3A'}
 ];
-var P = {detox:'./assets/a77eaad2f4734588ef75c03b96c75f89.jpg', green:'./assets/4adf2e8ec02c0de4aa9bbb2cdbd7ee78.jpg', beet:'./assets/8d39e96a4e1e222b4818f363023e5545.jpg', gold:'./assets/2589d8a19105eb3837b27d6105cd741a.jpg', berry:'./assets/d16aa762a41d3dfed4a4e59f523afc20.jpg', pumpkin:'./assets/3fb71cd8ca002129fcbe5ce023d0df82.jpg', acai:'./assets/4fc9fc8ee55b9bc8fd6664c7369b46c8.jpg', gm:'./assets/ae6b4b7bb408bb973d9977b316bcd747.jpg', nut:'./assets/4c8041bdff286dba49888a4827b42b53.jpg', oats:'./assets/a116dc53d42640b7424258e3a0e88fa5.jpg', coffee:'./assets/9e9d4faa4f5dfc9f7cbf4538a85c266a.jpg', chai:'./assets/830331e6746dd101d28e14f61c3e208f.jpg'};
+var P = {detox:'/mockups/youmatterrva/photography-placeholder.svg', green:'/mockups/youmatterrva/photography-placeholder.svg', beet:'/mockups/youmatterrva/photography-placeholder.svg', gold:'/mockups/youmatterrva/photography-placeholder.svg', berry:'/mockups/youmatterrva/photography-placeholder.svg', pumpkin:'/mockups/youmatterrva/photography-placeholder.svg', acai:'/mockups/youmatterrva/photography-placeholder.svg', gm:'/mockups/youmatterrva/photography-placeholder.svg', nut:'/mockups/youmatterrva/photography-placeholder.svg', oats:'/mockups/youmatterrva/photography-placeholder.svg', coffee:'/mockups/youmatterrva/photography-placeholder.svg', chai:'/mockups/youmatterrva/photography-placeholder.svg'};
 var DESC = {gold:'Pear, pineapple, ginger', nut:'Nut butter, banana, strawberries, blueberries, chia', oats:'Topped with strawberries, blueberries & walnuts', gm:'Topped with granola, pineapple & coconut', coffee:'Cold brew, banana, cacao, cauliflower, oat milk, raw agave'};
 var EXTRA = [
-  {id:'carrot', n:'Carrot Top', c:'smoothie', d:'Smoothie', p:9.5, t:'#E8742A', img:'./assets/5c7c4fbb7a9968c3e7cdc6b3ffbc4cd0.jpg'},
+  {id:'carrot', n:'Carrot Top', c:'smoothie', d:'Smoothie', p:9.5, t:'#E8742A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
   {id:'coffee', n:'Coffee Lovers', c:'smoothie', d:'', p:9.5, t:'#6A4532'},
-  {id:'sunrise', n:'Sunrise', c:'smoothie', d:'Peaches, pineapple, strawberries, orange juice', p:9.5, t:'#E98A5A', img:'./assets/5f01d1bcc632773114e7b6b725fa6b00.jpg'},
-  {id:'paradise', n:'Paradise Punch', c:'smoothie', d:'Strawberry, pineapple, mango, lemon, ginger, apple juice', p:9.5, t:'#E8644A', img:'./assets/8f1f2967c5c0630061e82ee715151ba8.jpg'},
-  {id:'lean', n:'Lean Green', c:'smoothie', d:'Smoothie', p:9.5, t:'#8DB43A', img:'./assets/f61a57e68a18e6cb604f70d2e29ee310.jpg'},
-  {id:'beetdrop', n:'Beet Drop', c:'smoothie', d:'Smoothie', p:9.5, t:'#A51D2D', img:'./assets/9495034e36f409a381d13a56b2e6825a.jpg'},
+  {id:'sunrise', n:'Sunrise', c:'smoothie', d:'Peaches, pineapple, strawberries, orange juice', p:9.5, t:'#E98A5A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'paradise', n:'Paradise Punch', c:'smoothie', d:'Strawberry, pineapple, mango, lemon, ginger, apple juice', p:9.5, t:'#E8644A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'lean', n:'Lean Green', c:'smoothie', d:'Smoothie', p:9.5, t:'#8DB43A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'beetdrop', n:'Beet Drop', c:'smoothie', d:'Smoothie', p:9.5, t:'#A51D2D', img:'/mockups/youmatterrva/photography-placeholder.svg'},
   {id:'nut', n:'Nut Butter Toast', c:'food', d:'', p:7, t:'#B98A55'},
   {id:'oats', n:'Overnight Oats', c:'food', d:'', p:7, t:'#CDB894'},
-  {id:'imatcha', n:'Iced Matcha', c:'drink', d:'Plant-based milk, 20oz', p:6.5, t:'#7FA35A', img:'./assets/2524d3cd79baaf40e1f6ab6701373a73.jpg'},
-  {id:'hormbles', n:'Hormbles Chormbles', c:'treat', d:'Protein candy. 10g protein, 0g sugar', p:3.5, t:'#F2D43A', img:'./assets/5b7dfade8adb8a33ed2d0a48cd56961b.jpg'}
+  {id:'imatcha', n:'Iced Matcha', c:'drink', d:'Plant-based milk, 20oz', p:6.5, t:'#7FA35A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'hormbles', n:'Hormbles Chormbles', c:'treat', d:'Protein candy. 10g protein, 0g sugar', p:3.5, t:'#F2D43A', img:'/mockups/youmatterrva/photography-placeholder.svg'}
 ];
 EXTRA.forEach(function(x){ if(!MENU.some(function(m){return m.id===x.id;})) MENU.push(x); });
 MENU.forEach(function(m){ if(P[m.id]) m.img=P[m.id]; if(DESC[m.id]) m.d=DESC[m.id]; });
-var P2 = {pumpkin:'./assets/559123c8eaf6957dfd56eb0c6d092263.jpg', honey:'./assets/d97c28c8403a50282398345c4b965d61.jpg', applg:'./assets/3c7f6565e965c2fadd407dab0084bb33.jpg', cider:'./assets/0d5b1d3e6232006fdc0df0e94c932c21.jpg', rejuv:'./assets/da306a8cc7b3686c4fee584c4b760848.jpg', c1:'./assets/e64f3d0cbe31ab5041987d868636e04f.jpg', gummy:'./assets/56e155f0944d3ed82a4394b2507e751e.jpg'};
+var P2 = {pumpkin:'/mockups/youmatterrva/photography-placeholder.svg', honey:'/mockups/youmatterrva/photography-placeholder.svg', applg:'/mockups/youmatterrva/photography-placeholder.svg', cider:'/mockups/youmatterrva/photography-placeholder.svg', rejuv:'/mockups/youmatterrva/photography-placeholder.svg', c1:'/mockups/youmatterrva/photography-placeholder.svg', gummy:'/mockups/youmatterrva/photography-placeholder.svg'};
 var DESC2 = {pumpkin:'Organic pumpkin, apple, banana, ginger, allspice, maple syrup', rejuv:'Carrot, ginger, lemon, orange, pineapple', cider:'Served hot with a cinnamon stick'};
 var EXTRA2 = [
   {id:'rejuv', n:'Rejuvenate', c:'juice', d:'', p:10, t:'#E8742A'},
   {id:'applg', n:'Apple Ginger', c:'juice', d:'Cold-pressed, 16oz', p:9, t:'#C98A3A'},
-  {id:'acider', n:'Apple Cider', c:'juice', d:'Apple, orange, lemon, ginger, cinnamon, nutmeg, clove', p:10, t:'#C98A3A', img:'./assets/009461a72559eb9b417670135d2b9d48.jpg', tag:'Fall'},
-  {id:'sb', n:'Strawberry & Banana', c:'smoothie', d:'Smoothie', p:9.5, t:'#F08A7A', img:'./assets/623671b06e2cad1bd48bb7109658fc6d.jpg'},
-  {id:'tropb', n:'Tropical Breeze', c:'smoothie', d:'Smoothie', p:9.5, t:'#F0806A', img:'./assets/e95e00132ef3215a2d60ddff2bcbd647.jpg'},
+  {id:'acider', n:'Apple Cider', c:'juice', d:'Apple, orange, lemon, ginger, cinnamon, nutmeg, clove', p:10, t:'#C98A3A', img:'/mockups/youmatterrva/photography-placeholder.svg', tag:'Fall'},
+  {id:'sb', n:'Strawberry & Banana', c:'smoothie', d:'Smoothie', p:9.5, t:'#F08A7A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'tropb', n:'Tropical Breeze', c:'smoothie', d:'Smoothie', p:9.5, t:'#F0806A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
   {id:'honey', n:'Honey Berry', c:'bowl', d:'Smoothie bowl', p:12, t:'#B5476B'},
   {id:'cider', n:'Hot Spiced Apple Cider', c:'drink', d:'', p:5, t:'#B5651D', tag:'Fall'},
-  {id:'water', n:'Spring Water', c:'drink', d:'16.9oz', p:2, t:'#DDE6EE', img:'./assets/68788393533b76129fe362837213b8b4.jpg'},
+  {id:'water', n:'Spring Water', c:'drink', d:'16.9oz', p:2, t:'#DDE6EE', img:'/mockups/youmatterrva/photography-placeholder.svg'},
   {id:'gummy', n:'WonderSleep Gummies', c:'treat', d:'Wild elderberry mushroom gummies', p:25, t:'#7A8BA8'},
-  {id:'wbeauty', n:'WonderBeauty Gummies', c:'treat', d:'Watermelon. Hair, skin & nails', p:25, t:'#9B4FA8', img:'./assets/2e0a37dde11fc041aa0b1c7cd1a4ef1f.jpg'},
-  {id:'wcalm', n:'WonderCalm Gummies', c:'treat', d:'Summer peach mushroom gummies', p:25, t:'#8CC7A8', img:'./assets/fe613a3d79f383d9ebf4faef7e0dbb30.jpg'},
-  {id:'wday', n:'WonderDay Gummies', c:'treat', d:'Wild raspberry mushroom gummies', p:25, t:'#E8A86A', img:'./assets/4bd98c49c938af9ff8479649a20045e1.jpg'},
-  {id:'wgreens', n:'WonderGreens Gummies', c:'treat', d:'Green apple veggie gummies', p:25, t:'#A8D08A', img:'./assets/c8f46315c0f49664567f9eb9fb367883.jpg'}
+  {id:'wbeauty', n:'WonderBeauty Gummies', c:'treat', d:'Watermelon. Hair, skin & nails', p:25, t:'#9B4FA8', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'wcalm', n:'WonderCalm Gummies', c:'treat', d:'Summer peach mushroom gummies', p:25, t:'#8CC7A8', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'wday', n:'WonderDay Gummies', c:'treat', d:'Wild raspberry mushroom gummies', p:25, t:'#E8A86A', img:'/mockups/youmatterrva/photography-placeholder.svg'},
+  {id:'wgreens', n:'WonderGreens Gummies', c:'treat', d:'Green apple veggie gummies', p:25, t:'#A8D08A', img:'/mockups/youmatterrva/photography-placeholder.svg'}
 ];
 EXTRA2.forEach(function(x){ if(!MENU.some(function(m){return m.id===x.id;})) MENU.push(x); });
 MENU.forEach(function(m){ if(P2[m.id]) m.img=P2[m.id]; if(DESC2[m.id]) m.d=DESC2[m.id]; });
-(function(){ var i=0; while(i<MENU.length && MENU[i].c!=='soup') i++; MENU.splice(i,0,{id:'chickpea', n:'Chickpea Soup', c:'soup', d:'Chickpeas, potatoes & carrots. 16oz', p:9, t:'#E0A53A', img:'./assets/4c5dce8ceb5abb25d0cde3bff26b80b4.jpg'}); })();
+(function(){ var i=0; while(i<MENU.length && MENU[i].c!=='soup') i++; MENU.splice(i,0,{id:'chickpea', n:'Chickpea Soup', c:'soup', d:'Chickpeas, potatoes & carrots. 16oz', p:9, t:'#E0A53A', img:'/mockups/youmatterrva/photography-placeholder.svg'}); })();
 var CATS = [['juice','Cold-pressed juice'],['smoothie','Smoothies'],['bowl','Smoothie bowls'],['food','Breakfast & food'],['soup','Soups'],['drink','Coffee, tea & cider'],['treat','Treats & wellness'],['cleanse','Juice cleanses']];
 function ink(h){var r=parseInt(h.substr(1,2),16),g=parseInt(h.substr(3,2),16),b=parseInt(h.substr(5,2),16);return (0.299*r+0.587*g+0.114*b)>150?'#2A1420':'#FFFFFF';}
 function money(n){return '$'+n.toFixed(2);}

@@ -29,3 +29,5 @@ The separate **Download brand sheet (PDF)** link downloads the matching PDF with
 Unlike the other client exports in this repo, none of these four concepts have a separate mobile export (all are fixed at a 1440px desktop preview), so there is no `device-view.js` and no Auto/Mobile/Desktop switcher here. Each concept has an **All options** link back to the cards via `review.css`'s shared banner styling. Keep each concept's `support.js`, `vendor`, and `assets` directories beside its HTML file.
 
 Ordering, cleanse bookings and sign-ups are local demonstrations. Sample forms validate required fields without placing orders, charging money or sending messages. Prices, hours and menu items are sample content tied to a future Square catalog integration, as described on the index page.
+
+Client review uses neutral photography placeholders throughout the websites, Instagram boards, ordering previews and concept cards while professional images are being prepared. The original food photos are not displayed; the shared placeholder is `photography-placeholder.svg`.

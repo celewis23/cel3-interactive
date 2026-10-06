@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <title>Professional photography coming soon</title>
+  <rect width="600" height="600" fill="#eae6df"/>
+  <g fill="none" stroke="#8b877f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M273 263l9-14h36l9 14h20a8 8 0 018 8v50a8 8 0 01-8 8h-94a8 8 0 01-8-8v-50a8 8 0 018-8z"/>
+    <circle cx="300" cy="293" r="20"/>
+  </g>
+  <text x="300" y="367" text-anchor="middle" fill="#68645e" font-family="Arial, sans-serif" font-size="21">Photography<tspan x="300" dy="28">coming soon</tspan></text>
+</svg>
