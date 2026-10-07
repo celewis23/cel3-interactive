@@ -1,20 +1,10 @@
-"use client";
-
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 
 // Multi-layered "software system" composition: a business-console browser
 // mock in back, a client-portal card and workflow map overlapping in front,
-// anchored by a live status block. All sizes are percentage-based so the
+// anchored by a illustrative status block. All sizes are percentage-based so the
 // stack scales down smoothly on small viewports.
 
-const layer = (delay: number) => ({
-  initial: { opacity: 0, y: 24 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.55, ease: "easeOut" as const, delay },
-});
-
-// Perpetual drift after the entrance — pure CSS animations (hero-float-y/x
+// Perpetual drift — pure CSS animations (hero-float-y/x
 // in globals.css) so the motion runs on the compositor thread and stays
 // fluid regardless of main-thread work. `phase` maps to a negative
 // animation-delay, starting each card mid-cycle so the stack drifts
@@ -305,27 +295,14 @@ function WorkflowCard() {
   );
 }
 
-// ── Anchor: live status block ─────────────────────────────────────────────────
-
-function clamp(n: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, n));
-}
+// ── Anchor: illustrative status block ─────────────────────────────────────────────────
 
 function StatusBlock() {
-  const [latency, setLatency] = useState(38);
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      setLatency((v) => Math.round(clamp(v + (Math.random() * 2 - 1) * 3, 28, 52)));
-    }, 2200);
-    return () => clearInterval(t);
-  }, []);
-
   return (
     <div className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-white/95 px-3 py-1.5 shadow-md backdrop-blur">
       <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
       <span className="text-[8px] uppercase tracking-wider text-neutral-500">
-        latency <span className="font-semibold text-neutral-800 tabular-nums">{latency}ms</span>
+        latency <span className="font-semibold text-neutral-800 tabular-nums">38ms</span>
       </span>
       <span className="text-[8px] uppercase tracking-wider text-neutral-500">
         uptime <span className="font-semibold text-neutral-800">99.98%</span>
@@ -341,30 +318,30 @@ function StatusBlock() {
 
 export function HeroShowcase() {
   return (
-    <div className="relative mx-auto w-full max-w-[600px] aspect-[10/9] sm:aspect-[6/5]">
-      <motion.div {...layer(0.1)} className="absolute right-0 top-0 z-10 w-[86%]">
+    <div aria-hidden="true" className="relative mx-auto w-full max-w-[600px] aspect-[10/9] sm:aspect-[6/5]">
+      <div className="absolute right-0 top-0 z-10 w-[86%]">
         <Float duration={10} distance={7}>
           <ConsoleMock />
         </Float>
-      </motion.div>
+      </div>
 
-      <motion.div {...layer(0.3)} className="absolute left-0 top-[36%] z-20 w-[44%] min-w-[168px]">
+      <div className="absolute left-0 top-[36%] z-20 w-[44%] min-w-[168px]">
         <Float duration={8} phase={2.6} distance={5} drift={3}>
           <PortalCard />
         </Float>
-      </motion.div>
+      </div>
 
-      <motion.div {...layer(0.45)} className="absolute bottom-[10%] right-[2%] z-30 w-[62%] min-w-[230px]">
+      <div className="absolute bottom-[10%] right-[2%] z-30 w-[62%] min-w-[230px]">
         <Float duration={9} phase={5.2} distance={6} drift={-3}>
           <WorkflowCard />
         </Float>
-      </motion.div>
+      </div>
 
-      <motion.div {...layer(0.6)} className="absolute bottom-0 right-[2%] z-30">
+      <div className="absolute bottom-0 right-[2%] z-30">
         <Float duration={7} phase={1.4} distance={4}>
           <StatusBlock />
         </Float>
-      </motion.div>
+      </div>
     </div>
   );
 }

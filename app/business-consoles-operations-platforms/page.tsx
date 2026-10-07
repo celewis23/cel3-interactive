@@ -1,14 +1,11 @@
-import type { Metadata } from "next";
+import { PageStructuredData } from "@/components/seo/StructuredData";
+import { publicPageMetadata } from "@/lib/seo/site";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
 import PillarLinks from "@/components/sections/PillarLinks";
 import SystemSignalBadge from "@/components/ui/SystemSignalBadge";
 
-export const metadata: Metadata = {
-  title: "Custom Business Consoles & Operations Platforms | CEL3 Interactive",
-  description:
-    "Custom backoffice systems for managing customers, bookings, payments, content, staff workflows, reporting, and AI-assisted operations.",
-};
+export const metadata = publicPageMetadata("/business-consoles-operations-platforms");
 
 const NEED_SIGNALS = [
   "Staff are jumping between too many tools",
@@ -66,6 +63,7 @@ function BulletGrid({ items }: { items: readonly string[] }) {
 export default function BusinessConsolesOperationsPlatformsPage() {
   return (
     <main className="bg-black min-h-screen pt-24 md:pt-28">
+      <PageStructuredData path="/business-consoles-operations-platforms" />
       <Container>
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">

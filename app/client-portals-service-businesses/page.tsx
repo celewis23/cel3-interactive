@@ -1,12 +1,9 @@
-import type { Metadata } from "next";
+import { PageStructuredData } from "@/components/seo/StructuredData";
+import { publicPageMetadata } from "@/lib/seo/site";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
 
-export const metadata: Metadata = {
-  title: "Client Portals & Business Platforms for Service Businesses | CEL3 Interactive",
-  description:
-    "Client portals, booking flows, dashboards, payment workflows, customer records, and AI-assisted admin tools for service businesses with disconnected operations.",
-};
+export const metadata = publicPageMetadata("/client-portals-service-businesses");
 
 const BUSINESS_TYPES = [
   "Wellness studios",
@@ -58,6 +55,7 @@ function BulletGrid({ items }: { items: readonly string[] }) {
 export default function ClientPortalsServiceBusinessesPage() {
   return (
     <main className="min-h-screen bg-black pt-24 text-white md:pt-28">
+      <PageStructuredData path="/client-portals-service-businesses" />
       <Container>
         <div className="mx-auto max-w-6xl px-4 pb-20">
           <section className="max-w-4xl">

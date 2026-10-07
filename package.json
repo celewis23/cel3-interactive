@@ -16,7 +16,8 @@
     "seed:biobox-case-study": "node scripts/seed-biobox-case-study.mjs",
     "test:documents": "node --test scripts/document-store.test.mjs scripts/gmail-oauth.test.mjs",
     "archive:activity": "node scripts/archive-activity-to-drive.mjs",
-    "test:email": "node --test scripts/email-media.test.mjs"
+    "test:email": "node --test scripts/email-media.test.mjs",
+    "test:seo": "node --test scripts/seo.test.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",

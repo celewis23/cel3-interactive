@@ -38,7 +38,7 @@ export default function SystemSignalBadge() {
     <div className="relative w-full md:w-[440px] lg:w-[520px] rounded-2xl border border-white/10 bg-black/30 backdrop-blur p-5 overflow-hidden">
       <div className="flex items-center justify-between">
         <div className="text-xs tracking-[0.25em] uppercase text-white/55">
-          System Signal
+          Platform example
         </div>
         <div className="text-[10px] tracking-[0.22em] uppercase text-white/45">
           CRM / Dashboards

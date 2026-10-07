@@ -1,14 +1,11 @@
-import type { Metadata } from "next";
+import { PageStructuredData } from "@/components/seo/StructuredData";
+import { publicPageMetadata } from "@/lib/seo/site";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
 import SystemSignalBadge from "@/components/ui/SystemSignalBadge";
 import PillarLinks from "@/components/sections/PillarLinks";
 
-export const metadata: Metadata = {
-  title: "AI-Assisted Workflows & Operations Systems | CEL3 Interactive",
-  description:
-    "Practical AI-assisted workflows that help teams summarize, draft, route, follow up, and report faster while keeping important actions human-approved.",
-};
+export const metadata = publicPageMetadata("/ai-enhanced-systems");
 
 const USE_CASES = [
   "Draft customer replies for review",
@@ -59,6 +56,7 @@ function BulletGrid({ items }: { items: readonly string[] }) {
 export default function Page() {
   return (
     <main className="bg-black min-h-screen pt-24 md:pt-28">
+      <PageStructuredData path="/ai-enhanced-systems" />
       <Container>
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">

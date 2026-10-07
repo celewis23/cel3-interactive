@@ -21,7 +21,7 @@ export function Logo({ href, className = "", onClick }: LogoProps) {
 
   const Content = (
     <motion.div
-      initial={{ opacity: 0, y: 4 }}
+      initial={false}
       animate={{
         opacity: 1,
         y: 0,
@@ -33,8 +33,10 @@ export function Logo({ href, className = "", onClick }: LogoProps) {
         className,
       ].join(" ")}
     >
+      <span className="sr-only">CEL3 Interactive</span>
       {/* CEL */}
       <motion.span
+        aria-hidden="true"
         className="font-semibold text-white text-base tracking-[-0.02em]"
         animate={{
           letterSpacing: activated ? "-0.03em" : "-0.02em",
@@ -49,6 +51,7 @@ export function Logo({ href, className = "", onClick }: LogoProps) {
 
       {/* 3 — accent + slightly larger */}
       <motion.span
+        aria-hidden="true"
         className="font-semibold text-[1.15em] leading-none text-[rgb(var(--accent))]"
         animate={{
           scale: activated ? 0.96 : 1,
@@ -64,6 +67,7 @@ export function Logo({ href, className = "", onClick }: LogoProps) {
 
       {/* INTERACTIVE — visible on mobile */}
       <motion.span
+        aria-hidden="true"
         className="text-white/75 text-[0.65rem] sm:text-xs uppercase tracking-[0.28em]"
         animate={{
           opacity: activated ? 0.55 : 0.65,
@@ -81,7 +85,7 @@ export function Logo({ href, className = "", onClick }: LogoProps) {
   // ✅ Only wrap in Link if href is provided
   if (href) {
     return (
-      <Link
+      <Link prefetch={false}
         href={href}
         aria-label="CEL3 Interactive home"
         onClick={onClick}

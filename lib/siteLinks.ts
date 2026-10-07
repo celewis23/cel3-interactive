@@ -9,6 +9,7 @@ export const NAV_LINKS: NavLink[] = [
 ];
 
 export const PILLAR_LINKS = [
+  { label: "Client Portals for Service Businesses", href: "/client-portals-service-businesses" },
   {
     label: "Business Consoles",
     href: "/business-consoles-operations-platforms",

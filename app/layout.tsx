@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/seo/site";
 import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -8,17 +9,20 @@ import WebAnalyticsTracker from "@/components/analytics/WebAnalyticsTracker";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+  preload: false,
 });
 
 
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.cel3interactive.com"),
+  metadataBase: new URL(SITE_URL),
   manifest: "/manifest.webmanifest",
   title: {
     default: "CEL3 Interactive",
@@ -44,7 +48,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-black text-white antialiased`}
       >
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-G1FLY7YQQB" strategy="afterInteractive" />
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-G1FLY7YQQB" strategy="lazyOnload" />
         <Script id="ga-init" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];

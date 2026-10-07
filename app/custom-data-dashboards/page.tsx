@@ -1,14 +1,11 @@
-import type { Metadata } from "next";
+import { PageStructuredData } from "@/components/seo/StructuredData";
+import { publicPageMetadata } from "@/lib/seo/site";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
 import SystemSignalBadge from "@/components/ui/SystemSignalBadge";
 import PillarLinks from "@/components/sections/PillarLinks";
 
-export const metadata: Metadata = {
-  title: "Custom CRMs, Dashboards & Reporting Systems | CEL3 Interactive",
-  description:
-    "Custom CRMs, customer records, dashboards, and reporting surfaces that turn scattered data into clear operational views your team can trust.",
-};
+export const metadata = publicPageMetadata("/custom-data-dashboards");
 
 const DEALING_WITH = [
   "Spreadsheets pretending to be CRMs",
@@ -61,6 +58,7 @@ function BulletGrid({ items }: { items: readonly string[] }) {
 export default function Page() {
   return (
     <main className="bg-black min-h-screen pt-24 md:pt-28">
+      <PageStructuredData path="/custom-data-dashboards" />
       <Container>
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">

@@ -88,7 +88,7 @@ export function NavBar() {
             {/* Desktop nav */}
             <nav className="hidden md:flex items-center gap-7">
               {links.map((l) => (
-                <Link
+                <Link prefetch={false}
                   key={l.href}
                   href={l.href}
                   className="text-sm text-white/70 hover:text-[rgb(var(--accent))]/100 transition-colors"
@@ -97,7 +97,7 @@ export function NavBar() {
                 </Link>
               ))}
 
-              <Link
+              <Link prefetch={false}
                 href="/#fit"
                 className="text-sm text-white border border-white/20 hover:bg-[rgb(var(--accent))]/100 rounded-full px-4 py-2 transition-colors"
               >
@@ -177,7 +177,7 @@ export function NavBar() {
 
                 <div className="mt-4 grid gap-2">
                   {links.map((l) => (
-                    <Link
+                    <Link prefetch={false}
                       key={l.href}
                       href={l.href}
                       onClick={() => setOpen(false)}
@@ -195,7 +195,7 @@ export function NavBar() {
                   ))}
                 </div>
 
-                <Link
+                <Link prefetch={false}
                   href="/#fit"
                   onClick={() => setOpen(false)}
                   className={[
