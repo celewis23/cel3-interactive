@@ -289,6 +289,19 @@ export default function RichTextEditor({
           </div>
         )}
 
+        {sourceMode && value && (
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => { lastEmitted.current = ""; onChange(""); }}
+            disabled={disabled}
+            title="Clear the HTML in this box"
+            className="rounded-lg px-2 py-1 text-xs text-white/40 transition-colors hover:text-red-300 disabled:opacity-50"
+          >
+            Clear
+          </button>
+        )}
+
         <div className="flex-1" />
 
         {templates && <EmailTemplatesMenu value={value} onApply={applyTemplate} disabled={disabled} />}

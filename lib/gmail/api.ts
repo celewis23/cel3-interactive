@@ -1,4 +1,5 @@
 import { buildRawMessage, htmlToPlainText, type MimeAttachment } from "./mime";
+import { inlineEmailCss } from "@/lib/email/inlineHtml";
 import { google } from "googleapis";
 import type { gmail_v1 } from "googleapis";
 import { getAuthenticatedClient } from "./client";
@@ -276,7 +277,7 @@ export async function sendEmail(opts: {
     from,
     subject: opts.subject,
     body: plainText,
-    htmlBody: opts.htmlBody,
+    htmlBody: opts.htmlBody ? inlineEmailCss(opts.htmlBody) : opts.htmlBody,
     cc: opts.cc,
     bcc: opts.bcc,
     attachments: opts.attachments,
@@ -309,7 +310,7 @@ export async function replyToThread(opts: {
     from,
     subject,
     body: opts.body,
-    htmlBody: opts.htmlBody,
+    htmlBody: opts.htmlBody ? inlineEmailCss(opts.htmlBody) : opts.htmlBody,
     cc: opts.cc,
     bcc: opts.bcc,
     inReplyTo: opts.inReplyTo,
