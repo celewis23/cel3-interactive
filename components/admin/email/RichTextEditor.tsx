@@ -10,6 +10,7 @@ import Color from "@tiptap/extension-color";
 import TextAlign from "@tiptap/extension-text-align";
 import Image from "@tiptap/extension-image";
 import { useState, useCallback, useEffect, useRef } from "react";
+import EmailTemplatesMenu from "./EmailTemplatesMenu";
 
 const TEXT_COLORS = [
   { label: "Default", value: "" },
@@ -72,6 +73,8 @@ interface Props {
   onAttachFiles?: (files: File[]) => void;
   onImagesLoading?: (loading: boolean) => void;
   disabled?: boolean;
+  /** Show the "Templates" picker for saving/reusing raw HTML snippets. */
+  templates?: boolean;
 }
 
 export default function RichTextEditor({
@@ -82,11 +85,14 @@ export default function RichTextEditor({
   editorHeight = "420px",
   unboxed = false,
   onAttachFiles, onImagesLoading, disabled = false,
+  templates = false,
 }: Props) {
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [sourceMode, setSourceMode] = useState(false);
+  const [sourceTab, setSourceTab] = useState<"code" | "preview">("code");
   const imageUploadRef = useRef<HTMLInputElement>(null);
   const [imageError, setImageError] = useState("");
   const [imagesLoading, setImagesLoading] = useState(false);
@@ -195,11 +201,32 @@ export default function RichTextEditor({
   useEffect(() => { editorHandle.current = editor; editor?.setEditable(!disabled); }, [editor, disabled]);
 
   // Accept resets, signatures and switching reply/forward without resetting the typing cursor.
+  // Skipped in source mode so raw HTML (custom templates) isn't lossily re-parsed through Tiptap's schema while editing it.
   useEffect(() => {
-    if (!editor || value === lastEmitted.current || value === editor.getHTML()) return;
+    if (!editor || sourceMode || value === lastEmitted.current || value === editor.getHTML()) return;
     lastEmitted.current = value;
     editor.commands.setContent(value, { emitUpdate: false });
-  }, [editor, value]);
+  }, [editor, value, sourceMode]);
+
+  function enterSourceMode() {
+    setSourceTab("code");
+    setSourceMode(true);
+  }
+
+  function exitSourceMode() {
+    if (editor) {
+      lastEmitted.current = value;
+      editor.commands.setContent(value, { emitUpdate: false });
+    }
+    setSourceMode(false);
+  }
+
+  function applyTemplate(html: string) {
+    lastEmitted.current = html;
+    onChange(html);
+    setSourceTab("code");
+    setSourceMode(true);
+  }
 
   const applyLink = useCallback(() => {
     if (!editor) return;
@@ -229,8 +256,48 @@ export default function RichTextEditor({
 
   return (
     <div className={unboxed ? "bg-[#090b10]" : "rounded-xl border border-white/10 bg-[#090b10] transition-colors focus-within:border-sky-400/50"}>
-      {/* Toolbar */}
-      <div className={`flex flex-wrap items-center gap-0.5 border-b border-white/8 bg-black px-2 py-1.5 ${unboxed ? "" : "rounded-t-xl"}`}>
+      {/* Mode row */}
+      <div className={`flex flex-wrap items-center gap-1.5 border-b border-white/8 bg-black px-2 py-1.5 ${unboxed ? "" : "rounded-t-xl"}`}>
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={sourceMode ? exitSourceMode : enterSourceMode}
+          title={sourceMode ? "Switch to rich text" : "Edit raw HTML"}
+          className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-black px-2.5 py-1 text-xs text-white/60 transition-colors hover:border-white/20 hover:text-white"
+        >
+          {sourceMode ? "Aa Rich text" : "</> Custom HTML"}
+        </button>
+
+        {sourceMode && (
+          <div className="flex items-center gap-0.5 rounded-lg border border-white/10 p-0.5">
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => setSourceTab("code")}
+              className={`rounded px-2 py-0.5 text-xs transition-colors ${sourceTab === "code" ? "bg-sky-400/15 text-sky-200" : "text-white/50 hover:text-white"}`}
+            >
+              Code
+            </button>
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => setSourceTab("preview")}
+              className={`rounded px-2 py-0.5 text-xs transition-colors ${sourceTab === "preview" ? "bg-sky-400/15 text-sky-200" : "text-white/50 hover:text-white"}`}
+            >
+              Preview
+            </button>
+          </div>
+        )}
+
+        <div className="flex-1" />
+
+        {templates && <EmailTemplatesMenu value={value} onApply={applyTemplate} disabled={disabled} />}
+      </div>
+
+      {/* Rich toolbar */}
+      {!sourceMode && (
+      <>
+      <div className="flex flex-wrap items-center gap-0.5 border-b border-white/8 bg-black px-2 py-1.5">
         {/* Text style */}
         <ToolbarBtn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")} title="Bold">
           <strong>B</strong>
@@ -465,6 +532,30 @@ export default function RichTextEditor({
           />
         </div>
       </div>
+      </>
+      )}
+
+      {sourceMode && (
+        <div className={`relative overflow-hidden ${unboxed ? "" : "rounded-b-xl"}`} style={{ height: editorHeight, minHeight }}>
+          {sourceTab === "code" ? (
+            <textarea
+              value={value}
+              onChange={(e) => { lastEmitted.current = e.target.value; onChange(e.target.value); }}
+              disabled={disabled}
+              placeholder="Paste full HTML (including <style> blocks) here…"
+              spellCheck={false}
+              className="h-full w-full resize-none bg-[#0b0d12] p-4 font-mono text-xs leading-relaxed text-sky-100 placeholder-white/25 outline-none"
+            />
+          ) : (
+            <iframe
+              srcDoc={value || "<p style=\"font-family:sans-serif;color:#888;padding:1rem;\">Nothing to preview yet.</p>"}
+              sandbox=""
+              title="Email preview"
+              className="h-full w-full border-0 bg-white"
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }
