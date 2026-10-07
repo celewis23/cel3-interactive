@@ -12,6 +12,7 @@ import {
   updateNewsletter,
 } from "@/lib/newsletters/db";
 import { buildNewsletterEmailHtml } from "@/lib/newsletters/render";
+import { inlineEmailCss } from "@/lib/email/inlineHtml";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 const FROM = process.env.RESEND_FROM_EMAIL ?? "CEL3 Interactive <noreply@cel3interactive.com>";
@@ -91,7 +92,7 @@ export async function publishNewsletter(
   if (sendEmail) {
     const latest = await getNewsletterById(newsletterId);
     if (!latest) throw new Error("Newsletter not found after publish");
-    const html = buildNewsletterEmailHtml(latest);
+    const html = inlineEmailCss(buildNewsletterEmailHtml(latest));
 
     for (const recipient of recipients) {
       try {

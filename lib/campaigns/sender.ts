@@ -9,6 +9,7 @@ import {
   markCampaignFailed,
   updateCampaign,
 } from "@/lib/campaigns/db";
+import { inlineEmailCss } from "@/lib/email/inlineHtml";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://cel3interactive.com";
@@ -177,7 +178,7 @@ export async function sendCampaign(campaignId: string): Promise<{ sentCount: num
         recipientId: recipient.id,
       });
 
-      const html = buildEmailHtml(campaign.subject, campaign.bodyHtml, send.trackToken);
+      const html = inlineEmailCss(buildEmailHtml(campaign.subject, campaign.bodyHtml, send.trackToken));
 
       await resend.emails.send({
         from: FROM,
