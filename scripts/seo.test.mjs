@@ -11,13 +11,13 @@ function load(path, dependencies = {}) {
   const { outputText } = ts.transpileModule(readFileSync(path, "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   });
-  const module = { exports: {} };
+  const loaded = { exports: {} };
   runInThisContext(`(function(require,module,exports){${outputText}\n})`, { filename: path })(name => {
     if (Object.hasOwn(dependencies, name)) return dependencies[name];
     if (name === "next/server") return require(name);
     throw new Error(`Unexpected dependency: ${name}`);
-  }, module, module.exports);
-  return module.exports;
+  }, loaded, loaded.exports);
+  return loaded.exports;
 }
 const site = load("lib/seo/site.ts");
 const schema = load("lib/seo/schema.ts", { "./site": site });
