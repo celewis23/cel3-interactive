@@ -727,7 +727,7 @@ export default function NewslettersClient() {
                   ) : (
                     <>
                       {activeSection === "body" && (
-                        <RichTextEditor key="newsletter-body" value={draft.bodyHtml} onChange={(bodyHtml) => setDraft((d) => ({ ...d, bodyHtml }))} placeholder="Write the main newsletter body..." editorHeight="min(52vh, 520px)" minHeight="320px" />
+                        <RichTextEditor key="newsletter-body" value={draft.bodyHtml} onChange={(bodyHtml) => setDraft((d) => ({ ...d, bodyHtml }))} placeholder="Write the main newsletter body..." editorHeight="min(52vh, 520px)" minHeight="320px" templates />
                       )}
                       {activeSection === "header" && (
                         <RichTextEditor key="newsletter-header" value={draft.headerHtml} onChange={(headerHtml) => setDraft((d) => ({ ...d, headerHtml }))} placeholder="Build the newsletter header..." editorHeight="320px" minHeight="220px" />

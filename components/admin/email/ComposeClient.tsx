@@ -345,6 +345,7 @@ export default function ComposeClient({ initialTo = "" }: Props) {
           minHeight="420px"
           editorHeight="clamp(420px, calc(100vh - 26rem), 640px)"
           unboxed
+          templates
         />
       </div>
 
