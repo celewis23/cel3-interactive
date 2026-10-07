@@ -10,6 +10,8 @@ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
   display: "swap",
+  // The default public body uses the system font; load Geist only where used.
+  preload: false,
 });
 
 const geistMono = Geist_Mono({

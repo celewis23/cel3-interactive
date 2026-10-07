@@ -1,0 +1,15 @@
+{
+  "route": "/",
+  "time": "2026-10-07T03:36:13.281Z",
+  "lighthouseVersion": "12.8.2",
+  "performance": 0.75,
+  "lcp": 1982.5124775,
+  "cls": 0.0001023788545482773,
+  "tbt": 1097,
+  "fcp": 1724.5124775,
+  "bytes": 440076,
+  "warnings": [],
+  "fontRequests": 0,
+  "deployment": "dpl_DvxCS3uTiwLrheifwCgE2swDYN8u",
+  "preview": "https://cel3-interactive-4ovye5ass-cls-projects-d55444a4.vercel.app"
+}

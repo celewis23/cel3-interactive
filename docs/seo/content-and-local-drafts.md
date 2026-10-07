@@ -23,6 +23,8 @@ The page inventory and NAP report cover the publicly reachable website. Customer
 
 These are questions supported by public first-person discussions and observed search-result topics, followed by editorial hypotheses to validate. They are **not** a Search Console export, keyword-volume estimate, or proof of demand among CEL3 customers. No private search analytics were available. Search results also mix Richmond in Virginia, British Columbia and the UK; confirm the intended geography before publishing a local landing page.
 
+Google autocomplete was also fetched during the audit. Suggestions included “custom web application development cost”, “what is a client portal”, “business dashboard examples”, “web design richmond va”, and “ai workflow automation for small business”. These support the cost, portal explainer, dashboard examples, local-service and AI-workflow topics below. They are observed search suggestions, not volume or ranking estimates. See [recorded suggestions](./2026-10-06-search-suggestions.json).
+
 | Evidence | Observed concern | Gap in current CEL3 content |
 |---|---|---|
 | [Small business owner asking how to commission custom software](https://www.reddit.com/r/smallbusiness/comments/12a1rlf) | Where to start and what it costs | The audit answers where to start; project cost drivers, ownership and ongoing costs remain unclear |
