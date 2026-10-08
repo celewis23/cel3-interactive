@@ -1,5 +1,7 @@
+import MarketingImage from "@/components/seo/MarketingImage";
+import { PageStructuredData } from "@/components/seo/StructuredData";
+import { publicPageMetadata } from "@/lib/seo/site";
 import Link from "next/link";
-import { Metadata } from "next";
 import { sanityServer } from "@/lib/sanityServer";
 import { urlFor } from "@/lib/sanity.image";
 import { allWorkQuery } from "@/lib/sanity.queries";
@@ -7,11 +9,7 @@ import { getWorkHeroFallback } from "@/lib/workFallbacks";
 import { getWorkCaseStudyFallback } from "@/lib/workCaseStudies";
 import { workCatalogSections, type WorkCatalogProject } from "@/lib/workCatalog";
 
-export const metadata: Metadata = {
-  title: "Work by Platform Type | CEL3 Interactive",
-  description:
-    "Explore CEL3 Interactive work across web apps, mobile app experiences, SaaS projects, websites, and digital business systems.",
-};
+export const metadata = publicPageMetadata("/work");
 
 export const revalidate = 60;
 
@@ -136,10 +134,13 @@ function ProjectCard({ project, index }: { project: DisplayProject; index: numbe
     <>
       <div className="relative aspect-[16/10] overflow-hidden border-b border-white/10 bg-black/40">
         {project.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <MarketingImage
             src={project.imageUrl}
             alt={project.title}
+            width={800}
+            height={500}
+            sizes="(min-width: 1024px) 360px, (min-width: 768px) 45vw, 92vw"
+            loading="lazy"
             className="h-full w-full object-cover opacity-90 transition duration-500 group-hover:scale-[1.03] group-hover:opacity-100"
           />
         ) : (
@@ -192,7 +193,7 @@ function ProjectCard({ project, index }: { project: DisplayProject; index: numbe
 
   if (project.caseStudySlug) {
     return (
-      <Link
+      <Link prefetch={false}
         href={`/work/${project.caseStudySlug}`}
         className="group block overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] transition-colors hover:border-sky-300/28 hover:bg-white/[0.065]"
       >
@@ -218,6 +219,7 @@ export default async function WorkIndexPage() {
 
   return (
     <main className="min-h-screen bg-black text-white">
+      <PageStructuredData path="/work" />
       <div className="mx-auto max-w-7xl px-4 pt-24 pb-16">
         <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-end">
           <div>
@@ -254,7 +256,7 @@ export default async function WorkIndexPage() {
                 <p className="text-xs tracking-[0.25em] uppercase text-white/50">Featured</p>
                 <h2 className="mt-2 text-2xl font-semibold text-white">Cross-section of the work</h2>
               </div>
-              <Link
+              <Link prefetch={false}
                 href="/build-your-platform"
                 className="inline-flex w-fit rounded-full border border-sky-300/30 bg-sky-300/10 px-4 py-2 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-300 hover:text-black"
               >
@@ -315,7 +317,7 @@ export default async function WorkIndexPage() {
                 and business workflows that belong in your first build.
               </p>
             </div>
-            <Link
+            <Link prefetch={false}
               href="/build-your-platform"
               className="inline-flex rounded-full bg-sky-300 px-5 py-3 text-sm font-semibold text-black transition-colors hover:bg-sky-200"
             >

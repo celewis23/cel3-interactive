@@ -7,6 +7,7 @@ type Pillar = {
 };
 
 const PILLARS: Pillar[] = [
+  { label: "Client Portals for Service Businesses", href: "/client-portals-service-businesses", desc: "Client accounts, booking flows, files, payments, and staff dashboards for service businesses." },
   {
     label: "Business Consoles & Operations Platforms",
     href: "/business-consoles-operations-platforms",
@@ -61,7 +62,7 @@ export default function PillarLinks({
 
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-3">
         {related.map((p) => (
-          <Link
+          <Link prefetch={false}
             key={p.href}
             href={p.href}
             className="group rounded-xl border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10"

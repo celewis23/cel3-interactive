@@ -7,6 +7,14 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/mockups": ["./app/mockups/access.html", "./app/mockups/directory.html"],
   },
+  async redirects() {
+    return [{ source: "/:path*", has: [{ type: "host", value: "www.cel3interactive.com" }], destination: "https://cel3interactive.com/:path*", statusCode: 301 }];
+  },
+  async headers() {
+    return ["/admin/:path*", "/api/:path*", "/portal/:path*", "/forms/:path*", "/contracts/:path*", "/estimates/:path*", "/downloads/:path*", "/mockups/:path*", "/site-suspended", "/assessment/success"].map(source => ({
+      source, headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }],
+    }));
+  },
   async rewrites() {
     return [
       { source: "/mockups/index.html", destination: "/mockups" },

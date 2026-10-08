@@ -1,11 +1,9 @@
+import { PageStructuredData } from "@/components/seo/StructuredData";
+import { publicPageMetadata } from "@/lib/seo/site";
 import Link from "next/link";
 import AssessmentPaymentCard from "@/components/assessment/AssessmentPayCard";
 
-export const metadata = {
-  title: "Digital Systems Audit | CEL3 Interactive",
-  description:
-    "Book a $150 Digital Systems Audit to review your website, tools, workflows, customer journey, admin bottlenecks, and opportunities for automation or custom platform development.",
-};
+export const metadata = publicPageMetadata("/assessment");
 
 const REVIEW_ITEMS = [
   "Your current website and customer journey",
@@ -50,6 +48,7 @@ function BulletGrid({ items }: { items: readonly string[] }) {
 export default function AssessmentPage() {
   return (
     <main className="min-h-screen bg-black text-white">
+      <PageStructuredData path="/assessment" />
       <section className="mx-auto max-w-6xl px-6 py-16 md:py-20">
         <div className="space-y-4">
           <Link href="/" className="text-sm text-white/35 transition-colors hover:text-white">
