@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>E&amp;J Piano — Black &amp; White Keys</title>
 <script src="/mockups/ej-piano/vendor/react.js"></script>
 <script src="/mockups/ej-piano/vendor/react-dom.js"></script>
@@ -17,6 +18,17 @@ body{margin:0}
 a{color:#0E0E0E}a:hover{color:#B42D16}
 </style>
 </helmet>
+<div style="background:#111318;color:#fff;font:14px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<div style="max-width:1280px;margin:0 auto;padding:10px 20px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px">
+<a href="/mockups/ej-piano/" style="color:#fff;text-decoration:underline;font-weight:700;white-space:nowrap">&larr; All options</a>
+<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+<div style="display:flex;gap:4px"><a href="/mockups/ej-piano/a/site.dc.html" style="color:#fff;opacity:.72;text-decoration:none;padding:2px 8px;border-radius:999px">A</a><span aria-current="true" style="color:#fff;font-weight:800;text-decoration:none;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.18)">B</span><a href="/mockups/ej-piano/c/site.dc.html" style="color:#fff;opacity:.72;text-decoration:none;padding:2px 8px;border-radius:999px">C</a></div>
+<span style="opacity:.85;white-space:nowrap">Concept B &middot; Black &amp; White Keys &middot; Website</span>
+</div>
+</div>
+<div style="max-width:1280px;margin:0 auto;padding:0 20px 10px;font-size:12px;opacity:.65">Design concept. Anything in [brackets] is a placeholder for real details.</div>
+</div>
+
 <div style="background: #FFFFFF; color: #0E0E0E; font-family: 'IBM Plex Sans', sans-serif; font-size: 17px; line-height: 1.6">
 
 <header style="border-bottom: 1px solid #0E0E0E">
@@ -34,7 +46,7 @@ a{color:#0E0E0E}a:hover{color:#B42D16}
 </header>
 
 <section id="top" style="background: #0E0E0E; color: #FFFFFF; position: relative; overflow: hidden">
-<video src="/mockups/ej-piano/media/video/site-b-hero-loop-STOCK-PREVIEW-REPLACE.mp4" poster="/mockups/ej-piano/media/video/posters/site-b-hero-loop.jpg" autoplay muted loop playsinline aria-hidden="true" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; display: block"></video>
+<video id="hero-loop-video" src="/mockups/ej-piano/media/video/site-b-hero-loop-STOCK-PREVIEW-REPLACE.mp4" poster="/mockups/ej-piano/media/video/posters/site-b-hero-loop.jpg" autoplay muted loop playsinline aria-hidden="true" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; display: block"></video>
 <div aria-hidden="true" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(14,14,14,0.78) 0%, rgba(14,14,14,0.62) 45%, rgba(14,14,14,0.9) 100%)"></div>
 <div style="position: relative; max-width: 1280px; margin: 0 auto; padding: 96px 32px 0">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 32px; align-items: flex-end">
@@ -291,6 +303,23 @@ class Component extends DCLogic {
     };
   }
 }
+</script>
+<script>
+(function () {
+  var video = document.getElementById('hero-loop-video');
+  if (!video) return;
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) { video.removeAttribute('autoplay'); video.pause(); return; }
+  // The piano keyboard sits in this same section and re-renders on every key press;
+  // depending on how the page's templating runtime reconciles the DOM, that can pause
+  // or reset this video even though it's muted/looping. Keep it playing regardless of why
+  // it stopped, rather than relying on the browser to never interrupt it.
+  video.addEventListener('pause', function () { if (!reduceMotion) video.play().catch(function () {}); });
+  setInterval(function () {
+    var current = document.getElementById('hero-loop-video');
+    if (current && current.paused) current.play().catch(function () {});
+  }, 1500);
+})();
 </script>
 </body>
 </html>

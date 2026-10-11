@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>E&amp;J Piano — Concert Hall</title>
 <script src="/mockups/ej-piano/vendor/react.js"></script>
 <script src="/mockups/ej-piano/vendor/react-dom.js"></script>
@@ -15,8 +16,28 @@
 <style>
 body{margin:0}
 a{color:#14213D}a:hover{color:#8A6516}
+@media (max-width: 767px) {
+  .nav-toggle{display:flex!important}
+  #nav-links{display:none!important;width:100%;flex-direction:column;align-items:flex-start!important;gap:4px!important;order:3;padding-top:12px}
+  #nav-links.open{display:flex!important}
+  #nav-links a{padding:10px 0;width:100%}
+}
+@media (max-width: 480px) {
+  section#top{padding:56px 20px 40px!important}
+}
 </style>
 </helmet>
+<div style="background:#111318;color:#fff;font:14px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<div style="max-width:1280px;margin:0 auto;padding:10px 20px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px">
+<a href="/mockups/ej-piano/" style="color:#fff;text-decoration:underline;font-weight:700;white-space:nowrap">&larr; All options</a>
+<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+<div style="display:flex;gap:4px"><span aria-current="true" style="color:#fff;font-weight:800;text-decoration:none;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.18)">A</span><a href="/mockups/ej-piano/b/site.dc.html" style="color:#fff;opacity:.72;text-decoration:none;padding:2px 8px;border-radius:999px">B</a><a href="/mockups/ej-piano/c/site.dc.html" style="color:#fff;opacity:.72;text-decoration:none;padding:2px 8px;border-radius:999px">C</a></div>
+<span style="opacity:.85;white-space:nowrap">Concept A &middot; Concert Hall &middot; Website</span>
+</div>
+</div>
+<div style="max-width:1280px;margin:0 auto;padding:0 20px 10px;font-size:12px;opacity:.65">Design concept. Anything in [brackets] is a placeholder for real details.</div>
+</div>
+
 <div style="background: #FBF8F1; color: #14213D; font-family: 'Karla', sans-serif; font-size: 17px; line-height: 1.6">
 
 <header style="border-bottom: 1px solid #E6DFD0">
@@ -25,7 +46,10 @@ a{color:#14213D}a:hover{color:#8A6516}
 <span style="width: 46px; height: 46px; border-radius: 50%; background: #14213D; color: #E9C46A; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 20px">E&amp;J</span>
 <span style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: #14213D; line-height: 1.1">E&amp;J Piano<br><span style="font-size: 15px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase">&amp; Music Studio</span></span>
 </a>
-<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 28px; font-size: 15px; font-weight: 500">
+<button type="button" class="nav-toggle" aria-expanded="{{navOpen}}" aria-controls="nav-links" onClick="{{toggleNav}}" style="display: none; width: 44px; height: 44px; border: 1.5px solid #14213D; border-radius: 10px; background: #FFFFFF; cursor: pointer; align-items: center; justify-content: center">
+<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14213D" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"></path></svg>
+</button>
+<div id="nav-links" class="{{navLinksClass}}" style="display: flex; flex-wrap: wrap; align-items: center; gap: 28px; font-size: 15px; font-weight: 500">
 <a href="#lessons" style="text-decoration: none">Lessons</a>
 <a href="#students" style="text-decoration: none">Students</a>
 <a href="#app" style="text-decoration: none">Studio App</a>
@@ -40,7 +64,7 @@ a{color:#14213D}a:hover{color:#8A6516}
 <section id="top" style="max-width: 1200px; margin: 0 auto; padding: 88px 32px 64px; display: flex; flex-wrap: wrap; gap: 56px; align-items: center">
 <div style="flex: 1 1 480px; min-width: 0">
 <div style="font-size: 14px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #8A6516">Private piano lessons · In studio &amp; live online</div>
-<h1 style="margin: 18px 0 22px; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 78px; line-height: 1.02; letter-spacing: -0.01em">Where young musicians find their <em style="font-style: italic; color: #8A6516">voice.</em></h1>
+<h1 style="margin: 18px 0 22px; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: clamp(40px, 8vw, 78px); line-height: 1.02; letter-spacing: -0.01em">Where young musicians find their <em style="font-style: italic; color: #8A6516">voice.</em></h1>
 <p style="margin: 0 0 32px; font-size: 19px; color: #4A5062; max-width: 520px">E&amp;J Piano and Music Studio teaches 20+ students, in the studio and over live video, with practice plans, lesson notes and family updates in one app.</p>
 <div style="display: flex; flex-wrap: wrap; gap: 14px">
 <a href="#contact" style="text-decoration: none; background: #14213D; color: #FBF8F1; padding: 16px 28px; border-radius: 999px; font-weight: 700">Book a trial lesson</a>
@@ -71,7 +95,7 @@ a{color:#14213D}a:hover{color:#8A6516}
 </div>
 </div>
 
-<section style="max-width: 1200px; margin: 0 auto; padding: 56px 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 32px">
+<section style="max-width: 1200px; margin: 0 auto; padding: 56px 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 32px">
 <div><div style="font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 600; line-height: 1">20+</div><div style="color: #4A5062">students learning every week</div></div>
 <div><div style="font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 600; line-height: 1">2 ways</div><div style="color: #4A5062">to learn: in the studio or live on video</div></div>
 <div><div style="font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 600; line-height: 1">1 app</div><div style="color: #4A5062">for practice, messages and tuition</div></div>
@@ -83,7 +107,7 @@ a{color:#14213D}a:hover{color:#8A6516}
 <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 56px; line-height: 1.05; max-width: 560px">Lessons shaped around each student</h2>
 <p style="margin: 0; color: #4A5062; max-width: 420px">Every student gets a plan for their level, notes from every lesson and practice assignments they can open at home.</p>
 </div>
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 24px">
 <article style="border: 1px solid #E6DFD0; border-radius: 16px; padding: 32px; background: #FBF8F1">
 <svg aria-hidden="true" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#8A6516" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1.5"></rect><path d="M7 5v8M11 5v8M15 5v8M7 19v-6M11 19v-6M15 19v-6"></path></svg>
 <h3 style="margin: 18px 0 8px; font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600">Private piano</h3>
@@ -106,7 +130,7 @@ a{color:#14213D}a:hover{color:#8A6516}
 <section id="students" style="max-width: 1200px; margin: 0 auto; padding: 96px 32px">
 <div style="font-size: 14px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #8A6516">Student spotlight</div>
 <h2 style="margin: 10px 0 40px; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 56px; line-height: 1.05">Recitals, firsts &amp; proud moments</h2>
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); gap: 24px">
 <sc-for list="{{spotlight}}" as="s" hint-placeholder-count="4">
 <figure style="margin: 0">
 <div style="aspect-ratio: 4 / 5; background: #14213D; border-radius: 14px; position: relative; display: flex; align-items: center; justify-content: center">
@@ -133,7 +157,7 @@ a{color:#14213D}a:hover{color:#8A6516}
 <div style="font-size: 14px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #E9C46A">The E&amp;J studio app</div>
 <h2 style="margin: 12px 0 20px; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 58px; line-height: 1.04">The whole studio, in your pocket</h2>
 <p style="margin: 0 0 36px; color: #C9CFDB; max-width: 480px">Families get one place to see what their child is practicing, talk with their teacher, join online lessons and pay tuition.</p>
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 28px">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); gap: 28px">
 <div><div style="font-weight: 700; font-size: 18px; margin-bottom: 4px">Practice assignments</div><div style="color: #C9CFDB; font-size: 15px">Demo videos and checklists for every piece.</div></div>
 <div><div style="font-weight: 700; font-size: 18px; margin-bottom: 4px">Studio feed</div><div style="color: #C9CFDB; font-size: 15px">Recital clips, wins and studio news.</div></div>
 <div><div style="font-weight: 700; font-size: 18px; margin-bottom: 4px">Direct messages</div><div style="color: #C9CFDB; font-size: 15px">Reschedule or ask a question in seconds.</div></div>
@@ -142,7 +166,7 @@ a{color:#14213D}a:hover{color:#8A6516}
 <a href="#login" style="display: inline-block; margin-top: 40px; text-decoration: none; background: #E9C46A; color: #14213D; padding: 16px 28px; border-radius: 999px; font-weight: 700">Open the family app</a>
 </div>
 <div style="flex: 0 1 320px; margin: 0 auto">
-<div style="width: 300px; height: 600px; border-radius: 44px; background: #0B1428; border: 10px solid #24324F; box-sizing: border-box; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<div style="width: 300px; max-width: 100%; height: 600px; border-radius: 44px; background: #0B1428; border: 10px solid #24324F; box-sizing: border-box; padding: 18px; display: flex; flex-direction: column; gap: 12px">
 <div style="font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: #FBF8F1">This week</div>
 <div style="background: #FBF8F1; color: #14213D; border-radius: 14px; padding: 14px"><div style="font-size: 12px; font-weight: 700; letter-spacing: 0.1em; color: #8A6516">DUE TUESDAY</div><div style="font-weight: 700">Minuet in G, mm. 1–16</div><div style="height: 6px; background: #E6DFD0; border-radius: 3px; margin-top: 10px"><div style="width: 60%; height: 6px; background: #8A6516; border-radius: 3px"></div></div></div>
 <div style="background: #FBF8F1; color: #14213D; border-radius: 14px; padding: 14px"><div style="font-size: 12px; font-weight: 700; letter-spacing: 0.1em; color: #8A6516">DAILY</div><div style="font-weight: 700">C major scale, 2 octaves</div></div>
@@ -190,7 +214,7 @@ a{color:#14213D}a:hover{color:#8A6516}
 <p style="margin: 0 0 28px; color: #4A5062">Tell us a little about your student and we will find a time that works.</p>
 <div style="color: #4A5062; font-size: 16px">[Studio address]<br>[Phone] · [Email]</div>
 </div>
-<form style="flex: 1 1 480px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px">
+<form style="flex: 1 1 480px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 18px">
 <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Parent name<input type="text" style="font: inherit; font-weight: 400; padding: 14px; border: 1px solid #CFC6B3; border-radius: 10px; background: #FFFFFF"></label>
 <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Email<input type="email" style="font: inherit; font-weight: 400; padding: 14px; border: 1px solid #CFC6B3; border-radius: 10px; background: #FFFFFF"></label>
 <label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Student age<input type="text" style="font: inherit; font-weight: 400; padding: 14px; border: 1px solid #CFC6B3; border-radius: 10px; background: #FFFFFF"></label>
@@ -210,8 +234,16 @@ a{color:#14213D}a:hover{color:#8A6516}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4460}}'>
 class Component extends DCLogic {
-  constructor(props) { super(props); this.state = { active: null }; }
-  componentWillUnmount() { clearTimeout(this.t); for (var k in (this.ptrs || {})) { if (this.ptrs[k].v) this.ptrs[k].v.release(); } if (this.ctx) { try { this.ctx.close(); } catch (e) {} } }
+  constructor(props) { super(props); this.state = { active: null, navOpen: false, octaves: this.octavesForWidth(3) }; }
+  componentDidMount() { this.onResize = () => this.setState({ octaves: this.octavesForWidth(3) }); window.addEventListener('resize', this.onResize); }
+  componentWillUnmount() { clearTimeout(this.t); if (this.onResize) window.removeEventListener('resize', this.onResize); for (var k in (this.ptrs || {})) { if (this.ptrs[k].v) this.ptrs[k].v.release(); } if (this.ctx) { try { this.ctx.close(); } catch (e) {} } }
+  octavesForWidth(desktop) {
+    var w = typeof window !== 'undefined' ? window.innerWidth : 1440;
+    if (w < 480) return 1.5;
+    if (w < 768) return Math.min(desktop, 2.5);
+    return desktop;
+  }
+  toggleNav() { this.setState({ navOpen: !this.state.navOpen }); }
   audio() {
     var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
     if (!this.ctx) {
@@ -310,11 +342,12 @@ class Component extends DCLogic {
     return { whites: whites, blacks: blacks };
   }
   renderVals() {
-    var kb = this.keys(48, 3, function (pc, white, on) {
+    var kb = this.keys(48, this.state.octaves, function (pc, white, on) {
       return white ? { bg: on ? '#E9C46A' : '#FFFFFF' } : { bg: on ? '#8A6516' : '#14213D' };
     });
     return {
       pdown: (e) => this.pDown(e), pmove: (e) => this.pMove(e), pup: (e) => this.pUp(e), noMenu: (e) => e.preventDefault(),
+      navOpen: this.state.navOpen, navLinksClass: this.state.navOpen ? 'open' : '', toggleNav: () => this.toggleNav(),
       whites: kb.whites,
       blacks: kb.blacks,
       spotlight: [

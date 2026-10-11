@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>E&amp;J Piano — Website Design Mockup Proposal by CEL3 Interactive</title>
 <script src="/mockups/ej-piano/vendor/react.js"></script>
 <script src="/mockups/ej-piano/vendor/react-dom.js"></script>
@@ -15,6 +16,11 @@
 <style>
 body{margin:0}
 a{color:#14213D}a:hover{color:#8A6516}
+@media (max-width: 480px) {
+  header{padding:40px 20px 28px!important;gap:24px!important}
+  main{padding:0 20px 32px!important}
+  section > div[style*="padding: 28px 32px"]{padding:20px!important}
+}
 </style>
 </helmet>
 <div style="min-height: 100vh; background: #F7F5F0; color: #1A1A1A; font-family: 'Karla', sans-serif; font-size: 16px; line-height: 1.55">
@@ -23,18 +29,18 @@ a{color:#14213D}a:hover{color:#8A6516}
 <img src="/mockups/ej-piano/media/images/teacher-portrait.jpg" alt="The teacher at E&amp;J Piano and Music Studio" style="width: 132px; height: 132px; border-radius: 50%; object-fit: cover; object-position: 50% 28%; display: block; flex: 0 0 auto">
 <div style="flex: 1 1 520px; min-width: 0">
 <div style="font-size: 13px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #6B6455">Website Design Mockup Proposal</div>
-<h1 style="margin: 8px 0 6px; font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 60px; line-height: 1.02">E&amp;J Piano and Music Studio</h1>
+<h1 style="margin: 8px 0 6px; font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: clamp(34px, 7vw, 60px); line-height: 1.02">E&amp;J Piano and Music Studio</h1>
 <div style="margin: 0 0 14px; font-size: 17px; color: #1A1A1A">Prepared by <strong>CEL3 Interactive</strong> · October 2026</div>
 <p style="margin: 0; color: #4A4A4A; max-width: 680px">Three design directions for the studio. Each one comes with a website, a family &amp; student app, and a studio dashboard for running lessons, notes, messages and tuition. Pick a direction below and click through it.</p>
 </div>
 </header>
 
-<main style="max-width: 1240px; margin: 0 auto; padding: 0 32px 48px; display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 28px">
+<main style="max-width: 1240px; margin: 0 auto; padding: 0 32px 48px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 28px">
 
 <section style="background: #FBF8F1; border: 1px solid #E6DFD0; border-radius: 22px; overflow: hidden; display: flex; flex-direction: column">
 <div style="background: #14213D; color: #FBF8F1; padding: 28px; position: relative">
 <div style="font-size: 12px; font-weight: 700; letter-spacing: 0.16em; color: #E9C46A">DIRECTION A</div>
-<h2 style="margin: 6px 0 4px; font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 40px; line-height: 1.05">Concert Hall</h2>
+<h2 style="margin: 6px 0 4px; font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: clamp(28px, 6vw, 40px); line-height: 1.05">Concert Hall</h2>
 <div style="color: #C9CFDB">Warm, classic and elegant. Navy, gold and ivory with serif headings.</div>
 <div aria-hidden="true" style="display: flex; gap: 8px; margin-top: 18px"><span style="width: 28px; height: 28px; border-radius: 50%; background: #14213D; border: 2px solid #FBF8F1"></span><span style="width: 28px; height: 28px; border-radius: 50%; background: #E9C46A"></span><span style="width: 28px; height: 28px; border-radius: 50%; background: #8A6516"></span><span style="width: 28px; height: 28px; border-radius: 50%; background: #FBF8F1"></span></div>
 </div>
@@ -50,7 +56,7 @@ a{color:#14213D}a:hover{color:#8A6516}
 <section style="background: #FFFFFF; border: 2px solid #0E0E0E; overflow: hidden; display: flex; flex-direction: column; font-family: 'IBM Plex Sans', sans-serif">
 <div style="background: #0E0E0E; color: #FFFFFF; padding: 28px">
 <div style="font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.16em; color: #FF6A4D">DIRECTION B</div>
-<h2 style="margin: 6px 0 4px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 40px; line-height: 1.05; letter-spacing: -0.03em">Black &amp; White Keys</h2>
+<h2 style="margin: 6px 0 4px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(28px, 6vw, 40px); line-height: 1.05; letter-spacing: -0.03em">Black &amp; White Keys</h2>
 <div style="color: #BDBDBD">Modern and bold. High-contrast black and white with one red accent.</div>
 <div aria-hidden="true" style="display: flex; height: 28px; margin-top: 18px; width: 196px"><span style="flex: 1; background: #FFFFFF; border-right: 2px solid #0E0E0E"></span><span style="flex: 1; background: #FFFFFF; border-right: 2px solid #0E0E0E"></span><span style="flex: 1; background: #D9381E; border-right: 2px solid #0E0E0E"></span><span style="flex: 1; background: #FFFFFF; border-right: 2px solid #0E0E0E"></span><span style="flex: 1; background: #FFFFFF; border-right: 2px solid #0E0E0E"></span><span style="flex: 1; background: #FFFFFF; border-right: 2px solid #0E0E0E"></span><span style="flex: 1; background: #FFFFFF"></span></div>
 </div>
@@ -66,7 +72,7 @@ a{color:#14213D}a:hover{color:#8A6516}
 <section style="background: #FFF9EC; border: 2px solid #1D2340; border-radius: 30px; overflow: hidden; display: flex; flex-direction: column; font-family: 'Nunito', sans-serif; box-shadow: 0 8px 0 #1D2340">
 <div style="background: #FFC93C; color: #1D2340; padding: 28px; border-bottom: 2px solid #1D2340">
 <div style="font-size: 12px; font-weight: 800; letter-spacing: 0.16em; color: #1D2340">DIRECTION C</div>
-<h2 style="margin: 6px 0 4px; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 40px; line-height: 1.05">Bright &amp; Playful</h2>
+<h2 style="margin: 6px 0 4px; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: clamp(28px, 6vw, 40px); line-height: 1.05">Bright &amp; Playful</h2>
 <div>Fun and friendly, made for kids and families. Sunny yellow, bright blue, rounded shapes.</div>
 <div aria-hidden="true" style="display: flex; gap: 8px; margin-top: 18px"><span style="width: 28px; height: 28px; border-radius: 50%; background: #E8503F; border: 2px solid #1D2340"></span><span style="width: 28px; height: 28px; border-radius: 50%; background: #F28C28; border: 2px solid #1D2340"></span><span style="width: 28px; height: 28px; border-radius: 50%; background: #1F8A5B; border: 2px solid #1D2340"></span><span style="width: 28px; height: 28px; border-radius: 50%; background: #2552C9; border: 2px solid #1D2340"></span><span style="width: 28px; height: 28px; border-radius: 50%; background: #6C4AB6; border: 2px solid #1D2340"></span></div>
 </div>
@@ -81,7 +87,7 @@ a{color:#14213D}a:hover{color:#8A6516}
 </main>
 
 <section style="max-width: 1240px; margin: 0 auto; padding: 0 32px 72px">
-<div style="background: #FFFFFF; border: 1px solid #E2DED4; border-radius: 22px; padding: 28px 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px">
+<div style="background: #FFFFFF; border: 1px solid #E2DED4; border-radius: 22px; padding: 28px 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 24px">
 <div><div style="font-weight: 700; margin-bottom: 4px">Play the piano</div><div style="color: #4A4A4A; font-size: 15px">Every website has a real, playable keyboard. Hold keys, slide across them, or use both hands on a phone. Turn your sound on.</div></div>
 <div><div style="font-weight: 700; margin-bottom: 4px">Watch the students</div><div style="color: #4A4A4A; font-size: 15px">The Student spotlight on each website plays real recital and practice videos.</div></div>
 <div><div style="font-weight: 700; margin-bottom: 4px">Click around</div><div style="color: #4A4A4A; font-size: 15px">Buttons work: pay tuition, send messages, check off practice, approve a reschedule, post to the feed.</div></div>
