@@ -21,7 +21,7 @@ html,body{overflow-x:hidden;max-width:100%}
 @media (max-width: 767px) and (orientation: portrait) {
   aside{display:none!important}
   #studio-bottom-nav{display:flex!important}
-  main,#studio-main{padding-bottom:92px!important}
+  main,#studio-main{padding-bottom:92px!important;flex-basis:0!important;width:100%!important;max-width:100%!important}
 }
 #studio-more-drawer{animation:studio-drawer-up .22s ease-out}
 @keyframes studio-drawer-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
@@ -98,7 +98,7 @@ a{color:#1D2340}a:hover{color:#2552C9}
 </div>
 
 <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
-<section style="flex: 3 1 560px; min-width: 0; background: #FFFFFF; border: 1px solid #EADFC6; border-radius: 25px; overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; box-sizing: border-box">
+<section style="flex: 3 1 560px; min-width: 0; background: #FFFFFF; border: 1px solid #EADFC6; border-radius: 25px; overflow-x: auto; -webkit-overflow-scrolling: touch; width: 0; min-width: 100%; box-sizing: border-box">
 <div style="display: flex; justify-content: space-between; align-items: center; padding: 18px 20px 8px; min-width: 680px">
 <h2 style="margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 26px">Families</h2>
 <span style="font-size: 14px; color: #565C7A">Unpaid first</span>

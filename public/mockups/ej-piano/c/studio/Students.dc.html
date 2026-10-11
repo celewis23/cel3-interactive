@@ -21,7 +21,7 @@ html,body{overflow-x:hidden;max-width:100%}
 @media (max-width: 767px) and (orientation: portrait) {
   aside{display:none!important}
   #studio-bottom-nav{display:flex!important}
-  main,#studio-main{padding-bottom:92px!important}
+  main,#studio-main{padding-bottom:92px!important;flex-basis:0!important;width:100%!important;max-width:100%!important}
 }
 #studio-more-drawer{animation:studio-drawer-up .22s ease-out}
 @keyframes studio-drawer-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
@@ -98,7 +98,7 @@ a{color:#1D2340}a:hover{color:#2552C9}
 </div>
 </div>
 
-<div style="background: #FFFFFF; border: 1px solid #EADFC6; border-radius: 25px; overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; box-sizing: border-box">
+<div style="background: #FFFFFF; border: 1px solid #EADFC6; border-radius: 25px; overflow-x: auto; -webkit-overflow-scrolling: touch; width: 0; min-width: 100%; box-sizing: border-box">
 <table style="width: 100%; min-width: 900px; border-collapse: collapse; text-align: left">
 <thead>
 <tr style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #565C7A">
