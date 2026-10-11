@@ -14,6 +14,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
 <style>
 body{margin:0}
+
+#studio-bottom-nav{scrollbar-width:none}
+#studio-bottom-nav::-webkit-scrollbar{display:none}
+@media (max-width: 767px) and (orientation: portrait) {
+  aside{display:none!important}
+  #studio-bottom-nav{display:flex!important}
+  main,#studio-main{padding-bottom:84px!important}
+}
 a{color:#1D2340}a:hover{color:#2552C9}
 </style>
 </helmet>
@@ -40,6 +48,15 @@ a{color:#1D2340}a:hover{color:#2552C9}
 <a href="/mockups/ej-piano/c/studio/Messages.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Messages</a>
 <a href="/mockups/ej-piano/c/studio/Billing.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px; background: #2552C9">Billing</a>
 </aside>
+<nav id="studio-bottom-nav" aria-label="Studio navigation" style="display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: #1D2340; overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 8px; padding: 8px 10px calc(8px + env(safe-area-inset-bottom))">
+<a href="/mockups/ej-piano/c/studio/Dashboard.dc.html" style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #FFF9EC; padding: 8px 14px; border-radius: 12px; background: transparent; font-size: 11px; font-weight: 700; min-width: 64px; text-align: center; white-space: nowrap">Today</a>
+<a href="/mockups/ej-piano/c/studio/Students.dc.html" style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #FFF9EC; padding: 8px 14px; border-radius: 12px; background: transparent; font-size: 11px; font-weight: 700; min-width: 64px; text-align: center; white-space: nowrap">Students<span style="font-size: 10px; color: #FFC93C">22</span></a>
+<a href="/mockups/ej-piano/c/studio/Schedule.dc.html" style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #FFF9EC; padding: 8px 14px; border-radius: 12px; background: transparent; font-size: 11px; font-weight: 700; min-width: 64px; text-align: center; white-space: nowrap">Schedule</a>
+<a href="/mockups/ej-piano/c/studio/Live.dc.html" style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #FFF9EC; padding: 8px 14px; border-radius: 12px; background: transparent; font-size: 11px; font-weight: 700; min-width: 64px; text-align: center; white-space: nowrap">Live session</a>
+<a href="/mockups/ej-piano/c/studio/Feed.dc.html" style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #FFF9EC; padding: 8px 14px; border-radius: 12px; background: transparent; font-size: 11px; font-weight: 700; min-width: 64px; text-align: center; white-space: nowrap">Studio feed</a>
+<a href="/mockups/ej-piano/c/studio/Messages.dc.html" style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #FFF9EC; padding: 8px 14px; border-radius: 12px; background: transparent; font-size: 11px; font-weight: 700; min-width: 64px; text-align: center; white-space: nowrap">Messages<span style="font-size: 10px; color: #FFC93C">2</span></a>
+<a href="/mockups/ej-piano/c/studio/Billing.dc.html" style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #FFF9EC; padding: 8px 14px; border-radius: 12px; background: #2552C9; font-size: 11px; font-weight: 700; min-width: 64px; text-align: center; white-space: nowrap">Billing<span style="font-size: 10px; color: #FFC93C">3</span></a>
+</nav>
 
 <main style="flex: 999 1 560px; min-width: 0; padding: 32px 40px; box-sizing: border-box">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 24px">

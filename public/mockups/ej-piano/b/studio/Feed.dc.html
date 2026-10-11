@@ -14,6 +14,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 <style>
 body{margin:0}
+
+#studio-bottom-nav{scrollbar-width:none}
+#studio-bottom-nav::-webkit-scrollbar{display:none}
+@media (max-width: 767px) and (orientation: portrait) {
+  aside{display:none!important}
+  #studio-bottom-nav{display:flex!important}
+  main,#studio-main{padding-bottom:84px!important}
+}
 a{color:#0E0E0E}a:hover{color:#C2321A}
 </style>
 </helmet>
@@ -40,6 +48,15 @@ a{color:#0E0E0E}a:hover{color:#C2321A}
 <a href="/mockups/ej-piano/b/studio/Messages.dc.html" style="text-decoration: none; color: #FFFFFF; padding: 12px; border-radius: 0">Messages</a>
 <a href="/mockups/ej-piano/b/studio/Billing.dc.html" style="text-decoration: none; color: #FFFFFF; padding: 12px; border-radius: 0">Billing</a>
 </aside>
+<nav id="studio-bottom-nav" aria-label="Studio navigation" style="display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: #0E0E0E; overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 8px; padding: 8px 10px calc(8px + env(safe-area-inset-bottom))">
+<a href="/mockups/ej-piano/b/studio/Dashboard.dc.html" style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #FFFFFF; padding: 8px 14px; border-radius: 12px; background: transparent; font-size: 11px; font-weight: 700; min-width: 64px; text-align: center; white-space: nowrap">Today</a>
+<a href="/mockups/ej-piano/b/studio/Students.dc.html" style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #FFFFFF; padding: 8px 14px; border-radius: 12px; background: transparent; font-size: 11px; font-weight: 700; min-width: 64px; text-align: center; white-space: nowrap">Students<span style="font-size: 10px; color: #FF6A4D">22</span></a>
+<a href="/mockups/ej-piano/b/studio/Schedule.dc.html" style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #FFFFFF; padding: 8px 14px; border-radius: 12px; background: transparent; font-size: 11px; font-weight: 700; min-width: 64px; text-align: center; white-space: nowrap">Schedule</a>
+<a href="/mockups/ej-piano/b/studio/Live.dc.html" style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #FFFFFF; padding: 8px 14px; border-radius: 12px; background: transparent; font-size: 11px; font-weight: 700; min-width: 64px; text-align: center; white-space: nowrap">Live session</a>
+<a href="/mockups/ej-piano/b/studio/Feed.dc.html" style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #FFFFFF; padding: 8px 14px; border-radius: 12px; background: #2A2A2A; font-size: 11px; font-weight: 700; min-width: 64px; text-align: center; white-space: nowrap">Studio feed</a>
+<a href="/mockups/ej-piano/b/studio/Messages.dc.html" style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #FFFFFF; padding: 8px 14px; border-radius: 12px; background: transparent; font-size: 11px; font-weight: 700; min-width: 64px; text-align: center; white-space: nowrap">Messages<span style="font-size: 10px; color: #FF6A4D">2</span></a>
+<a href="/mockups/ej-piano/b/studio/Billing.dc.html" style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #FFFFFF; padding: 8px 14px; border-radius: 12px; background: transparent; font-size: 11px; font-weight: 700; min-width: 64px; text-align: center; white-space: nowrap">Billing<span style="font-size: 10px; color: #FF6A4D">3</span></a>
+</nav>
 
 <main style="flex: 999 1 560px; min-width: 0; padding: 32px 40px; box-sizing: border-box">
 <div style="margin-bottom: 24px">
