@@ -17,9 +17,14 @@
 <style>
 body{margin:0}
 a{color:#14213D}a:hover{color:#8A6516}
+#landscape-piano{display:none}
+@media (orientation: landscape) {
+  #mobile-page{display:none!important}
+  #landscape-piano{display:flex!important}
+}
 </style>
 </helmet>
-<div style="width: 390px; min-height: 5150px; box-sizing: border-box; background: #FBF8F1; color: #14213D; font-family: 'Karla', sans-serif; font-size: 16px; line-height: 1.6; display: flex; flex-direction: column; position: relative">
+<div id="mobile-page" style="width: 390px; min-height: 5150px; box-sizing: border-box; background: #FBF8F1; color: #14213D; font-family: 'Karla', sans-serif; font-size: 16px; line-height: 1.6; display: flex; flex-direction: column; position: relative">
 
 <header style="position: sticky; top: 0; z-index: 5; background: #FBF8F1; border-bottom: 1px solid #E6DFD0; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between">
 <a href="#top" style="display: flex; align-items: center; gap: 10px; text-decoration: none">
@@ -155,6 +160,21 @@ a{color:#14213D}a:hover{color:#8A6516}
 <a href="#call" aria-label="Call the studio" style="width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid #14213D; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14213D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"></path></svg></a>
 </div>
 </div>
+
+<div id="landscape-piano" style="position: fixed; inset: 0; z-index: 9999; padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); box-sizing: border-box; background: #14213D; flex-direction: column">
+<div style="padding: 10px 16px 2px; display: flex; align-items: center; justify-content: space-between; font-family: 'Karla', sans-serif; color: #C9CFDB; font-size: 12px">
+<span><strong style="color: #E9C46A; font-family: 'Cormorant Garamond', serif; font-size: 15px">E&amp;J</strong> &middot; Play the full keyboard</span>
+<span>Rotate back to continue</span>
+</div>
+<div style="flex: 1; position: relative; display: flex; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none" onPointerDown="{{pdown}}" onPointerMove="{{pmove}}" onPointerUp="{{pup}}" onPointerCancel="{{pup}}" onLostPointerCapture="{{pup}}" onContextMenu="{{noMenu}}">
+<sc-for list="{{whitesL}}" as="k" hint-placeholder-count="22">
+<button type="button" aria-label="{{k.name}}" data-midi="{{k.midi}}" onClick="{{k.click}}" style="flex: 1; min-width: 0; margin: 0; padding: 0 0 14px; background: {{k.bg}}; border: 1px solid #14213D; border-right: none; border-radius: 0 0 8px 8px; cursor: pointer; display: flex; align-items: flex-end; justify-content: center; font-family: 'Karla', sans-serif; font-size: 12px; font-weight: 700; color: #8A6516">{{k.label}}</button>
+</sc-for>
+<sc-for list="{{blacksL}}" as="k" hint-placeholder-count="15">
+<button type="button" aria-label="{{k.name}}" data-midi="{{k.midi}}" onClick="{{k.click}}" style="position: absolute; top: 0; left: {{k.left}}; width: {{k.w}}; height: 60%; margin: 0; padding: 0; border: none; background: {{k.bg}}; border-radius: 0 0 6px 6px; cursor: pointer"></button>
+</sc-for>
+</div>
+</div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":5150}}'>
 class Component extends DCLogic {
@@ -258,13 +278,16 @@ class Component extends DCLogic {
     return { whites: whites, blacks: blacks };
   }
   renderVals() {
-    var kb = this.keys(60, 1, function (pc, white, on) {
+    var paint = function (pc, white, on) {
       return white ? { bg: on ? '#E9C46A' : '#FFFFFF' } : { bg: on ? '#8A6516' : '#14213D' };
-    });
+    };
+    var kb = this.keys(60, 1, paint);
+    var kbLandscape = this.keys(48, 3, paint);
     var m = this.state.menu;
     return {
       pdown: (e) => this.pDown(e), pmove: (e) => this.pMove(e), pup: (e) => this.pUp(e), noMenu: (e) => e.preventDefault(),
       whites: kb.whites, blacks: kb.blacks,
+      whitesL: kbLandscape.whites, blacksL: kbLandscape.blacks,
       menu: m, menuLabel: m ? 'Close menu' : 'Open menu', menuIcon: m ? 'M6 6l12 12M18 6L6 18' : 'M4 7h16M4 12h16M4 17h16',
       toggleMenu: () => this.setState({ menu: !this.state.menu }),
       closeMenu: () => this.setState({ menu: false }),

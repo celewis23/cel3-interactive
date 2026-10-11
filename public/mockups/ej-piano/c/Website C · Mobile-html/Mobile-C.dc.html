@@ -17,9 +17,14 @@
 <style>
 body{margin:0}
 a{color:#2552C9}a:hover{color:#1A3C96}
+#landscape-piano{display:none}
+@media (orientation: landscape) {
+  #mobile-page{display:none!important}
+  #landscape-piano{display:flex!important}
+}
 </style>
 </helmet>
-<div style="width: 390px; min-height: 5350px; box-sizing: border-box; background: #FFF9EC; color: #1D2340; font-family: 'Nunito', sans-serif; font-size: 17px; line-height: 1.6; display: flex; flex-direction: column; position: relative">
+<div id="mobile-page" style="width: 390px; min-height: 5350px; box-sizing: border-box; background: #FFF9EC; color: #1D2340; font-family: 'Nunito', sans-serif; font-size: 17px; line-height: 1.6; display: flex; flex-direction: column; position: relative">
 
 <header style="position: sticky; top: 0; z-index: 5; background: #FFF9EC; border-bottom: 2px solid #1D2340; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between">
 <a href="#top" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #1D2340">
@@ -152,6 +157,23 @@ a{color:#2552C9}a:hover{color:#1A3C96}
 <a href="#contact" style="display: block; text-align: center; text-decoration: none; background: #2552C9; color: #FFFFFF; padding: 14px; border-radius: 999px; font-weight: 800; border: 2px solid #1D2340; box-shadow: 0 4px 0 #1D2340">Book a free trial lesson</a>
 </div>
 </div>
+
+<div id="landscape-piano" style="position: fixed; inset: 0; z-index: 9999; padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); box-sizing: border-box; background: #1D2340; flex-direction: column">
+<div style="padding: 10px 16px 2px; display: flex; align-items: center; justify-content: space-between; font-family: 'Nunito', sans-serif; color: #D7DBEA; font-size: 12px">
+<span><strong style="color: #FFC93C; font-family: 'Fredoka', sans-serif; font-size: 15px">E&amp;J</strong> &middot; Play the full keyboard</span>
+<span>Rotate back to continue</span>
+</div>
+<div style="flex: 1; position: relative; display: flex; gap: 4px; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none" onPointerDown="{{pdown}}" onPointerMove="{{pmove}}" onPointerUp="{{pup}}" onPointerCancel="{{pup}}" onLostPointerCapture="{{pup}}" onContextMenu="{{noMenu}}">
+<sc-for list="{{whitesL}}" as="k" hint-placeholder-count="18">
+<button type="button" aria-label="{{k.name}}" data-midi="{{k.midi}}" onClick="{{k.click}}" style="flex: 1; min-width: 0; margin: 0; padding: 0 0 14px; background: {{k.bg}}; border: none; border-radius: 0 0 14px 14px; cursor: pointer; display: flex; align-items: flex-end; justify-content: center">
+<span style="width: 26px; height: 26px; border-radius: 50%; background: {{k.dot}}; color: #FFFFFF; border: 2px solid #1D2340; display: flex; align-items: center; justify-content: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 12px">{{k.letter}}</span>
+</button>
+</sc-for>
+<sc-for list="{{blacksL}}" as="k" hint-placeholder-count="13">
+<button type="button" aria-label="{{k.name}}" data-midi="{{k.midi}}" onClick="{{k.click}}" style="position: absolute; top: 0; left: {{k.left}}; width: {{k.w}}; height: 56%; margin: 0; padding: 0; border: 3px solid #1D2340; border-top: none; background: {{k.bg}}; border-radius: 0 0 10px 10px; cursor: pointer"></button>
+</sc-for>
+</div>
+</div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":5350}}'>
 class Component extends DCLogic {
@@ -267,9 +289,11 @@ class Component extends DCLogic {
   renderVals() {
     var noteColor = { 0: '#E8503F', 2: '#F28C28', 4: '#E0A800', 5: '#1F8A5B', 7: '#2552C9', 9: '#6C4AB6', 11: '#D6457F' };
     var tint = { 0: '#FFD6CF', 2: '#FFE2C2', 4: '#FFF0B8', 5: '#C9F0DA', 7: '#D3E0FF', 9: '#E3D9F7', 11: '#FAD3E2' };
-    var kb = this.keys(60, 1, function (pc, white, on) {
+    var paint = function (pc, white, on) {
       return white ? { bg: on ? tint[pc] : '#FFFFFF', dot: noteColor[pc] } : { bg: on ? '#2552C9' : '#1D2340' };
-    });
+    };
+    var kb = this.keys(60, 1, paint);
+    var kbLandscape = this.keys(48, 2.5, paint);
     var names = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
     var playing = this.state.playing, act = this.state.active, m = this.state.menu;
     var spot = [
@@ -282,6 +306,7 @@ class Component extends DCLogic {
     return {
       pdown: (e) => this.pDown(e), pmove: (e) => this.pMove(e), pup: (e) => this.pUp(e), noMenu: (e) => e.preventDefault(),
       whites: kb.whites, blacks: kb.blacks,
+      whitesL: kbLandscape.whites, blacksL: kbLandscape.blacks,
       toggleSong: () => this.toggleSong(),
       songLabel: playing ? 'Stop' : 'Play Twinkle Twinkle',
       songIcon: playing ? 'M6 6h12v12H6z' : 'M8 5v14l11-7z',

@@ -17,9 +17,14 @@
 <style>
 body{margin:0}
 a{color:#0E0E0E}a:hover{color:#B42D16}
+#landscape-piano{display:none}
+@media (orientation: landscape) {
+  #mobile-page{display:none!important}
+  #landscape-piano{display:flex!important}
+}
 </style>
 </helmet>
-<div style="width: 390px; min-height: 4950px; box-sizing: border-box; background: #FFFFFF; color: #0E0E0E; font-family: 'IBM Plex Sans', sans-serif; font-size: 16px; line-height: 1.6; display: flex; flex-direction: column; position: relative">
+<div id="mobile-page" style="width: 390px; min-height: 4950px; box-sizing: border-box; background: #FFFFFF; color: #0E0E0E; font-family: 'IBM Plex Sans', sans-serif; font-size: 16px; line-height: 1.6; display: flex; flex-direction: column; position: relative">
 
 <header style="position: sticky; top: 0; z-index: 5; background: #FFFFFF; border-bottom: 1px solid #0E0E0E; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between">
 <a href="#top" style="text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 19px; letter-spacing: -0.02em">E&amp;J<span style="color: #D9381E">.</span> <span style="font-weight: 500">Piano Studio</span></a>
@@ -131,6 +136,21 @@ a{color:#0E0E0E}a:hover{color:#B42D16}
 <a href="#call" style="flex: 0 0 120px; text-align: center; text-decoration: none; color: #0E0E0E; padding: 18px; font-weight: 600">Call</a>
 </div>
 </div>
+
+<div id="landscape-piano" style="position: fixed; inset: 0; z-index: 9999; padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); box-sizing: border-box; background: #0E0E0E; flex-direction: column">
+<div style="padding: 10px 16px 2px; display: flex; align-items: center; justify-content: space-between; font-family: 'IBM Plex Sans', sans-serif; color: #BDBDBD; font-size: 12px">
+<span><strong style="color: #FFFFFF; font-family: 'Space Grotesk', sans-serif; font-size: 15px">E&amp;J</strong> &middot; Play the full keyboard</span>
+<span>Rotate back to continue</span>
+</div>
+<div style="flex: 1; position: relative; display: flex; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none" onPointerDown="{{pdown}}" onPointerMove="{{pmove}}" onPointerUp="{{pup}}" onPointerCancel="{{pup}}" onLostPointerCapture="{{pup}}" onContextMenu="{{noMenu}}">
+<sc-for list="{{whitesL}}" as="k" hint-placeholder-count="18">
+<button type="button" aria-label="{{k.name}}" data-midi="{{k.midi}}" onClick="{{k.click}}" style="flex: 1; min-width: 0; margin: 0; padding: 0 0 14px; background: {{k.bg}}; border: none; border-right: 2px solid #0E0E0E; cursor: pointer; display: flex; align-items: flex-end; justify-content: center; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 500; color: {{k.fg}}">{{k.label}}</button>
+</sc-for>
+<sc-for list="{{blacksL}}" as="k" hint-placeholder-count="13">
+<button type="button" aria-label="{{k.name}}" data-midi="{{k.midi}}" onClick="{{k.click}}" style="position: absolute; top: 0; left: {{k.left}}; width: {{k.w}}; height: 60%; margin: 0; padding: 0; border: none; background: {{k.bg}}; cursor: pointer"></button>
+</sc-for>
+</div>
+</div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":4950}}'>
 class Component extends DCLogic {
@@ -234,13 +254,16 @@ class Component extends DCLogic {
     return { whites: whites, blacks: blacks };
   }
   renderVals() {
-    var kb = this.keys(60, 1, function (pc, white, on) {
+    var paint = function (pc, white, on) {
       return white ? { bg: on ? '#D9381E' : '#FFFFFF', fg: on ? '#FFFFFF' : '#666666' } : { bg: on ? '#D9381E' : '#0E0E0E' };
-    });
+    };
+    var kb = this.keys(60, 1, paint);
+    var kbLandscape = this.keys(48, 2.5, paint);
     var m = this.state.menu;
     return {
       pdown: (e) => this.pDown(e), pmove: (e) => this.pMove(e), pup: (e) => this.pUp(e), noMenu: (e) => e.preventDefault(),
       whites: kb.whites, blacks: kb.blacks,
+      whitesL: kbLandscape.whites, blacksL: kbLandscape.blacks,
       menu: m, menuLabel: m ? 'Close menu' : 'Open menu', menuIcon: m ? 'M6 6l12 12M18 6L6 18' : 'M4 7h16M4 12h16M4 17h16',
       menuBg: m ? '#0E0E0E' : '#FFFFFF', menuFg: m ? '#FFFFFF' : '#0E0E0E',
       toggleMenu: () => this.setState({ menu: !this.state.menu }),
