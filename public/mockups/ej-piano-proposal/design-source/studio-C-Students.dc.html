@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Studio — Students (C)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D2340}a:hover{color:#2552C9}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #FFF9EC; color: #1D2340; font-family: 'Nunito', sans-serif; font-size: 15px; display: flex; flex-wrap: wrap">
+
+<aside style="flex: 1 1 220px; background: #1D2340; color: #FFF9EC; padding: 24px 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 24px"><span style="width: 40px; height: 40px; border-radius: 50%; background: #FFC93C; color: #1D2340; display: flex; align-items: center; justify-content: center; font-family: 'Fredoka', sans-serif; font-weight: 700">E&amp;J</span><span style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 20px">Studio</span></div>
+<a href="studio-C-Dashboard.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Today</a>
+<a href="studio-C-Students.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px; background: #2552C9">Students</a>
+<a href="studio-C-Schedule.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Schedule</a>
+<a href="studio-C-Live.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Live session</a>
+<a href="studio-C-Feed.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Studio feed</a>
+<a href="studio-C-Messages.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Messages</a>
+<a href="studio-C-Billing.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Billing</a>
+</aside>
+
+<main style="flex: 999 1 560px; min-width: 0; padding: 32px 40px; box-sizing: border-box">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 24px">
+<div>
+<h1 style="margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 44px">Students</h1>
+<div style="color: #565C7A">22 active students · 18 families</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<button type="button" style="font: inherit; font-weight: 700; background: transparent; color: #1D2340; border: 1.5px solid #1D2340; border-radius: 999px; padding: 12px 20px; cursor: pointer">Invite a family</button>
+<button type="button" style="font: inherit; font-weight: 700; background: #1D2340; color: #FFF9EC; border: 2px solid #1D2340; border-radius: 999px; box-shadow: 0 3px 0 #1D2340; padding: 13px 22px; cursor: pointer">Add student</button>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 18px">
+<label style="flex: 1 1 280px; display: flex; align-items: center; gap: 10px; background: #FFFFFF; border: 1px solid #1D2340; border-radius: 999px; padding: 0 16px; min-height: 46px">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#565C7A" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search students</span>
+<input type="text" value="{{q}}" onChange="{{onQ}}" placeholder="Search students or parents" style="flex: 1; min-width: 0; font: inherit; border: none; background: transparent; outline: none">
+</label>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{filters}}" as="f" hint-placeholder-count="4">
+<button type="button" aria-pressed="{{f.sel}}" onClick="{{f.pick}}" style="font: inherit; font-weight: 700; font-size: 14px; border-radius: 999px; padding: 10px 16px; min-height: 44px; cursor: pointer; background: {{f.bg}}; color: {{f.fg}}; border: 1.5px solid #1D2340">{{f.label}}</button>
+</sc-for>
+</div>
+</div>
+
+<div style="background: #FFFFFF; border: 1px solid #EADFC6; border-radius: 25px; overflow-x: auto">
+<table style="width: 100%; min-width: 900px; border-collapse: collapse; text-align: left">
+<thead>
+<tr style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #565C7A">
+<th style="padding: 16px 20px; font-weight: 700">Student</th>
+<th style="padding: 16px 12px; font-weight: 700">Level</th>
+<th style="padding: 16px 12px; font-weight: 700">Lesson</th>
+<th style="padding: 16px 12px; font-weight: 700">Parent</th>
+<th style="padding: 16px 12px; font-weight: 700">Practice this week</th>
+<th style="padding: 16px 12px; font-weight: 700">October</th>
+<th style="padding: 16px 20px; font-weight: 700"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Actions</span></th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="12">
+<tr style="border-top: 1px solid #EADFC6">
+<td style="padding: 12px 20px"><div style="display: flex; align-items: center; gap: 12px"><span style="width: 38px; height: 38px; border-radius: 50%; background: {{r.color}}; color: #FFF9EC; display: flex; align-items: center; justify-content: center; font-weight: 700">{{r.i}}</span><span><span style="display: block; font-weight: 700">{{r.name}}</span><span style="display: block; font-size: 13px; color: #565C7A">Age {{r.age}}</span></span></div></td>
+<td style="padding: 12px">{{r.level}}</td>
+<td style="padding: 12px"><div>{{r.slot}}</div><div style="font-size: 13px; color: #565C7A">{{r.type}}</div></td>
+<td style="padding: 12px">{{r.parent}}</td>
+<td style="padding: 12px"><div style="display: flex; align-items: center; gap: 10px"><span style="width: 110px; height: 8px; background: #FFE9A8; border-radius: 6px; display: block"><span style="display: block; height: 8px; width: {{r.pw}}; background: {{r.pc}}; border-radius: 6px"></span></span><span style="font-size: 13px; font-weight: 700">{{r.min}} min</span></div></td>
+<td style="padding: 12px"><span style="font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: {{r.payBg}}; color: {{r.payFg}}">{{r.pay}}</span></td>
+<td style="padding: 12px 20px; text-align: right"><a href="studio-C-Student.dc.html" style="font-weight: 700; font-size: 14px">Open</a></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+<sc-if value="{{empty}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 32px; text-align: center; color: #565C7A">No students match that search.</div>
+</sc-if>
+</div>
+<div style="margin-top: 14px; font-size: 14px; color: #565C7A">Showing {{shown}} of 22 students</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { q: '', f: 0 }; }
+  renderVals() {
+    var self = this;
+    var all = [
+      ['Ava Chen', 11, 'Level 5', 'Fri 3:30', 'Online', 'Grace Chen', 140, 'Paid', '#6C4AB6'],
+      ['Jordan Ellis', 13, 'Level 6', 'Fri 4:00', 'In studio', 'Dana Ellis', 95, 'Paid', '#1F8A5B'],
+      ['Ella Brooks', 7, 'Level 1', 'Fri 4:30', 'In studio', 'Tasha Brooks', 60, 'Due', '#2552C9'],
+      ['Caleb Brooks', 9, 'Level 2', 'Wed 4:30', 'In studio', 'Tasha Brooks', 45, 'Due', '#D2452F'],
+      ['Marcus Hill', 10, 'Level 3', 'Fri 5:00', 'In studio', 'Rob Hill', 80, 'Paid', '#2552C9'],
+      ['Sofia Grant', 12, 'Level 4', 'Fri 5:30', 'Online', 'Nia Grant', 20, 'Overdue', '#D2452F'],
+      ['Noah Patel', 8, 'Level 2', 'Fri 6:00', 'In studio', 'Priya Patel', 75, 'Paid', '#1D2340'],
+      ['Maya Rivera', 9, 'Level 3', 'Tue 4:30', 'In studio', 'Ana Rivera', 70, 'Due', '#2552C9'],
+      ['Leo Rivera', 7, 'Level 1', 'Tue 5:00', 'In studio', 'Ana Rivera', 10, 'Due', '#2552C9'],
+      ['Zoe Carter', 10, 'Level 3', 'Mon 4:00', 'Online', 'Kim Carter', 110, 'Paid', '#1F8A5B'],
+      ['Isaiah Ward', 14, 'Level 7', 'Thu 6:00', 'In studio', 'Monique Ward', 165, 'Paid', '#6C4AB6'],
+      ['Lily Nguyen', 6, 'Beginner', 'Thu 3:30', 'In studio', 'Thu Nguyen', 35, 'Paid', '#1D2340']
+    ];
+    var filters = ['All', 'In studio', 'Online', 'Needs attention'];
+    var q = this.state.q.toLowerCase(), f = this.state.f;
+    var rows = all.filter(function (r) {
+      if (q && (r[0] + ' ' + r[5]).toLowerCase().indexOf(q) < 0) return false;
+      if (f === 1 && r[4] !== 'In studio') return false;
+      if (f === 2 && r[4] !== 'Online') return false;
+      if (f === 3 && !(r[6] < 40 || r[7] === 'Overdue')) return false;
+      return true;
+    }).map(function (r) {
+      var low = r[6] < 40;
+      var pay = { Paid: ['#DCEFE2', '#1F5E38'], Due: ['#FFF0B8', '#6B4E0E'], Overdue: ['#F8DDD3', '#9A2E12'] }[r[7]];
+      return { name: r[0], i: r[0][0], age: r[1], level: r[2], slot: r[3], type: r[4], parent: r[5], min: r[6],
+        pw: Math.min(100, Math.round(r[6] / 1.6)) + '%', pc: low ? '#C2410C' : '#2552C9',
+        pay: r[7], payBg: pay[0], payFg: pay[1], color: r[8] };
+    });
+    return {
+      q: this.state.q,
+      onQ: (e) => this.setState({ q: e.target.value }),
+      filters: filters.map(function (l, i) {
+        var sel = f === i;
+        return { label: l, sel: sel, bg: sel ? '#1D2340' : '#FFFFFF', fg: sel ? '#FFF9EC' : '#1D2340', pick: function () { self.setState({ f: i }); } };
+      }),
+      rows: rows,
+      shown: rows.length,
+      empty: rows.length === 0
+    };
+  }
+}
+</script>
+</body>
+</html>

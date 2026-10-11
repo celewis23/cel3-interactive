@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Practice assignment</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&amp;family=Karla:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#14213D}a:hover{color:#8A6516}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #FBF8F1; color: #14213D; font-family: 'Karla', sans-serif; font-size: 15px; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="padding: 12px 10px 4px; display: flex; align-items: center; gap: 4px">
+<a href="app-Practice.dc.html" aria-label="Back to practice" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#14213D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></a>
+<span style="font-weight: 700">Practice</span>
+</header>
+
+<main style="flex: 1; overflow: hidden; padding: 0 18px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: #8A6516">DUE TUESDAY · OCT 13</div>
+<h1 style="margin: 4px 0 4px; font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 34px; line-height: 1.05">Minuet in G</h1>
+<div style="color: #5B6170; margin-bottom: 14px">Measures 1–16 · Assigned at your Oct 6 lesson</div>
+
+<div style="height: 196px; border-radius: 16px; background: #14213D; position: relative; display: flex; align-items: center; justify-content: center">
+<span style="width: 58px; height: 58px; border-radius: 50%; background: #FBF8F1; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="#14213D"><path d="M8 5v14l11-7z"></path></svg></span>
+<span style="position: absolute; left: 14px; bottom: 12px; color: #FBF8F1; font-size: 13px; font-weight: 700">Teacher demo · slow tempo</span>
+<span style="position: absolute; right: 14px; bottom: 12px; color: #C9CFDB; font-size: 13px">1:12</span>
+</div>
+
+<div style="margin: 16px 0; background: #FFFFFF; border: 1px solid #E6DFD0; border-radius: 14px; padding: 14px 16px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: #8A6516; margin-bottom: 4px">NOTE FROM YOUR TEACHER</div>
+<div style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 20px; line-height: 1.3">Keep your wrists loose and count out loud. Slow and steady wins!</div>
+</div>
+
+<h2 style="margin: 0 0 4px; font-size: 16px">Today's steps</h2>
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+<label style="display: flex; align-items: center; gap: 12px; min-height: 48px; border-bottom: 1px solid #E6DFD0; cursor: pointer">
+<input type="checkbox" checked="{{s.done}}" onChange="{{s.toggle}}" style="width: 22px; height: 22px; accent-color: #14213D; margin: 0">
+<span style="flex: 1">{{s.text}}</span>
+<span style="font-size: 13px; color: #5B6170">{{s.time}}</span>
+</label>
+</sc-for>
+</main>
+
+<div style="padding: 14px 18px 26px; background: #FFFFFF; border-top: 1px solid #E6DFD0; display: flex; gap: 10px">
+<button type="button" onClick="{{toggleTimer}}" style="flex: 1; font: inherit; font-weight: 700; background: #14213D; color: #FBF8F1; border: none; border-radius: 999px; min-height: 52px; cursor: pointer">{{timerLabel}}</button>
+<button type="button" style="flex: 1; font: inherit; font-weight: 700; background: transparent; color: #14213D; border: 1.5px solid #14213D; border-radius: 999px; min-height: 52px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="#C2410C"><circle cx="12" cy="12" r="7"></circle></svg>Record &amp; send</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { done: [true, true, false, false], timing: false }; }
+  renderVals() {
+    var texts = [
+      ['Warm up: C major scale', '5 min'],
+      ['Right hand alone, mm. 1–8', '5 min'],
+      ['Left hand alone, mm. 1–8', '5 min'],
+      ['Hands together, slow, mm. 1–8', '5 min']
+    ];
+    var self = this;
+    return {
+      steps: texts.map(function (t, i) {
+        return {
+          text: t[0], time: t[1], done: self.state.done[i],
+          toggle: function () { var d = self.state.done.slice(); d[i] = !d[i]; self.setState({ done: d }); }
+        };
+      }),
+      timerLabel: this.state.timing ? 'Stop · 04:12' : 'Start practice',
+      toggleTimer: () => this.setState({ timing: !this.state.timing })
+    };
+  }
+}
+</script>
+</body>
+</html>

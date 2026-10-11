@@ -19,6 +19,16 @@ const nextConfig: NextConfig = {
       { source: "/mockups/ulockingrva", destination: "/mockups/unlockingrva/index.html" },
       { source: "/mockups/youmatterrva", destination: "/mockups/youmatterrva/index.html" },
       { source: "/mockups/enrich-her-wellness", destination: "/mockups/enrich-her-wellness/index.html" },
+      { source: "/mockups/ej-piano", destination: "/mockups/ej-piano/design-source/StartHere.dc.html" },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        // Spotlight videos show minors; keep this proposal out of search indexes.
+        source: "/mockups/ej-piano/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }],
+      },
     ];
   },
 };

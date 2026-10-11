@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tuition and payments (B)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E0E0E}a:hover{color:#C2321A}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #FFFFFF; color: #0E0E0E; font-family: 'IBM Plex Sans', sans-serif; font-size: 15px; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="padding: 20px 18px 8px">
+<h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 32px">Tuition</h1>
+<div style="color: #666666">Rivera family · Maya &amp; Leo</div>
+</header>
+
+<main style="flex: 1; overflow: hidden; padding: 10px 18px">
+<section style="background: #0E0E0E; color: #FFFFFF; border-radius: 0; padding: 22px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: #FF6A4D">OCTOBER TUITION</span>
+<span style="font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 0; background: {{badgeBg}}; color: #0E0E0E">{{status}}</span>
+</div>
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 52px; line-height: 1.1; margin: 8px 0 2px">[RATE]</div>
+<div style="color: #BDBDBD; font-size: 14px">2 students · weekly lessons · due Oct 15</div>
+<sc-if value="{{unpaid}}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{pay}}" style="margin-top: 18px; width: 100%; font: inherit; font-weight: 700; background: #FF6A4D; color: #0E0E0E; border: none; border-radius: 0; min-height: 52px; cursor: pointer">Pay now</button>
+</sc-if>
+<sc-if value="{{paid}}" hint-placeholder-val="{{ false }}">
+<div style="margin-top: 18px; display: flex; align-items: center; gap: 10px; background: #2A2A2A; border-radius: 0; padding: 14px"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF6A4D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg><span>Paid today. Receipt sent to your email.</span></div>
+</sc-if>
+</section>
+
+<section style="margin-top: 14px; background: #FFFFFF; border: 1px solid #D6D6D6; border-radius: 0">
+<label style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; min-height: 48px; border-bottom: 1px solid #D6D6D6; cursor: pointer">
+<span style="flex: 1"><span style="display: block; font-weight: 700">Autopay</span><span style="display: block; font-size: 13px; color: #666666">Charge on the 1st of each month</span></span>
+<input type="checkbox" checked="{{autopay}}" onChange="{{toggleAuto}}" style="width: 22px; height: 22px; accent-color: #0E0E0E; margin: 0">
+</label>
+<div style="display: flex; align-items: center; gap: 12px; padding: 14px 16px">
+<span style="width: 42px; height: 30px; border-radius: 0; background: #F2F2F0; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E0E0E" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"></rect><path d="M2 10h20"></path></svg></span>
+<span style="flex: 1"><span style="display: block; font-weight: 700">Card ending 4242</span><span style="display: block; font-size: 13px; color: #666666">Expires 08/28</span></span>
+<button type="button" style="font: inherit; font-weight: 700; background: transparent; border: none; color: #0E0E0E; text-decoration: underline; min-height: 44px; cursor: pointer">Change</button>
+</div>
+</section>
+
+<h2 style="margin: 22px 0 6px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 24px">History</h2>
+<sc-for list="{{history}}" as="h" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #D6D6D6">
+<div><div style="font-weight: 700">{{h.month}}</div><div style="font-size: 13px; color: #666666">{{h.date}}</div></div>
+<div style="text-align: right"><div style="font-weight: 700">[RATE]</div><a href="#receipt" style="font-size: 13px">Receipt</a></div>
+</div>
+</sc-for>
+</main>
+
+<nav style="display: flex; border-top: 1px solid #D6D6D6; background: #FFFFFF; padding: 6px 4px 20px">
+<a href="app-B-Feed.dc.html" style="flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #666666; font-size: 11px"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="1.8" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>Home</a>
+<a href="app-B-Practice.dc.html" style="flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #666666; font-size: 11px"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="1.8" stroke-linecap="round"><path d="M9 18V5l11-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="17" cy="16" r="3"></circle></svg>Practice</a>
+<a href="app-B-Lesson.dc.html" style="flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #666666; font-size: 11px"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="1.8" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"></rect><path d="M16 10l6-3v10l-6-3"></path></svg>Lesson</a>
+<a href="app-B-Messages.dc.html" style="flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #666666; font-size: 11px"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="1.8" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"></path></svg>Messages</a>
+<a href="app-B-Pay.dc.html" style="flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #0E0E0E; font-size: 11px; font-weight: 700"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="#0E0E0E" stroke="#0E0E0E" stroke-width="1.8" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><path d="M2 10h20" stroke="#FFFFFF"></path></svg>Tuition</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { paid: false, autopay: false }; }
+  renderVals() {
+    var paid = this.state.paid;
+    return {
+      paid: paid,
+      unpaid: !paid,
+      status: paid ? 'Paid' : 'Due in 6 days',
+      badgeBg: paid ? '#9FD8B4' : '#FF6A4D',
+      pay: () => this.setState({ paid: true }),
+      autopay: this.state.autopay,
+      toggleAuto: () => this.setState({ autopay: !this.state.autopay }),
+      history: [
+        { month: 'September', date: 'Paid Sep 12' },
+        { month: 'August', date: 'Paid Aug 14' },
+        { month: 'July', date: 'Paid Jul 10' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

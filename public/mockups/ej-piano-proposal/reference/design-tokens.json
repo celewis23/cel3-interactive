@@ -1,0 +1,42 @@
+{
+  "_note": "Design tokens for the three directions, taken from the mockup. Implement as CSS variables on a [data-direction] attribute so one component set renders all three.",
+  "A_concert_hall": {
+    "fonts": { "display": "Cormorant Garamond (600, 700, italic 500/600)", "body": "Karla (400, 500, 700)" },
+    "colors": {
+      "ink": "#14213D", "inkDeep": "#0B1428", "inkSoft": "#24324F", "videoStage": "#1B2945",
+      "accent": "#8A6516", "accentBright": "#E9C46A",
+      "bg": "#FBF8F1", "surface": "#FFFFFF", "surfaceMuted": "#EFE8D8", "highlight": "#F6EBCB",
+      "border": "#E6DFD0", "borderInput": "#CFC6B3", "rowDivider": "#F1ECE1",
+      "textMuted": "#4A5062", "textSubtle": "#5B6170", "textOnDark": "#C9CFDB"
+    },
+    "radius": { "card": "14-18px", "button": "999px (pills)", "heroImage": "220px 220px 12px 12px (arch)" },
+    "feel": "Warm, classic, elegant. Serif display headings, gold eyebrow labels, navy CTAs."
+  },
+  "B_black_white_keys": {
+    "fonts": { "display": "Space Grotesk (500, 700), tight letter-spacing -0.03em on large headings", "body": "IBM Plex Sans (400, 500, 600)" },
+    "colors": {
+      "ink": "#0E0E0E", "inkDeep": "#000000", "inkSoft": "#2A2A2A", "videoStage": "#1C1C1C",
+      "accent": "#D9381E", "accentText": "#B42D16", "accentOnDark": "#FF6A4D",
+      "bg": "#FFFFFF", "surface": "#FFFFFF", "surfaceMuted": "#F2F2F0", "highlight": "#FFE4DE",
+      "border": "#D6D6D6", "rule": "#0E0E0E", "borderInput": "#9A9A9A",
+      "textMuted": "#4B4B4B", "textSubtle": "#666666", "textOnDark": "#BDBDBD"
+    },
+    "radius": { "all": "0 (square) except avatars 50%" },
+    "feel": "Modern, editorial, high contrast. Numbered sections (01, 02…), hairline black rules, square buttons, one red accent key. Hero = muted looping video with dark gradient overlay + playable keyboard."
+  },
+  "C_bright_playful": {
+    "fonts": { "display": "Fredoka (500, 600, 700)", "body": "Nunito (400, 600, 700, 800)" },
+    "colors": {
+      "ink": "#1D2340", "inkDeep": "#141A33", "videoStage": "#2A3363",
+      "primary": "#2552C9", "sunny": "#FFC93C",
+      "bg": "#FFF9EC", "surface": "#FFFFFF", "surfaceMuted": "#FFE9A8", "highlight": "#FFF0B8",
+      "pastelBlue": "#BFD3FF", "pastelGreen": "#BDEBD3", "pastelPink": "#FFD6CF",
+      "border": "#EADFC6", "outline": "#1D2340",
+      "textMuted": "#454B66", "textSubtle": "#565C7A", "textOnDark": "#D7DBEA",
+      "noteColors": { "C": "#E8503F", "D": "#F28C28", "E": "#E0A800", "F": "#1F8A5B", "G": "#2552C9", "A": "#6C4AB6", "B": "#D6457F" }
+    },
+    "radius": { "card": "20-40px", "button": "999px", "blobImage": "46% 54% 42% 58% / 52% 44% 56% 48%" },
+    "effects": { "chunkyShadow": "0 4px-10px 0 #1D2340 (solid offset, no blur)", "outline": "2px solid #1D2340" },
+    "feel": "Fun, friendly, for kids and parents. Sticker badges rotated a few degrees, color-coded note letters on the piano, chunky outlined buttons."
+  }
+}
