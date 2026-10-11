@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Studio — Studio feed (C)</title>
+<script src="/mockups/ej-piano/vendor/react.js"></script>
+<script src="/mockups/ej-piano/vendor/react-dom.js"></script>
+<script src="/mockups/ej-piano/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D2340}a:hover{color:#2552C9}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #FFF9EC; color: #1D2340; font-family: 'Nunito', sans-serif; font-size: 15px; display: flex; flex-wrap: wrap">
+
+<aside style="flex: 1 1 220px; background: #1D2340; color: #FFF9EC; padding: 24px 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 24px"><span style="width: 40px; height: 40px; border-radius: 50%; background: #FFC93C; color: #1D2340; display: flex; align-items: center; justify-content: center; font-family: 'Fredoka', sans-serif; font-weight: 700">E&amp;J</span><span style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 20px">Studio</span></div>
+<a href="/mockups/ej-piano/c/studio/Dashboard.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Today</a>
+<a href="/mockups/ej-piano/c/studio/Students.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Students</a>
+<a href="/mockups/ej-piano/c/studio/Schedule.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Schedule</a>
+<a href="/mockups/ej-piano/c/studio/Live.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Live session</a>
+<a href="/mockups/ej-piano/c/studio/Feed.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px; background: #2552C9">Studio feed</a>
+<a href="/mockups/ej-piano/c/studio/Messages.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Messages</a>
+<a href="/mockups/ej-piano/c/studio/Billing.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Billing</a>
+</aside>
+
+<main style="flex: 999 1 560px; min-width: 0; padding: 32px 40px; box-sizing: border-box">
+<div style="margin-bottom: 24px">
+<h1 style="margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 44px">Studio feed</h1>
+<div style="color: #565C7A">What families see on the app's home screen</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<div style="flex: 3 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+<form onSubmit="{{post}}" style="background: #FFFFFF; border: 1px solid #EADFC6; border-radius: 25px; padding: 22px">
+<label for="cap" style="display: block; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 26px; margin-bottom: 10px">New post</label>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<button type="button" style="flex: 0 0 180px; height: 180px; border: 2px dashed #1D2340; border-radius: 20px; background: #FFF9EC; color: #454B66; font: inherit; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px">
+<svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2552C9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg>Add photo or video</button>
+<div style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<textarea id="cap" rows="4" value="{{draft}}" onChange="{{onDraft}}" placeholder="Share a recital clip, a milestone, or studio news…" style="font: inherit; padding: 12px; border: 1px solid #1D2340; border-radius: 17px; background: #FFF9EC; resize: vertical"></textarea>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 700; flex: 1 1 160px">Who can see it
+<select style="font: inherit; font-weight: 400; padding: 10px; border: 1px solid #1D2340; border-radius: 14px; background: #FFFFFF"><option>Whole studio</option><option>Only tagged families</option><option>One family</option></select></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 700; flex: 1 1 160px">Tag students
+<input type="text" placeholder="e.g. Leo, Ava" style="font: inherit; font-weight: 400; padding: 10px; border: 1px solid #1D2340; border-radius: 14px; background: #FFFFFF"></label>
+</div>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px">
+<label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #1D2340; margin: 0">Notify families</label>
+<div style="display: flex; gap: 10px">
+<button type="button" style="font: inherit; font-weight: 700; background: #FFE9A8; color: #1D2340; border: 2px solid #1D2340; border-radius: 999px; box-shadow: 0 3px 0 #1D2340; padding: 12px 18px; cursor: pointer">Schedule</button>
+<button type="submit" style="font: inherit; font-weight: 700; background: #1D2340; color: #FFF9EC; border: 2px solid #1D2340; border-radius: 999px; box-shadow: 0 3px 0 #1D2340; padding: 12px 24px; cursor: pointer">Post</button>
+</div>
+</div>
+</form>
+
+<section>
+<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px">
+<h2 style="margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 26px">Posts</h2>
+<span style="font-size: 14px; color: #565C7A">{{count}} posts this season</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px">
+<sc-for list="{{posts}}" as="p" hint-placeholder-count="6">
+<article style="background: #FFFFFF; border: 1px solid #EADFC6; border-radius: 22px; overflow: hidden">
+<div style="aspect-ratio: 1 / 1; background: {{p.bg}}; color: {{p.fg}}; display: flex; align-items: center; justify-content: center; position: relative; padding: 16px; box-sizing: border-box; text-align: center">
+<sc-if value="{{p.video}}" hint-placeholder-val="{{ false }}"><span style="width: 52px; height: 52px; border-radius: 50%; background: #FFF9EC; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="#1D2340"><path d="M8 5v14l11-7z"></path></svg></span></sc-if>
+<sc-if value="{{p.text}}" hint-placeholder-val="{{ false }}"><span style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.2">{{p.headline}}</span></sc-if>
+<span style="position: absolute; top: 10px; left: 10px; font-size: 12px; font-weight: 700; background: rgba(251,248,241,0.92); color: #1D2340; padding: 3px 8px; border-radius: 999px">{{p.kind}}</span>
+</div>
+<div style="padding: 12px 14px">
+<div style="font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{p.caption}}</div>
+<div style="display: flex; gap: 14px; font-size: 13px; color: #565C7A; margin-top: 6px"><span>{{p.likes}} likes</span><span>{{p.comments}} comments</span><span>{{p.when}}</span></div>
+</div>
+</article>
+</sc-for>
+</div>
+</section>
+</div>
+
+<aside style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<section style="background: #FFFFFF; border: 1px solid #EADFC6; border-radius: 25px; padding: 20px 22px">
+<h2 style="margin: 0 0 6px; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 24px">New comments</h2>
+<sc-for list="{{comments}}" as="c" hint-placeholder-count="3">
+<div style="padding: 12px 0; border-top: 1px solid #EADFC6">
+<div style="font-size: 14px"><strong>{{c.who}}</strong> on {{c.on}}</div>
+<div style="color: #454B66; margin: 2px 0 8px">“{{c.text}}”</div>
+<sc-if value="{{c.open}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; gap: 8px"><button type="button" onClick="{{c.like}}" style="font: inherit; font-size: 13px; font-weight: 700; background: #FFE9A8; border: 2px solid #1D2340; border-radius: 999px; box-shadow: 0 3px 0 #1D2340; padding: 8px 12px; cursor: pointer">Like</button><button type="button" onClick="{{c.hide}}" style="font: inherit; font-size: 13px; font-weight: 700; background: transparent; border: 1px solid #1D2340; border-radius: 999px; padding: 8px 12px; cursor: pointer">Hide</button></div>
+</sc-if>
+<sc-if value="{{c.done}}" hint-placeholder-val="{{ false }}"><div style="font-size: 13px; font-weight: 700; color: #565C7A">{{c.doneText}}</div></sc-if>
+</div>
+</sc-for>
+</section>
+
+<section style="background: #1D2340; color: #FFF9EC; border-radius: 25px; padding: 20px 22px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.12em; color: #FFC93C">PRIVACY</div>
+<div style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 24px; margin: 4px 0 8px">Only enrolled families see the feed</div>
+<div style="color: #D7DBEA; font-size: 14px; margin-bottom: 12px">Photo permission on file for 20 of 22 students. Students without it can't be tagged in photos or videos.</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px"><span style="font-size: 13px; font-weight: 700; background: #2552C9; border-radius: 999px; padding: 6px 12px">No photos: Lily N.</span><span style="font-size: 13px; font-weight: 700; background: #2552C9; border-radius: 999px; padding: 6px 12px">No photos: Daniel R.</span></div>
+</section>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { draft: '', mine: [], cm: {} }; }
+  renderVals() {
+    var self = this;
+    var base = [
+      { kind: 'Video', video: true, text: false, bg: '#1D2340', fg: '#FFF9EC', caption: 'Leo & Ava’s first duet of the year', likes: 24, comments: 6, when: '2h' },
+      { kind: 'News', video: false, text: true, headline: 'Fall recital sign-ups are open', bg: '#FFF0B8', fg: '#1D2340', caption: 'RSVP in the app by Oct 20', likes: 18, comments: 3, when: 'Mon' },
+      { kind: 'Video', video: true, text: false, bg: '#2552C9', fg: '#FFF9EC', caption: 'Isaiah’s Chopin nocturne, start to finish', likes: 31, comments: 9, when: 'Oct 2' },
+      { kind: 'Milestone', video: false, text: true, headline: 'Caleb finished his first practice chart!', bg: '#DCEFE2', fg: '#1D2340', caption: '30 days of practice in a row', likes: 22, comments: 7, when: 'Sep 30' },
+      { kind: 'Photo', video: false, text: true, headline: '[Photo]', bg: '#FFE9A8', fg: '#565C7A', caption: 'New sheet music shelf in the studio', likes: 12, comments: 1, when: 'Sep 26' },
+      { kind: 'Video', video: true, text: false, bg: '#6C4AB6', fg: '#FFF9EC', caption: 'Warm-up of the week: C major arpeggios', likes: 15, comments: 2, when: 'Sep 22' }
+    ];
+    var mine = this.state.mine.map(function (t) { return { kind: 'News', video: false, text: true, headline: t, bg: '#FFF0B8', fg: '#1D2340', caption: t, likes: 0, comments: 0, when: 'Just now' }; });
+    var cm = this.state.cm;
+    var comments = [
+      ['Grace Chen', 'the duet video', 'Ava has been practicing this all week. So proud!'],
+      ['Tasha Brooks', 'Caleb’s milestone', 'He was so excited to see this!'],
+      ['Rob Hill', 'the recital post', 'Is there a dress code for the recital?']
+    ].map(function (c, i) {
+      var st = cm[i];
+      return { who: c[0], on: c[1], text: c[2], open: !st, done: !!st, doneText: st === 'liked' ? 'You liked this' : 'Hidden from the feed',
+        like: function () { var n = Object.assign({}, self.state.cm); n[i] = 'liked'; self.setState({ cm: n }); },
+        hide: function () { var n = Object.assign({}, self.state.cm); n[i] = 'hidden'; self.setState({ cm: n }); } };
+    });
+    var posts = mine.concat(base);
+    return {
+      posts: posts,
+      count: 22 + mine.length,
+      comments: comments,
+      draft: this.state.draft,
+      onDraft: (e) => this.setState({ draft: e.target.value }),
+      post: (e) => { e.preventDefault(); var t = this.state.draft.trim(); if (!t) return; this.setState({ draft: '', mine: [t].concat(this.state.mine) }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

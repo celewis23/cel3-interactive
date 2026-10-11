@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Student profile and practice (B)</title>
+<script src="/mockups/ej-piano/vendor/react.js"></script>
+<script src="/mockups/ej-piano/vendor/react-dom.js"></script>
+<script src="/mockups/ej-piano/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E0E0E}a:hover{color:#C2321A}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #FFFFFF; color: #0E0E0E; font-family: 'IBM Plex Sans', sans-serif; font-size: 15px; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="background: #0E0E0E; color: #FFFFFF; padding: 18px 18px 22px">
+<div style="display: flex; gap: 8px; margin-bottom: 18px">
+<button type="button" style="font: inherit; font-size: 13px; font-weight: 700; background: #FF6A4D; color: #0E0E0E; border: none; border-radius: 0; padding: 8px 14px; min-height: 36px">Maya</button>
+<button type="button" style="font: inherit; font-size: 13px; font-weight: 700; background: transparent; color: #FFFFFF; border: 1px solid #6B6B6B; border-radius: 0; padding: 8px 14px; min-height: 36px">Leo</button>
+</div>
+<div style="display: flex; align-items: center; gap: 14px">
+<span style="width: 64px; height: 64px; border-radius: 50%; background: #C2321A; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 28px; border: 2px solid #FF6A4D">M</span>
+<div>
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 30px; line-height: 1.1">Maya Rivera</div>
+<div style="color: #BDBDBD; font-size: 14px">Level 3 · Tuesdays 4:30 PM · In studio</div>
+</div>
+</div>
+<div style="margin-top: 18px; background: #2A2A2A; border-radius: 0; padding: 14px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-weight: 700">12-day practice streak</span><span style="font-size: 13px; color: #BDBDBD">This week</span></div>
+<div style="display: flex; justify-content: space-between; margin-top: 10px">
+<sc-for list="{{days}}" as="d" hint-placeholder-count="7">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 4px">
+<span style="width: 32px; height: 32px; border-radius: 50%; background: {{d.bg}}; border: 1.5px solid #FF6A4D; box-sizing: border-box; color: #0E0E0E; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{d.min}}</span>
+<span style="font-size: 11px; color: #BDBDBD">{{d.l}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+</header>
+
+<main style="flex: 1; overflow: hidden; padding: 18px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 24px">This week's practice</h2>
+<span style="font-size: 13px; color: #666666">From Oct 6 lesson</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<a href="/mockups/ej-piano/b/app/Assignment.dc.html" style="text-decoration: none; background: #FFFFFF; border: 1px solid #D6D6D6; border-radius: 0; padding: 14px; display: flex; gap: 12px; align-items: center">
+<span style="width: 46px; height: 46px; border-radius: 0; background: #0E0E0E; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="#FF6A4D"><path d="M8 5v14l11-7z"></path></svg></span>
+<span style="flex: 1"><span style="display: block; font-weight: 700">Minuet in G, mm. 1–16</span><span style="display: block; font-size: 13px; color: #666666">Hands separate · 60 bpm · Due Tue</span><span style="display: block; height: 6px; background: #D6D6D6; border-radius: 0; margin-top: 8px"><span style="display: block; width: 60%; height: 6px; background: #C2321A; border-radius: 0"></span></span></span>
+<span style="font-size: 13px; font-weight: 700">3/5</span>
+</a>
+<div style="background: #FFFFFF; border: 1px solid #D6D6D6; border-radius: 0; padding: 14px; display: flex; gap: 12px; align-items: center">
+<span style="width: 46px; height: 46px; border-radius: 0; background: #F2F2F0; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0E0E0E" stroke-width="1.8" stroke-linecap="round"><path d="M4 18l4-6 4 4 4-8 4 6"></path></svg></span>
+<span style="flex: 1"><span style="display: block; font-weight: 700">C major scale, 2 octaves</span><span style="display: block; font-size: 13px; color: #666666">Every day · 5 minutes</span></span>
+<span style="font-size: 13px; font-weight: 700; color: #2F7A4F">Done today</span>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #D6D6D6; border-radius: 0; padding: 14px; display: flex; gap: 12px; align-items: center">
+<span style="width: 46px; height: 46px; border-radius: 0; background: #F2F2F0; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0E0E0E" stroke-width="1.8" stroke-linejoin="round"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z"></path><path d="M8 9h8M8 13h6"></path></svg></span>
+<span style="flex: 1"><span style="display: block; font-weight: 700">Theory workbook, p. 14</span><span style="display: block; font-size: 13px; color: #666666">Note names on the bass clef</span></span>
+<span style="font-size: 13px; font-weight: 700; color: #666666">To do</span>
+</div>
+</div>
+
+<h2 style="margin: 22px 0 8px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 24px">Past lessons</h2>
+<sc-for list="{{past}}" as="p" hint-placeholder-count="3">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #D6D6D6">
+<div><div style="font-weight: 700">{{p.date}}</div><div style="font-size: 13px; color: #666666">{{p.sum}}</div></div>
+<span style="font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 0; background: #F2F2F0">{{p.type}}</span>
+</div>
+</sc-for>
+</main>
+
+<nav style="display: flex; border-top: 1px solid #D6D6D6; background: #FFFFFF; padding: 6px 4px 20px">
+<a href="/mockups/ej-piano/b/app/Feed.dc.html" style="flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #666666; font-size: 11px"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="1.8" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>Home</a>
+<a href="/mockups/ej-piano/b/app/Practice.dc.html" style="flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #0E0E0E; font-size: 11px; font-weight: 700"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E0E0E" stroke-width="2.2" stroke-linecap="round"><path d="M9 18V5l11-2v13"></path><circle cx="6" cy="18" r="3" fill="#0E0E0E"></circle><circle cx="17" cy="16" r="3" fill="#0E0E0E"></circle></svg>Practice</a>
+<a href="/mockups/ej-piano/b/app/Lesson.dc.html" style="flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #666666; font-size: 11px"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="1.8" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"></rect><path d="M16 10l6-3v10l-6-3"></path></svg>Lesson</a>
+<a href="/mockups/ej-piano/b/app/Messages.dc.html" style="flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #666666; font-size: 11px"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="1.8" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"></path></svg>Messages</a>
+<a href="/mockups/ej-piano/b/app/Pay.dc.html" style="flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: #666666; font-size: 11px"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="1.8" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><path d="M2 10h20"></path></svg>Tuition</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      days: [
+        { l: 'M', min: '20', bg: '#FF6A4D' }, { l: 'T', min: '15', bg: '#FF6A4D' },
+        { l: 'W', min: '25', bg: '#FF6A4D' }, { l: 'T', min: '10', bg: '#FF6A4D' },
+        { l: 'F', min: '', bg: 'transparent' }, { l: 'S', min: '', bg: 'transparent' }, { l: 'S', min: '', bg: 'transparent' }
+      ],
+      past: [
+        { date: 'Tue, Oct 6', sum: 'Started Minuet in G · steady tempo', type: 'In studio' },
+        { date: 'Tue, Sep 29', sum: 'Scales review · sight reading', type: 'Online' },
+        { date: 'Tue, Sep 22', sum: 'Finished Ode to Joy', type: 'In studio' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

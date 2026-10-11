@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>E&amp;J Piano — Concert Hall</title>
+<script src="/mockups/ej-piano/vendor/react.js"></script>
+<script src="/mockups/ej-piano/vendor/react-dom.js"></script>
+<script src="/mockups/ej-piano/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&amp;family=Karla:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#14213D}a:hover{color:#8A6516}
+</style>
+</helmet>
+<div style="background: #FBF8F1; color: #14213D; font-family: 'Karla', sans-serif; font-size: 17px; line-height: 1.6">
+
+<header style="border-bottom: 1px solid #E6DFD0">
+<nav style="max-width: 1200px; margin: 0 auto; padding: 18px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<a href="#top" style="display: flex; align-items: center; gap: 12px; text-decoration: none">
+<span style="width: 46px; height: 46px; border-radius: 50%; background: #14213D; color: #E9C46A; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 20px">E&amp;J</span>
+<span style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: #14213D; line-height: 1.1">E&amp;J Piano<br><span style="font-size: 15px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase">&amp; Music Studio</span></span>
+</a>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 28px; font-size: 15px; font-weight: 500">
+<a href="#lessons" style="text-decoration: none">Lessons</a>
+<a href="#students" style="text-decoration: none">Students</a>
+<a href="#app" style="text-decoration: none">Studio App</a>
+<a href="#about" style="text-decoration: none">About</a>
+<a href="#tuition" style="text-decoration: none">Tuition</a>
+<a href="#login" style="text-decoration: none">Family login</a>
+<a href="#contact" style="text-decoration: none; background: #14213D; color: #FBF8F1; padding: 12px 22px; border-radius: 999px">Book a trial lesson</a>
+</div>
+</nav>
+</header>
+
+<section id="top" style="max-width: 1200px; margin: 0 auto; padding: 88px 32px 64px; display: flex; flex-wrap: wrap; gap: 56px; align-items: center">
+<div style="flex: 1 1 480px; min-width: 0">
+<div style="font-size: 14px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #8A6516">Private piano lessons · In studio &amp; live online</div>
+<h1 style="margin: 18px 0 22px; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 78px; line-height: 1.02; letter-spacing: -0.01em">Where young musicians find their <em style="font-style: italic; color: #8A6516">voice.</em></h1>
+<p style="margin: 0 0 32px; font-size: 19px; color: #4A5062; max-width: 520px">E&amp;J Piano and Music Studio teaches 20+ students, in the studio and over live video, with practice plans, lesson notes and family updates in one app.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 14px">
+<a href="#contact" style="text-decoration: none; background: #14213D; color: #FBF8F1; padding: 16px 28px; border-radius: 999px; font-weight: 700">Book a trial lesson</a>
+<a href="#app" style="text-decoration: none; border: 1.5px solid #14213D; padding: 15px 26px; border-radius: 999px; font-weight: 700">See the studio app</a>
+</div>
+</div>
+<div style="flex: 1 1 420px; min-width: 0; position: relative">
+<img src="/mockups/ej-piano/media/images/hero-student-grand-piano.jpg" alt="A smiling student playing the studio's grand piano" style="width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 72% 50%; border-radius: 220px 220px 12px 12px; display: block; background: #14213D">
+<div style="position: absolute; left: -24px; bottom: 56px; background: #FFFFFF; border: 1px solid #E6DFD0; border-radius: 14px; padding: 16px 20px; box-shadow: 0 12px 30px rgba(20,33,61,0.12)">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #8A6516">Next recital</div>
+<div style="font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600">[Recital date]</div>
+</div>
+</div>
+</section>
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 32px">
+<div style="position: relative; display: flex; height: 150px; border-right: 1px solid #14213D; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none" onPointerDown="{{pdown}}" onPointerMove="{{pmove}}" onPointerUp="{{pup}}" onPointerCancel="{{pup}}" onLostPointerCapture="{{pup}}" onContextMenu="{{noMenu}}">
+<sc-for list="{{whites}}" as="k" hint-placeholder-count="22">
+<button type="button" aria-label="{{k.name}}" data-midi="{{k.midi}}" onClick="{{k.click}}" style="flex: 1; min-width: 0; margin: 0; padding: 0 0 10px; background: {{k.bg}}; border: 1px solid #14213D; border-right: none; border-radius: 0 0 5px 5px; cursor: pointer; display: flex; align-items: flex-end; justify-content: center; font-family: 'Karla', sans-serif; font-size: 11px; font-weight: 700; color: #8A6516">{{k.label}}</button>
+</sc-for>
+<sc-for list="{{blacks}}" as="k" hint-placeholder-count="15">
+<button type="button" aria-label="{{k.name}}" data-midi="{{k.midi}}" onClick="{{k.click}}" style="position: absolute; top: 0; left: {{k.left}}; width: {{k.w}}; height: 62%; margin: 0; padding: 0; border: none; background: {{k.bg}}; border-radius: 0 0 4px 4px; cursor: pointer"></button>
+</sc-for>
+</div>
+<div style="margin-top: 14px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 14px; color: #4A5062">
+<span><strong style="color: #8A6516">Go ahead, play it.</strong> Tap or click the keys (turn your sound on).</span>
+<span>Middle C is marked C4</span>
+</div>
+</div>
+
+<section style="max-width: 1200px; margin: 0 auto; padding: 56px 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 32px">
+<div><div style="font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 600; line-height: 1">20+</div><div style="color: #4A5062">students learning every week</div></div>
+<div><div style="font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 600; line-height: 1">2 ways</div><div style="color: #4A5062">to learn: in the studio or live on video</div></div>
+<div><div style="font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 600; line-height: 1">1 app</div><div style="color: #4A5062">for practice, messages and tuition</div></div>
+</section>
+
+<section id="lessons" style="background: #FFFFFF; border-top: 1px solid #E6DFD0; border-bottom: 1px solid #E6DFD0">
+<div style="max-width: 1200px; margin: 0 auto; padding: 96px 32px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 48px">
+<h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 56px; line-height: 1.05; max-width: 560px">Lessons shaped around each student</h2>
+<p style="margin: 0; color: #4A5062; max-width: 420px">Every student gets a plan for their level, notes from every lesson and practice assignments they can open at home.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px">
+<article style="border: 1px solid #E6DFD0; border-radius: 16px; padding: 32px; background: #FBF8F1">
+<svg aria-hidden="true" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#8A6516" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1.5"></rect><path d="M7 5v8M11 5v8M15 5v8M7 19v-6M11 19v-6M15 19v-6"></path></svg>
+<h3 style="margin: 18px 0 8px; font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600">Private piano</h3>
+<p style="margin: 0; color: #4A5062">One-on-one weekly lessons in the studio, from first notes to recital pieces.</p>
+</article>
+<article style="border: 1px solid #E6DFD0; border-radius: 16px; padding: 32px; background: #FBF8F1">
+<svg aria-hidden="true" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#8A6516" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"></rect><path d="M16 10l6-3v10l-6-3"></path></svg>
+<h3 style="margin: 18px 0 8px; font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600">Live online lessons</h3>
+<p style="margin: 0; color: #4A5062">The same lesson over video, started right from the studio app. Great for snow days and busy weeks.</p>
+</article>
+<article style="border: 1px solid #E6DFD0; border-radius: 16px; padding: 32px; background: #FBF8F1">
+<svg aria-hidden="true" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#8A6516" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="17" cy="16" r="3"></circle></svg>
+<h3 style="margin: 18px 0 8px; font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600">Theory &amp; reading</h3>
+<p style="margin: 0; color: #4A5062">Reading music, rhythm and ear training woven into every lesson.</p>
+</article>
+</div>
+</div>
+</section>
+
+<section id="students" style="max-width: 1200px; margin: 0 auto; padding: 96px 32px">
+<div style="font-size: 14px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #8A6516">Student spotlight</div>
+<h2 style="margin: 10px 0 40px; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 56px; line-height: 1.05">Recitals, firsts &amp; proud moments</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px">
+<sc-for list="{{spotlight}}" as="s" hint-placeholder-count="4">
+<figure style="margin: 0">
+<div style="aspect-ratio: 4 / 5; background: #14213D; border-radius: 14px; position: relative; display: flex; align-items: center; justify-content: center">
+<sc-if value="{{s.video}}" hint-placeholder-val="{{ false }}">
+<video src="{{s.src}}" poster="{{s.poster}}" controls playsinline preload="metadata" aria-label="{{s.name}}: {{s.detail}}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: {{s.pos}}; background: #000; z-index: 1; border-radius: 14px; display: block"></video>
+</sc-if>
+<span style="width: 60px; height: 60px; border-radius: 50%; background: #FBF8F1; display: flex; align-items: center; justify-content: center">
+<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="#14213D"><path d="M8 5v14l11-7z"></path></svg>
+</span>
+<span style="position: absolute; left: 14px; bottom: 14px; color: #C9CFDB; font-size: 13px">{{s.media}}</span>
+</div>
+<figcaption style="margin-top: 14px">
+<div style="font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600">{{s.name}}</div>
+<div style="color: #4A5062; font-size: 15px">{{s.detail}}</div>
+</figcaption>
+</figure>
+</sc-for>
+</div>
+</section>
+
+<section id="app" style="background: #14213D; color: #FBF8F1">
+<div style="max-width: 1200px; margin: 0 auto; padding: 104px 32px; display: flex; flex-wrap: wrap; gap: 64px; align-items: center">
+<div style="flex: 1 1 440px; min-width: 0">
+<div style="font-size: 14px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #E9C46A">The E&amp;J studio app</div>
+<h2 style="margin: 12px 0 20px; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 58px; line-height: 1.04">The whole studio, in your pocket</h2>
+<p style="margin: 0 0 36px; color: #C9CFDB; max-width: 480px">Families get one place to see what their child is practicing, talk with their teacher, join online lessons and pay tuition.</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 28px">
+<div><div style="font-weight: 700; font-size: 18px; margin-bottom: 4px">Practice assignments</div><div style="color: #C9CFDB; font-size: 15px">Demo videos and checklists for every piece.</div></div>
+<div><div style="font-weight: 700; font-size: 18px; margin-bottom: 4px">Studio feed</div><div style="color: #C9CFDB; font-size: 15px">Recital clips, wins and studio news.</div></div>
+<div><div style="font-weight: 700; font-size: 18px; margin-bottom: 4px">Direct messages</div><div style="color: #C9CFDB; font-size: 15px">Reschedule or ask a question in seconds.</div></div>
+<div><div style="font-weight: 700; font-size: 18px; margin-bottom: 4px">Tuition &amp; autopay</div><div style="color: #C9CFDB; font-size: 15px">Pay the monthly fee from your phone.</div></div>
+</div>
+<a href="#login" style="display: inline-block; margin-top: 40px; text-decoration: none; background: #E9C46A; color: #14213D; padding: 16px 28px; border-radius: 999px; font-weight: 700">Open the family app</a>
+</div>
+<div style="flex: 0 1 320px; margin: 0 auto">
+<div style="width: 300px; height: 600px; border-radius: 44px; background: #0B1428; border: 10px solid #24324F; box-sizing: border-box; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<div style="font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: #FBF8F1">This week</div>
+<div style="background: #FBF8F1; color: #14213D; border-radius: 14px; padding: 14px"><div style="font-size: 12px; font-weight: 700; letter-spacing: 0.1em; color: #8A6516">DUE TUESDAY</div><div style="font-weight: 700">Minuet in G, mm. 1–16</div><div style="height: 6px; background: #E6DFD0; border-radius: 3px; margin-top: 10px"><div style="width: 60%; height: 6px; background: #8A6516; border-radius: 3px"></div></div></div>
+<div style="background: #FBF8F1; color: #14213D; border-radius: 14px; padding: 14px"><div style="font-size: 12px; font-weight: 700; letter-spacing: 0.1em; color: #8A6516">DAILY</div><div style="font-weight: 700">C major scale, 2 octaves</div></div>
+<div style="background: #24324F; border-radius: 14px; padding: 14px; color: #FBF8F1"><div style="font-size: 13px; color: #C9CFDB">Online lesson</div><div style="font-weight: 700">Tuesday · 4:30 PM</div><div style="margin-top: 10px; background: #E9C46A; color: #14213D; border-radius: 999px; text-align: center; padding: 8px; font-weight: 700; font-size: 14px">Join lesson</div></div>
+<div style="background: #24324F; border-radius: 14px; padding: 14px; color: #FBF8F1; display: flex; justify-content: space-between; align-items: center"><div><div style="font-size: 13px; color: #C9CFDB">October tuition</div><div style="font-weight: 700">[RATE]</div></div><div style="border: 1px solid #E9C46A; color: #E9C46A; border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 700">Pay</div></div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="about" style="max-width: 1200px; margin: 0 auto; padding: 104px 32px; display: flex; flex-wrap: wrap; gap: 64px; align-items: center">
+<img src="/mockups/ej-piano/media/images/teacher-portrait.jpg" alt="The teacher at E&amp;J Piano and Music Studio" style="flex: 1 1 360px; min-width: 0; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 28%; border-radius: 220px 220px 12px 12px; display: block">
+<div style="flex: 1 1 480px; min-width: 0">
+<div style="font-size: 14px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #8A6516">Meet your teacher</div>
+<h2 style="margin: 10px 0 20px; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 56px; line-height: 1.05">[Teacher name]</h2>
+<p style="margin: 0 0 18px; color: #4A5062">[Short bio: musical training, how many years she has taught, and what she loves about teaching children.]</p>
+<p style="margin: 0 0 28px; color: #4A5062">[Her teaching approach: patience, structure, and making practice something kids look forward to.]</p>
+<p style="margin: 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 26px">“[A line in her own words about why she teaches.]”</p>
+</div>
+</section>
+
+<section id="tuition" style="background: #FFFFFF; border-top: 1px solid #E6DFD0; border-bottom: 1px solid #E6DFD0">
+<div style="max-width: 1200px; margin: 0 auto; padding: 96px 32px; display: flex; flex-wrap: wrap; gap: 48px; align-items: center">
+<div style="flex: 1 1 400px; min-width: 0">
+<h2 style="margin: 0 0 16px; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 56px; line-height: 1.05">Simple monthly tuition</h2>
+<p style="margin: 0; color: #4A5062">One monthly fee, paid in the app. Turn on autopay and never think about it again.</p>
+</div>
+<div style="flex: 1 1 420px; min-width: 0; border: 1.5px solid #14213D; border-radius: 18px; padding: 40px; background: #FBF8F1">
+<div style="font-size: 14px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #8A6516">Weekly lessons</div>
+<div style="font-family: 'Cormorant Garamond', serif; font-size: 60px; font-weight: 600; line-height: 1.1">[RATE]<span style="font-size: 24px"> / month</span></div>
+<ul style="margin: 20px 0 28px; padding-left: 20px; color: #4A5062">
+<li>Weekly private lesson ([LENGTH] minutes)</li>
+<li>In the studio or online, your choice</li>
+<li>Practice plans and lesson notes in the app</li>
+<li>Seasonal recitals</li>
+</ul>
+<a href="#contact" style="display: block; text-align: center; text-decoration: none; background: #14213D; color: #FBF8F1; padding: 16px; border-radius: 999px; font-weight: 700">Start with a trial lesson</a>
+</div>
+</div>
+</section>
+
+<section id="contact" style="max-width: 1200px; margin: 0 auto; padding: 104px 32px; display: flex; flex-wrap: wrap; gap: 64px">
+<div style="flex: 1 1 360px; min-width: 0">
+<h2 style="margin: 0 0 16px; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 56px; line-height: 1.05">Book a trial lesson</h2>
+<p style="margin: 0 0 28px; color: #4A5062">Tell us a little about your student and we will find a time that works.</p>
+<div style="color: #4A5062; font-size: 16px">[Studio address]<br>[Phone] · [Email]</div>
+</div>
+<form style="flex: 1 1 480px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Parent name<input type="text" style="font: inherit; font-weight: 400; padding: 14px; border: 1px solid #CFC6B3; border-radius: 10px; background: #FFFFFF"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Email<input type="email" style="font: inherit; font-weight: 400; padding: 14px; border: 1px solid #CFC6B3; border-radius: 10px; background: #FFFFFF"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Student age<input type="text" style="font: inherit; font-weight: 400; padding: 14px; border: 1px solid #CFC6B3; border-radius: 10px; background: #FFFFFF"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Lesson type<select style="font: inherit; font-weight: 400; padding: 14px; border: 1px solid #CFC6B3; border-radius: 10px; background: #FFFFFF"><option>In the studio</option><option>Online</option></select></label>
+<label style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px">Anything we should know?<textarea rows="4" style="font: inherit; font-weight: 400; padding: 14px; border: 1px solid #CFC6B3; border-radius: 10px; background: #FFFFFF"></textarea></label>
+<button type="button" style="grid-column: 1 / -1; font: inherit; font-weight: 700; background: #14213D; color: #FBF8F1; border: none; padding: 16px; border-radius: 999px; cursor: pointer">Request a trial lesson</button>
+</form>
+</section>
+
+<footer style="background: #14213D; color: #C9CFDB">
+<div style="max-width: 1200px; margin: 0 auto; padding: 40px 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; font-size: 14px">
+<div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; color: #FBF8F1">E&amp;J Piano and Music Studio</div>
+<div style="display: flex; flex-wrap: wrap; gap: 24px"><a href="#login" style="color: #C9CFDB">Family login</a><a href="#contact" style="color: #C9CFDB">Contact</a><span>© 2026</span></div>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4460}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { active: null }; }
+  componentWillUnmount() { clearTimeout(this.t); for (var k in (this.ptrs || {})) { if (this.ptrs[k].v) this.ptrs[k].v.release(); } if (this.ctx) { try { this.ctx.close(); } catch (e) {} } }
+  audio() {
+    var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+    if (!this.ctx) {
+      this.ctx = new AC();
+      this.bus = this.ctx.createDynamicsCompressor();
+      this.bus.threshold.value = -14; this.bus.ratio.value = 4;
+      this.bus.connect(this.ctx.destination);
+    }
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    return this.ctx;
+  }
+  voice(midi) {
+    var ctx = this.audio(); if (!ctx) return { release: function () {} };
+    var f0 = 440 * Math.pow(2, (midi - 69) / 12), t = ctx.currentTime;
+    var out = ctx.createGain();
+    out.gain.setValueAtTime(0.0001, t);
+    out.gain.exponentialRampToValueAtTime(0.24, t + 0.006);
+    out.gain.exponentialRampToValueAtTime(0.1, t + 0.45);
+    out.gain.exponentialRampToValueAtTime(0.015, t + 6);
+    var lp = ctx.createBiquadFilter(); lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(Math.min(f0 * 10, 12000), t);
+    lp.frequency.exponentialRampToValueAtTime(Math.max(f0 * 2, 300), t + 1.2);
+    lp.connect(out); out.connect(this.bus);
+    var oscs = [[1, 1, 'triangle'], [2, 0.35, 'sine'], [3, 0.12, 'sine'], [4, 0.05, 'sine']].map(function (p) {
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = p[2]; o.frequency.value = f0 * p[0]; o.detune.value = (p[0] - 1) * 2; g.gain.value = p[1];
+      o.connect(g); g.connect(lp); o.start(t); o.stop(t + 8);
+      return o;
+    });
+    var done = false;
+    return { release: function () {
+      if (done) return; done = true;
+      var n = ctx.currentTime;
+      out.gain.cancelScheduledValues(n);
+      out.gain.setValueAtTime(Math.max(out.gain.value, 0.0001), n);
+      out.gain.exponentialRampToValueAtTime(0.0001, n + 0.3);
+      oscs.forEach(function (o) { try { o.stop(n + 0.35); } catch (e) {} });
+    } };
+  }
+  press(midi) {
+    var v = this.voice(midi);
+    setTimeout(function () { v.release(); }, 380);
+    this.setState({ active: midi }); clearTimeout(this.t);
+    this.t = setTimeout(() => this.setState({ active: null }), 260);
+  }
+  isOn(m) { return !!((this.state.down || {})[m]) || this.state.active === m; }
+  keyAt(e) {
+    var el = document.elementFromPoint(e.clientX, e.clientY);
+    while (el && el.getAttribute && !el.getAttribute('data-midi')) el = el.parentElement;
+    return el && el.getAttribute ? parseInt(el.getAttribute('data-midi'), 10) : null;
+  }
+  setKey(id, m) {
+    var p = this.ptrs[id];
+    if (p && p.m === m) return;
+    if (p && p.v) p.v.release();
+    this.ptrs[id] = { m: m, v: m == null ? null : this.voice(m) };
+    this.syncDown();
+  }
+  syncDown() {
+    var d = {};
+    for (var k in this.ptrs) if (this.ptrs[k].m != null) d[this.ptrs[k].m] = true;
+    this.setState({ down: d });
+  }
+  pDown(e) {
+    if (e.button && e.button !== 0) return;
+    e.preventDefault();
+    this.ptrs = this.ptrs || {};
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+    this.setKey(e.pointerId, this.keyAt(e));
+  }
+  pMove(e) {
+    if (!this.ptrs || !this.ptrs[e.pointerId]) return;
+    this.setKey(e.pointerId, this.keyAt(e));
+  }
+  pUp(e) {
+    if (!this.ptrs || !this.ptrs[e.pointerId]) return;
+    var p = this.ptrs[e.pointerId]; if (p.v) p.v.release();
+    delete this.ptrs[e.pointerId];
+    this.syncDown();
+  }
+  keys(start, octaves, paint) {
+    var self = this, whitePc = [0, 2, 4, 5, 7, 9, 11], names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    var whites = [], blacks = [], end = start + octaves * 12, W = 0, wi = 0;
+    for (var a = start; a <= end; a++) if (whitePc.indexOf(a % 12) >= 0) W++;
+    for (var b = start; b <= end; b++) {
+      (function (m) {
+        var pc = m % 12, isWhite = whitePc.indexOf(pc) >= 0;
+        var k = { midi: m, name: names[pc] + (Math.floor(m / 12) - 1), letter: names[pc],
+          down: function (e) { if (e && e.preventDefault) e.preventDefault(); self.press(m); },
+          click: function (e) { if (e && e.detail === 0) self.press(m); } };
+        var p = paint(pc, isWhite, self.isOn(m)); k.bg = p.bg; k.fg = p.fg; k.dot = p.dot;
+        if (isWhite) { k.label = pc === 0 ? k.name : ''; whites.push(k); wi++; }
+        else { var bw = 58 / W; k.left = (wi * 100 / W - bw / 2) + '%'; k.w = bw + '%'; blacks.push(k); }
+      })(b);
+    }
+    return { whites: whites, blacks: blacks };
+  }
+  renderVals() {
+    var kb = this.keys(48, 3, function (pc, white, on) {
+      return white ? { bg: on ? '#E9C46A' : '#FFFFFF' } : { bg: on ? '#8A6516' : '#14213D' };
+    });
+    return {
+      pdown: (e) => this.pDown(e), pmove: (e) => this.pMove(e), pup: (e) => this.pUp(e), noMenu: (e) => e.preventDefault(),
+      whites: kb.whites,
+      blacks: kb.blacks,
+      spotlight: [
+        { name: '[Student name]', detail: 'Practice session at home', media: 'Video · 1:16', video: true, src: '/mockups/ej-piano/media/video/spotlight-practice-at-home.mp4', poster: '/mockups/ej-piano/media/video/posters/spotlight-practice-at-home.jpg', pos: '50% 72%' },
+        { name: '[Student name]', detail: 'First duet of the year', media: 'Video · 2:43', video: true, src: '/mockups/ej-piano/media/video/spotlight-first-duet.mp4', poster: '/mockups/ej-piano/media/video/posters/spotlight-first-duet.jpg', pos: '60% 50%' },
+        { name: '[Student name]', detail: 'Recital certificate · Holiday recital', media: 'Video · 0:24', video: true, src: '/mockups/ej-piano/media/video/spotlight-recital-certificate.mp4', poster: '/mockups/ej-piano/media/video/posters/spotlight-recital-certificate.jpg', pos: '30% 55%' },
+        { name: '[Student name]', detail: 'Holiday Showcase', media: 'Video · 2:46', video: true, src: '/mockups/ej-piano/media/video/spotlight-holiday-showcase.mp4', poster: '/mockups/ej-piano/media/video/posters/spotlight-holiday-showcase.jpg', pos: '40% 45%' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

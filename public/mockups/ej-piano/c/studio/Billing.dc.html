@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Studio — Billing (C)</title>
+<script src="/mockups/ej-piano/vendor/react.js"></script>
+<script src="/mockups/ej-piano/vendor/react-dom.js"></script>
+<script src="/mockups/ej-piano/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1D2340}a:hover{color:#2552C9}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #FFF9EC; color: #1D2340; font-family: 'Nunito', sans-serif; font-size: 15px; display: flex; flex-wrap: wrap">
+
+<aside style="flex: 1 1 220px; background: #1D2340; color: #FFF9EC; padding: 24px 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 24px"><span style="width: 40px; height: 40px; border-radius: 50%; background: #FFC93C; color: #1D2340; display: flex; align-items: center; justify-content: center; font-family: 'Fredoka', sans-serif; font-weight: 700">E&amp;J</span><span style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 20px">Studio</span></div>
+<a href="/mockups/ej-piano/c/studio/Dashboard.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Today</a>
+<a href="/mockups/ej-piano/c/studio/Students.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Students</a>
+<a href="/mockups/ej-piano/c/studio/Schedule.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Schedule</a>
+<a href="/mockups/ej-piano/c/studio/Live.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Live session</a>
+<a href="/mockups/ej-piano/c/studio/Feed.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Studio feed</a>
+<a href="/mockups/ej-piano/c/studio/Messages.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px">Messages</a>
+<a href="/mockups/ej-piano/c/studio/Billing.dc.html" style="text-decoration: none; color: #FFF9EC; padding: 12px; border-radius: 14px; background: #2552C9">Billing</a>
+</aside>
+
+<main style="flex: 999 1 560px; min-width: 0; padding: 32px 40px; box-sizing: border-box">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 24px">
+<div>
+<h1 style="margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 44px">Billing</h1>
+<div style="color: #565C7A">October 2026 · tuition due Oct 15</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<button type="button" style="font: inherit; font-weight: 700; background: transparent; color: #1D2340; border: 1.5px solid #1D2340; border-radius: 999px; padding: 12px 20px; cursor: pointer">Export for taxes</button>
+<button type="button" onClick="{{remindAll}}" style="font: inherit; font-weight: 700; background: #1D2340; color: #FFF9EC; border: 2px solid #1D2340; border-radius: 999px; box-shadow: 0 3px 0 #1D2340; padding: 13px 22px; cursor: pointer">{{remindAllLabel}}</button>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px">
+<div style="background: #1D2340; color: #FFF9EC; border-radius: 22px; padding: 20px">
+<div style="color: #D7DBEA; font-size: 14px">Collected this month</div>
+<div style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 40px; line-height: 1.15">[AMOUNT]</div>
+<div style="height: 8px; background: #2552C9; border-radius: 6px; margin-top: 10px"><div style="width: 83%; height: 8px; background: #FFC93C; border-radius: 6px"></div></div>
+<div style="font-size: 13px; color: #D7DBEA; margin-top: 6px">15 of 18 families paid</div>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #EADFC6; border-radius: 22px; padding: 20px"><div style="color: #565C7A; font-size: 14px">Outstanding</div><div style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 40px; line-height: 1.15">3 families</div><div style="font-size: 13px; color: #9A2E12; font-weight: 700">1 overdue from September</div></div>
+<div style="background: #FFFFFF; border: 1px solid #EADFC6; border-radius: 22px; padding: 20px"><div style="color: #565C7A; font-size: 14px">On autopay</div><div style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 40px; line-height: 1.15">11 of 18</div><div style="font-size: 13px; color: #565C7A">Charged on the 1st</div></div>
+<div style="background: #FFFFFF; border: 1px solid #EADFC6; border-radius: 22px; padding: 20px"><div style="color: #565C7A; font-size: 14px">Next payout</div><div style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 40px; line-height: 1.15">Oct 13</div><div style="font-size: 13px; color: #565C7A">To bank ending 1234</div></div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<section style="flex: 3 1 560px; min-width: 0; background: #FFFFFF; border: 1px solid #EADFC6; border-radius: 25px; overflow-x: auto">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 18px 20px 8px; min-width: 680px">
+<h2 style="margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 26px">Families</h2>
+<span style="font-size: 14px; color: #565C7A">Unpaid first</span>
+</div>
+<table style="width: 100%; min-width: 680px; border-collapse: collapse; text-align: left">
+<thead><tr style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #565C7A">
+<th style="padding: 12px 20px; font-weight: 700">Family</th><th style="padding: 12px; font-weight: 700">Students</th><th style="padding: 12px; font-weight: 700">Amount</th><th style="padding: 12px; font-weight: 700">Method</th><th style="padding: 12px; font-weight: 700">Status</th><th style="padding: 12px 20px; font-weight: 700"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Action</span></th>
+</tr></thead>
+<tbody>
+<sc-for list="{{fams}}" as="f" hint-placeholder-count="10">
+<tr style="border-top: 1px solid #EADFC6">
+<td style="padding: 12px 20px; font-weight: 700">{{f.name}}</td>
+<td style="padding: 12px; color: #454B66">{{f.kids}}</td>
+<td style="padding: 12px">[RATE]{{f.mult}}</td>
+<td style="padding: 12px; color: #454B66">{{f.method}}</td>
+<td style="padding: 12px"><span style="font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: {{f.bg}}; color: {{f.fg}}">{{f.status}}</span></td>
+<td style="padding: 8px 20px; text-align: right">
+<sc-if value="{{f.canRemind}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{f.remind}}" style="font: inherit; font-weight: 700; font-size: 13px; background: #FFE9A8; color: #1D2340; border: 2px solid #1D2340; border-radius: 999px; box-shadow: 0 3px 0 #1D2340; padding: 9px 14px; cursor: pointer">Send reminder</button></sc-if>
+<sc-if value="{{f.sent}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; color: #1F5E38">Reminder sent</span></sc-if>
+<sc-if value="{{f.paid}}" hint-placeholder-val="{{ true }}"><a href="#receipt" style="font-size: 13px; font-weight: 700">Receipt</a></sc-if>
+</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</section>
+
+<aside style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<section style="background: #FFFFFF; border: 1px solid #EADFC6; border-radius: 25px; padding: 20px 22px">
+<h2 style="margin: 0 0 8px; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 24px">Tuition plans</h2>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid #EADFC6"><span>Weekly · 30 min</span><strong>[RATE] / mo</strong></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid #EADFC6"><span>Weekly · 45 min</span><strong>[RATE] / mo</strong></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid #EADFC6"><span>Sibling discount</span><strong>[X]% off</strong></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid #EADFC6"><span>Recital fee</span><strong>[FEE] / season</strong></div>
+<button type="button" style="margin-top: 8px; font: inherit; font-weight: 700; font-size: 14px; background: transparent; color: #1D2340; border: 1.5px solid #1D2340; border-radius: 999px; padding: 10px 16px; cursor: pointer">Edit plans</button>
+</section>
+
+<section style="background: #FFFFFF; border: 1px solid #EADFC6; border-radius: 25px; padding: 20px 22px">
+<h2 style="margin: 0 0 8px; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 24px">Settings</h2>
+<label style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #EADFC6; min-height: 44px; cursor: pointer"><span>Automatic reminders 3 days before due</span><input type="checkbox" checked style="width: 20px; height: 20px; accent-color: #1D2340; margin: 0"></label>
+<label style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #EADFC6; min-height: 44px; cursor: pointer"><span>Late fee after 7 days</span><input type="checkbox" style="width: 20px; height: 20px; accent-color: #1D2340; margin: 0"></label>
+<label style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #EADFC6; min-height: 44px; cursor: pointer"><span>Encourage autopay at sign-up</span><input type="checkbox" checked style="width: 20px; height: 20px; accent-color: #1D2340; margin: 0"></label>
+</section>
+
+<section style="background: #FFE9A8; border-radius: 25px; padding: 20px 22px">
+<h2 style="margin: 0 0 8px; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 24px">Recent payouts</h2>
+<div style="display: flex; justify-content: space-between; padding: 8px 0"><span>Oct 6</span><strong>[AMOUNT]</strong></div>
+<div style="display: flex; justify-content: space-between; padding: 8px 0"><span>Sep 29</span><strong>[AMOUNT]</strong></div>
+<div style="display: flex; justify-content: space-between; padding: 8px 0"><span>Sep 15</span><strong>[AMOUNT]</strong></div>
+</section>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1250}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { sent: {} }; }
+  renderVals() {
+    var self = this, sent = this.state.sent;
+    var fams = [
+      ['Grant', 'Sofia', '', 'Card', 'Overdue'],
+      ['Rivera', 'Maya, Leo', ' × 2', 'Card', 'Due Oct 15'],
+      ['Brooks', 'Ella, Caleb', ' × 2', 'Manual', 'Due Oct 15'],
+      ['Chen', 'Ava', '', 'Autopay', 'Paid'],
+      ['Ellis', 'Jordan', '', 'Autopay', 'Paid'],
+      ['Hill', 'Marcus', '', 'Card', 'Paid'],
+      ['Patel', 'Noah', '', 'Autopay', 'Paid'],
+      ['Carter', 'Zoe', '', 'Autopay', 'Paid'],
+      ['Ward', 'Isaiah', '', 'Card', 'Paid'],
+      ['Nguyen', 'Lily', '', 'Autopay', 'Paid']
+    ];
+    var unpaid = ['Grant', 'Rivera', 'Brooks'];
+    var allSent = unpaid.every(function (n) { return sent[n]; });
+    return {
+      fams: fams.map(function (f) {
+        var paid = f[4] === 'Paid', over = f[4] === 'Overdue', s = !!sent[f[0]];
+        return { name: f[0] + ' family', kids: f[1], mult: f[2], method: f[3], status: f[4],
+          bg: paid ? '#DCEFE2' : (over ? '#F8DDD3' : '#FFF0B8'), fg: paid ? '#1F5E38' : (over ? '#9A2E12' : '#6B4E0E'),
+          paid: paid, sent: !paid && s, canRemind: !paid && !s,
+          remind: function () { var n = Object.assign({}, self.state.sent); n[f[0]] = true; self.setState({ sent: n }); } };
+      }),
+      remindAllLabel: allSent ? 'Reminders sent' : 'Remind unpaid (3)',
+      remindAll: function () { var n = {}; unpaid.forEach(function (u) { n[u] = true; }); self.setState({ sent: n }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Student profile — Maya Rivera (B)</title>
+<script src="/mockups/ej-piano/vendor/react.js"></script>
+<script src="/mockups/ej-piano/vendor/react-dom.js"></script>
+<script src="/mockups/ej-piano/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E0E0E}a:hover{color:#C2321A}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #FFFFFF; color: #0E0E0E; font-family: 'IBM Plex Sans', sans-serif; font-size: 15px; display: flex; flex-wrap: wrap">
+
+<aside style="flex: 1 1 220px; background: #0E0E0E; color: #FFFFFF; padding: 24px 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 24px">
+<span style="width: 40px; height: 40px; border-radius: 50%; background: #FF6A4D; color: #0E0E0E; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk', sans-serif; font-weight: 700">E&amp;J</span>
+<span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px">Studio</span>
+</div>
+<a href="/mockups/ej-piano/b/studio/Dashboard.dc.html" style="text-decoration: none; color: #FFFFFF; padding: 12px; border-radius: 0">Today</a>
+<a href="/mockups/ej-piano/b/studio/Students.dc.html" style="text-decoration: none; color: #FFFFFF; padding: 12px; border-radius: 0; background: #2A2A2A">Students</a>
+<a href="/mockups/ej-piano/b/studio/Schedule.dc.html" style="text-decoration: none; color: #FFFFFF; padding: 12px; border-radius: 0">Schedule</a>
+<a href="/mockups/ej-piano/b/studio/Live.dc.html" style="text-decoration: none; color: #FFFFFF; padding: 12px; border-radius: 0">Live session</a>
+<a href="/mockups/ej-piano/b/studio/Feed.dc.html" style="text-decoration: none; color: #FFFFFF; padding: 12px; border-radius: 0">Studio feed</a>
+<a href="/mockups/ej-piano/b/studio/Messages.dc.html" style="text-decoration: none; color: #FFFFFF; padding: 12px; border-radius: 0">Messages</a>
+<a href="/mockups/ej-piano/b/studio/Billing.dc.html" style="text-decoration: none; color: #FFFFFF; padding: 12px; border-radius: 0">Billing</a>
+</aside>
+
+<main style="flex: 999 1 560px; min-width: 0; padding: 28px 40px; box-sizing: border-box">
+<a href="/mockups/ej-piano/b/studio/Students.dc.html" style="font-size: 14px; font-weight: 700">← All students</a>
+
+<section style="margin-top: 16px; background: #FFFFFF; border: 1px solid #D6D6D6; border-radius: 0; padding: 24px; display: flex; flex-wrap: wrap; gap: 24px; align-items: center">
+<span style="width: 84px; height: 84px; border-radius: 50%; background: #C2321A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 36px">M</span>
+<div style="flex: 1 1 240px">
+<h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 40px; line-height: 1.1">Maya Rivera</h1>
+<div style="color: #666666">Age 9 · Level 3 · Student since Sept 2024</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; flex: 2 1 460px">
+<div><div style="font-size: 12px; font-weight: 700; letter-spacing: 0.1em; color: #C2321A">LESSON</div><div style="font-weight: 700">Tue · 4:30 PM</div><div style="font-size: 13px; color: #666666">30 min · In studio</div></div>
+<div><div style="font-size: 12px; font-weight: 700; letter-spacing: 0.1em; color: #C2321A">PARENT</div><div style="font-weight: 700">Ana Rivera</div><a href="/mockups/ej-piano/b/studio/Messages.dc.html" style="font-size: 13px">Message</a></div>
+<div><div style="font-size: 12px; font-weight: 700; letter-spacing: 0.1em; color: #C2321A">TUITION</div><div style="font-weight: 700">October due</div><div style="font-size: 13px; color: #666666">Family plan · 2 students</div></div>
+</div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 6px; margin: 22px 0 18px; border-bottom: 1px solid #D6D6D6">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+<button type="button" aria-pressed="{{t.sel}}" onClick="{{t.pick}}" style="font: inherit; font-weight: 700; background: transparent; border: none; border-bottom: 3px solid {{t.line}}; color: {{t.color}}; padding: 12px 14px; cursor: pointer">{{t.label}}</button>
+</sc-for>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<section style="flex: 3 1 460px; min-width: 0">
+<div style="background: #FFFFFF; border: 1px solid #D6D6D6; border-radius: 0; padding: 20px 24px; margin-bottom: 20px">
+<label for="newnote" style="display: block; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 24px; margin-bottom: 8px">Add a lesson note</label>
+<textarea id="newnote" rows="3" placeholder="What did you work on? What should Maya focus on next?" style="width: 100%; box-sizing: border-box; font: inherit; padding: 12px; border: 1px solid #9A9A9A; border-radius: 0; background: #FFFFFF; resize: vertical"></textarea>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-top: 10px">
+<label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer"><input type="checkbox" style="width: 18px; height: 18px; accent-color: #0E0E0E; margin: 0">Share this note with the family</label>
+<button type="button" style="font: inherit; font-weight: 700; background: #0E0E0E; color: #FFFFFF; border: none; border-radius: 0; padding: 11px 20px; cursor: pointer">Save note</button>
+</div>
+</div>
+
+<sc-for list="{{notes}}" as="n" hint-placeholder-count="3">
+<article style="display: flex; gap: 16px; padding: 0 0 20px">
+<div style="display: flex; flex-direction: column; align-items: center"><span style="width: 12px; height: 12px; border-radius: 50%; background: #C2321A; margin-top: 6px"></span><span style="flex: 1; width: 2px; background: #D6D6D6; margin-top: 6px"></span></div>
+<div style="flex: 1; background: #FFFFFF; border: 1px solid #D6D6D6; border-radius: 0; padding: 16px 20px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px"><strong>{{n.date}}</strong><span style="font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 0; background: #F2F2F0">{{n.type}}</span></div>
+<p style="margin: 8px 0 6px; color: #222222">{{n.body}}</p>
+<div style="font-size: 13px; color: #666666">{{n.vis}}</div>
+</div>
+</article>
+</sc-for>
+</section>
+
+<aside style="flex: 2 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<section style="background: #FFFFFF; border: 1px solid #D6D6D6; border-radius: 0; padding: 20px 24px">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 24px">Assignments</h2>
+<span style="font-size: 13px; color: #666666">Due Tue</span>
+</div>
+<sc-for list="{{assignments}}" as="a" hint-placeholder-count="3">
+<div style="padding: 12px 0; border-top: 1px solid #D6D6D6">
+<div style="display: flex; justify-content: space-between; gap: 8px"><strong>{{a.title}}</strong><span style="font-size: 13px; font-weight: 700">{{a.progress}}</span></div>
+<div style="font-size: 13px; color: #666666">{{a.detail}}</div>
+</div>
+</sc-for>
+<form onSubmit="{{addAssignment}}" style="display: flex; gap: 8px; margin-top: 12px">
+<label for="newassign" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">New assignment</label>
+<input id="newassign" type="text" value="{{draft}}" onChange="{{onDraft}}" placeholder="Add practice item…" style="flex: 1; min-width: 0; font: inherit; padding: 10px 12px; border: 1px solid #9A9A9A; border-radius: 0; background: #FFFFFF">
+<button type="submit" style="font: inherit; font-weight: 700; background: #0E0E0E; color: #FFFFFF; border: none; border-radius: 0; padding: 10px 16px; cursor: pointer">Assign</button>
+</form>
+</section>
+
+<section style="background: #FFFFFF; border: 1px solid #D6D6D6; border-radius: 0; padding: 20px 24px">
+<h2 style="margin: 0 0 4px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 24px">Practice minutes</h2>
+<div style="font-size: 13px; color: #666666; margin-bottom: 14px">Last 4 weeks · logged in the app</div>
+<div style="display: flex; align-items: flex-end; gap: 14px; height: 140px">
+<sc-for list="{{weeks}}" as="w" hint-placeholder-count="4">
+<div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end">
+<span style="font-size: 13px; font-weight: 700">{{w.min}}</span>
+<span style="width: 100%; height: {{w.h}}; background: {{w.bg}}; border-radius: 0"></span>
+<span style="font-size: 12px; color: #666666">{{w.label}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="background: #F2F2F0; border-radius: 0; padding: 20px 24px">
+<label for="private" style="display: block; font-weight: 700; margin-bottom: 6px">Private teacher notes <span style="font-weight: 400; color: #4B4B4B">(only you see these)</span></label>
+<textarea id="private" rows="3" style="width: 100%; box-sizing: border-box; font: inherit; padding: 12px; border: 1px solid #9A9A9A; border-radius: 0; background: #FFFFFF; resize: vertical">Ready for Level 4 books by January. Loves pop arrangements as a reward piece.</textarea>
+</section>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1350}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 0, draft: '', added: [] }; }
+  renderVals() {
+    var self = this;
+    var labels = ['Lesson notes', 'Assignments', 'Progress', 'Billing'];
+    var base = [
+      { title: 'Minuet in G, mm. 1–16', detail: 'Hands separate · 60 bpm', progress: '3/5 days' },
+      { title: 'C major scale, 2 octaves', detail: 'Daily · 5 min', progress: '4/5 days' },
+      { title: 'Theory workbook p. 14', detail: 'Bass clef note names', progress: 'Not started' }
+    ];
+    var added = this.state.added.map(function (t) { return { title: t, detail: 'Just assigned', progress: 'New' }; });
+    return {
+      tabs: labels.map(function (l, i) {
+        var sel = self.state.tab === i;
+        return { label: l, sel: sel, line: sel ? '#0E0E0E' : 'transparent', color: sel ? '#0E0E0E' : '#666666', pick: function () { self.setState({ tab: i }); } };
+      }),
+      notes: [
+        { date: 'Tue, Oct 6', type: 'In studio', body: 'Started Minuet in G. Good hand position; rushing in measure 7. Slow practice with metronome at 60 this week.', vis: 'Shared with family' },
+        { date: 'Tue, Sep 29', type: 'Online', body: 'Scales review went well. Sight reading improving: read a new 8-bar piece with only two stops.', vis: 'Shared with family' },
+        { date: 'Tue, Sep 22', type: 'In studio', body: 'Finished Ode to Joy. Ready to add left-hand chords next month.', vis: 'Private' }
+      ],
+      assignments: base.concat(added),
+      draft: this.state.draft,
+      onDraft: (e) => this.setState({ draft: e.target.value }),
+      addAssignment: (e) => {
+        e.preventDefault();
+        var t = this.state.draft.trim();
+        if (!t) return;
+        this.setState({ draft: '', added: this.state.added.concat([t]) });
+      },
+      weeks: [
+        { label: 'Sep 15', min: '62', h: '45%', bg: '#9A9A9A' },
+        { label: 'Sep 22', min: '85', h: '62%', bg: '#9A9A9A' },
+        { label: 'Sep 29', min: '96', h: '70%', bg: '#9A9A9A' },
+        { label: 'Oct 6', min: '70', h: '51%', bg: '#C2321A' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
