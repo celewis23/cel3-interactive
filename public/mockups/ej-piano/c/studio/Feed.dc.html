@@ -14,7 +14,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;family=Nunito:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
 <style>
 body{margin:0}
-#studio-shell{overflow-x:hidden}
+html,body{overflow-x:hidden;max-width:100%}
+#studio-shell{overflow-x:hidden;max-width:100%}
 
 #studio-bottom-nav a,#studio-bottom-nav button{-webkit-tap-highlight-color:transparent}
 @media (max-width: 767px) and (orientation: portrait) {
@@ -112,7 +113,7 @@ a{color:#1D2340}a:hover{color:#2552C9}
 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px">
 <sc-for list="{{posts}}" as="p" hint-placeholder-count="6">
 <article style="background: #FFFFFF; border: 1px solid #EADFC6; border-radius: 22px; overflow: hidden">
-<div style="aspect-ratio: 1 / 1; background: {{p.bg}}; color: {{p.fg}}; display: flex; align-items: center; justify-content: center; position: relative; padding: 16px; box-sizing: border-box; text-align: center">
+<div style="aspect-ratio: 1 / 1; background: {{p.bg}}; background-image: {{p.bgImage}}; background-size: cover; background-position: center; color: {{p.fg}}; display: flex; align-items: center; justify-content: center; position: relative; padding: 16px; box-sizing: border-box; text-align: center">
 <sc-if value="{{p.video}}" hint-placeholder-val="{{ false }}"><span style="width: 52px; height: 52px; border-radius: 50%; background: #FFF9EC; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="#1D2340"><path d="M8 5v14l11-7z"></path></svg></span></sc-if>
 <sc-if value="{{p.text}}" hint-placeholder-val="{{ false }}"><span style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.2">{{p.headline}}</span></sc-if>
 <span style="position: absolute; top: 10px; left: 10px; font-size: 12px; font-weight: 700; background: rgba(251,248,241,0.92); color: #1D2340; padding: 3px 8px; border-radius: 999px">{{p.kind}}</span>
@@ -159,12 +160,10 @@ class Component extends DCLogic {
   renderVals() {
     var self = this;
     var base = [
-      { kind: 'Video', video: true, text: false, bg: '#1D2340', fg: '#FFF9EC', caption: 'Leo & Ava’s first duet of the year', likes: 24, comments: 6, when: '2h' },
-      { kind: 'News', video: false, text: true, headline: 'Fall recital sign-ups are open', bg: '#FFF0B8', fg: '#1D2340', caption: 'RSVP in the app by Oct 20', likes: 18, comments: 3, when: 'Mon' },
-      { kind: 'Video', video: true, text: false, bg: '#2552C9', fg: '#FFF9EC', caption: 'Isaiah’s Chopin nocturne, start to finish', likes: 31, comments: 9, when: 'Oct 2' },
-      { kind: 'Milestone', video: false, text: true, headline: 'Caleb finished his first practice chart!', bg: '#DCEFE2', fg: '#1D2340', caption: '30 days of practice in a row', likes: 22, comments: 7, when: 'Sep 30' },
-      { kind: 'Photo', video: false, text: true, headline: '[Photo]', bg: '#FFE9A8', fg: '#565C7A', caption: 'New sheet music shelf in the studio', likes: 12, comments: 1, when: 'Sep 26' },
-      { kind: 'Video', video: true, text: false, bg: '#6C4AB6', fg: '#FFF9EC', caption: 'Warm-up of the week: C major arpeggios', likes: 15, comments: 2, when: 'Sep 22' }
+      { kind: 'Video', video: true, text: false, bg: '#1D2340', fg: '#FFF9EC', bgImage: "url('/mockups/ej-piano/media/video/posters/spotlight-first-duet.jpg')", caption: 'So proud of Leo and Ava. Their first duet of the year, ready for the fall recital!', likes: 24, comments: 6, when: '2h' },
+      { kind: 'Video', video: true, text: false, bg: '#1D2340', fg: '#FFF9EC', bgImage: "url('/mockups/ej-piano/media/video/posters/spotlight-practice-at-home.jpg')", caption: 'Maya working through her C major scale, two octaves and steady!', likes: 18, comments: 3, when: '1d' },
+      { kind: 'Video', video: true, text: false, bg: '#1D2340', fg: '#FFF9EC', bgImage: "url('/mockups/ej-piano/media/video/posters/spotlight-recital-certificate.jpg')", caption: 'Certificates all around after the holiday recital. What a season!', likes: 31, comments: 9, when: '3d' },
+      { kind: 'Video', video: true, text: false, bg: '#1D2340', fg: '#FFF9EC', bgImage: "url('/mockups/ej-piano/media/video/posters/spotlight-holiday-showcase.jpg')", caption: 'Our holiday showcase was full of first songs and proud families.', likes: 27, comments: 5, when: '1w' }
     ];
     var mine = this.state.mine.map(function (t) { return { kind: 'News', video: false, text: true, headline: t, bg: '#FFF0B8', fg: '#1D2340', caption: t, likes: 0, comments: 0, when: 'Just now' }; });
     var cm = this.state.cm;
