@@ -14,6 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&amp;family=Karla:wght@400;500;700&amp;display=swap" rel="stylesheet">
 <style>
 body{margin:0}
+#studio-shell{overflow-x:hidden}
 
 #studio-bottom-nav a,#studio-bottom-nav button{-webkit-tap-highlight-color:transparent}
 @media (max-width: 767px) and (orientation: portrait) {
@@ -37,7 +38,7 @@ a{color:#14213D}a:hover{color:#8A6516}
 <div style="max-width:1280px;margin:0 auto;padding:0 20px 10px;font-size:12px;opacity:.65">Design concept. Anything in [brackets] is a placeholder for real details.</div>
 </div>
 
-<div style="min-height: 100vh; background: #FBF8F1; color: #14213D; font-family: 'Karla', sans-serif; font-size: 15px; display: flex; flex-wrap: wrap">
+<div id="studio-shell" style="min-height: 100vh; background: #FBF8F1; color: #14213D; font-family: 'Karla', sans-serif; font-size: 15px; display: flex; flex-wrap: wrap">
 
 <aside style="flex: 1 1 220px; background: #14213D; color: #FBF8F1; padding: 24px 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">
 <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 24px"><span style="width: 40px; height: 40px; border-radius: 50%; background: #E9C46A; color: #14213D; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-weight: 700">E&amp;J</span><span style="font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 20px">Studio</span></div>
@@ -51,7 +52,7 @@ a{color:#14213D}a:hover{color:#8A6516}
 </aside>
 <nav id="studio-bottom-nav" aria-label="Studio navigation" style="display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: #14213D; align-items: flex-end; justify-content: space-between; padding: 6px 4px calc(6px + env(safe-area-inset-bottom))">
 <a href="/mockups/ej-piano/a/studio/Dashboard.dc.html" style="flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #FBF8F1; padding: 8px 2px; border-radius: 12px; background: transparent; font-size: 11px; font-weight: 700; text-align: center">Today</a>
-<a href="/mockups/ej-piano/a/studio/Students.dc.html" style="flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #FBF8F1; padding: 8px 2px; border-radius: 12px; background: transparent; font-size: 11px; font-weight: 700; text-align: center">Students<span style="font-size: 10px; color: #E9C46A">22</span></a>
+<a href="/mockups/ej-piano/a/studio/Students.dc.html" style="flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; color: #FBF8F1; padding: 8px 2px; border-radius: 12px; background: transparent; font-size: 11px; font-weight: 700; text-align: center">Students</a>
 <a href="/mockups/ej-piano/a/studio/Live.dc.html" aria-label="Live session" style="flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #FBF8F1; padding: 0; font-size: 11px; font-weight: 700; text-align: center">
 <span style="width: 52px; height: 52px; border-radius: 50%; background: #E9C46A; display: flex; align-items: center; justify-content: center; margin-top: -24px; box-shadow: 0 4px 14px rgba(0,0,0,.35); border: 3px solid #14213D; box-sizing: border-box"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14213D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg></span>
 <span>Live</span>
