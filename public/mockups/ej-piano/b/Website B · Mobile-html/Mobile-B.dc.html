@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E&amp;J Piano — Black &amp; White Keys (mobile)</title>
+<script src="/mockups/ej-piano/device-view.js" data-concept="b" data-layout="mobile"></script>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0E0E0E}a:hover{color:#B42D16}
+</style>
+</helmet>
+<div style="width: 390px; min-height: 4950px; box-sizing: border-box; background: #FFFFFF; color: #0E0E0E; font-family: 'IBM Plex Sans', sans-serif; font-size: 16px; line-height: 1.6; display: flex; flex-direction: column; position: relative">
+
+<header style="position: sticky; top: 0; z-index: 5; background: #FFFFFF; border-bottom: 1px solid #0E0E0E; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between">
+<a href="#top" style="text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 19px; letter-spacing: -0.02em">E&amp;J<span style="color: #D9381E">.</span> <span style="font-weight: 500">Piano Studio</span></a>
+<button type="button" onClick="{{toggleMenu}}" aria-label="{{menuLabel}}" aria-expanded="{{menu}}" style="width: 48px; height: 48px; border: 1.5px solid #0E0E0E; background: {{menuBg}}; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{menuFg}}" stroke-width="2" stroke-linecap="square"><path d="{{menuIcon}}"></path></svg>
+</button>
+</header>
+
+<sc-if value="{{menu}}" hint-placeholder-val="{{ false }}">
+<nav aria-label="Main" style="position: absolute; top: 73px; left: 0; right: 0; z-index: 4; background: #0E0E0E; color: #FFFFFF; padding: 16px 20px 28px">
+<sc-for list="{{links}}" as="l" hint-placeholder-count="5">
+<a href="{{l.href}}" onClick="{{closeMenu}}" style="display: flex; gap: 16px; align-items: baseline; font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 700; letter-spacing: -0.02em; color: #FFFFFF; text-decoration: none; padding: 12px 0; border-bottom: 1px solid #2A2A2A"><span style="font-size: 13px; font-weight: 500; color: #FF6A4D">{{l.n}}</span>{{l.label}}</a>
+</sc-for>
+<a href="#contact" onClick="{{closeMenu}}" style="display: block; margin-top: 20px; text-align: center; text-decoration: none; background: #FFFFFF; color: #0E0E0E; padding: 16px; font-weight: 600">Book a trial lesson →</a>
+</nav>
+</sc-if>
+
+<section id="top" style="background: #0E0E0E; color: #FFFFFF; position: relative; overflow: hidden">
+<video src="/mockups/ej-piano/media/video/site-b-hero-loop-STOCK-PREVIEW-REPLACE.mp4" poster="/mockups/ej-piano/media/video/posters/site-b-hero-loop.jpg" autoplay="" muted="" loop="" playsinline="" aria-hidden="true" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: 40% 50%; display: block"></video>
+<div aria-hidden="true" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(14,14,14,0.75) 0%, rgba(14,14,14,0.6) 40%, rgba(14,14,14,0.92) 100%)"></div>
+<div style="position: relative; padding: 48px 20px 0">
+<h1 style="margin: 0 0 18px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 58px; line-height: 0.95; letter-spacing: -0.04em">Learn piano.<br>Love to <span style="color: #FF6A4D">practice.</span></h1>
+<p style="margin: 0 0 24px; color: #D0D0D0">Private lessons for 20+ students, in the studio and live online. Lessons, assignments and payments in one app.</p>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<a href="#contact" style="text-align: center; text-decoration: none; background: #FFFFFF; color: #0E0E0E; padding: 16px; font-weight: 600">Book a trial lesson</a>
+<a href="#app" style="text-align: center; text-decoration: none; border: 1px solid #FFFFFF; color: #FFFFFF; padding: 15px; font-weight: 600">See the app</a>
+</div>
+<div style="margin-top: 40px; display: flex; justify-content: space-between; font-family: 'Space Grotesk', sans-serif; font-size: 13px; color: #BDBDBD"><span>↓ Playable. Use both hands.</span><span>C4 – C5</span></div>
+</div>
+<div style="position: relative; margin-top: 10px; display: flex; height: 190px; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none" onPointerDown="{{pdown}}" onPointerMove="{{pmove}}" onPointerUp="{{pup}}" onPointerCancel="{{pup}}" onLostPointerCapture="{{pup}}" onContextMenu="{{noMenu}}">
+<sc-for list="{{whites}}" as="k" hint-placeholder-count="8">
+<button type="button" aria-label="{{k.name}}" data-midi="{{k.midi}}" onClick="{{k.click}}" style="flex: 1; min-width: 0; margin: 0; padding: 0 0 10px; background: {{k.bg}}; border: none; border-right: 2px solid #0E0E0E; cursor: pointer; display: flex; align-items: flex-end; justify-content: center; font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 500; color: {{k.fg}}">{{k.label}}</button>
+</sc-for>
+<sc-for list="{{blacks}}" as="k" hint-placeholder-count="5">
+<button type="button" aria-label="{{k.name}}" data-midi="{{k.midi}}" onClick="{{k.click}}" style="position: absolute; top: 0; left: {{k.left}}; width: {{k.w}}; height: 60%; margin: 0; padding: 0; border: none; background: {{k.bg}}; cursor: pointer"></button>
+</sc-for>
+</div>
+</section>
+
+<section id="lessons" style="padding: 56px 20px 40px">
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 500; color: #B42D16">01</div>
+<h2 style="margin: 4px 0 20px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 44px; line-height: 1; letter-spacing: -0.03em">Lessons</h2>
+<div style="border-top: 1px solid #0E0E0E">
+<div style="padding: 20px 0; border-bottom: 1px solid #0E0E0E"><div style="font-family: 'Space Grotesk', sans-serif; color: #666666; font-size: 13px">/1</div><h3 style="margin: 2px 0 4px; font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 26px; letter-spacing: -0.02em">Private piano</h3><p style="margin: 0; color: #4B4B4B; font-size: 15px">Weekly one-on-one lessons, first notes to recital pieces.</p></div>
+<div style="padding: 20px 0; border-bottom: 1px solid #0E0E0E"><div style="font-family: 'Space Grotesk', sans-serif; color: #666666; font-size: 13px">/2</div><h3 style="margin: 2px 0 4px; font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 26px; letter-spacing: -0.02em">Live online lessons</h3><p style="margin: 0; color: #4B4B4B; font-size: 15px">The same lesson over video, started from the app.</p></div>
+<div style="padding: 20px 0; border-bottom: 1px solid #0E0E0E"><div style="font-family: 'Space Grotesk', sans-serif; color: #666666; font-size: 13px">/3</div><h3 style="margin: 2px 0 4px; font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 26px; letter-spacing: -0.02em">Theory &amp; reading</h3><p style="margin: 0; color: #4B4B4B; font-size: 15px">Reading music, rhythm and ear training in every lesson.</p></div>
+</div>
+</section>
+
+<section id="students" style="background: #F2F2F0; padding: 48px 0 40px">
+<div style="padding: 0 20px">
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 500; color: #B42D16">02</div>
+<h2 style="margin: 4px 0 6px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 44px; line-height: 1; letter-spacing: -0.03em">Student spotlight</h2>
+<div style="font-size: 14px; color: #4B4B4B; margin-bottom: 18px">Swipe →</div>
+</div>
+<div style="display: flex; gap: 2px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 20px 8px">
+<sc-for list="{{spotlight}}" as="s" hint-placeholder-count="4">
+<figure style="margin: 0; flex: 0 0 260px; scroll-snap-align: start; background: #FFFFFF; border: 2px solid #0E0E0E">
+<video src="{{s.src}}" poster="{{s.poster}}" controls="" playsinline="" preload="metadata" aria-label="{{s.title}}" style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover; object-position: {{s.pos}}; background: #1C1C1C; display: block"></video>
+<figcaption style="padding: 14px 16px"><div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px">{{s.title}}</div><div style="color: #4B4B4B; font-size: 14px">[Student name] · {{s.len}}</div></figcaption>
+</figure>
+</sc-for>
+</div>
+</section>
+
+<section id="app" style="padding: 56px 20px">
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 500; color: #B42D16">03</div>
+<h2 style="margin: 4px 0 14px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 44px; line-height: 1; letter-spacing: -0.03em">One app for the whole studio.</h2>
+<p style="margin: 0 0 24px; color: #4B4B4B">Students get their own profile. Parents message the teacher and pay tuition. Online lessons start with one tap.</p>
+<ol style="margin: 0; padding: 0; list-style: none; border-top: 1px solid #0E0E0E">
+<li style="padding: 16px 0; border-bottom: 1px solid #0E0E0E; display: flex; gap: 16px"><span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; width: 20px">A</span><span><strong>Practice plans</strong> with demo videos</span></li>
+<li style="padding: 16px 0; border-bottom: 1px solid #0E0E0E; display: flex; gap: 16px"><span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; width: 20px">B</span><span><strong>A studio feed</strong> of recitals and news</span></li>
+<li style="padding: 16px 0; border-bottom: 1px solid #0E0E0E; display: flex; gap: 16px"><span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; width: 20px">C</span><span><strong>Messages</strong> straight to the teacher</span></li>
+<li style="padding: 16px 0; border-bottom: 1px solid #0E0E0E; display: flex; gap: 16px"><span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; width: 20px">D</span><span><strong>Monthly tuition</strong> with autopay</span></li>
+</ol>
+<a href="#login" style="display: block; margin-top: 24px; text-align: center; text-decoration: none; background: #0E0E0E; color: #FFFFFF; padding: 16px; font-weight: 600">Open the family app →</a>
+</section>
+
+<section id="about" style="border-top: 1px solid #0E0E0E; padding: 48px 20px">
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 500; color: #B42D16; margin-bottom: 14px">04</div>
+<img src="/mockups/ej-piano/media/images/teacher-portrait.jpg" alt="The teacher at E&amp;J Piano and Music Studio" style="width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 25%; display: block; filter: grayscale(1) contrast(1.05)">
+<h2 style="margin: 20px 0 12px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 44px; line-height: 1; letter-spacing: -0.03em">[Teacher name]</h2>
+<p style="margin: 0 0 12px; font-size: 20px; line-height: 1.4">[One strong sentence about her teaching philosophy.]</p>
+<p style="margin: 0; color: #4B4B4B">[Background: training, years teaching, recitals and what students achieve.]</p>
+</section>
+
+<section id="contact" style="border-top: 1px solid #0E0E0E; padding: 48px 20px 40px">
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 500; color: #B42D16">05</div>
+<h2 style="margin: 4px 0 18px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 44px; line-height: 1; letter-spacing: -0.03em">Tuition &amp; trial</h2>
+<div style="border: 2px solid #0E0E0E; padding: 22px; margin-bottom: 26px">
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 42px; letter-spacing: -0.03em">[RATE]<span style="font-size: 18px; font-weight: 500"> / month</span></div>
+<p style="margin: 6px 0 0; color: #4B4B4B; font-size: 15px">Weekly lesson, practice plans, online when needed, seasonal recitals.</p>
+</div>
+<form style="display: flex; flex-direction: column; gap: 18px">
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 600">Parent name<input type="text" autocomplete="name" style="font: inherit; font-size: 16px; font-weight: 400; padding: 12px 0; border: none; border-bottom: 1.5px solid #0E0E0E; background: transparent"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 600">Email<input type="email" autocomplete="email" style="font: inherit; font-size: 16px; font-weight: 400; padding: 12px 0; border: none; border-bottom: 1.5px solid #0E0E0E; background: transparent"></label>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 600">Student age &amp; experience<input type="text" style="font: inherit; font-size: 16px; font-weight: 400; padding: 12px 0; border: none; border-bottom: 1.5px solid #0E0E0E; background: transparent"></label>
+<button type="button" style="font: inherit; font-weight: 600; background: #0E0E0E; color: #FFFFFF; border: none; padding: 18px; cursor: pointer">Request a trial lesson →</button>
+</form>
+</section>
+
+<footer style="margin-top: auto; background: #0E0E0E; color: #BDBDBD; padding: 28px 20px 96px; font-size: 14px">
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: #FFFFFF; font-size: 18px; margin-bottom: 6px">E&amp;J<span style="color: #FF6A4D">.</span> Piano &amp; Music Studio</div>
+<div>[Studio address] · [Phone] · [Email]</div>
+</footer>
+
+<div style="position: sticky; bottom: 0; z-index: 3; display: flex; border-top: 2px solid #0E0E0E; background: #FFFFFF">
+<a href="#contact" style="flex: 1; text-align: center; text-decoration: none; background: #0E0E0E; color: #FFFFFF; padding: 18px; font-weight: 600">Book a trial →</a>
+<a href="#call" style="flex: 0 0 120px; text-align: center; text-decoration: none; color: #0E0E0E; padding: 18px; font-weight: 600">Call</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":4950}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { active: null, menu: false }; }
+  componentWillUnmount() { clearTimeout(this.t); for (var k in (this.ptrs || {})) { if (this.ptrs[k].v) this.ptrs[k].v.release(); } if (this.ctx) { try { this.ctx.close(); } catch (e) {} } }
+  audio() {
+    var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+    if (!this.ctx) {
+      this.ctx = new AC();
+      this.bus = this.ctx.createDynamicsCompressor();
+      this.bus.threshold.value = -14; this.bus.ratio.value = 4;
+      this.bus.connect(this.ctx.destination);
+    }
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    return this.ctx;
+  }
+  voice(midi) {
+    var ctx = this.audio(); if (!ctx) return { release: function () {} };
+    var f0 = 440 * Math.pow(2, (midi - 69) / 12), t = ctx.currentTime;
+    var out = ctx.createGain();
+    out.gain.setValueAtTime(0.0001, t);
+    out.gain.exponentialRampToValueAtTime(0.24, t + 0.006);
+    out.gain.exponentialRampToValueAtTime(0.1, t + 0.45);
+    out.gain.exponentialRampToValueAtTime(0.015, t + 6);
+    var lp = ctx.createBiquadFilter(); lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(Math.min(f0 * 10, 12000), t);
+    lp.frequency.exponentialRampToValueAtTime(Math.max(f0 * 2, 300), t + 1.2);
+    lp.connect(out); out.connect(this.bus);
+    var oscs = [[1, 1, 'triangle'], [2, 0.35, 'sine'], [3, 0.12, 'sine'], [4, 0.05, 'sine']].map(function (p) {
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = p[2]; o.frequency.value = f0 * p[0]; o.detune.value = (p[0] - 1) * 2; g.gain.value = p[1];
+      o.connect(g); g.connect(lp); o.start(t); o.stop(t + 8);
+      return o;
+    });
+    var done = false;
+    return { release: function () {
+      if (done) return; done = true;
+      var n = ctx.currentTime;
+      out.gain.cancelScheduledValues(n);
+      out.gain.setValueAtTime(Math.max(out.gain.value, 0.0001), n);
+      out.gain.exponentialRampToValueAtTime(0.0001, n + 0.3);
+      oscs.forEach(function (o) { try { o.stop(n + 0.35); } catch (e) {} });
+    } };
+  }
+  press(midi) {
+    var v = this.voice(midi);
+    setTimeout(function () { v.release(); }, 380);
+    this.setState({ active: midi }); clearTimeout(this.t);
+    this.t = setTimeout(() => this.setState({ active: null }), 260);
+  }
+  isOn(m) { return !!((this.state.down || {})[m]) || this.state.active === m; }
+  keyAt(e) {
+    var el = document.elementFromPoint(e.clientX, e.clientY);
+    while (el && el.getAttribute && !el.getAttribute('data-midi')) el = el.parentElement;
+    return el && el.getAttribute ? parseInt(el.getAttribute('data-midi'), 10) : null;
+  }
+  setKey(id, m) {
+    var p = this.ptrs[id];
+    if (p && p.m === m) return;
+    if (p && p.v) p.v.release();
+    this.ptrs[id] = { m: m, v: m == null ? null : this.voice(m) };
+    this.syncDown();
+  }
+  syncDown() {
+    var d = {};
+    for (var k in this.ptrs) if (this.ptrs[k].m != null) d[this.ptrs[k].m] = true;
+    this.setState({ down: d });
+  }
+  pDown(e) {
+    if (e.button && e.button !== 0) return;
+    e.preventDefault();
+    this.ptrs = this.ptrs || {};
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+    this.setKey(e.pointerId, this.keyAt(e));
+  }
+  pMove(e) {
+    if (!this.ptrs || !this.ptrs[e.pointerId]) return;
+    this.setKey(e.pointerId, this.keyAt(e));
+  }
+  pUp(e) {
+    if (!this.ptrs || !this.ptrs[e.pointerId]) return;
+    var p = this.ptrs[e.pointerId]; if (p.v) p.v.release();
+    delete this.ptrs[e.pointerId];
+    this.syncDown();
+  }
+  keys(start, octaves, paint) {
+    var self = this, whitePc = [0, 2, 4, 5, 7, 9, 11], names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    var whites = [], blacks = [], end = start + octaves * 12, W = 0, wi = 0;
+    for (var a = start; a <= end; a++) if (whitePc.indexOf(a % 12) >= 0) W++;
+    for (var b = start; b <= end; b++) {
+      (function (m) {
+        var pc = m % 12, isWhite = whitePc.indexOf(pc) >= 0;
+        var k = { midi: m, name: names[pc] + (Math.floor(m / 12) - 1), letter: names[pc],
+          down: function (e) { if (e && e.preventDefault) e.preventDefault(); self.press(m); },
+          click: function (e) { if (e && e.detail === 0) self.press(m); } };
+        var p = paint(pc, isWhite, self.isOn(m)); k.bg = p.bg; k.fg = p.fg; k.dot = p.dot;
+        if (isWhite) { k.label = pc === 0 ? k.name : ''; whites.push(k); wi++; }
+        else { var bw = 58 / W; k.left = (wi * 100 / W - bw / 2) + '%'; k.w = bw + '%'; blacks.push(k); }
+      })(b);
+    }
+    return { whites: whites, blacks: blacks };
+  }
+  renderVals() {
+    var kb = this.keys(60, 1, function (pc, white, on) {
+      return white ? { bg: on ? '#D9381E' : '#FFFFFF', fg: on ? '#FFFFFF' : '#666666' } : { bg: on ? '#D9381E' : '#0E0E0E' };
+    });
+    var m = this.state.menu;
+    return {
+      pdown: (e) => this.pDown(e), pmove: (e) => this.pMove(e), pup: (e) => this.pUp(e), noMenu: (e) => e.preventDefault(),
+      whites: kb.whites, blacks: kb.blacks,
+      menu: m, menuLabel: m ? 'Close menu' : 'Open menu', menuIcon: m ? 'M6 6l12 12M18 6L6 18' : 'M4 7h16M4 12h16M4 17h16',
+      menuBg: m ? '#0E0E0E' : '#FFFFFF', menuFg: m ? '#FFFFFF' : '#0E0E0E',
+      toggleMenu: () => this.setState({ menu: !this.state.menu }),
+      closeMenu: () => this.setState({ menu: false }),
+      links: [{ n: '01', label: 'Lessons', href: '#lessons' }, { n: '02', label: 'Students', href: '#students' }, { n: '03', label: 'App', href: '#app' }, { n: '04', label: 'About', href: '#about' }, { n: '05', label: 'Tuition', href: '#contact' }, { n: '→', label: 'Log in', href: '#login' }],
+      spotlight: [
+        { title: 'Practice session at home', len: '1:16', src: '/mockups/ej-piano/media/video/spotlight-practice-at-home.mp4', poster: '/mockups/ej-piano/media/video/posters/spotlight-practice-at-home.jpg', pos: '50% 72%' },
+        { title: 'First duet of the year', len: '2:43', src: '/mockups/ej-piano/media/video/spotlight-first-duet.mp4', poster: '/mockups/ej-piano/media/video/posters/spotlight-first-duet.jpg', pos: '60% 50%' },
+        { title: 'Recital certificate', len: '0:24', src: '/mockups/ej-piano/media/video/spotlight-recital-certificate.mp4', poster: '/mockups/ej-piano/media/video/posters/spotlight-recital-certificate.jpg', pos: '30% 55%' },
+        { title: 'Holiday Showcase', len: '2:46', src: '/mockups/ej-piano/media/video/spotlight-holiday-showcase.mp4', poster: '/mockups/ej-piano/media/video/posters/spotlight-holiday-showcase.jpg', pos: '40% 45%' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
