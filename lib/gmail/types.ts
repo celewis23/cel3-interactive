@@ -10,6 +10,7 @@ export type GmailMessageHeader = {
 };
 
 export type GmailAttachment = {
+  /** Backoffice reference based on the immutable MIME part ID. */
   attachmentId: string;
   filename: string;
   mimeType: string;

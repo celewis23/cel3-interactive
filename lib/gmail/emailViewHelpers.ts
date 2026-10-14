@@ -24,7 +24,7 @@ export function attachmentUrl(messageId: string, att: GmailAttachment, inline = 
     mime: att.mimeType,
     ...(inline ? { inline: "1" } : {}),
   });
-  return `/api/admin/email/attachment/${messageId}/${att.attachmentId}?${p}`;
+  return `/api/admin/email/attachment/${encodeURIComponent(messageId)}/${encodeURIComponent(att.attachmentId)}?${p}`;
 }
 
 /** Replace cid: image references in HTML with proxied attachment URLs */

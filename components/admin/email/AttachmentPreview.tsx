@@ -14,7 +14,8 @@ export function AttachmentPreview({ messageId, attachment, onClose }: {
   messageId: string; attachment: GmailAttachment; onClose: () => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
-  const [file, setFile] = useState<{ blob: Blob; url: string; text?: string } | null>(null);
+  const [file, setFile] = useState<{ blob: Blob; url: string; text?: string; converted: boolean } | null>(null);
+  const [imageFailed, setImageFailed] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -34,16 +35,16 @@ export function AttachmentPreview({ messageId, attachment, onClose }: {
   useEffect(() => {
     const controller = new AbortController();
     let objectUrl = "";
-    setError(""); setFile(null);
+    setError(""); setFile(null); setImageFailed(false);
     void (async () => {
       try {
         const res = await fetch(`${path}?inline=1`, { signal: controller.signal });
-        if (!res.ok) throw new Error("This attachment could not be loaded.");
+        if (!res.ok) throw new Error(res.status === 401 ? "Your session expired. Refresh the page and sign in again." : res.status === 403 ? "You do not have permission to view this attachment." : "This attachment could not be loaded. Try again or reopen the message.");
         const blob = await res.blob();
         const text = previewKind(blob.type) === "text" ? await blob.slice(0, 1024 * 1024).text() : undefined;
         if (controller.signal.aborted) return;
         objectUrl = URL.createObjectURL(blob);
-        setFile({ blob, url: objectUrl, text });
+        setFile({ blob, url: objectUrl, text, converted: res.headers.get("X-Attachment-Preview-Converted") === "1" });
       } catch (err) {
         if (!controller.signal.aborted) setError(err instanceof Error ? err.message : "Could not load attachment.");
       }
@@ -51,20 +52,34 @@ export function AttachmentPreview({ messageId, attachment, onClose }: {
     return () => { controller.abort(); if (objectUrl) URL.revokeObjectURL(objectUrl); };
   }, [path, attempt]);
 
-  function download() {
+  async function originalBlob() {
+    if (!file) throw new Error("Attachment is still loading.");
+    if (!file.converted) return file.blob;
+    const response = await fetch(path);
+    if (!response.ok) throw new Error("The original file could not be downloaded. Try again.");
+    return response.blob();
+  }
+
+  async function download() {
     if (!file) return;
-    const link = document.createElement("a");
-    link.href = file.url; link.download = attachment.filename;
-    document.body.appendChild(link); link.click(); link.remove();
+    try {
+      const url = URL.createObjectURL(await originalBlob());
+      const link = document.createElement("a");
+      link.href = url; link.download = attachment.filename;
+      document.body.appendChild(link); link.click(); link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      setNotice("Download started. Your browser controls where the file is saved.");
+    } catch (err) { setNotice(err instanceof Error ? err.message : "Could not download the file."); }
   }
 
   async function saveAs() {
     if (!file) return;
     const browser = window as Window & { showSaveFilePicker?: (options: { suggestedName: string }) => Promise<{ createWritable(): Promise<{ write(blob: Blob): Promise<void>; close(): Promise<void> }> }> };
-    if (!browser.showSaveFilePicker) { download(); setNotice("Download started. Your browser controls where the file is saved."); return; }
+    if (!browser.showSaveFilePicker) { await download(); return; }
     try {
       const handle = await browser.showSaveFilePicker({ suggestedName: attachment.filename });
-      const writable = await handle.createWritable(); await writable.write(file.blob); await writable.close();
+      const original = await originalBlob();
+      const writable = await handle.createWritable(); await writable.write(original); await writable.close();
       setNotice("File saved.");
     } catch (err) { if (!(err instanceof DOMException && err.name === "AbortError")) setNotice("Could not save the file. Try Download instead."); }
   }
@@ -114,7 +129,7 @@ export function AttachmentPreview({ messageId, attachment, onClose }: {
         <button type="button" autoFocus onClick={onClose} className={buttonClass} aria-label="Close preview">Close ×</button>
       </header>
       <div className="flex shrink-0 flex-wrap gap-2 border-b border-white/10 p-3">
-        <button type="button" className={buttonClass} disabled={!file} onClick={download}>Download</button>
+        <button type="button" className={buttonClass} disabled={!file} onClick={() => void download()}>Download</button>
         <button type="button" className={buttonClass} disabled={!file} onClick={() => void saveAs()}>Save as…</button>
         <button type="button" className={buttonClass} disabled={!file} onClick={() => void copy()}>{kind === "image" ? "Copy image" : kind === "text" ? "Copy text" : "Copy link"}</button>
         <button type="button" className={buttonClass} disabled={!file || busy || !!driveUrl} onClick={() => void saveToDrive()}>{busy ? "Saving…" : driveUrl ? "Saved to Drive" : "Save to Google Drive"}</button>
@@ -124,7 +139,9 @@ export function AttachmentPreview({ messageId, attachment, onClose }: {
       <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-black/30 p-3 sm:p-6">
         {error ? <div role="alert" className="text-center"><p>{error}</p><button type="button" className={`${buttonClass} mt-3`} onClick={() => setAttempt(v => v + 1)}>Retry</button></div>
           : !file ? <p role="status">Loading attachment…</p>
-          : kind === "image" ? <img src={file.url} alt={attachment.filename} className="max-h-full max-w-full object-contain" />
+          : kind === "image" ? imageFailed
+            ? <div role="alert" className="text-center"><p>This image cannot be displayed in your browser.</p><p className="mt-2 text-sm text-white/50">You can still download the original or save it to Google Drive.</p></div>
+            : <img src={file.url} alt={attachment.filename} onError={() => setImageFailed(true)} className="max-h-full max-w-full object-contain" />
           : kind === "pdf" ? <iframe title={attachment.filename} src={file.url} className="h-full w-full rounded bg-white" sandbox="allow-scripts allow-same-origin" />
           : kind === "text" ? <div className="h-full w-full"><pre className="whitespace-pre-wrap break-words p-3 text-sm">{file.text}</pre>{file.blob.size > 1024 * 1024 && <p className="p-3 text-white/50">Preview shows the first 1 MB. Download for the full file.</p>}</div>
           : kind === "audio" ? <audio controls src={file.url} className="max-w-full" />

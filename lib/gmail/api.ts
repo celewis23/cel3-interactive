@@ -36,35 +36,45 @@ function decodeBase64Url(data: string): string {
 
 import type { GmailAttachment } from "./types";
 
+function attachmentFromPart(payload: gmail_v1.Schema$MessagePart): GmailAttachment | null {
+  const disposition = getHeader(payload.headers ?? [], "content-disposition").toLowerCase();
+  const contentId = getHeader(payload.headers ?? [], "content-id").replace(/^<|>$/g, "");
+  const filename = payload.filename ?? "";
+  const isAttachment = disposition.startsWith("attachment");
+  const hasBody = !!payload.body?.attachmentId || typeof payload.body?.data === "string";
+  if (!hasBody || !(isAttachment || disposition.startsWith("inline") || filename || contentId)) return null;
+  // Gmail download tokens change between requests; MIME part IDs are immutable.
+  const reference = payload.partId != null ? `part:${payload.partId}` : payload.body?.attachmentId;
+  if (!reference) return null;
+  return {
+    attachmentId: reference,
+    filename: filename || "attachment",
+    mimeType: payload.mimeType ?? "application/octet-stream",
+    size: payload.body?.size ?? 0,
+    contentId: contentId || undefined,
+    inline: !!contentId && !isAttachment,
+  };
+}
+
+function findAttachmentPart(payload: gmail_v1.Schema$MessagePart, reference: string): gmail_v1.Schema$MessagePart | null {
+  const attachment = attachmentFromPart(payload);
+  if (attachment && (attachment.attachmentId === reference || payload.body?.attachmentId === reference)) return payload;
+  for (const part of payload.parts ?? []) {
+    const match = findAttachmentPart(part, reference);
+    if (match) return match;
+  }
+  return null;
+}
+
 function extractParts(
   payload: gmail_v1.Schema$MessagePart,
   result: { text: string; html: string | null; attachments: GmailAttachment[] }
 ): void {
   if (!payload) return;
 
-  const disposition = payload.headers
-    ?.find((h) => h.name?.toLowerCase() === "content-disposition")
-    ?.value?.toLowerCase() ?? "";
-  const contentId = (
-    payload.headers
-      ?.find((h) => h.name?.toLowerCase() === "content-id")
-      ?.value ?? ""
-  ).replace(/^<|>$/g, "");
-  const isInline = disposition.startsWith("inline");
-  const isAttachment = disposition.startsWith("attachment");
-  const hasAttachmentId = !!payload.body?.attachmentId;
-  const filename = payload.filename ?? "";
-
-  // Collect attachments and inline parts that have an attachmentId
-  if (hasAttachmentId && (isAttachment || isInline || filename || contentId)) {
-    result.attachments.push({
-      attachmentId: payload.body!.attachmentId!,
-      filename: filename || `attachment`,
-      mimeType: payload.mimeType ?? "application/octet-stream",
-      size: payload.body?.size ?? 0,
-      contentId: contentId || undefined,
-      inline: !!contentId && !isAttachment,
-    });
+  const attachment = attachmentFromPart(payload);
+  if (attachment) {
+    result.attachments.push(attachment);
     return;
   }
 
@@ -396,8 +406,14 @@ export async function getAttachment(
 export async function getVerifiedAttachment(messageId: string, attachmentId: string) {
   const { gmail } = await getGmail();
   const message = await gmail.users.messages.get({ userId: "me", id: messageId, format: "full" });
-  const attachment = extractBody(message.data.payload ?? {}).attachments.find(a => a.attachmentId === attachmentId);
-  if (!attachment) throw new Error("Attachment not found in this message");
-  const { data } = await getAttachment(messageId, attachmentId);
+  const part = findAttachmentPart(message.data.payload ?? {}, attachmentId);
+  const attachment = part && attachmentFromPart(part);
+  if (!attachment || !part?.body) throw new Error("Attachment not found in this message");
+  // Resolve a fresh token from the verified part, or use its embedded bytes.
+  const body = part.body.attachmentId
+    ? (await gmail.users.messages.attachments.get({ userId: "me", messageId, id: part.body.attachmentId })).data
+    : part.body;
+  if (typeof body.data !== "string") throw new Error("Attachment data unavailable");
+  const data = Buffer.from(body.data, "base64url");
   return { attachment, data };
 }
