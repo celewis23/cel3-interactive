@@ -35,6 +35,7 @@ export const MODULES = {
   notes:            ["view", "edit", "delete"],
   meterwise:        ["view", "manage"],
   tasks:            ["view", "edit", "delete"],
+  mockups:          ["view", "edit", "manage"],
 } as const;
 
 export type Module = keyof typeof MODULES;
@@ -102,6 +103,7 @@ export const DEFAULT_ROLES: Array<{
       dashboard:    { view: true },
       clients:      { view: true, edit: true, delete: false },
       leads:        { view: true, edit: true, delete: false },
+      mockups:      { view: true, edit: true, manage: false },
       projects:     { view: true, edit: true, delete: false, manage: true },
       timeTracking: { view: true, edit: true, delete: false },
       estimates:    { view: true, edit: true, delete: false },
