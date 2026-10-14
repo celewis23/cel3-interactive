@@ -153,8 +153,12 @@ class Component extends DCLogic {
 <script>
 (() => {
   'use strict';
+  let initialized = false;
+  function init() {
+  if (initialized) return true;
   const form = document.getElementById('jb-pitch-form');
-  if (!form) return;
+  if (!form) return false;
+  initialized = true;
   const errorEl = document.getElementById('jb-pitch-error');
   const successEl = document.getElementById('jb-pitch-success');
   const submitBtn = document.getElementById('jb-pitch-submit');
@@ -243,6 +247,12 @@ class Component extends DCLogic {
       submitBtn.textContent = 'Send to CEL3 Interactive';
     }
   });
+  return true;
+  }
+  if (!init()) {
+    const observer = new MutationObserver(() => { if (init()) observer.disconnect(); });
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
 })();
 </script>
 </body>
