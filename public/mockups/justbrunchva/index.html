@@ -153,18 +153,6 @@ class Component extends DCLogic {
 <script>
 (() => {
   'use strict';
-  let initialized = false;
-  function init() {
-  if (initialized) return true;
-  const form = document.getElementById('jb-pitch-form');
-  if (!form) return false;
-  initialized = true;
-  const errorEl = document.getElementById('jb-pitch-error');
-  const successEl = document.getElementById('jb-pitch-success');
-  const submitBtn = document.getElementById('jb-pitch-submit');
-  const conceptGroup = document.getElementById('jb-pitch-concept');
-  const conceptError = document.getElementById('jb-pitch-concept-error');
-  const pitchSection = document.getElementById('jb-pitch');
   const PITCH_THEMES = {
     'After Hours': {
       bg: '#1A1822', border: '1px solid #2C2936', shadow: 'none',
@@ -186,6 +174,7 @@ class Component extends DCLogic {
     },
   };
   function applyPitchTheme(concept) {
+    const pitchSection = document.getElementById('jb-pitch');
     const t = PITCH_THEMES[concept];
     if (!t || !pitchSection) return;
     pitchSection.style.setProperty('--pitch-bg', t.bg);
@@ -200,18 +189,32 @@ class Component extends DCLogic {
     pitchSection.style.setProperty('--pitch-card-border', t.border);
     pitchSection.style.setProperty('--pitch-card-shadow', t.shadow);
   }
-  let requestId = crypto.randomUUID();
+  const requestId = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2);
   let selectedConcept = '';
-  conceptGroup.addEventListener('click', (event) => {
+
+  // Delegated on document (not looked-up elements) so this works regardless of
+  // when the hub's x-dc content finishes rendering into the page.
+  document.addEventListener('click', (event) => {
     const card = event.target.closest('.jb-pitch-card');
     if (!card) return;
+    const group = card.closest('#jb-pitch-concept');
+    if (!group) return;
     selectedConcept = card.dataset.concept;
-    conceptGroup.querySelectorAll('.jb-pitch-card').forEach((btn) => btn.setAttribute('aria-pressed', String(btn === card)));
+    group.querySelectorAll('.jb-pitch-card').forEach((btn) => btn.setAttribute('aria-pressed', String(btn === card)));
     applyPitchTheme(selectedConcept);
-    conceptError.hidden = true;
+    const conceptError = document.getElementById('jb-pitch-concept-error');
+    if (conceptError) conceptError.hidden = true;
   });
-  form.addEventListener('submit', async (event) => {
+
+  document.addEventListener('submit', async (event) => {
+    const form = event.target.closest('#jb-pitch-form');
+    if (!form) return;
     event.preventDefault();
+    event.stopImmediatePropagation();
+    const errorEl = document.getElementById('jb-pitch-error');
+    const conceptError = document.getElementById('jb-pitch-concept-error');
+    const successEl = document.getElementById('jb-pitch-success');
+    const submitBtn = document.getElementById('jb-pitch-submit');
     errorEl.hidden = true;
     conceptError.hidden = true;
     const concept = selectedConcept;
@@ -246,13 +249,7 @@ class Component extends DCLogic {
       submitBtn.disabled = false;
       submitBtn.textContent = 'Send to CEL3 Interactive';
     }
-  });
-  return true;
-  }
-  if (!init()) {
-    const observer = new MutationObserver(() => { if (init()) observer.disconnect(); });
-    observer.observe(document.body, { childList: true, subtree: true });
-  }
+  }, true);
 })();
 </script>
 </body>
