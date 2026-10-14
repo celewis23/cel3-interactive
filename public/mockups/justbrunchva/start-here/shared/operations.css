@@ -1,0 +1,32 @@
+body { background: #0e0d12; color: #f5f3f7; font: 16px/1.5 'DM Sans', sans-serif; --cta:#f7d046; --cta-ink:#0e0d12; }
+a { color: inherit; }
+button, input, select, textarea { font: inherit; }
+button, .ops-tabs a { border: 1px solid #3a3645; border-radius: 12px; background: #26222f; color: #f5f3f7; padding: 10px 16px; min-height:44px; }
+button:hover,button[aria-pressed="true"] { background:#f7d046; color:#0e0d12; }
+.ops-primary { background:#f7d046; color:#0e0d12; font-weight:700; }
+.ops-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px; padding:24px; max-width:1440px; margin:auto; }
+.ops-logo { font-family:'Poppins',sans-serif; text-decoration:none; display:inline-flex; flex-direction:column; align-items:center; font-size:30px; letter-spacing:.035em; background:transparent; }
+.ops-logo small { font-size:7px; letter-spacing:.14em; font-weight:600; }
+.ops-logo>span>span:nth-child(4n+1) { color:#f28ac7; }.ops-logo>span>span:nth-child(4n+2){color:#5fd38d}.ops-logo>span>span:nth-child(4n+3){color:#49c6e5}.ops-logo>span>span:nth-child(4n){color:#b38cf0}
+.ops-nav,.ops-tabs { display:flex; flex-wrap:wrap; gap:8px; }
+.ops-nav { max-width:1440px; margin:auto; padding:0 24px 20px; border-bottom:1px solid #2c2936; }
+.ops-nav a,.ops-bottom a { display:inline-flex; align-items:center; min-height:44px; padding:8px 14px; border-radius:999px; text-decoration:none; }
+.ops-nav [aria-current],.ops-bottom [aria-current] { background:#f7d046; color:#0e0d12; }
+.ops-main { max-width:1440px; margin:auto; padding:32px 24px 100px; }
+h1,h2 { font-family:'Bricolage Grotesque',sans-serif; line-height:1.1; }h1{font-size:clamp(36px,5vw,64px);margin:0 0 28px;}h2{font-size:28px;margin:0 0 20px;}
+.ops-columns { display:grid; grid-template-columns:minmax(0,1fr) 380px; gap:24px; align-items:start; }
+.ops-card { background:#1a1822; border:1px solid #2c2936; border-radius:20px; padding:24px; margin-bottom:24px; min-width:0; }
+.ops-menu { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; margin:24px 0; }
+.ops-item { display:flex; flex-direction:column; align-items:start; text-align:left; gap:10px; padding:0 0 16px; overflow:hidden; }
+.ops-item>strong,.ops-item>span:not(.ops-photo),.ops-item>small { padding:0 16px; }
+.ops-photo { position:relative; width:100%; height:110px; }.ops-photo img{width:100%;height:100%;object-fit:cover;}
+.ops-line { display:flex; gap:8px; align-items:center; padding:16px 0; border-bottom:1px solid #3a3645; }.ops-line>span,.ops-line>div{flex:1;min-width:0;}.ops-line button{flex-shrink:0;min-width:44px;padding:8px;}
+.ops-check { display:flex; align-items:center; gap:12px; min-height:44px; }.ops-check input{width:22px;height:22px;flex-shrink:0;accent-color:#f7d046}.ops-check span{margin-left:auto;font-size:12px;}
+.ops-totals>div { display:flex; justify-content:space-between; gap:8px; margin:12px 0; }.ops-totals dd{margin:0}.ops-totals>div:last-child{font-weight:700;font-size:24px}.ops-muted{font-size:14px;color:#a9a3b5}
+.ops-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;}.ops-floor{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}.ops-floor button{display:flex;flex-direction:column;align-items:start;gap:12px;padding:24px;min-height:110px}
+form label { display:flex; flex-direction:column; gap:8px; margin:16px 0; }input,textarea,select{min-height:48px;border:1px solid #3a3645;border-radius:12px;background:#0e0d12;color:#f5f3f7;padding:10px 14px;}
+.ops-login{max-width:460px;margin:0 auto}.ops-big{font-size:52px;font-weight:700;color:#5fd38d;margin:0}
+table { width:100%;border-collapse:collapse;min-width:560px;text-align:left; }th,td{padding:14px 16px;border-bottom:1px solid #3a3645}th{color:#a9a3b5}
+.ops-bottom { position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;gap:8px; padding:12px;background:#1a1822;border-top:1px solid #3a3645;z-index:20; }
+@media(max-width:1024px){.ops-columns{grid-template-columns:minmax(0,1fr)}.ops-columns>aside{max-width:100%}}
+@media(max-width:600px){.ops-main{padding:24px 16px 100px}.ops-header,.ops-nav{padding-left:16px;padding-right:16px}.ops-menu{grid-template-columns:repeat(2,minmax(0,1fr))}.ops-card{padding:18px}.ops-line{flex-wrap:wrap}.ops-line>span{flex-basis:100%}.ops-tabs{gap:6px}.ops-tabs button{font-size:14px}.ops-bottom a{font-size:14px;padding:8px 10px}.ops-grid{grid-template-columns:minmax(0,1fr)}}

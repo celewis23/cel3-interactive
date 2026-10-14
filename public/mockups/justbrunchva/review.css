@@ -1,0 +1,85 @@
+/* Shared review controls and responsive behavior; original concept styles stay in the exports. */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; }
+.mockup-review { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 20px; padding: 8px 20px; background: #16161a; color: #f5f4ef; font: 600 13px/1.5 system-ui,sans-serif; }
+.mockup-review a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; color: #f5f4ef; text-underline-offset: 4px; }
+.mockup-review span:last-child { font-weight: 400; }
+:focus-visible { outline: 3px solid #1e8fb5; outline-offset: 4px; }
+button, a, input, select, textarea { touch-action: manipulation; }
+button, .pill, nav a, footer a { min-height: 44px !important; }
+nav a, footer a { display: inline-flex; align-items: center; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .5; }
+input, select, textarea { max-width: 100%; }
+.qty { min-width: 44px; min-height: 44px; flex-shrink: 0; }
+.jb-page { width: 100%; max-width: 100%; }
+.jb-logo, .jb-logo * { flex-wrap: nowrap !important; }
+.sc-host:has(> .jb-logo), .jb-page a:has(.jb-logo) { max-width: 100%; min-width: 0; flex-shrink: 1; }
+.jb-page a { min-height: 44px; }
+.jb-page a:not(:has(.jb-logo)) { display: inline-flex; align-items: center; }
+.jb-instagram { flex-wrap: wrap; }
+.jb-instagram > div:first-child { width: min(1164px,100%) !important; flex: 1 1 760px; }
+.jb-instagram .post { width: 100%; min-width: 0; }
+.jb-instagram .post .d { overflow-wrap: anywhere; }
+.jb-instagram > div:last-child { flex: 0 1 300px; }
+.jb-page div, .jb-page section, .jb-page article, .jb-page aside, .jb-page form { min-width: 0; }
+.jb-bag { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 8px 16px; background: var(--cta); color: var(--cta-ink) !important; border-radius: 999px; font-weight: 700; white-space: nowrap; }
+.jb-alcohol-note { padding: 12px; border: 1px solid var(--line2); border-radius: 12px; font-size: 14px; }
+[hidden] { display: none !important; }
+.jb-field { display: flex; flex-direction: column; gap: 8px; }
+.jb-field select { min-height: 48px; padding: 10px; border-radius: 12px; border: 1px solid var(--line2,#ddd); background: var(--surface,#fff); color: var(--text,#16121f); font: inherit; }
+.jb-photo { position: relative; isolation: isolate; overflow: hidden; }
+.jb-photo > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; border-radius: inherit; }
+.jb-marquee { overflow: hidden; max-width: 100%; }
+.jb-marquee-track { display: flex; width: max-content; max-width: none; }
+.jb-marquee-group { display: flex !important; flex: 0 0 auto !important; flex-wrap: nowrap !important; justify-content: flex-start !important; white-space: nowrap !important; }
+.jb-marquee-group > * { flex: 0 0 auto; }
+.jb-marquee-group[aria-hidden="true"] { display: none !important; }
+.jb-marquee.is-scrolling .jb-marquee-group[aria-hidden="true"] { display: flex !important; }
+.jb-marquee.is-scrolling .jb-marquee-track { animation: jb-marquee 28s linear infinite; }
+.jb-marquee:hover .jb-marquee-track, .jb-marquee:focus-within .jb-marquee-track { animation-play-state: paused; }
+@keyframes jb-marquee { to { transform: translateX(-50%); } }
+.jb-dialog { width: min(560px,calc(100% - 32px)); max-height: calc(100vh - 40px); padding: 28px; border: 1px solid var(--line,#3a3645); border-radius: 22px; background: var(--surface,#1a1822); color: var(--text,#f5f3f7); font: 16px/1.55 'DM Sans',system-ui,sans-serif; }
+.jb-dialog::backdrop { background: #0009; }
+.jb-dialog h2 { margin: 0 0 16px; line-height: 1.15; }
+.jb-dialog li { padding: 4px 0; }
+.jb-action { min-height: 44px; padding: 10px 20px; border: 0; border-radius: 999px; font: 700 15px inherit; background: var(--cta,#f7d046); color: var(--cta-ink,#16121f); }
+.jb-table-scroll { max-width: 100%; overflow-x: auto; }
+@media (max-width: 1024px) {
+  .jb-hub { padding: 40px 24px !important; }
+  .jb-page [style*="display: grid"], .jb-page [style*="display:grid"] { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+  .jb-page [aria-label="Main"] { gap: 8px 18px !important; }
+  .jb-board { padding: 32px 24px !important; height: auto !important; }
+  .jb-board > div, .jb-board > header { padding-left: 24px !important; padding-right: 24px !important; }
+  .jb-instagram > div:first-child { flex-basis: 100%; max-width: 100%; }
+  .jb-instagram .post { width: 100% !important; }
+  .jb-page > div[style*="justify-content: space-between"] { flex-wrap: wrap; }
+  .jb-page .jb-calendar { grid-template-columns: repeat(7,minmax(0,1fr)) !important; }
+}
+@media (max-width: 600px) {
+  .jb-hub h1 { font-size: 40px !important; }
+  .jb-page h2[style*="font-size: 44px"] { font-size: clamp(24px,8vw,44px) !important; }
+  .jb-instagram .post { height: 380px !important; }
+  .jb-instagram > div { padding-left: 0 !important; padding-right: 0 !important; }
+  .jb-page { overflow-wrap: break-word; }
+  .wrap { padding-left: 20px !important; padding-right: 20px !important; }
+  .jb-page [style*="display: grid"], .jb-page [style*="display:grid"] { grid-template-columns: minmax(0,1fr) !important; }
+  .jb-page [style*="grid-column"], .jb-page [style*="grid-row"] { grid-column: auto !important; grid-row: auto !important; }
+  .jb-page [style*="display: flex"]:not([style*="flex-direction: column"]):not(.jb-marquee-group):not(.jb-marquee-track):not(.jb-photo):not(.jb-logo-word):not(.jb-logo-tag) { flex-wrap: wrap; }
+  .jb-page header .tbtn { flex: 0 0 44px; }
+  .jb-page header .btn { padding-left: 16px; padding-right: 16px; }
+  .jb-page [style*="flex-shrink: 0"] { max-width: 100%; }
+  .jb-page > div[style*="padding: 28px"] { padding: 20px !important; }
+  .jb-board [style*="width:"] { max-width: 100%; }
+  .jb-board h1, .jb-board h2, .jb-board .d { font-size: clamp(28px,10vw,54px) !important; }
+  .jb-page .jb-calendar { grid-template-columns: repeat(7,minmax(0,1fr)) !important; gap: 2px !important; }
+  .jb-calendar button { min-width: 0 !important; padding: 0 !important; }
+  .jb-photo { min-height: 180px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .jb-marquee.is-scrolling .jb-marquee-track { animation: none; }
+  .jb-marquee { overflow-x: auto; }
+  .jb-marquee.is-scrolling .jb-marquee-group[aria-hidden="true"] { display: none !important; }
+}

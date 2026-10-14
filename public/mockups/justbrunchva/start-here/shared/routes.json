@@ -1,0 +1,35 @@
+{
+  "after-hours": {
+    "Home": "/mockups/justbrunchva/start-here/after-hours/After%20Hours%20%E2%80%94%20Home%20(dark)-html/AfterHours-Home.dc.html",
+    "Order": "/mockups/justbrunchva/start-here/after-hours/After%20Hours%20%E2%80%94%20Menu%20%26%20Order%20Online-html/AfterHours-Order.dc.html",
+    "Drinks": "/mockups/justbrunchva/start-here/after-hours/After%20Hours%20%E2%80%94%20Drinks%20Bar-html/AfterHours-Drinks.dc.html",
+    "Reserve": "/mockups/justbrunchva/start-here/after-hours/After%20Hours%20%E2%80%94%20Reserve-html/AfterHours-Reserve.dc.html",
+    "Suites": "/mockups/justbrunchva/start-here/after-hours/After%20Hours%20%E2%80%94%20Private%20Dining%20Suites-html/AfterHours-Suites.dc.html",
+    "Club": "/mockups/justbrunchva/start-here/after-hours/After%20Hours%20%E2%80%94%20The%20Brunch%20Club-html/AfterHours-Club.dc.html",
+    "Instagram": "/mockups/justbrunchva/start-here/after-hours/After%20Hours%20%E2%80%94%20Instagram-html/AfterHours-Instagram.dc.html",
+    "Brand": "/mockups/justbrunchva/start-here/after-hours/After%20Hours%20%E2%80%94%20Brand%20Book-html/AfterHours-Brand.dc.html",
+    "Alternate": "/mockups/justbrunchva/start-here/after-hours/After%20Hours%20%E2%80%94%20Home%20(light)-html/AfterHours-HomeLight.dc.html"
+  },
+  "golden-hour": {
+    "Home": "/mockups/justbrunchva/start-here/golden-hour/Golden%20Hour%20%E2%80%94%20Home%20(light)-html/GoldenHour-Home.dc.html",
+    "Order": "/mockups/justbrunchva/start-here/golden-hour/Golden%20Hour%20%E2%80%94%20Menu%20%26%20Order%20Online-html/GoldenHour-Order.dc.html",
+    "Drinks": "/mockups/justbrunchva/start-here/golden-hour/Golden%20Hour%20%E2%80%94%20Drinks%20Bar-html/GoldenHour-Drinks.dc.html",
+    "Reserve": "/mockups/justbrunchva/start-here/golden-hour/Golden%20Hour%20%E2%80%94%20Reserve-html/GoldenHour-Reserve.dc.html",
+    "Suites": "/mockups/justbrunchva/start-here/golden-hour/Golden%20Hour%20%E2%80%94%20Private%20Dining%20Suites-html/GoldenHour-Suites.dc.html",
+    "Club": "/mockups/justbrunchva/start-here/golden-hour/Golden%20Hour%20%E2%80%94%20The%20Brunch%20Club-html/GoldenHour-Club.dc.html",
+    "Instagram": "/mockups/justbrunchva/start-here/golden-hour/Golden%20Hour%20%E2%80%94%20Instagram-html/GoldenHour-Instagram.dc.html",
+    "Brand": "/mockups/justbrunchva/start-here/golden-hour/Golden%20Hour%20%E2%80%94%20Brand%20Book-html/GoldenHour-Brand.dc.html",
+    "Alternate": "/mockups/justbrunchva/start-here/golden-hour/Golden%20Hour%20%E2%80%94%20Home%20(dark)-html/GoldenHour-HomeDark.dc.html"
+  },
+  "mimosa-pop": {
+    "Home": "/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20Home%20(light)-html/MimosaPop-Home.dc.html",
+    "Order": "/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20Menu%20%26%20Order%20Online-html/MimosaPop-Order.dc.html",
+    "Drinks": "/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20Drinks%20Bar-html/MimosaPop-Drinks.dc.html",
+    "Reserve": "/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20Reserve-html/MimosaPop-Reserve.dc.html",
+    "Suites": "/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20Private%20Dining%20Suites-html/MimosaPop-Suites.dc.html",
+    "Club": "/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20The%20Brunch%20Club-html/MimosaPop-Club.dc.html",
+    "Instagram": "/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20Instagram-html/MimosaPop-Instagram.dc.html",
+    "Brand": "/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20Brand%20Book-html/MimosaPop-Brand.dc.html",
+    "Alternate": "/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20Home%20(dark)-html/MimosaPop-HomeDark.dc.html"
+  }
+}

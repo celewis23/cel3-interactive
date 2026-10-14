@@ -20,6 +20,9 @@ const nextConfig: NextConfig = {
       { source: "/mockups/youmatterrva", destination: "/mockups/youmatterrva/index.html" },
       { source: "/mockups/enrich-her-wellness", destination: "/mockups/enrich-her-wellness/index.html" },
       { source: "/mockups/ej-piano", destination: "/mockups/ej-piano/index.html" },
+      { source: "/mockups/justbrunchva", destination: "/mockups/justbrunchva/index.html" },
+      // Existing photos are served first; missing uploads retain the colored design panel.
+      { source: "/mockups/justbrunchva/start-here/images/:image*.jpg", destination: "/mockups/justbrunchva/start-here/images/fallback.svg" },
     ];
   },
   async headers() {

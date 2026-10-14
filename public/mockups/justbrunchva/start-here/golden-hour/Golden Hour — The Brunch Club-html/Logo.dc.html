@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Just Brunch logo</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}.jb-logo{container-type:inline-size}.jb-logo-word{font-size:min(var(--logo-size),13.7cqw)!important;flex-wrap:nowrap!important}.jb-logo-tag{font-size:min(var(--tag-size),1.8cqw)!important;flex-wrap:nowrap!important}</style>
+</helmet>
+<div class="jb-logo" style="width: {{logoWidth}}px; max-width: 100%; --logo-size: {{size}}px; --tag-size: {{tagSize}}px; display: inline-flex; flex-direction: column; align-items: center; gap: {{gap}}px; padding: {{pad}}px; background: {{plateBg}}; font-family: 'Poppins', sans-serif; box-sizing: border-box">
+<div class="jb-logo-word" style="display: flex; align-items: baseline; font-weight: 500; font-size: {{size}}px; line-height: 1; letter-spacing: 0.035em">
+<sc-for list="{{letters}}" as="l" hint-placeholder-count="11"><span style="color: {{l.color}}; width: {{l.w}}">{{l.ch}}</span></sc-for>
+</div>
+<sc-if value="{{tagline}}" hint-placeholder-val="{{ true }}">
+<div class="jb-logo-tag" style="display: flex; align-items: center; gap: {{tagGap}}px; font-weight: 600; font-size: {{tagSize}}px; letter-spacing: 0.14em; color: {{tagColor}}; line-height: 1; white-space: nowrap">
+<span>NOT JUST BRUNCH–IT'S A VIBE</span>
+<svg width="{{tagSize}}" height="{{tagSize}}" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 L14 10 L23 12 L14 14 L12 23 L10 14 L1 12 L10 10 Z" fill="{{sparkColor}}"></path></svg>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"variant":{"editor":"enum","options":["color-dark","color-light","black","white"],"default":"color-light"},"size":{"editor":"int","min":12,"max":240,"default":96},"tagline":{"editor":"boolean","default":true},"plate":{"editor":"boolean","default":false},"$preview":{"width":820,"height":200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const v = this.props.variant ?? 'color-light';
+    const size = Number(this.props.size ?? 96);
+    const tagline = this.props.tagline ?? true;
+    const plate = this.props.plate ?? false;
+    const pal = {
+      'color-dark':  ['#FFFFFF','#F28AC7','#5FD38D','#49C6E5',null,'#F7D046','#F28AC7','#B38CF0','#FFFFFF','#5FD38D','#49C6E5'],
+      'color-light': ['#1F1A17','#D94A93','#1F9D63','#1E8FB5',null,'#E0A100','#D94A93','#7A57D1','#1F1A17','#1F9D63','#1E8FB5'],
+      'black': Array(11).fill('#000000'),
+      'white': Array(11).fill('#FFFFFF')
+    }[v] || [];
+    const chars = 'JUST BRUNCH'.split('');
+    const letters = chars.map((ch, i) => ({ ch: ch === ' ' ? ' ' : ch, color: pal[i] || 'transparent', w: ch === ' ' ? (size * 0.32) + 'px' : 'auto' }));
+    const dark = v === 'color-dark' || v === 'white';
+    const plateBg = !plate ? 'transparent' : (dark ? '#0E0D12' : '#FFFFFF');
+    const tagColor = v === 'black' ? '#000000' : (v === 'color-light' ? '#1F1A17' : '#FFFFFF');
+    const sparkColor = v === 'color-dark' ? '#F7D046' : (v === 'color-light' ? '#E0A100' : tagColor);
+    return {
+      logoWidth: size * 7.28, letters, size, tagline, plateBg, tagColor, sparkColor,
+      tagSize: Math.max(7, Math.round(size * 0.13)),
+      tagGap: Math.max(3, Math.round(size * 0.06)),
+      gap: Math.round(size * 0.14),
+      pad: plate ? Math.round(size * 0.3) : 0
+    };
+  }
+}
+</script>
+</body>
+</html>
