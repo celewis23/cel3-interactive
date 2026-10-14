@@ -8,7 +8,8 @@
   const save=(key,value)=>{try{localStorage.setItem('justbrunch:ops:'+key,JSON.stringify(value));}catch{}};
   let ticket=get('ticket',{}),member=get('member',false),category=JB_DATA.foodCategories[0], punches=get('punches',[]),status=get('clock','out');
   let itemNotes=get('item-notes',{}),kitchenNotes=get('kitchen-notes',''),itemPanel=null;
-  let layout=get('floor-layout',{}),orders=get('table-orders',{}),layoutEdit=false,activeTable=null,orderCategory=JB_DATA.foodCategories[0],activeCheck=0;
+  let layout=get('floor-layout',{}),orders=get('table-orders',{}),layoutEdit=false,activeTable=null,orderCategory=JB_DATA.foodCategories[0],activeCheck=0,scrollToOrder=false;
+  const noteKey=id=>screen==='POS-Floor'&&activeTable?`${activeTable}:${activeCheck}:${id}`:id;
   const links=[['POS-Register','Register'],['POS-Floor','Floor & orders'],['Staff-TimeClock','Time clock'],['Staff-Schedule','Schedule'],['Staff-Team','Team & tips'],['Admin-Dashboard','Back office']];
   const nav=()=>`<nav class="ops-nav" aria-label="Operations">${links.map(([file,label])=>`<a ${file===screen?'aria-current="page"':''} href="${base+file}.dc.html">${label}</a>`).join('')}<a href="${base}Staff-Login.dc.html">Staff login</a></nav>`;
   const totals=()=>{
@@ -18,18 +19,18 @@
     return{sub,free,entree,discount,tax,total:sub-discount+tax};
   };
   function itemKind(m){if(!m)return null;if(m.cat==='Sides')return null;return m.food?'food':'drink';}
-  function renderItemPanel(){
+  function renderItemPanel(addAttr){
     if(!itemPanel)return'';
     const m=JB.item(itemPanel.id);if(!m)return'';
-    const note=itemNotes[itemPanel.id]||'';
+    const note=itemNotes[noteKey(itemPanel.id)]||'';
     const body=itemPanel.kind==='food'
-      ?`<p class="ops-muted">Tap a side to add it to the ticket.</p><div class="ops-menu">${JB_DATA.menu.filter(s=>s.cat==='Sides').map(s=>`<button type="button" class="ops-item" data-add="${s.id}"><span class="ops-photo" style="background:${s.color}"><img src="${JB.base}start-here/images/${s.image}" alt="${e(s.name)}" loading="lazy"></span><strong>${e(s.name)}</strong><span>${money(s.price)}</span></button>`).join('')}</div><label>Substitutions / special requests<textarea data-item-note="${itemPanel.id}" rows="3" placeholder="e.g. sub turkey bacon, no onions, extra crispy">${e(note)}</textarea></label>`
+      ?`<p class="ops-muted">Tap a side to add it to the ticket.</p><div class="ops-menu">${JB_DATA.menu.filter(s=>s.cat==='Sides').map(s=>`<button type="button" class="ops-item" ${addAttr}="${s.id}"><span class="ops-photo" style="background:${s.color}"><img src="${JB.base}start-here/images/${s.image}" alt="${e(s.name)}" loading="lazy"></span><strong>${e(s.name)}</strong><span>${money(s.price)}</span></button>`).join('')}</div><label>Substitutions / special requests<textarea data-item-note="${itemPanel.id}" rows="3" placeholder="e.g. sub turkey bacon, no onions, extra crispy">${e(note)}</textarea></label>`
       :`<p class="ops-muted">${e(m.name)} — let the bar know how to make it.</p><label>Notes for the bartender<textarea data-item-note="${itemPanel.id}" rows="4" placeholder="e.g. light ice, extra garnish, make it virgin">${e(note)}</textarea></label>`;
     return `<div class="ops-slide-backdrop" data-close-item></div><aside class="ops-slide" role="dialog" aria-label="${itemPanel.kind==='food'?'Add sides and notes':'Bartender notes'}"><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0;font-size:20px">${itemPanel.kind==='food'?'Sides for '+e(m.name):'Bartender notes'}</h2><button type="button" data-close-item aria-label="Close">✕</button></div>${body}<button type="button" class="ops-primary" data-close-item>Done</button></aside>`;
   }
   function renderRegister(){
     const t=totals();
-    return `<div class="ops-columns"><section><h2>Menu</h2><nav class="ops-tabs" aria-label="POS categories">${[...JB_DATA.foodCategories,...JB_DATA.drinkCategories].map(c=>`<button data-category="${e(c)}" aria-pressed="${category===c}">${e(c)}</button>`).join('')}</nav><div class="ops-menu">${JB_DATA.menu.filter(m=>m.cat===category).map(m=>`<button class="ops-item" data-add="${m.id}" ${m.price==null?'disabled':''}><span class="ops-photo" style="background:${m.color}"><img src="${JB.base}start-here/images/${m.image}" alt="${e(m.name)}" loading="lazy"></span><strong>${e(m.name)}</strong><span>${m.price==null?'Ask your server':money(m.price)}</span>${m.dineIn?'<small>Dine-in only</small>':''}</button>`).join('')}</div></section><aside class="ops-card"><h2>Current ticket</h2><label class="ops-check"><input type="checkbox" data-member ${member?'checked':''}> Brunch Club member</label><p class="ops-muted">One bottomless mimosa free · 5% off the highest-priced entrée</p><div data-ticket>${Object.entries(ticket).filter(([,q])=>q>0).map(([id,q])=>{const m=JB.item(id);if(!m)return'';const kind=itemKind(m),note=itemNotes[id];return `<div class="ops-line"><span>${e(m.name)}<br>${money(m.price*q)}${note?`<br><em style="color:#a9a3b5;font-size:12px">${kind==='drink'?'Bartender':'Note'}: ${e(note)}</em>`:''}</span>${kind?`<button type="button" data-edit-item="${id}" aria-label="${kind==='drink'?'Bartender notes':'Sides &amp; substitutions'} for ${e(m.name)}">${kind==='drink'?'🍸':'📝'}</button>`:''}<button data-qty="${id}" data-delta="-1" aria-label="Remove one ${e(m.name)}">−</button><b>${q}</b><button data-qty="${id}" data-delta="1" aria-label="Add one ${e(m.name)}">+</button></div>`;}).join('')||'<p>Your ticket is empty. Add an item to begin.</p>'}</div><label style="display:flex;flex-direction:column;gap:8px;margin:16px 0">Kitchen notes<textarea data-kitchen-notes rows="3" placeholder="e.g. rush table 4, allergy on table 2">${e(kitchenNotes)}</textarea></label><dl class="ops-totals"><div><dt>Subtotal</dt><dd data-subtotal>${money(t.sub/100)}</dd></div><div><dt>Member discount</dt><dd data-discount>−${money(t.discount/100)}</dd></div>${member?`<div class="ops-muted"><dt>Bottomless ${money(t.free/100)} · Entrée ${money(t.entree/100)}</dt><dd></dd></div>`:''}<div><dt>${e(JB_DATA.taxLabel)}</dt><dd data-tax>${money(t.tax/100)}</dd></div><div><dt>Total</dt><dd data-total>${money(t.total/100)}</dd></div></dl><button class="ops-primary" data-pay ${!t.sub?'disabled':''}>Complete ticket · ${money(t.total/100)}</button><button data-clear ${!t.sub?'disabled':''}>Clear ticket</button></aside></div>${renderItemPanel()}`;
+    return `<div class="ops-columns"><section><h2>Menu</h2><nav class="ops-tabs" aria-label="POS categories">${[...JB_DATA.foodCategories,...JB_DATA.drinkCategories].map(c=>`<button data-category="${e(c)}" aria-pressed="${category===c}">${e(c)}</button>`).join('')}</nav><div class="ops-menu">${JB_DATA.menu.filter(m=>m.cat===category).map(m=>`<button class="ops-item" data-add="${m.id}" ${m.price==null?'disabled':''}><span class="ops-photo" style="background:${m.color}"><img src="${JB.base}start-here/images/${m.image}" alt="${e(m.name)}" loading="lazy"></span><strong>${e(m.name)}</strong><span>${m.price==null?'Ask your server':money(m.price)}</span>${m.dineIn?'<small>Dine-in only</small>':''}</button>`).join('')}</div></section><aside class="ops-card"><h2>Current ticket</h2><label class="ops-check"><input type="checkbox" data-member ${member?'checked':''}> Brunch Club member</label><p class="ops-muted">One bottomless mimosa free · 5% off the highest-priced entrée</p><div data-ticket>${Object.entries(ticket).filter(([,q])=>q>0).map(([id,q])=>{const m=JB.item(id);if(!m)return'';const kind=itemKind(m),note=itemNotes[noteKey(id)];return `<div class="ops-line"><span>${e(m.name)}<br>${money(m.price*q)}${note?`<br><em style="color:#a9a3b5;font-size:12px">${kind==='drink'?'Bartender':'Note'}: ${e(note)}</em>`:''}</span>${kind?`<button type="button" data-edit-item="${id}" aria-label="${kind==='drink'?'Bartender notes':'Sides &amp; substitutions'} for ${e(m.name)}">${kind==='drink'?'🍸':'📝'}</button>`:''}<button data-qty="${id}" data-delta="-1" aria-label="Remove one ${e(m.name)}">−</button><b>${q}</b><button data-qty="${id}" data-delta="1" aria-label="Add one ${e(m.name)}">+</button></div>`;}).join('')||'<p>Your ticket is empty. Add an item to begin.</p>'}</div><label style="display:flex;flex-direction:column;gap:8px;margin:16px 0">Kitchen notes<textarea data-kitchen-notes rows="3" placeholder="e.g. rush table 4, allergy on table 2">${e(kitchenNotes)}</textarea></label><dl class="ops-totals"><div><dt>Subtotal</dt><dd data-subtotal>${money(t.sub/100)}</dd></div><div><dt>Member discount</dt><dd data-discount>−${money(t.discount/100)}</dd></div>${member?`<div class="ops-muted"><dt>Bottomless ${money(t.free/100)} · Entrée ${money(t.entree/100)}</dt><dd></dd></div>`:''}<div><dt>${e(JB_DATA.taxLabel)}</dt><dd data-tax>${money(t.tax/100)}</dd></div><div><dt>Total</dt><dd data-total>${money(t.total/100)}</dd></div></dl><button class="ops-primary" data-pay ${!t.sub?'disabled':''}>Complete ticket · ${money(t.total/100)}</button><button data-clear ${!t.sub?'disabled':''}>Clear ticket</button></aside></div>${renderItemPanel('data-add')}`;
   }
   function onlineOrders(){
     const all=[];for(const c of ['after-hours','golden-hour','mimosa-pop']){try{const order=JSON.parse(localStorage.getItem('justbrunch:'+c+':last-order'));if(order)all.push({...order,concept:c});}catch{}}
@@ -90,10 +91,11 @@
       ${ord.group.length?`<p class="ops-muted">Grouped with ${ord.group.map(k=>e(floorKeys().find(f=>f.key===k)?.label||k)).join(', ')} — shown together for service.</p>`:''}
       <nav class="ops-tabs" aria-label="Order categories">${cats.map(c=>`<button type="button" data-order-category="${e(c)}" aria-pressed="${orderCategory===c}">${e(c)}</button>`).join('')}</nav>
       <div class="ops-menu">${JB_DATA.menu.filter(m=>m.cat===orderCategory).map(m=>`<button type="button" class="ops-item" data-order-add="${m.id}" ${m.price==null?'disabled':''}><span class="ops-photo" style="background:${m.color}"><img src="${JB.base}start-here/images/${m.image}" alt="${e(m.name)}" loading="lazy"></span><strong>${e(m.name)}</strong><span>${m.price==null?'Ask your server':money(m.price)}</span></button>`).join('')}</div>
-      <div data-order-items>${Object.entries(items).filter(([,q])=>q>0).map(([id,q])=>{const m=JB.item(id);return m?`<div class="ops-line"><span>${e(m.name)}<br>${money(m.price*q)}</span><button type="button" data-order-qty="${id}" data-delta="-1" aria-label="Remove one ${e(m.name)}">−</button><b>${q}</b><button type="button" data-order-qty="${id}" data-delta="1" aria-label="Add one ${e(m.name)}">+</button></div>`:'';}).join('')||'<p>No items on this check yet.</p>'}</div>
+      <div data-order-items>${Object.entries(items).filter(([,q])=>q>0).map(([id,q])=>{const m=JB.item(id);if(!m)return'';const kind=itemKind(m),note=itemNotes[noteKey(id)];return `<div class="ops-line"><span>${e(m.name)}<br>${money(m.price*q)}${note?`<br><em style="color:#a9a3b5;font-size:12px">${kind==='drink'?'Bartender':'Note'}: ${e(note)}</em>`:''}</span>${kind?`<button type="button" data-edit-item="${id}" aria-label="${kind==='drink'?'Bartender notes':'Sides &amp; substitutions'} for ${e(m.name)}">${kind==='drink'?'🍸':'📝'}</button>`:''}<button type="button" data-order-qty="${id}" data-delta="-1" aria-label="Remove one ${e(m.name)}">−</button><b>${q}</b><button type="button" data-order-qty="${id}" data-delta="1" aria-label="Add one ${e(m.name)}">+</button></div>`;}).join('')||'<p>No items on this check yet.</p>'}</div>
       <div style="display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:18px;padding-top:12px;border-top:1px solid #3a3645"><span>Check${ord.mode==='separate'?' '+(idx+1):''} total</span><span>${money(subtotal/100)}</span></div>
       <button type="button" data-clear-order="${key}">Clear table</button>
-    </section>`;
+    </section>
+    ${renderItemPanel('data-order-add')}`;
   }
   function renderFloor(){
     const tableStatus=get('tables',{}),onlineOrdersList=onlineOrders(),orderStates=get('order-states',{});
@@ -131,6 +133,11 @@
     root.querySelectorAll('img').forEach(img=>img.onerror=()=>img.remove());
     const slide=root.querySelector('.ops-slide');
     if(slide)requestAnimationFrame(()=>requestAnimationFrame(()=>slide.classList.add('is-open')));
+    if(scrollToOrder){
+      scrollToOrder=false;
+      const panel=root.querySelector('.ops-order-panel');
+      if(panel)requestAnimationFrame(()=>panel.scrollIntoView({behavior:'smooth',block:'start'}));
+    }
   }
   root.addEventListener('click',event=>{
     if(event.target.classList.contains('ops-slide-backdrop')){itemPanel=null;render();return;}
@@ -144,17 +151,17 @@
     if('toggleEdit'in d){layoutEdit=!layoutEdit;if(layoutEdit)activeTable=null;render();}
     if('resetLayout'in d){layout={};tablesList=TABLE_DEFAULTS.map(t=>({...t}));save('floor-layout',layout);save('floor-tables',tablesList);render();}
     if(d.addTable){addTable(d.addTable);render();}
-    if(d.table){if(layoutEdit)return;activeTable=d.table;orderCategory=JB_DATA.foodCategories[0];activeCheck=0;render();}
-    if('closeOrder'in d){activeTable=null;render();}
+    if(d.table){if(layoutEdit)return;activeTable=d.table;orderCategory=JB_DATA.foodCategories[0];activeCheck=0;itemPanel=null;scrollToOrder=true;render();}
+    if('closeOrder'in d){activeTable=null;itemPanel=null;render();}
     if(d.tableStatus&&activeTable){const t=get('tables',{});t[activeTable]=d.tableStatus;save('tables',t);render();}
-    if(d.orderMode&&activeTable){const ord=orderFor(activeTable);ord.mode=d.orderMode;activeCheck=0;save('table-orders',orders);render();}
-    if(d.check!==undefined&&activeTable){activeCheck=Number(d.check);render();}
+    if(d.orderMode&&activeTable){const ord=orderFor(activeTable);ord.mode=d.orderMode;activeCheck=0;itemPanel=null;save('table-orders',orders);render();}
+    if(d.check!==undefined&&activeTable){activeCheck=Number(d.check);itemPanel=null;render();}
     if('addCheck'in d&&activeTable){const ord=orderFor(activeTable);ord.checks.push({items:{}});activeCheck=ord.checks.length-1;save('table-orders',orders);render();}
     if(d.removeCheck!==undefined&&activeTable){const ord=orderFor(activeTable);if(ord.checks.length>1){ord.checks.splice(Number(d.removeCheck),1);activeCheck=Math.max(0,activeCheck-1);}save('table-orders',orders);render();}
     if(d.orderCategory){orderCategory=d.orderCategory;render();}
-    if(d.orderAdd&&activeTable){const ord=orderFor(activeTable),idx=Math.min(activeCheck,ord.checks.length-1),items=ord.checks[idx].items;items[d.orderAdd]=Math.min(99,(items[d.orderAdd]||0)+1);const t=get('tables',{});if(!t[activeTable]||t[activeTable]==='Available'){t[activeTable]='Seated';save('tables',t);}save('table-orders',orders);render();}
+    if(d.orderAdd&&activeTable){const ord=orderFor(activeTable),idx=Math.min(activeCheck,ord.checks.length-1),items=ord.checks[idx].items;items[d.orderAdd]=Math.min(99,(items[d.orderAdd]||0)+1);const t=get('tables',{});if(!t[activeTable]||t[activeTable]==='Available'){t[activeTable]='Seated';save('tables',t);}save('table-orders',orders);const kind=itemKind(JB.item(d.orderAdd));if(kind)itemPanel={id:d.orderAdd,kind};render();}
     if(d.orderQty&&activeTable){const ord=orderFor(activeTable),idx=Math.min(activeCheck,ord.checks.length-1),items=ord.checks[idx].items;items[d.orderQty]=Math.max(0,Math.min(99,(items[d.orderQty]||0)+Number(d.delta)));if(!items[d.orderQty])delete items[d.orderQty];save('table-orders',orders);render();}
-    if(d.clearOrder){delete orders[d.clearOrder];const t=get('tables',{});delete t[d.clearOrder];save('tables',t);save('table-orders',orders);activeTable=null;render();}
+    if(d.clearOrder){delete orders[d.clearOrder];const t=get('tables',{});delete t[d.clearOrder];save('tables',t);save('table-orders',orders);activeTable=null;itemPanel=null;render();}
     if(d.order){const t=get('order-states',{}),states=['Received','Preparing','Ready','Completed'];t[d.order]=states[(states.indexOf(t[d.order]||'Received')+1)%4];save('order-states',t);render();}
     if(d.punch){const action=d.punch==='break'?'Start break':d.punch==='out'?'Clock out':'endBreak'in d?'End break':'Clock in';status=d.punch;punches.push({action,at:new Date().toISOString()});save('clock',status);save('punches',punches);render();}
     if(d.swap){const requests=get('swap-requests',[]);requests.push({day:d.swap,at:new Date().toISOString()});save('swap-requests',requests);JB.modal('Swap request saved',`<p>Your ${e(d.swap)} shift swap request is ready for manager review in this preview.</p>`);}
@@ -169,7 +176,7 @@
   });
   root.addEventListener('input',event=>{
     const d=event.target.dataset;
-    if(d.itemNote!==undefined){itemNotes[d.itemNote]=event.target.value;save('item-notes',itemNotes);}
+    if(d.itemNote!==undefined){itemNotes[noteKey(d.itemNote)]=event.target.value;save('item-notes',itemNotes);}
     if('kitchenNotes'in d){kitchenNotes=event.target.value;save('kitchen-notes',kitchenNotes);}
   });
   let dragState=null;
