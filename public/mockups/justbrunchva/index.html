@@ -18,9 +18,16 @@ a{color:#F5F3F7;text-decoration:none}a:hover{color:#F7D046}
 .pill{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border-radius:999px;border:1px solid #3A3645;font:500 14px 'DM Sans',sans-serif;color:#F5F3F7}
 .pill:hover{border-color:#F7D046;color:#F7D046}
 .sw{width:28px;height:28px;border-radius:50%}
-.jb-pitch-card{outline:3px solid transparent;outline-offset:2px;transition:outline-color .15s}
+.jb-pitch-card{position:relative;outline:3px solid transparent;outline-offset:2px;transition:outline-color .15s,transform .15s,box-shadow .15s}
 .jb-pitch-card:hover{outline-color:#3A3645}
-.jb-pitch-card[aria-pressed="true"]{outline-color:#F7D046}
+.jb-pitch-card[aria-pressed="true"]{outline-color:#F7D046;transform:translateY(-3px);box-shadow:0 8px 18px rgba(247,208,70,.4)}
+.jb-pitch-check{position:absolute;top:-9px;right:-9px;width:22px;height:22px;border-radius:50%;background:#F7D046;color:#16121F;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;border:2px solid #0E0D12;opacity:0;transform:scale(.4);transition:opacity .15s,transform .15s}
+.jb-pitch-card[aria-pressed="true"] .jb-pitch-check{opacity:1;transform:scale(1)}
+.jb-staff-btn{box-shadow:0 6px 0 #B88A0A,0 10px 20px rgba(247,208,70,.25);transition:transform .15s ease,box-shadow .15s ease;animation:jb-staff-pulse 2.4s ease-in-out infinite}
+.jb-staff-btn:hover{transform:translateY(-3px);color:#16121F;box-shadow:0 9px 0 #B88A0A,0 16px 26px rgba(247,208,70,.35);animation-play-state:paused}
+.jb-staff-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #B88A0A,0 4px 10px rgba(247,208,70,.25)}
+@keyframes jb-staff-pulse{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@media (prefers-reduced-motion: reduce){.jb-staff-btn{animation:none}}
 </style>
 </helmet>
 <div style="width: 100%; min-height: 1100px; box-sizing: border-box; background: #0E0D12; color: #F5F3F7; font-family: 'DM Sans', sans-serif; padding: 64px 72px; display: flex; flex-direction: column; gap: 40px" class="jb-page jb-hub">
@@ -63,72 +70,76 @@ a{color:#F5F3F7;text-decoration:none}a:hover{color:#F7D046}
     </div>
   </div>
 
-  <div style="background: #1A1822; border: 1px solid #2C2936; border-radius: 20px; padding: 28px; display: flex; justify-content: space-between; align-items: center; gap: 32px">
+  <div style="background: #1A1822; border: 2px solid #F7D046; border-radius: 20px; padding: 28px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 32px">
     <div style="display: flex; flex-direction: column; gap: 8px; max-width: 560px">
       <span style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #5FD38D; font-weight: 700">Shared across all three</span>
       <h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 30px">One system behind the counter</h2>
       <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #C9C3D4">Online orders and reservations land straight in the POS. Staff clock in, swap shifts and see tips on their phones; managers run payroll, menu and bookings from the back office. Sign in once and click through every screen — register, floor, schedule, team and the back office all cross-link from there.</p>
+      <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #7E778A">Already running a POS like Toast or Square? We can integrate with what you have instead of replacing it.</p>
     </div>
-    <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; max-width: 620px">
-      <a class="pill" href="/mockups/justbrunchva/start-here/operations/Staff-Login.dc.html">Staff app →</a>
-    </div>
+    <a href="/mockups/justbrunchva/start-here/operations/Staff-Login.dc.html" class="jb-staff-btn" style="display: inline-flex; align-items: center; gap: 12px; min-height: 68px; padding: 0 34px; border-radius: 999px; background: #F7D046; color: #16121F; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 19px; letter-spacing: -0.01em; white-space: nowrap">
+      <span aria-hidden="true" style="font-size: 26px">🧑‍🍳</span> Try the staff app →
+    </a>
   </div>
 
-  <div id="jb-pitch" style="background: #1A1822; border: 1px solid #2C2936; border-radius: 20px; padding: 32px; display: flex; flex-wrap: wrap; gap: 40px">
+  <div id="jb-pitch" style="--pitch-bg:#1A1822; --pitch-text:#F5F3F7; --pitch-muted:#A9A3B5; --pitch-border:#2C2936; --pitch-field-bg:#0E0D12; --pitch-field-border:#3A3645; --pitch-accent:#F7D046; --pitch-accent-ink:#16121F; --pitch-heading-font:'Bricolage Grotesque',sans-serif; --pitch-card-border:1px solid #2C2936; --pitch-card-shadow:none; background: var(--pitch-bg); color: var(--pitch-text); border: var(--pitch-card-border); box-shadow: var(--pitch-card-shadow); border-radius: 20px; padding: 32px; display: flex; flex-wrap: wrap; gap: 40px; transition: background .35s ease, border-color .35s ease, box-shadow .35s ease">
     <div style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 18px">
       <div style="display: flex; flex-direction: column; gap: 8px">
-        <span style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #F7D046; font-weight: 700">Tell us what you think</span>
-        <h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 26px">Like one of these? Pick it and send us a note.</h2>
-        <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #A9A3B5">Choose the direction that feels most like Just Brunch, leave your info, and we'll follow up to lock it in.</p>
+        <span style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pitch-accent); font-weight: 700; transition: color .35s ease">Tell us what you think</span>
+        <h2 style="margin: 0; font-family: var(--pitch-heading-font); font-weight: 800; font-size: 26px">Like one of these? Pick it and send us a note.</h2>
+        <p style="margin: 0; font-size: 14px; line-height: 1.6; color: var(--pitch-muted); transition: color .35s ease">Choose the direction that feels most like Just Brunch, leave your info, and we'll follow up to lock it in.</p>
       </div>
-      <div style="display: flex; flex-direction: column; gap: 10px; font-size: 14px; color: #C9C3D4">
-        <span style="font-weight: 700; color: #F5F3F7">What happens next</span>
-        <div style="display: flex; gap: 10px"><span style="color: #5FD38D; font-weight: 700; flex-shrink: 0">1.</span><span>We review your pick and any notes you leave.</span></div>
-        <div style="display: flex; gap: 10px"><span style="color: #5FD38D; font-weight: 700; flex-shrink: 0">2.</span><span>We schedule a short call to confirm the direction and timeline.</span></div>
-        <div style="display: flex; gap: 10px"><span style="color: #5FD38D; font-weight: 700; flex-shrink: 0">3.</span><span>We move into build — real photos, content, and go-live.</span></div>
+      <div style="display: flex; flex-direction: column; gap: 10px; font-size: 14px; color: var(--pitch-text); transition: color .35s ease">
+        <span style="font-weight: 700">What happens next</span>
+        <div style="display: flex; gap: 10px"><span style="color: var(--pitch-accent); font-weight: 700; flex-shrink: 0; transition: color .35s ease">1.</span><span>We review your pick and any notes you leave.</span></div>
+        <div style="display: flex; gap: 10px"><span style="color: var(--pitch-accent); font-weight: 700; flex-shrink: 0; transition: color .35s ease">2.</span><span>We schedule a short call to confirm the direction and timeline.</span></div>
+        <div style="display: flex; gap: 10px"><span style="color: var(--pitch-accent); font-weight: 700; flex-shrink: 0; transition: color .35s ease">3.</span><span>We move into build — real photos, content, and go-live.</span></div>
       </div>
-      <div style="border-top: 1px solid #2C2936; padding-top: 16px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #A9A3B5">
-        <span style="font-weight: 700; color: #F5F3F7">CEL3 Interactive</span>
+      <div style="border-top: 1px solid var(--pitch-border); padding-top: 16px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--pitch-muted); transition: border-color .35s ease, color .35s ease">
+        <span style="font-weight: 700; color: var(--pitch-text); transition: color .35s ease">CEL3 Interactive</span>
         <span>We design and build ordering, booking and back-office systems for independent restaurants and small businesses — from first pitch to the tools your team uses every day.</span>
-        <a href="https://cel3interactive.com" target="_blank" rel="noopener" style="color: #F7D046; font-weight: 700; padding-top: 4px">Visit cel3interactive.com →</a>
+        <a href="https://cel3interactive.com" target="_blank" rel="noopener" style="color: var(--pitch-accent); font-weight: 700; padding-top: 4px; transition: color .35s ease">Visit cel3interactive.com →</a>
       </div>
     </div>
 
     <form id="jb-pitch-form" style="flex: 1 1 360px; display: flex; flex-direction: column; gap: 14px">
       <div style="display: flex; flex-direction: column; gap: 6px">
-        <span style="font-size: 13px; color: #A9A3B5">Design direction</span>
+        <span style="font-size: 13px; color: var(--pitch-muted); transition: color .35s ease">Design direction</span>
         <div id="jb-pitch-concept" role="group" aria-label="Design direction" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
           <button type="button" class="jb-pitch-card" data-concept="After Hours" aria-pressed="false" style="background: #1A1822; border: 1px solid #2C2936; color: #F5F3F7; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 3px; text-align: left; cursor: pointer; min-height: 56px">
             <span style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #F7D046; font-weight: 700">Concept 01</span>
             <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 14px">After Hours</span>
+            <span class="jb-pitch-check" aria-hidden="true">✓</span>
           </button>
           <button type="button" class="jb-pitch-card" data-concept="Golden Hour" aria-pressed="false" style="background: #FFF7EC; border: 1px solid #FFF7EC; color: #1F1A17; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 3px; text-align: left; cursor: pointer; min-height: 56px">
             <span style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #B0336F; font-weight: 700">Concept 02</span>
             <span style="font-family: 'Fraunces', serif; font-weight: 600; font-size: 14px">Golden Hour</span>
+            <span class="jb-pitch-check" aria-hidden="true">✓</span>
           </button>
           <button type="button" class="jb-pitch-card" data-concept="Mimosa Pop" aria-pressed="false" style="background: #FFE14D; border: 2px solid #16121F; color: #16121F; border-radius: 12px; padding: 11px; display: flex; flex-direction: column; gap: 3px; text-align: left; cursor: pointer; min-height: 56px; box-shadow: 3px 3px 0 #FF4FA0">
             <span style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #16121F; font-weight: 700">Concept 03</span>
             <span style="font-family: 'Archivo Black', sans-serif; font-size: 13px; text-transform: uppercase">Mimosa Pop</span>
+            <span class="jb-pitch-check" aria-hidden="true">✓</span>
           </button>
         </div>
         <p id="jb-pitch-concept-error" hidden style="margin: 0; font-size: 12px; color: #F28AC7">Please choose a direction.</p>
       </div>
-      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #A9A3B5">Your name
-        <input id="jb-pitch-name" type="text" required maxlength="200" placeholder="Full name" style="min-height: 48px; border-radius: 12px; border: 1px solid #3A3645; background: #0E0D12; color: #F5F3F7; padding: 0 14px; font: 500 15px 'DM Sans',sans-serif">
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--pitch-muted); transition: color .35s ease">Your name
+        <input id="jb-pitch-name" type="text" required maxlength="200" placeholder="Full name" style="min-height: 48px; border-radius: 12px; border: 1px solid var(--pitch-field-border); background: var(--pitch-field-bg); color: var(--pitch-text); padding: 0 14px; font: 500 15px 'DM Sans',sans-serif; transition: border-color .35s ease, background .35s ease, color .35s ease">
       </label>
       <div style="display: flex; flex-wrap: wrap; gap: 14px">
-        <label style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #A9A3B5">Email
-          <input id="jb-pitch-email" type="email" required maxlength="320" placeholder="you@email.com" style="min-height: 48px; border-radius: 12px; border: 1px solid #3A3645; background: #0E0D12; color: #F5F3F7; padding: 0 14px; font: 500 15px 'DM Sans',sans-serif">
+        <label style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--pitch-muted); transition: color .35s ease">Email
+          <input id="jb-pitch-email" type="email" required maxlength="320" placeholder="you@email.com" style="min-height: 48px; border-radius: 12px; border: 1px solid var(--pitch-field-border); background: var(--pitch-field-bg); color: var(--pitch-text); padding: 0 14px; font: 500 15px 'DM Sans',sans-serif; transition: border-color .35s ease, background .35s ease, color .35s ease">
         </label>
-        <label style="flex: 1 1 160px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #A9A3B5">Phone <span style="opacity:.6">(optional)</span>
-          <input id="jb-pitch-phone" type="tel" maxlength="40" placeholder="(757) 555-0123" style="min-height: 48px; border-radius: 12px; border: 1px solid #3A3645; background: #0E0D12; color: #F5F3F7; padding: 0 14px; font: 500 15px 'DM Sans',sans-serif">
+        <label style="flex: 1 1 160px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--pitch-muted); transition: color .35s ease">Phone <span style="opacity:.6">(optional)</span>
+          <input id="jb-pitch-phone" type="tel" maxlength="40" placeholder="(757) 555-0123" style="min-height: 48px; border-radius: 12px; border: 1px solid var(--pitch-field-border); background: var(--pitch-field-bg); color: var(--pitch-text); padding: 0 14px; font: 500 15px 'DM Sans',sans-serif; transition: border-color .35s ease, background .35s ease, color .35s ease">
         </label>
       </div>
-      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #A9A3B5">Notes <span style="opacity:.6">(optional)</span>
-        <textarea id="jb-pitch-notes" rows="3" maxlength="4000" placeholder="Anything you'd like us to know" style="border-radius: 12px; border: 1px solid #3A3645; background: #0E0D12; color: #F5F3F7; padding: 12px 14px; font: 500 15px 'DM Sans',sans-serif; resize: vertical"></textarea>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--pitch-muted); transition: color .35s ease">Notes <span style="opacity:.6">(optional)</span>
+        <textarea id="jb-pitch-notes" rows="3" maxlength="4000" placeholder="Anything you'd like us to know" style="border-radius: 12px; border: 1px solid var(--pitch-field-border); background: var(--pitch-field-bg); color: var(--pitch-text); padding: 12px 14px; font: 500 15px 'DM Sans',sans-serif; resize: vertical; transition: border-color .35s ease, background .35s ease, color .35s ease"></textarea>
       </label>
       <p id="jb-pitch-error" hidden style="margin: 0; font-size: 13px; color: #F28AC7"></p>
-      <button type="submit" id="jb-pitch-submit" style="min-height: 48px; border-radius: 999px; border: 0; background: #F7D046; color: #16121F; font: 700 15px 'DM Sans',sans-serif; cursor: pointer">Send to CEL3 Interactive</button>
+      <button type="submit" id="jb-pitch-submit" style="min-height: 48px; border-radius: 999px; border: 0; background: var(--pitch-accent); color: var(--pitch-accent-ink); font: 700 15px 'DM Sans',sans-serif; cursor: pointer; transition: background .35s ease, color .35s ease">Send to CEL3 Interactive</button>
     </form>
     <p id="jb-pitch-success" hidden style="flex: 1 1 360px; margin: 0; font-size: 14px; line-height: 1.6; color: #5FD38D">Thanks — we've got your pick and notes, and we'll follow up soon.</p>
   </div>
@@ -149,6 +160,42 @@ class Component extends DCLogic {
   const submitBtn = document.getElementById('jb-pitch-submit');
   const conceptGroup = document.getElementById('jb-pitch-concept');
   const conceptError = document.getElementById('jb-pitch-concept-error');
+  const pitchSection = document.getElementById('jb-pitch');
+  const PITCH_THEMES = {
+    'After Hours': {
+      bg: '#1A1822', border: '1px solid #2C2936', shadow: 'none',
+      text: '#F5F3F7', muted: '#A9A3B5', lineBorder: '#2C2936',
+      fieldBg: '#0E0D12', fieldBorder: '#3A3645',
+      accent: '#F7D046', accentInk: '#16121F', heading: "'Bricolage Grotesque',sans-serif",
+    },
+    'Golden Hour': {
+      bg: '#FFF7EC', border: '1px solid #EADBC8', shadow: 'none',
+      text: '#1F1A17', muted: '#6B5F57', lineBorder: '#EADBC8',
+      fieldBg: '#FFFFFF', fieldBorder: '#D8CBBB',
+      accent: '#B0336F', accentInk: '#FFFFFF', heading: "'Fraunces',serif",
+    },
+    'Mimosa Pop': {
+      bg: '#FFE14D', border: '3px solid #16121F', shadow: '8px 8px 0 #FF4FA0',
+      text: '#16121F', muted: '#2A2433', lineBorder: '#16121F',
+      fieldBg: '#FFFFFF', fieldBorder: '#16121F',
+      accent: '#16121F', accentInk: '#FFE14D', heading: "'Archivo Black',sans-serif",
+    },
+  };
+  function applyPitchTheme(concept) {
+    const t = PITCH_THEMES[concept];
+    if (!t || !pitchSection) return;
+    pitchSection.style.setProperty('--pitch-bg', t.bg);
+    pitchSection.style.setProperty('--pitch-text', t.text);
+    pitchSection.style.setProperty('--pitch-muted', t.muted);
+    pitchSection.style.setProperty('--pitch-border', t.lineBorder);
+    pitchSection.style.setProperty('--pitch-field-bg', t.fieldBg);
+    pitchSection.style.setProperty('--pitch-field-border', t.fieldBorder);
+    pitchSection.style.setProperty('--pitch-accent', t.accent);
+    pitchSection.style.setProperty('--pitch-accent-ink', t.accentInk);
+    pitchSection.style.setProperty('--pitch-heading-font', t.heading);
+    pitchSection.style.setProperty('--pitch-card-border', t.border);
+    pitchSection.style.setProperty('--pitch-card-shadow', t.shadow);
+  }
   let requestId = crypto.randomUUID();
   let selectedConcept = '';
   conceptGroup.addEventListener('click', (event) => {
@@ -156,6 +203,7 @@ class Component extends DCLogic {
     if (!card) return;
     selectedConcept = card.dataset.concept;
     conceptGroup.querySelectorAll('.jb-pitch-card').forEach((btn) => btn.setAttribute('aria-pressed', String(btn === card)));
+    applyPitchTheme(selectedConcept);
     conceptError.hidden = true;
   });
   form.addEventListener('submit', async (event) => {
