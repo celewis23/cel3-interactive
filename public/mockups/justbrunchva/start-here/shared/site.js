@@ -114,7 +114,7 @@
     homeDrinks:dark=>JB_DATA.drinkCategories.map((title,i)=>({title,color:dark?['#F7D046','#F28AC7','#B38CF0','#49C6E5','#5FD38D'][i%5]:'var(--text)',items:JB_DATA.menu.filter(m=>m.cat===title).map(m=>({...m,price:m.price==null?'Ask your server':(concept==='golden-hour'?'':'$')+m.price}))}))};
   let scheduled=false;
   const observedMarquees=new WeakSet();
-  const resize = new ResizeObserver(entries=>{for(const {target} of entries){const group=target.querySelector('.jb-marquee-group');if(group)target.classList.toggle('is-scrolling',innerWidth<=1024||group.scrollWidth>target.clientWidth);}});
+  const resize = new ResizeObserver(entries=>{for(const {target} of entries){if(target.querySelector('.jb-marquee-group'))target.classList.add('is-scrolling');}});
   function enhance() {
     scheduled=false;updateBag();
     document.querySelectorAll('[data-tip]').forEach(el=>{const selected=Number(el.dataset.tip)===(component?.state.tipRate??.15);el.setAttribute('aria-pressed',String(selected));el.style.background=selected?'var(--cta)':'transparent';el.style.color=selected?'var(--cta-ink)':'var(--text)';});
