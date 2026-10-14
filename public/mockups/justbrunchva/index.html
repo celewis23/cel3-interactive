@@ -18,6 +18,9 @@ a{color:#F5F3F7;text-decoration:none}a:hover{color:#F7D046}
 .pill{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border-radius:999px;border:1px solid #3A3645;font:500 14px 'DM Sans',sans-serif;color:#F5F3F7}
 .pill:hover{border-color:#F7D046;color:#F7D046}
 .sw{width:28px;height:28px;border-radius:50%}
+.jb-pitch-card{outline:3px solid transparent;outline-offset:2px;transition:outline-color .15s}
+.jb-pitch-card:hover{outline-color:#3A3645}
+.jb-pitch-card[aria-pressed="true"]{outline-color:#F7D046}
 </style>
 </helmet>
 <div style="width: 100%; min-height: 1100px; box-sizing: border-box; background: #0E0D12; color: #F5F3F7; font-family: 'DM Sans', sans-serif; padding: 64px 72px; display: flex; flex-direction: column; gap: 40px" class="jb-page jb-hub">
@@ -92,14 +95,24 @@ a{color:#F5F3F7;text-decoration:none}a:hover{color:#F7D046}
     </div>
 
     <form id="jb-pitch-form" style="flex: 1 1 360px; display: flex; flex-direction: column; gap: 14px">
-      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #A9A3B5">Design direction
-        <select id="jb-pitch-concept" required style="min-height: 48px; border-radius: 12px; border: 1px solid #3A3645; background: #0E0D12; color: #F5F3F7; padding: 0 14px; font: 500 15px 'DM Sans',sans-serif">
-          <option value="">Choose one…</option>
-          <option value="After Hours">Concept 01 · After Hours</option>
-          <option value="Golden Hour">Concept 02 · Golden Hour</option>
-          <option value="Mimosa Pop">Concept 03 · Mimosa Pop</option>
-        </select>
-      </label>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 13px; color: #A9A3B5">Design direction</span>
+        <div id="jb-pitch-concept" role="group" aria-label="Design direction" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+          <button type="button" class="jb-pitch-card" data-concept="After Hours" aria-pressed="false" style="background: #1A1822; border: 1px solid #2C2936; color: #F5F3F7; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 3px; text-align: left; cursor: pointer; min-height: 56px">
+            <span style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #F7D046; font-weight: 700">Concept 01</span>
+            <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 14px">After Hours</span>
+          </button>
+          <button type="button" class="jb-pitch-card" data-concept="Golden Hour" aria-pressed="false" style="background: #FFF7EC; border: 1px solid #FFF7EC; color: #1F1A17; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 3px; text-align: left; cursor: pointer; min-height: 56px">
+            <span style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #B0336F; font-weight: 700">Concept 02</span>
+            <span style="font-family: 'Fraunces', serif; font-weight: 600; font-size: 14px">Golden Hour</span>
+          </button>
+          <button type="button" class="jb-pitch-card" data-concept="Mimosa Pop" aria-pressed="false" style="background: #FFE14D; border: 2px solid #16121F; color: #16121F; border-radius: 12px; padding: 11px; display: flex; flex-direction: column; gap: 3px; text-align: left; cursor: pointer; min-height: 56px; box-shadow: 3px 3px 0 #FF4FA0">
+            <span style="font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #16121F; font-weight: 700">Concept 03</span>
+            <span style="font-family: 'Archivo Black', sans-serif; font-size: 13px; text-transform: uppercase">Mimosa Pop</span>
+          </button>
+        </div>
+        <p id="jb-pitch-concept-error" hidden style="margin: 0; font-size: 12px; color: #F28AC7">Please choose a direction.</p>
+      </div>
       <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #A9A3B5">Your name
         <input id="jb-pitch-name" type="text" required maxlength="200" placeholder="Full name" style="min-height: 48px; border-radius: 12px; border: 1px solid #3A3645; background: #0E0D12; color: #F5F3F7; padding: 0 14px; font: 500 15px 'DM Sans',sans-serif">
       </label>
@@ -134,17 +147,32 @@ class Component extends DCLogic {
   const errorEl = document.getElementById('jb-pitch-error');
   const successEl = document.getElementById('jb-pitch-success');
   const submitBtn = document.getElementById('jb-pitch-submit');
+  const conceptGroup = document.getElementById('jb-pitch-concept');
+  const conceptError = document.getElementById('jb-pitch-concept-error');
   let requestId = crypto.randomUUID();
+  let selectedConcept = '';
+  conceptGroup.addEventListener('click', (event) => {
+    const card = event.target.closest('.jb-pitch-card');
+    if (!card) return;
+    selectedConcept = card.dataset.concept;
+    conceptGroup.querySelectorAll('.jb-pitch-card').forEach((btn) => btn.setAttribute('aria-pressed', String(btn === card)));
+    conceptError.hidden = true;
+  });
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     errorEl.hidden = true;
-    const concept = document.getElementById('jb-pitch-concept').value;
+    conceptError.hidden = true;
+    const concept = selectedConcept;
     const name = document.getElementById('jb-pitch-name').value.trim();
     const email = document.getElementById('jb-pitch-email').value.trim();
     const phone = document.getElementById('jb-pitch-phone').value.trim();
     const notes = document.getElementById('jb-pitch-notes').value.trim();
-    if (!concept || !name || !email) {
-      errorEl.textContent = 'Please choose a direction and fill in your name and email.';
+    if (!concept) {
+      conceptError.hidden = false;
+      return;
+    }
+    if (!name || !email) {
+      errorEl.textContent = 'Please fill in your name and email.';
       errorEl.hidden = false;
       return;
     }
