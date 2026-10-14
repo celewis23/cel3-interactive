@@ -14,61 +14,67 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=Space+Grotesk:wght@400;500;700&amp;family=Poppins:wght@500;600&amp;display=swap" rel="stylesheet">
 <style>
 body{margin:0}
-.post{width:380px;height:380px;box-sizing:border-box;padding:28px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;color:#16121F}
+.post{width:100%;aspect-ratio:1;box-sizing:border-box;padding:18px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;color:#16121F;container-type:inline-size}
 .d{font-family:'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:-.01em;line-height:.92;margin:0}
-.chip{align-self:flex-start;display:inline-flex;padding:7px 13px;border-radius:999px;border:2.5px solid #16121F;font:700 13px 'Space Grotesk';background:#FFFFFF;color:#16121F}
-.card{border:3px solid #16121F;border-radius:18px;box-shadow:4px 4px 0 #16121F}
+.chip{align-self:flex-start;display:inline-flex;padding:5px 10px;border-radius:999px;border:2px solid #16121F;font:700 11px 'Space Grotesk';background:#FFFFFF;color:#16121F}
+.card{border:2px solid #16121F;border-radius:12px;box-shadow:3px 3px 0 #16121F}
+.jb-ig-tab{display:flex;align-items:center;gap:7px;padding-top:14px;margin-top:-1px;border-top:1px solid transparent;font:700 12px 'Space Grotesk',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#8E8E8E}
+.jb-ig-tab.is-active{color:#262626;border-top-color:#262626}
 </style>
 </helmet>
-<div style="width: 100%; min-height: 100vh; box-sizing: border-box; background: #FFFCF2; padding: 64px; display: flex; gap: 64px; font-family: 'Space Grotesk', sans-serif; color: #16121F" class="jb-page jb-board jb-instagram">
-  <div style="width: 1164px; display: flex; flex-direction: column; gap: 28px">
-    <div style="display: flex; gap: 28px; align-items: center">
+<div style="width: 100%; min-height: 100vh; box-sizing: border-box; background: #FAFAFA; font-family: 'Space Grotesk', sans-serif; color: #262626" class="jb-page jb-instagram">
+  <header style="background: #FFFFFF; border-bottom: 1px solid #DBDBDB; padding: 14px 20px">
+    <div style="max-width: 975px; margin: 0 auto; display: flex; align-items: center; gap: 20px">
+      <span style="font-family: 'Archivo Black', sans-serif; text-transform: uppercase; font-size: 19px; letter-spacing: -0.01em">justbrunchva</span>
+      <div style="flex: 1; max-width: 268px; display: flex; align-items: center; gap: 8px; background: #EFEFEF; border-radius: 10px; padding: 0 14px; min-height: 38px; color: #8E8E8E; font-size: 14px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        Search
+      </div>
+      <span aria-hidden="true" style="width: 30px; height: 30px; border-radius: 50%; background: #FFE14D; border: 2px solid #16121F; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #16121F; margin-left: auto; flex-shrink: 0">JB</span>
+    </div>
+  </header>
+  <main style="max-width: 935px; margin: 0 auto; padding: 32px 20px 64px">
+    <div style="display: flex; gap: 44px; align-items: center; flex-wrap: wrap; padding-bottom: 28px">
       <div style="width: 128px; height: 128px; border-radius: 50%; background: #FFE14D; border: 4px solid #16121F; box-shadow: 5px 5px 0 #FF4FA0; display: flex; align-items: center; justify-content: center; flex-shrink: 0">
         <span style="font: 600 32px 'Poppins', sans-serif; color: #16121F">JB</span>
       </div>
-      <div style="display: flex; flex-direction: column; gap: 8px">
-        <div style="display: flex; gap: 20px; align-items: center"><span style="font-size: 26px; font-weight: 700">justbrunchva</span><a style="background: #16121F; color: #FFFFFF; padding: 8px 18px; border-radius: 10px; font-weight: 700; font-size: 14px; text-decoration: none;" href="https://www.instagram.com/justbrunchva/" target="_blank" rel="noopener">Follow</a><a style="background: #FF4FA0; border: 2px solid #16121F; padding: 6px 16px; border-radius: 10px; font-weight: 700; font-size: 14px; text-decoration: none;" href="/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20Menu%20%26%20Order%20Online-html/MimosaPop-Order.dc.html">Order</a></div>
-        <span style="font-size: 16px"><b>Just Brunch</b> · Restaurant · Cocktail bar</span>
-        <span style="font-size: 16px; line-height: 1.45; max-width: 640px">Bold flavors, vibrant vibes, all-day brunch. Come hungry, leave happy — it's never just brunch, it's a vibe ✦ 307 High St, Portsmouth · daily 8–5</span>
+      <div style="flex: 1 1 280px; display: flex; flex-direction: column; gap: 18px">
+        <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap"><span style="font-size: 22px; font-weight: 700">justbrunchva</span><a style="background: #16121F; color: #FFFFFF; padding: 8px 18px; border-radius: 8px; font-weight: 700; font-size: 14px; text-decoration: none;" href="https://www.instagram.com/justbrunchva/" target="_blank" rel="noopener">Follow</a><a style="background: #FF4FA0; border: 2px solid #16121F; padding: 6px 16px; border-radius: 8px; font-weight: 700; font-size: 14px; text-decoration: none;" href="/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20Menu%20%26%20Order%20Online-html/MimosaPop-Order.dc.html">Order</a></div>
+        <div style="display: flex; gap: 32px; font-size: 15px"><span><b>412</b> posts</span><span><b>6,284</b> followers</span><span><b>318</b> following</span></div>
+        <div style="display: flex; flex-direction: column; gap: 2px; font-size: 15px; line-height: 1.5">
+          <b>Just Brunch</b>
+          <span>Restaurant · Cocktail bar</span>
+          <span style="max-width: 500px">Bold flavors, vibrant vibes, all-day brunch. Come hungry, leave happy — it's never just brunch, it's a vibe ✦ 307 High St, Portsmouth · daily 8–5</span>
+        </div>
       </div>
     </div>
-    <div style="display: flex; gap: 24px; font-size: 14px; font-weight: 700">
-      <span style="display: flex; align-items: center; gap: 8px"><span style="width: 56px; height: 56px; border-radius: 50%; background: #FFE14D; border: 3px solid #16121F"></span>Menu</span>
-      <span style="display: flex; align-items: center; gap: 8px"><span style="width: 56px; height: 56px; border-radius: 50%; background: #FF4FA0; border: 3px solid #16121F"></span>Mimosas</span>
-      <span style="display: flex; align-items: center; gap: 8px"><span style="width: 56px; height: 56px; border-radius: 50%; background: #19C37D; border: 3px solid #16121F"></span>Brunch Club</span>
-      <span style="display: flex; align-items: center; gap: 8px"><span style="width: 56px; height: 56px; border-radius: 50%; background: #6B3CF0; border: 3px solid #16121F"></span>Parties</span>
+    <div class="jb-ig-stories" style="display: flex; gap: 28px; padding: 18px 0 24px; border-top: 1px solid #DBDBDB">
+      <span style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="width: 64px; height: 64px; border-radius: 50%; background: #FFE14D; border: 2px solid #16121F"></span>Menu</span>
+      <span style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="width: 64px; height: 64px; border-radius: 50%; background: #FF4FA0; border: 2px solid #16121F"></span>Mimosas</span>
+      <span style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="width: 64px; height: 64px; border-radius: 50%; background: #19C37D; border: 2px solid #16121F"></span>Brunch Club</span>
+      <span style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="width: 64px; height: 64px; border-radius: 50%; background: #6B3CF0; border: 2px solid #16121F"></span>Parties</span>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px" class="jb-post-grid">
-      <div class="post" style="background: #FFE14D"><span class="chip">All day, every day</span><h2 class="d" style="font-size: 76px">Brunch like you mean it.</h2><span style="font-weight: 700">307 High St · Portsmouth</span></div>
-      <div class="post" style="background: #FF4FA0"><div class="card jb-photo" style="flex: 1; background: #FFFFFF; transform: rotate(-3deg); display: flex; align-items: flex-end; padding: 14px; font: 700 11px 'Space Grotesk'; letter-spacing: .14em; text-transform: uppercase" data-photo="dish-shrimp-grits.jpg" data-alt="shrimp &amp; grits">Photo · shrimp &amp; grits</div><div style="display: flex; justify-content: space-between; align-items: center; padding-top: 18px"><span class="d" style="font-size: 32px">Shrimp &amp; grits</span><span class="chip" style="background: #FFE14D; align-self: center">Fan fave</span></div></div>
-      <div class="post" style="background: #6B3CF0; color: #FFFFFF"><span class="chip">The bar</span><h2 class="d" style="font-size: 68px; color: #FFFFFF">Mimosas, <span style="color: #FFE14D">no bottom.</span></h2><span style="font-weight: 700">Bottomless · towers · cocktails</span></div>
-      <div class="post" style="background: #19C37D"><span class="chip">Reservations open</span><h2 class="d" style="font-size: 72px">Save us a seat!</h2><a style="align-self: flex-start; background: #16121F; color: #FFFFFF; border-radius: 99px; padding: 10px 18px; font-weight: 700; font-size: 14px; text-decoration: none;" href="/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20Reserve-html/MimosaPop-Reserve.dc.html">Book via link in bio →</a></div>
-      <div class="post" style="background: #FFFFFF; align-items: center; justify-content: center; border: 3px solid #16121F; box-sizing: border-box"><dc-import name="Logo" variant="color-light" size="38" plate="{{ false }}" hint-size="290px,56px"></dc-import></div>
-      <div class="post" style="background: #2BB6E8"><div class="card jb-photo" style="flex: 1; background: #FFFFFF; transform: rotate(2deg); display: flex; align-items: flex-end; padding: 14px; font: 700 11px 'Space Grotesk'; letter-spacing: .14em; text-transform: uppercase" data-photo="dish-just-brunch-sampler.jpg" data-alt="Just Brunch sampler">Photo · Just Brunch sampler</div><span class="d" style="font-size: 30px; padding-top: 18px">The sampler. All of it.</span></div>
-      <div class="post" style="background: #16121F; color: #FFFFFF"><span class="chip" style="background: #FFE14D">You said it</span><span class="d" style="font-size: 132px; color: #FF4FA0">4.9★</span><span style="font-weight: 700; font-size: 18px">on Google. Thank you, Portsmouth!</span></div>
-      <div class="post" style="background: #FFE14D"><span class="chip" style="background: #19C37D">The Brunch Club</span><h2 class="d" style="font-size: 50px">Good food. Good vibes. Exclusive perks.</h2><span style="font-weight: 700">Join the VIP family · dine-in perks</span></div>
-      <div class="post" style="background: #FF4FA0"><span class="chip">Now open</span><h2 class="d" style="font-size: 56px">Private suites. Up to 40.</h2><span style="font-weight: 700">VA Leagues · IG Pink · Behold Green · Cheers Red Roses</span></div>
+    <div style="display: flex; justify-content: center; gap: clamp(28px,6vw,70px); border-top: 1px solid #DBDBDB">
+      <span class="jb-ig-tab is-active">⊞ Posts</span>
+      <span class="jb-ig-tab">☆ Tagged</span>
     </div>
-  </div>
-  <div style="flex: 1; display: flex; flex-direction: column; gap: 24px">
-    <span style="font: 700 12px 'Space Grotesk'; letter-spacing: .16em; text-transform: uppercase; color: #4A4257">Stories</span>
-    <div style="width: 300px; height: 533px; border-radius: 22px; border: 3px solid #16121F; background: #FFE14D; box-sizing: border-box; padding: 26px 22px; display: flex; flex-direction: column; justify-content: space-between">
-      <div style="height: 5px; border-radius: 99px; background: rgba(22,18,31,.25)"><div style="width: 60%; height: 5px; border-radius: 99px; background: #16121F"></div></div>
-      <span class="chip">Skip the line</span>
-      <span class="d" style="font-size: 56px">Grab &amp; go.</span>
-      <div class="card jb-photo" style="height: 150px; background: #FF4FA0; transform: rotate(-2deg)" data-photo="ig-post-01.jpg" data-alt="To-go brunch spread"></div>
-      <a style="align-self: center; background: #16121F; color: #FFFFFF; border-radius: 12px; padding: 12px 18px; font-weight: 700; text-decoration: none;" href="/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20Menu%20%26%20Order%20Online-html/MimosaPop-Order.dc.html">Order pickup</a>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:4px" class="jb-post-grid">
+      <div class="post" style="background: #FFE14D"><span class="chip">All day, every day</span><h2 class="d" style="font-size: clamp(28px,7cqi,52px)">Brunch like you mean it.</h2><span style="font-weight: 700; font-size: 13px">307 High St · Portsmouth</span></div>
+      <div class="post" style="background: #FF4FA0"><div class="card jb-photo" style="flex: 1; background: #FFFFFF; transform: rotate(-3deg); display: flex; align-items: flex-end; padding: 10px; font: 700 9px 'Space Grotesk'; letter-spacing: .1em; text-transform: uppercase" data-photo="dish-shrimp-grits.jpg" data-alt="shrimp &amp; grits">Photo · shrimp &amp; grits</div><div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px"><span class="d" style="font-size: 18px">Shrimp &amp; grits</span><span class="chip" style="background: #FFE14D; align-self: center">Fan fave</span></div></div>
+      <div class="post" style="background: #6B3CF0; color: #FFFFFF"><span class="chip">The bar</span><h2 class="d" style="font-size: clamp(24px,6cqi,46px); color: #FFFFFF">Mimosas, <span style="color: #FFE14D">no bottom.</span></h2><span style="font-weight: 700; font-size: 13px">Bottomless · towers · cocktails</span></div>
+      <div class="post" style="background: #19C37D"><span class="chip">Reservations open</span><h2 class="d" style="font-size: clamp(26px,6.5cqi,50px)">Save us a seat!</h2><a style="align-self: flex-start; background: #16121F; color: #FFFFFF; border-radius: 99px; padding: 8px 14px; font-weight: 700; font-size: 12px; text-decoration: none;" href="/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20Reserve-html/MimosaPop-Reserve.dc.html">Book via link in bio →</a></div>
+      <div class="post" style="background: #FFFFFF; align-items: center; justify-content: center; border: 2px solid #16121F; box-sizing: border-box"><dc-import name="Logo" variant="color-light" size="32" plate="{{ false }}" hint-size="245px,46px"></dc-import></div>
+      <div class="post" style="background: #2BB6E8"><div class="card jb-photo" style="flex: 1; background: #FFFFFF; transform: rotate(2deg); display: flex; align-items: flex-end; padding: 10px; font: 700 9px 'Space Grotesk'; letter-spacing: .1em; text-transform: uppercase" data-photo="dish-just-brunch-sampler.jpg" data-alt="Just Brunch sampler">Photo · Just Brunch sampler</div><span class="d" style="font-size: 18px; padding-top: 12px">The sampler. All of it.</span></div>
+      <div class="post" style="background: #16121F; color: #FFFFFF"><span class="chip" style="background: #FFE14D">You said it</span><span class="d" style="font-size: clamp(44px,11cqi,88px); color: #FF4FA0">4.9★</span><span style="font-weight: 700; font-size: 13px">on Google. Thank you, Portsmouth!</span></div>
+      <div class="post jb-photo" style="background: #FFE14D" data-photo="ig-post-01.jpg" data-alt="To-go brunch spread"><span class="chip">Skip the line</span><div style="background: #16121F; color: #FFFFFF; border-radius: 12px; padding: 10px 12px"><span class="d" style="font-size: 16px; color: #FFFFFF">Grab &amp; go.</span><br><span style="font-size: 11px; color: #C9C0D9">Order pickup, ready fast</span></div></div>
+      <div class="post" style="background: #FFE14D"><span class="chip" style="background: #19C37D">The Brunch Club</span><h2 class="d" style="font-size: clamp(18px,4.5cqi,32px)">Good food. Good vibes. Exclusive perks.</h2><span style="font-weight: 700; font-size: 12px">Join the VIP family · dine-in perks</span></div>
+      <div class="post" style="background: #FF4FA0"><span class="chip">Now open</span><h2 class="d" style="font-size: clamp(20px,5cqi,36px)">Private suites. Up to 40.</h2><span style="font-weight: 700; font-size: 11px">VA Leagues · IG Pink · Behold Green · Cheers Red Roses</span></div>
+      <div class="post" style="background: #6B3CF0; color: #FFFFFF"><span class="chip" style="background: #FFE14D">This weekend</span><h2 class="d" style="font-size: clamp(18px,4.5cqi,32px); color: #FFFFFF">Party of 12? Say less.</h2><a style="font-size: 12px; font-weight: 700; color: #FFFFFF; text-decoration: underline; text-underline-offset: 3px;" href="/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20Private%20Dining%20Suites-html/MimosaPop-Suites.dc.html">Plan a party — tap to inquire</a></div>
     </div>
-    <div style="width: 300px; height: 533px; border-radius: 22px; border: 3px solid #16121F; background: #6B3CF0; color: #FFFFFF; box-sizing: border-box; padding: 26px 22px; display: flex; flex-direction: column; justify-content: space-between">
-      <div style="height: 5px; border-radius: 99px; background: rgba(255,255,255,.3)"><div style="width: 30%; height: 5px; border-radius: 99px; background: #FFFFFF"></div></div>
-      <span class="chip" style="background: #FFE14D">This weekend</span>
-      <span class="d" style="font-size: 54px; color: #FFFFFF">Party of 12? Say less.</span>
-      <div class="card" style="background: #FFFFFF; color: #16121F; padding: 16px; display: flex; flex-direction: column; gap: 4px; box-shadow: 4px 4px 0 #FFE14D"><b>Plan a party</b><a style="font-size: 14px; text-decoration: none;" href="/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20Private%20Dining%20Suites-html/MimosaPop-Suites.dc.html">Tap to send an inquiry</a></div>
-    </div>
-  </div>
+  </main>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1720,&quot;height&quot;:1400}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1800}}">
 class Component extends DCLogic {
   renderVals() { return {}; }
 }

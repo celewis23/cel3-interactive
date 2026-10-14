@@ -23,6 +23,9 @@ input, select, textarea { max-width: 100%; }
 .jb-instagram .post { width: 100%; min-width: 0; }
 .jb-instagram .post .d { overflow-wrap: anywhere; }
 .jb-instagram > div:last-child { flex: 0 1 300px; }
+.jb-ig-stories { flex-wrap: nowrap !important; overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none; }
+.jb-ig-stories::-webkit-scrollbar { display: none; }
+.jb-ig-stories > span { flex-shrink: 0; }
 .jb-page div, .jb-page section, .jb-page article, .jb-page aside, .jb-page form { min-width: 0; }
 .jb-bag { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 8px 16px; background: var(--cta); color: var(--cta-ink) !important; border-radius: 999px; font-weight: 700; white-space: nowrap; }
 .jb-alcohol-note { padding: 12px; border: 1px solid var(--line2); border-radius: 12px; font-size: 14px; }
@@ -60,13 +63,12 @@ input, select, textarea { max-width: 100%; }
 @media (max-width: 600px) {
   .jb-hub h1 { font-size: 40px !important; }
   .jb-page h2[style*="font-size: 44px"] { font-size: clamp(24px,8vw,44px) !important; }
-  .jb-instagram .post { height: 380px !important; }
   .jb-instagram > div { padding-left: 0 !important; padding-right: 0 !important; }
   .jb-page { overflow-wrap: break-word; }
   .wrap { padding-left: 20px !important; padding-right: 20px !important; }
   .jb-page [style*="display: grid"], .jb-page [style*="display:grid"] { grid-template-columns: minmax(0,1fr) !important; }
   .jb-page [style*="grid-column"], .jb-page [style*="grid-row"] { grid-column: auto !important; grid-row: auto !important; }
-  .jb-page [style*="display: flex"]:not([style*="flex-direction: column"]):not(.jb-marquee-group):not(.jb-marquee-track):not(.jb-photo):not(.jb-logo-word):not(.jb-logo-tag) { flex-wrap: wrap; }
+  .jb-page [style*="display: flex"]:not([style*="flex-direction: column"]):not(.jb-marquee-group):not(.jb-marquee-track):not(.jb-photo):not(.jb-logo-word):not(.jb-logo-tag):not(.jb-ig-stories) { flex-wrap: wrap; }
   .jb-page header .tbtn { flex: 0 0 44px; }
   .jb-page header .btn { padding-left: 16px; padding-right: 16px; }
   .jb-page [style*="flex-shrink: 0"] { max-width: 100%; }
