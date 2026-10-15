@@ -761,7 +761,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": true,
-      "image": "drink-strawberry-mimosa-tower.jpg"
+      "image": "drink-strawberry-mimosa-tower.png"
     },
     {
       "id": "t4",
