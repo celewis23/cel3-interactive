@@ -110,7 +110,7 @@
     instance.setState({year:date.getFullYear(),month:date.getMonth(),day:date.getMonth()===9&&date.getFullYear()===2026?14:1});
   }
   window.JB={concept,page,base,read,write,money,escape,item,suite,modal,connect,checkout,confirm,changeMonth,drinkGroups,setQty,cart:()=>({...cart}),cartCount:count,cartSubtotal:subtotal,
-    catalog:()=>JB_DATA.menu.map((m,i)=>({...m,tint:['var(--t-gold)','var(--t-pink)','var(--t-green)','var(--t-sky)','var(--t-violet)'][i%5],color:concept==='mimosa-pop'?brandColors[i%5]:m.color})),
+    catalog:()=>JB_DATA.menu.map((m,i)=>({...m,tint:['#FBE6A6','#F9D7E8','#CFEFDD','#CDEBF5','#E3D8FA'][i%5],color:concept==='mimosa-pop'?brandColors[i%5]:m.color})),
     highlights:(items,noDollar)=>items.map((p,i)=>({...p,color:concept==='mimosa-pop'?brandColors[i%5]:p.color,price:(noDollar?'':'$')+item(p.id).price,image:item(p.id).image})),
     homeDrinks:dark=>JB_DATA.drinkCategories.map((title,i)=>({title,color:dark?['#F7D046','#F28AC7','#B38CF0','#49C6E5','#5FD38D'][i%5]:'var(--text)',items:JB_DATA.menu.filter(m=>m.cat===title).map(m=>({...m,price:m.price==null?'Ask your server':(concept==='golden-hour'?'':'$')+m.price}))}))};
   let scheduled=false;
