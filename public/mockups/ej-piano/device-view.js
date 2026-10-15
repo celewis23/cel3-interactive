@@ -3,7 +3,7 @@
 
   // Adapted from the same-named script used by this repo's other client mockups
   // (e.g. public/mockups/glue-craft-studio/device-view.js) — same pattern: redirect
-  // between a desktop and a dedicated mobile export based on viewport width, with an
+  // between a desktop and a dedicated mobile export based on device size, with an
   // explicit ?view= override that survives the redirect.
   const BASE = "/mockups/ej-piano/";
   const concepts = {
@@ -12,8 +12,14 @@
     c: { desktop: "c/site.dc.html", mobile: "c/Website C · Mobile-html/Mobile-C.dc.html" },
   };
   const screenQuery = window.matchMedia("(max-width: 767px)");
-  const automaticLayout = () => (screenQuery.matches ? "mobile" : "desktop");
-  const entryLayout = automaticLayout();
+  // A sideways phone can have a desktop-sized viewport. Use its shorter screen
+  // edge as well so opening or refreshing in landscape keeps the playable piano.
+  // Screen dimensions avoid mistaking a short desktop window for a phone.
+  const phoneScreen = window.matchMedia("(any-pointer: coarse)").matches
+    && Math.min(window.screen.width, window.screen.height) > 0
+    && Math.min(window.screen.width, window.screen.height) <= 767;
+  // Keep this choice for the page's lifetime: rotating must not reload the piano.
+  const entryLayout = screenQuery.matches || phoneScreen ? "mobile" : "desktop";
   const script = document.currentScript;
   const concept = script?.dataset.concept;
   const currentLayout = script?.dataset.layout;
@@ -37,7 +43,7 @@
     }
     // A deliberately selected desktop preview on a phone stays zoomable rather than
     // squeezed into device-width.
-    if (explicitLayout === "desktop" && screenQuery.matches) {
+    if (explicitLayout === "desktop" && entryLayout === "mobile") {
       const vp = document.querySelector('meta[name="viewport"]');
       if (vp) vp.content = "width=1280";
     }
