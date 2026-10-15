@@ -45,7 +45,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-just-brunch-sampler.jpg"
+      "image": "dish-just-brunch-sampler.png"
     },
     {
       "id": "sg",
@@ -59,7 +59,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-shrimp-grits.jpg"
+      "image": "dish-shrimp-grits.png"
     },
     {
       "id": "og",
@@ -73,7 +73,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-oxtail-grits.jpg"
+      "image": "dish-oxtail-grits.png"
     },
     {
       "id": "sn",
@@ -193,7 +193,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-chicken-golden-waffle.jpg"
+      "image": "dish-chicken-golden-waffle.png"
     },
     {
       "id": "sw",
@@ -247,7 +247,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-fruity-pebble-french-toast.jpg"
+      "image": "dish-fruity-pebble-french-toast.png"
     },
     {
       "id": "bg",
@@ -379,7 +379,7 @@ window.JB_DATA = {
       "food": true,
       "entree": false,
       "dineIn": false,
-      "image": "dish-crab-dip.jpg"
+      "image": "dish-crab-dip.png"
     },
     {
       "id": "sb",
