@@ -75,6 +75,9 @@ input, select, textarea { max-width: 100%; }
   .jb-page header .btn.bw, .jb-page header .btn.bo, .jb-page header .btn-o { order: 10; }
   .jb-page header .jb-bag { order: 11; }
   .jb-page header .btn.bp, .jb-page header .btn-y { order: 12; }
+  .mp.jb-page header > div { gap: 8px !important; }
+  .mp.jb-page header .btn { padding-left: 12px !important; padding-right: 12px !important; border-width: 2px !important; box-shadow: 2px 2px 0 var(--shadow,#16121f) !important; }
+  .mp.jb-page header .jb-bag { padding-left: 10px !important; padding-right: 10px !important; }
   .jb-page header nav[aria-label="Main"] { order: 10; display: flex !important; flex-direction: column !important; justify-content: center !important; align-items: stretch !important; gap: 10px !important; position: fixed !important; inset: 0 !important; margin: 0 !important; padding: 90px 36px 48px !important; background: var(--surface,#fff); background: color-mix(in srgb, var(--surface,#fff) 85%, transparent); -webkit-backdrop-filter: blur(18px) saturate(1.1); backdrop-filter: blur(18px) saturate(1.1); color: var(--text,#16121f); z-index: 50; transform: translateX(100%); visibility: hidden; transition: transform .32s ease, visibility .32s; overflow-y: auto; }
   .jb-page header nav[aria-label="Main"] a { font-size: 22px; padding: 10px 4px; }
   .jb-page header nav[aria-label="Main"] .jb-nav-banner { display: block; width: min(220px,60vw); margin: 0 auto 28px; border-radius: 18px; box-shadow: 0 12px 28px rgba(0,0,0,.25); }
@@ -91,6 +94,8 @@ input, select, textarea { max-width: 100%; }
   .jb-page [style*="grid-column"], .jb-page [style*="grid-row"] { grid-column: auto !important; grid-row: auto !important; }
   .jb-page [style*="display: flex"]:not([style*="flex-direction: column"]):not(.jb-marquee-group):not(.jb-marquee-track):not(.jb-photo):not(.jb-logo-word):not(.jb-logo-tag):not(.jb-ig-stories) { flex-wrap: wrap; }
   .jb-page header .tbtn { flex: 0 0 44px; }
+  .jb-page footer > div:first-child > div:first-child { flex: 1 1 100% !important; width: 100% !important; }
+  .ah.jb-page footer .jb-logo, .mp.jb-page footer .jb-logo { width: min(408px,100%) !important; --logo-size: 56px !important; }
   .jb-page header .btn { padding-left: 16px; padding-right: 16px; }
   .jb-page [style*="flex-shrink: 0"] { max-width: 100%; }
   .jb-page > div[style*="padding: 28px"] { padding: 20px !important; }
