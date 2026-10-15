@@ -131,8 +131,12 @@
       const toggle=document.createElement('button');
       toggle.type='button'; toggle.className='jb-nav-toggle';
       toggle.setAttribute('aria-label','Menu'); toggle.setAttribute('aria-expanded','false');
-      toggle.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
+      toggle.innerHTML='<svg class="jb-nav-icon-bars" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg><svg class="jb-nav-icon-x" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>';
       nav.insertAdjacentElement('afterend',toggle);
+      const banner=document.createElement('img');
+      banner.className='jb-nav-banner'; banner.alt='Just Brunch'; banner.loading='lazy';
+      banner.src=base+'start-here/images/horizontal.png';
+      nav.prepend(banner);
     });
     document.querySelectorAll('[data-order-notes]:not([data-ready])').forEach(el=>{el.dataset.ready='true';el.value=read('notes','');el.addEventListener('input',()=>write('notes',el.value));});
     document.querySelectorAll('[data-default-date]:not([data-ready-date])').forEach(el=>{
