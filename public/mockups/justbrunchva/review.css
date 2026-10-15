@@ -94,8 +94,7 @@ input, select, textarea { max-width: 100%; }
   .jb-page [style*="grid-column"], .jb-page [style*="grid-row"] { grid-column: auto !important; grid-row: auto !important; }
   .jb-page [style*="display: flex"]:not([style*="flex-direction: column"]):not(.jb-marquee-group):not(.jb-marquee-track):not(.jb-photo):not(.jb-logo-word):not(.jb-logo-tag):not(.jb-ig-stories) { flex-wrap: wrap; }
   .jb-page header .tbtn { flex: 0 0 44px; }
-  .jb-page footer > div:first-child > div:first-child { flex: 1 1 100% !important; width: 100% !important; }
-  .ah.jb-page footer .jb-logo, .mp.jb-page footer .jb-logo { width: min(408px,100%) !important; --logo-size: 56px !important; }
+  .jb-page footer > div:first-child > div:first-child { flex-basis: 100% !important; }
   .jb-page header .btn { padding-left: 16px; padding-right: 16px; }
   .jb-page [style*="flex-shrink: 0"] { max-width: 100%; }
   .jb-page > div[style*="padding: 28px"] { padding: 20px !important; }
