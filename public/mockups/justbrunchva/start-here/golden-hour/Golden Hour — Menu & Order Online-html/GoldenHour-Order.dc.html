@@ -63,7 +63,7 @@ body{margin:0}
         <sc-for list="{{cats}}" as="c" hint-placeholder-count="5"><button type="button" class="tab" onClick="{{c.pick}}" style="color: {{c.fg}}; border-bottom-color: {{c.border}}">{{c.label}}</button></sc-for>
       </nav>
       <sc-for list="{{items}}" as="it" hint-placeholder-count="4">
-        <article style="display: flex; gap: 22px; align-items: center; padding: 22px 0; border-bottom: 1px solid var(--line)">
+        <article class="jb-menu-copy jb-menu-row" style="--dish-color: {{it.color}}; display: flex; gap: 22px; align-items: center; padding: 22px 0; border-bottom: 1px solid var(--line)">
           <div style="width: 112px; height: 132px; border-radius: 60px 60px 16px 16px; background: {{it.tint}}; flex-shrink: 0" class="jb-photo" data-photo="{{it.image}}" data-alt="{{it.name}}"></div>
           <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0">
             <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center"><h2 class="serif" style="margin: 0; font-size: 26px; font-weight: 600">{{it.name}}</h2><sc-if value="{{it.hasBadge}}" hint-placeholder-val="{{ false }}"><span class="eb" style="font-size: 11px; color: var(--pink); border: 1px solid var(--pink); border-radius: 99px; padding: 4px 10px">{{it.badge}}</span></sc-if></div>

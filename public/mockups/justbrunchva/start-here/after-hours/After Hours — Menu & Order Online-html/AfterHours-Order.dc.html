@@ -64,9 +64,9 @@ body{margin:0}
       </nav>
       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px">
         <sc-for list="{{items}}" as="it" hint-placeholder-count="6">
-          <article class="card" style="overflow: hidden; display: flex; flex-direction: column">
-            <div style="height: 140px; background: {{it.color}}; display: flex; justify-content: space-between; align-items: flex-end; padding: 14px; box-sizing: border-box" class="jb-photo" data-photo="{{it.image}}" data-alt="{{it.name}}"><span style="font: 700 10px 'DM Sans'; letter-spacing: .14em; text-transform: uppercase; color: #0E0D12; opacity: .7">Photo</span><sc-if value="{{it.hasBadge}}" hint-placeholder-val="{{ false }}"><span style="background: #0E0D12; color: #F5F3F7; border-radius: 99px; padding: 5px 10px; font: 700 12px 'DM Sans'">{{it.badge}}</span></sc-if></div>
-            <div style="padding: 18px; display: flex; flex-direction: column; gap: 8px; flex: 1">
+          <article class="card" style="--dish-color: {{it.color}}; overflow: hidden; display: flex; flex-direction: column">
+            <div style="height: 140px; background: {{it.color}}; display: flex; justify-content: space-between; align-items: flex-end; padding: 14px; box-sizing: border-box" class="jb-photo" data-photo="{{it.image}}" data-alt="{{it.name}}"><span class="jb-photo-placeholder" style="font: 700 10px 'DM Sans'; letter-spacing: .14em; text-transform: uppercase; color: #0E0D12; opacity: .7">Photo</span><sc-if value="{{it.hasBadge}}" hint-placeholder-val="{{ false }}"><span style="background: #0E0D12; color: #F5F3F7; border-radius: 99px; padding: 5px 10px; font: 700 12px 'DM Sans'">{{it.badge}}</span></sc-if></div>
+            <div class="jb-menu-copy" style="padding: 18px; display: flex; flex-direction: column; gap: 8px; flex: 1">
               <h2 style="margin: 0; font: 700 19px 'Bricolage Grotesque', sans-serif">{{it.name}}</h2>
               <p style="margin: 0; font-size: 14px; line-height: 1.5; color: var(--muted); flex: 1">{{it.desc}}</p>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; gap: 10px">

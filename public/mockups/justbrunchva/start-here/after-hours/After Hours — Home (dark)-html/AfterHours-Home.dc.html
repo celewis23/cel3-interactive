@@ -67,9 +67,9 @@ body{margin:0}
       </div>
     </div>
     <div style="flex: 1 1 440px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
-      <div class="tile jb-photo" style="background: #F28AC7; grid-row: span 2; min-height: 460px" data-photo="hero-mimosa-tower.jpg" data-alt="signature pourMimosa tower for the table"><small>Photo · signature pour</small><b>Mimosa tower for the table</b></div>
-      <div class="tile jb-photo" style="background: #F7D046; min-height: 223px" data-photo="dish-shrimp-grits.png" data-alt="plateShrimp &amp; grits"><small>Photo · plate</small><b>Shrimp &amp; grits</b></div>
-      <div class="tile jb-photo" style="background: #49C6E5; min-height: 223px" data-photo="restaurant-dining-room.jpg" data-alt="the roomThe vibe"><small>Photo · the room</small><b>The vibe</b></div>
+      <div class="tile jb-photo jb-hero-photo" style="--photo-accent: #F28AC7; background: #F28AC7; grid-row: span 2; min-height: 460px" data-photo="hero-mimosa-tower.jpg" data-alt="signature pourMimosa tower for the table"><small class="jb-photo-placeholder">Photo · signature pour</small><b class="jb-photo-caption">Mimosa tower for the table</b></div>
+      <div class="tile jb-photo jb-hero-photo" style="--photo-accent: #F7D046; background: #F7D046; min-height: 223px" data-photo="dish-shrimp-grits.png" data-alt="plateShrimp &amp; grits"><small class="jb-photo-placeholder">Photo · plate</small><b class="jb-photo-caption">Shrimp &amp; grits</b></div>
+      <div class="tile jb-photo jb-hero-photo" style="--photo-accent: #49C6E5; background: #49C6E5; min-height: 223px" data-photo="restaurant-dining-room.jpg" data-alt="the roomThe vibe"><small class="jb-photo-placeholder">Photo · the room</small><b class="jb-photo-caption">The vibe</b></div>
     </div>
   </section>
 
@@ -84,9 +84,9 @@ body{margin:0}
 
   <div style="background: #F7D046; color: #0E0D12" class="jb-marquee" tabindex="0" aria-label="Brunch highlights">
     <div class="jb-marquee-track"><div style="display: flex; gap: 36px; justify-content: center; flex-wrap: wrap; padding: 18px 24px; font: 800 22px 'Bricolage Grotesque', sans-serif; text-transform: uppercase; letter-spacing: 0.02em" class="jb-marquee-group">
-      <span>Bottomless mimosas</span><span aria-hidden="true">✦</span><span>Mimosa towers</span><span aria-hidden="true">✦</span><span>Signature cocktails</span><span aria-hidden="true">✦</span><span>Southern flavors</span>
+      <span>Bottomless mimosas</span><span aria-hidden="true">✦</span><span>Mimosa towers</span><span aria-hidden="true">✦</span><span>Signature cocktails</span><span aria-hidden="true">✦</span><span>Southern flavors</span><span aria-hidden="true">✦</span>
     </div><div style="display: flex; gap: 36px; justify-content: center; flex-wrap: wrap; padding: 18px 24px; font: 800 22px 'Bricolage Grotesque', sans-serif; text-transform: uppercase; letter-spacing: 0.02em" class="jb-marquee-group" aria-hidden="true">
-      <span>Bottomless mimosas</span><span aria-hidden="true">✦</span><span>Mimosa towers</span><span aria-hidden="true">✦</span><span>Signature cocktails</span><span aria-hidden="true">✦</span><span>Southern flavors</span>
+      <span>Bottomless mimosas</span><span aria-hidden="true">✦</span><span>Mimosa towers</span><span aria-hidden="true">✦</span><span>Signature cocktails</span><span aria-hidden="true">✦</span><span>Southern flavors</span><span aria-hidden="true">✦</span>
     </div></div>
   </div>
 
@@ -97,9 +97,9 @@ body{margin:0}
     </div>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 20px">
       <sc-for list="{{dishes}}" as="d" hint-placeholder-count="6">
-        <article class="card" style="overflow: hidden; display: flex; flex-direction: column">
-          <div style="height: 200px; background: {{d.color}}; display: flex; align-items: flex-end; padding: 18px; box-sizing: border-box" class="jb-photo" data-photo="{{d.image}}" data-alt="{{d.name}}"><span style="font: 700 11px 'DM Sans', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #0E0D12; opacity: .7">Photo · {{d.name}}</span></div>
-          <div style="padding: 22px; display: flex; flex-direction: column; gap: 10px; flex: 1">
+        <article class="card" style="--dish-color: {{d.color}}; overflow: hidden; display: flex; flex-direction: column">
+          <div style="height: 200px; background: {{d.color}}; display: flex; align-items: flex-end; padding: 18px; box-sizing: border-box" class="jb-photo" data-photo="{{d.image}}" data-alt="{{d.name}}"><span class="jb-photo-placeholder" style="font: 700 11px 'DM Sans', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #0E0D12; opacity: .7">Photo · {{d.name}}</span></div>
+          <div class="jb-menu-copy" style="padding: 22px; display: flex; flex-direction: column; gap: 10px; flex: 1">
             <div style="display: flex; justify-content: space-between; gap: 12px; align-items: baseline"><h3 style="margin: 0; font: 700 22px 'Bricolage Grotesque', sans-serif">{{d.name}}</h3><span style="font-weight: 700">{{d.price}}</span></div>
             <p style="margin: 0; font-size: 15px; line-height: 1.5; color: var(--muted)">{{d.desc}}</p>
           </div>
