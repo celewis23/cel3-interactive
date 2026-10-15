@@ -18,6 +18,7 @@ input, select, textarea { max-width: 100%; }
 .sc-host:has(> .jb-logo), .jb-page a:has(.jb-logo) { max-width: 100%; min-width: 0; flex-shrink: 1; }
 .jb-page a { min-height: 44px; }
 .jb-page a:not(:has(.jb-logo)) { display: inline-flex; align-items: center; }
+.jb-page header .jb-nav-toggle { display: none; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line2,#0003); background: transparent; color: inherit; cursor: pointer; flex-shrink: 0; }
 .jb-instagram { flex-wrap: wrap; }
 .jb-instagram > div:first-child { width: min(1164px,100%) !important; flex: 1 1 760px; }
 .jb-instagram .post { width: 100%; min-width: 0; }
@@ -59,6 +60,11 @@ input, select, textarea { max-width: 100%; }
   .jb-instagram .post { width: 100% !important; }
   .jb-page > div[style*="justify-content: space-between"] { flex-wrap: wrap; }
   .jb-page .jb-calendar { grid-template-columns: repeat(7,minmax(0,1fr)) !important; }
+  .jb-page header { position: relative; }
+  .jb-page header .jb-nav-toggle { display: inline-flex !important; order: 20; }
+  .jb-page header .btn.bw { display: none !important; }
+  .jb-page header nav[aria-label="Main"] { display: none !important; }
+  .jb-page header.is-nav-open nav[aria-label="Main"] { display: flex !important; position: absolute !important; top: 100% !important; left: 0 !important; right: 0 !important; flex-direction: column !important; gap: 2px !important; background: var(--surface,#fff); color: var(--text,#16121f); border-top: 1px solid var(--line2,#0003); padding: 12px 20px 16px !important; z-index: 30; max-height: 70vh; overflow-y: auto; box-shadow: 0 16px 28px rgba(0,0,0,.2); }
 }
 @media (max-width: 600px) {
   .jb-hub h1 { font-size: 40px !important; }
