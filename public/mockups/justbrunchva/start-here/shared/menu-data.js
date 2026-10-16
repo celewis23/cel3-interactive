@@ -813,7 +813,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-brunch-way-mimosa.jpg"
+      "image": "drink-brunch-way-mimosa.png"
     },
     {
       "id": "s2",
@@ -826,7 +826,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-tiffany-mimosa.jpg"
+      "image": "drink-tiffany-mimosa.png"
     },
     {
       "id": "s3",
@@ -839,7 +839,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-strawberry-lemonade-mimosa.jpg"
+      "image": "drink-strawberry-lemonade-mimosa.png"
     },
     {
       "id": "s4",
@@ -852,7 +852,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-dragon-fruit-mimosa.jpg"
+      "image": "drink-dragon-fruit-mimosa.png"
     },
     {
       "id": "s5",
@@ -865,7 +865,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-margarita-mimosa.jpg"
+      "image": "drink-margarita-mimosa.png"
     },
     {
       "id": "c1",
@@ -879,7 +879,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-hibiscus-mojito.jpg"
+      "image": "drink-hibiscus-mojito.png"
     },
     {
       "id": "c2",
@@ -893,7 +893,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-lavender-french-75.jpg"
+      "image": "drink-lavender-french-75.png"
     },
     {
       "id": "c3",
@@ -907,7 +907,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-strawberry-reposado-fizz.jpg"
+      "image": "drink-strawberry-reposado-fizz.png"
     },
     {
       "id": "c4",
@@ -921,7 +921,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-blue-hawaiian-breeze.jpg"
+      "image": "drink-blue-hawaiian-breeze.png"
     },
     {
       "id": "m1",
