@@ -2,6 +2,10 @@
 
 Replace these paths with real JPG photos. All paths are relative to this folder. Original colored panels and labels remain visible until a photo is supplied. The Next.js fallback returns a transparent SVG for absent JPGs, avoiding broken images and failed resource requests. Photos use object-fit: cover; reused photos are cropped to the original panel shape. No image contains the logo background.
 
+Uploaded PNG/JPG files are retained as originals. After adding or replacing a photo, run `node scripts/optimize-justbrunch-images.mjs` from the repository root. This creates WebP variants in `optimized/` at up to 480, 800, 1200, and 1600 pixels wide (without enlarging originals) and updates the generated source index in `shared/site.js`. Commit the variants and index with the photo. The browser selects a size for the card and screen density; visible hero photos receive priority, and offscreen photos load lazily. Originals remain the fallback for a failed optimized image.
+
+For a small update, pass the changed filenames after the command (for example, `node scripts/optimize-justbrunch-images.mjs dish-oxtail-alfredo.png`). Existing variants for other photos are reused; missing variants are always generated.
+
 | Filename | Label | Pages | Recommended size | Ratio |
 |---|---|---|---|---|
 | dish-avocado-toast.png | Avocado Toast | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
@@ -15,7 +19,7 @@ Replace these paths with real JPG photos. All paths are relative to this folder.
 | dish-cheesecake.jpg | Cheesecake | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
 | dish-chicken-golden-waffle.png | Chicken & Golden Waffle — uploaded photo | All concepts: Menu & Order; POS<br>after-hours/Home<br>golden-hour/Home<br>mimosa-pop/Home | 1448 × 1086 px (supplied) | 4:3 |
 | dish-cinnamon-toast-crunch-french-toast.png | Cinnamon Toast Crunch French Toast | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
-| dish-combo-alfredo-pick-2.jpg | Combo Alfredo (Pick 2) | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| dish-combo-alfredo.png | Combo Alfredo (Pick 2) | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-corned-beef-hash.jpg | Corned Beef Hash | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
 | dish-crab-dip.png | Crab Dip — uploaded photo | All concepts: Menu & Order; POS<br>after-hours/Home<br>mimosa-pop/Home | 1536 × 1024 px (supplied) | 3:2 (supplied) |
 | dish-eggs-any-style.jpg | Eggs (Any Style) | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
@@ -29,12 +33,12 @@ Replace these paths with real JPG photos. All paths are relative to this folder.
 | dish-garlic-steak-bites.png | Garlic Steak Bites | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-grandma-breakfast.png | Grandma Breakfast | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-grits.jpg | Grits | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
-| dish-jumbo-shrimp-alfredo.jpg | Jumbo Shrimp Alfredo | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| dish-jumbo-shrimp-alfredo.png | Jumbo Shrimp Alfredo | All concepts: Menu & Order; POS | 1448 × 1086 px | 4:3 |
 | dish-just-brunch-sampler.png | Just Brunch Sampler — uploaded photo | All concepts: Menu & Order; POS<br>after-hours/Home<br>golden-hour/Home<br>start-here/golden-hour/Golden Hour — Home (dark)-html/GoldenHour-Home.dc.html<br>start-here/golden-hour/Golden Hour — Home (light)-html/GoldenHour-Home.dc.html<br>start-here/golden-hour/Golden Hour — Instagram-html/GoldenHour-Instagram.dc.html<br>mimosa-pop/Home<br>start-here/mimosa-pop/Mimosa Pop — Instagram-html/MimosaPop-Instagram.dc.html | 1448 × 1086 px (supplied) | 4:3 |
-| dish-lamb-chops-alfredo.jpg | Lamb Chops Alfredo | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| dish-lamb-chops-alfredo.png | Lamb Chops Alfredo | All concepts: Menu & Order; POS | 1448 × 1086 px | 4:3 |
 | dish-lamb-chops-potatoes.png | Lamb Chops & Potatoes — uploaded photo | All concepts: Menu & Order; POS | 1536 × 1024 px (supplied) | 3:2 (supplied) |
 | dish-new-orleans-style-bread-pudding.jpg | New Orleans-Style Bread Pudding | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
-| dish-oxtail-alfredo.jpg | Oxtail Alfredo | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| dish-oxtail-alfredo.png | Oxtail Alfredo | All concepts: Menu & Order; POS | 1448 × 1086 px | 4:3 |
 | dish-oxtail-grits.png | Oxtail & Grits — uploaded photo | All concepts: Menu & Order; POS<br>after-hours/Home<br>golden-hour/Home<br>mimosa-pop/Home | 1374 × 1145 px (supplied) | 6:5 (supplied) |
 | dish-pork-chop-fries.png | Pork Chop & Fries | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-potatoes-onions.jpg | Potatoes & Onions | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |

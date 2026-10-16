@@ -458,7 +458,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-oxtail-alfredo.jpg"
+      "image": "dish-oxtail-alfredo.png"
     },
     {
       "id": "ja",
@@ -471,7 +471,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-jumbo-shrimp-alfredo.jpg"
+      "image": "dish-jumbo-shrimp-alfredo.png"
     },
     {
       "id": "la",
@@ -484,7 +484,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-lamb-chops-alfredo.jpg"
+      "image": "dish-lamb-chops-alfredo.png"
     },
     {
       "id": "ca",
@@ -498,7 +498,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-combo-alfredo-pick-2.jpg"
+      "image": "dish-combo-alfredo.png"
     },
     {
       "id": "bc",

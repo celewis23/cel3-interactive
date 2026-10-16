@@ -4,6 +4,52 @@
   const concept = document.querySelector('meta[name="jb-concept"]')?.content || 'shared';
   const page = document.querySelector('meta[name="jb-page"]')?.content || '';
   const base = '/mockups/justbrunchva/';
+  // BEGIN GENERATED PHOTO SOURCES
+  const photoSources = {
+    "dish-avocado-toast.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-bacon-egg-cheddar-cheese-sandwich-on-croissant-toast.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-banana-glazed-pancakes.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-breakfast-burger.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-brunch-platter.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]},
+    "dish-cardel-platter.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-charbroiled-oysters.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-chicken-golden-waffle.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]},
+    "dish-cinnamon-toast-crunch-french-toast.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-combo-alfredo.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-crab-dip.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-fish-grits.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]},
+    "dish-french-toast.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-fried-fish-fries-whiting.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-fried-salmon-bites.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-fruity-pebble-french-toast.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-garlic-butter-jumbo-shrimp.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-garlic-steak-bites.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-grandma-breakfast.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-jumbo-shrimp-alfredo.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]},
+    "dish-just-brunch-sampler.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]},
+    "dish-lamb-chops-alfredo.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]},
+    "dish-lamb-chops-potatoes.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-oxtail-alfredo.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]},
+    "dish-oxtail-grits.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
+    "dish-pork-chop-fries.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-red-velvet-waffle.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-salmon-bites-grits.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-seafood-basket.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-shrimp-grits.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]},
+    "dish-snapper-eggs-potatoes.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-strawberry-banana-cream-french-toast.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-strawberry-cream-waffle.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-strawberry-cream.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "dish-sunrise-breakfast.png": {"width":1086,"height":1448,"widths":[480,800,1086]},
+    "dish-wings-fries.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "drink-bottomless-mimosas.png": {"width":2170,"height":725,"widths":[480,800,1200,1600]},
+    "drink-strawberry-mimosa-tower.png": {"width":1122,"height":1402,"widths":[480,800,1122]},
+    "horizontal.png": {"width":1254,"height":1254,"widths":[480,800,1200,1254]},
+    "restaurant-celebration.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]},
+    "restaurant-crew.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]},
+    "restaurant-dining-room.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]}
+  };
+  // END GENERATED PHOTO SOURCES
   const brandColors = ['#F7D046','#F28AC7','#49C6E5','#5FD38D','#B38CF0'];
   const key = name => 'justbrunch:' + concept + ':' + name;
   const read = (name, fallback) => { try { return JSON.parse(localStorage.getItem(key(name))) ?? fallback; } catch { return fallback; } };
@@ -129,16 +175,47 @@
     el.classList.add('is-scrolling');
   }
   const resize = new ResizeObserver(entries=>{for(const {target} of entries){const el=target.closest('.jb-marquee');if(el)fillMarquee(el);}});
+  const observedPhotos = new Set();
+  const imageURL = filename => base+'start-here/images/'+filename.split('/').map(encodeURIComponent).join('/');
+  function sizePhoto(panel) {
+    const img=panel.querySelector(':scope > img'), source=photoSources[panel.dataset.photo];
+    if(!img?.srcset || !source)return;
+    const box=panel.getBoundingClientRect();
+    // A tall crop needs enough source pixels for object-fit: cover, too.
+    const width=Math.ceil(Math.max(box.width,box.height*source.width/source.height));
+    if(width>0 && img.sizes!==width+'px')img.sizes=width+'px';
+  }
+  const photoResize = new ResizeObserver(entries=>entries.forEach(({target})=>sizePhoto(target)));
+  function setPhotoSource(img,filename,sizes) {
+    const source=photoSources[filename];
+    if(source){
+      const stem=filename.replace(/\.[^.]+$/,'');
+      img.width=source.width;img.height=source.height;img.sizes=sizes;
+      img.srcset=source.widths.map(width=>`${imageURL(`optimized/${stem}-${width}.webp`)} ${width}w`).join(', ');
+      img.src=imageURL(`optimized/${stem}-${source.widths.find(width=>width>=800)||source.widths.at(-1)}.webp`);
+    }else img.src=imageURL(filename);
+  }
   function enhance() {
     scheduled=false;updateBag();
+    for(const panel of observedPhotos)if(!panel.isConnected){photoResize.unobserve(panel);observedPhotos.delete(panel);}
+    const firstHero=document.querySelector('.jb-hero-photo');
     document.querySelectorAll('[data-tip]').forEach(el=>{const selected=Number(el.dataset.tip)===(component?.state.tipRate??.15);el.setAttribute('aria-pressed',String(selected));el.style.background=selected?'var(--cta)':'transparent';el.style.color=selected?'var(--cta-ink)':'var(--text)';});
     document.querySelectorAll('[data-photo]').forEach(panel=>{
       const filename=panel.dataset.photo;if(!filename||filename.includes('{'))return;
       if(panel.dataset.photoReady===filename)return;
       panel.dataset.photoReady=filename;panel.classList.remove('is-photo-loaded');panel.querySelector(':scope > img')?.remove();
-      const img=document.createElement('img');img.alt=panel.dataset.alt||'';img.loading='lazy';img.decoding='async';
+      const img=document.createElement('img'),box=panel.getBoundingClientRect(),source=photoSources[filename];
+      const visible=box.width>0&&box.height>0&&box.top<innerHeight&&box.bottom>0&&box.left<innerWidth&&box.right>0;
+      img.alt=panel.dataset.alt||'';img.loading=visible||panel===firstHero?'eager':'lazy';img.decoding='async';
+      img.fetchPriority=(visible||panel===firstHero)&&panel.classList.contains('jb-hero-photo')?'high':'auto';
       img.addEventListener('load',()=>panel.classList.toggle('is-photo-loaded',img.naturalWidth>1));
-      img.addEventListener('error',()=>{panel.classList.remove('is-photo-loaded');img.remove();});img.src=base+'start-here/images/'+encodeURIComponent(filename);panel.prepend(img);
+      img.addEventListener('error',()=>{
+        if(img.srcset){img.removeAttribute('srcset');img.removeAttribute('sizes');img.src=imageURL(filename);return;}
+        panel.classList.remove('is-photo-loaded');img.remove();
+      });
+      const sourceWidth=source?Math.max(box.width,box.height*source.width/source.height):box.width;
+      setPhotoSource(img,filename,Math.ceil(sourceWidth||innerWidth)+'px');panel.prepend(img);
+      if(source){photoResize.observe(panel);observedPhotos.add(panel);}
     });
     document.querySelectorAll('.jb-marquee').forEach(el=>{if(!observedMarquees.has(el)){observedMarquees.add(el);resize.observe(el);const group=el.querySelector('.jb-marquee-group');if(group)resize.observe(group);fillMarquee(el);}});
     document.querySelectorAll('.jb-page header nav[aria-label="Main"]:not([data-nav-ready])').forEach(nav=>{
@@ -150,7 +227,7 @@
       nav.insertAdjacentElement('afterend',toggle);
       const banner=document.createElement('img');
       banner.className='jb-nav-banner'; banner.alt='Just Brunch'; banner.loading='lazy';
-      banner.src=base+'start-here/images/horizontal.png';
+      setPhotoSource(banner,'horizontal.png','220px');
       nav.prepend(banner);
     });
     document.querySelectorAll('[data-order-notes]:not([data-ready])').forEach(el=>{el.dataset.ready='true';el.value=read('notes','');el.addEventListener('input',()=>write('notes',el.value));});
