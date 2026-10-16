@@ -113,7 +113,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-breakfast-burger.jpg"
+      "image": "dish-breakfast-burger.png"
     },
     {
       "id": "sbg",
@@ -126,7 +126,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-salmon-bites-grits.jpg"
+      "image": "dish-salmon-bites-grits.png"
     },
     {
       "id": "fg",
@@ -139,7 +139,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-fish-grits.jpg"
+      "image": "dish-fish-grits.png"
     },
     {
       "id": "sr",
@@ -152,7 +152,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-sunrise-breakfast.jpg"
+      "image": "dish-sunrise-breakfast.png"
     },
     {
       "id": "gb",
@@ -165,7 +165,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-grandma-breakfast.jpg"
+      "image": "dish-grandma-breakfast.png"
     },
     {
       "id": "cp",
@@ -179,7 +179,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-cardel-platter.jpg"
+      "image": "dish-cardel-platter.png"
     },
     {
       "id": "cw",
@@ -207,7 +207,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-strawberry-cream-waffle.jpg"
+      "image": "dish-strawberry-cream-waffle.png"
     },
     {
       "id": "rw",
@@ -220,7 +220,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-red-velvet-waffle.jpg"
+      "image": "dish-red-velvet-waffle.png"
     },
     {
       "id": "ft",
@@ -233,7 +233,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-french-toast.jpg"
+      "image": "dish-french-toast.png"
     },
     {
       "id": "fp",
@@ -260,7 +260,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-banana-glazed-pancakes.jpg"
+      "image": "dish-banana-glazed-pancakes.png"
     },
     {
       "id": "sbf",
@@ -273,7 +273,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-strawberry-banana-cream-french-toast.jpg"
+      "image": "dish-strawberry-banana-cream-french-toast.png"
     },
     {
       "id": "scf",
@@ -286,7 +286,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-strawberry-cream.jpg"
+      "image": "dish-strawberry-cream.png"
     },
     {
       "id": "ctc",
@@ -299,7 +299,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-cinnamon-toast-crunch-french-toast.jpg"
+      "image": "dish-cinnamon-toast-crunch-french-toast.png"
     },
     {
       "id": "ff",
@@ -312,7 +312,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-fried-fish-fries-whiting.jpg"
+      "image": "dish-fried-fish-fries-whiting.png"
     },
     {
       "id": "wf",
@@ -325,7 +325,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-wings-fries.jpg"
+      "image": "dish-wings-fries.png"
     },
     {
       "id": "pf",
@@ -338,7 +338,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-pork-chop-fries.jpg"
+      "image": "dish-pork-chop-fries.png"
     },
     {
       "id": "sk",
@@ -352,7 +352,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-seafood-basket.jpg"
+      "image": "dish-seafood-basket.png"
     },
     {
       "id": "bec",
@@ -365,7 +365,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-bacon-egg-cheddar-cheese-sandwich-on-croissant-toast.jpg"
+      "image": "dish-bacon-egg-cheddar-cheese-sandwich-on-croissant-toast.png"
     },
     {
       "id": "cd",
@@ -392,7 +392,7 @@ window.JB_DATA = {
       "food": true,
       "entree": false,
       "dineIn": false,
-      "image": "dish-fried-salmon-bites.jpg"
+      "image": "dish-fried-salmon-bites.png"
     },
     {
       "id": "gs",
@@ -405,7 +405,7 @@ window.JB_DATA = {
       "food": true,
       "entree": false,
       "dineIn": false,
-      "image": "dish-garlic-butter-jumbo-shrimp.jpg"
+      "image": "dish-garlic-butter-jumbo-shrimp.png"
     },
     {
       "id": "co",
@@ -418,7 +418,7 @@ window.JB_DATA = {
       "food": true,
       "entree": false,
       "dineIn": false,
-      "image": "dish-charbroiled-oysters.jpg"
+      "image": "dish-charbroiled-oysters.png"
     },
     {
       "id": "av",
@@ -431,7 +431,7 @@ window.JB_DATA = {
       "food": true,
       "entree": false,
       "dineIn": false,
-      "image": "dish-avocado-toast.jpg"
+      "image": "dish-avocado-toast.png"
     },
     {
       "id": "stb",
@@ -444,7 +444,7 @@ window.JB_DATA = {
       "food": true,
       "entree": false,
       "dineIn": false,
-      "image": "dish-garlic-steak-bites.jpg"
+      "image": "dish-garlic-steak-bites.png"
     },
     {
       "id": "oa",
