@@ -10,7 +10,7 @@ For a small update, pass the changed filenames after the command (for example, `
 |---|---|---|---|---|
 | dish-avocado-toast.png | Avocado Toast | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-bacon-egg-cheddar-cheese-sandwich-on-croissant-toast.png | Bacon Egg & Cheddar Cheese Sandwich on Croissant Toast | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
-| dish-bacon-pork-or-turkey.jpg | Bacon (Pork or Turkey) | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| dish-bacon-pork-or-turkey.png | Bacon (Pork or Turkey) | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-banana-glazed-pancakes.png | Banana Glazed Pancakes | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-breakfast-burger.png | Breakfast Burger | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-brunch-platter.png | Brunch Platter — uploaded photo | All concepts: Menu & Order; POS | 1448 × 1086 px (supplied) | 4:3 |
@@ -20,19 +20,19 @@ For a small update, pass the changed filenames after the command (for example, `
 | dish-chicken-golden-waffle.png | Chicken & Golden Waffle — uploaded photo | All concepts: Menu & Order; POS<br>after-hours/Home<br>golden-hour/Home<br>mimosa-pop/Home | 1448 × 1086 px (supplied) | 4:3 |
 | dish-cinnamon-toast-crunch-french-toast.png | Cinnamon Toast Crunch French Toast | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-combo-alfredo.png | Combo Alfredo (Pick 2) | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
-| dish-corned-beef-hash.jpg | Corned Beef Hash | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| dish-corned-beef-hash.png | Corned Beef Hash | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-crab-dip.png | Crab Dip — uploaded photo | All concepts: Menu & Order; POS<br>after-hours/Home<br>mimosa-pop/Home | 1536 × 1024 px (supplied) | 3:2 (supplied) |
-| dish-eggs-any-style.jpg | Eggs (Any Style) | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| dish-eggs-any-style.png | Eggs (Any Style) | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-fish-grits.png | Fish & Grits | All concepts: Menu & Order; POS | 1448 × 1086 px | 4:3 |
 | dish-french-toast.png | French Toast | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-fried-fish-fries-whiting.png | Fried Fish & Fries (Whiting) | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-fried-salmon-bites.png | Fried Salmon Bites | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-fruity-pebble-french-toast.png | Fruity Pebble French Toast — uploaded photo | All concepts: Menu & Order; POS<br>after-hours/Home<br>golden-hour/Home<br>mimosa-pop/Home | 1536 × 1024 px (supplied) | 3:2 (supplied) |
 | dish-garlic-butter-jumbo-shrimp.png | Garlic Butter Jumbo Shrimp | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
-| dish-garlic-fries.jpg | Garlic Fries | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| dish-garlic-fries.png | Garlic Fries | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-garlic-steak-bites.png | Garlic Steak Bites | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-grandma-breakfast.png | Grandma Breakfast | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
-| dish-grits.jpg | Grits | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| dish-grits.png | Grits | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-jumbo-shrimp-alfredo.png | Jumbo Shrimp Alfredo | All concepts: Menu & Order; POS | 1448 × 1086 px | 4:3 |
 | dish-just-brunch-sampler.png | Just Brunch Sampler — uploaded photo | All concepts: Menu & Order; POS<br>after-hours/Home<br>golden-hour/Home<br>start-here/golden-hour/Golden Hour — Home (dark)-html/GoldenHour-Home.dc.html<br>start-here/golden-hour/Golden Hour — Home (light)-html/GoldenHour-Home.dc.html<br>start-here/golden-hour/Golden Hour — Instagram-html/GoldenHour-Instagram.dc.html<br>mimosa-pop/Home<br>start-here/mimosa-pop/Mimosa Pop — Instagram-html/MimosaPop-Instagram.dc.html | 1448 × 1086 px (supplied) | 4:3 |
 | dish-lamb-chops-alfredo.png | Lamb Chops Alfredo | All concepts: Menu & Order; POS | 1448 × 1086 px | 4:3 |
@@ -41,13 +41,13 @@ For a small update, pass the changed filenames after the command (for example, `
 | dish-oxtail-alfredo.png | Oxtail Alfredo | All concepts: Menu & Order; POS | 1448 × 1086 px | 4:3 |
 | dish-oxtail-grits.png | Oxtail & Grits — uploaded photo | All concepts: Menu & Order; POS<br>after-hours/Home<br>golden-hour/Home<br>mimosa-pop/Home | 1374 × 1145 px (supplied) | 6:5 (supplied) |
 | dish-pork-chop-fries.png | Pork Chop & Fries | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
-| dish-potatoes-onions.jpg | Potatoes & Onions | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| dish-potatoes-onions.png | Potatoes & Onions | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-red-velvet-cake.jpg | Red Velvet Cake | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
 | dish-red-velvet-waffle.png | Red Velvet Waffle | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-salmon-bites-grits.png | Salmon Bites & Grits | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-seafood-basket.png | Seafood Basket | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-shrimp-grits.png | Shrimp & Grits — uploaded photo | All concepts: Menu & Order; POS<br>after-hours/Home<br>start-here/after-hours/After Hours — Home (dark)-html/AfterHours-Home.dc.html<br>start-here/after-hours/After Hours — Home (light)-html/AfterHours-Home.dc.html<br>start-here/after-hours/After Hours — Instagram-html/AfterHours-Instagram.dc.html<br>golden-hour/Home<br>start-here/golden-hour/Golden Hour — Home (dark)-html/GoldenHour-Home.dc.html<br>start-here/golden-hour/Golden Hour — Home (light)-html/GoldenHour-Home.dc.html<br>start-here/golden-hour/Golden Hour — Instagram-html/GoldenHour-Instagram.dc.html<br>mimosa-pop/Home<br>start-here/mimosa-pop/Mimosa Pop — Home (dark)-html/MimosaPop-Home.dc.html<br>start-here/mimosa-pop/Mimosa Pop — Home (light)-html/MimosaPop-Home.dc.html<br>start-here/mimosa-pop/Mimosa Pop — Instagram-html/MimosaPop-Instagram.dc.html | 1448 × 1086 px (supplied) | 4:3 |
-| dish-side-of-fruit.jpg | Side of Fruit | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| dish-side-of-fruit.png | Side of Fruit | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-snapper-eggs-potatoes.png | Snapper, Eggs & Potatoes — uploaded photo | All concepts: Menu & Order; POS | 1536 × 1024 px (supplied) | 3:2 (supplied) |
 | dish-strawberry-banana-cream-french-toast.png | Strawberry & Banana Cream French Toast | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-strawberry-cream-waffle.png | Strawberry & Cream Waffle | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |

@@ -511,7 +511,7 @@ window.JB_DATA = {
       "food": true,
       "entree": false,
       "dineIn": false,
-      "image": "dish-bacon-pork-or-turkey.jpg"
+      "image": "dish-bacon-pork-or-turkey.png"
     },
     {
       "id": "eg",
@@ -524,7 +524,7 @@ window.JB_DATA = {
       "food": true,
       "entree": false,
       "dineIn": false,
-      "image": "dish-eggs-any-style.jpg"
+      "image": "dish-eggs-any-style.png"
     },
     {
       "id": "gr",
@@ -537,7 +537,7 @@ window.JB_DATA = {
       "food": true,
       "entree": false,
       "dineIn": false,
-      "image": "dish-grits.jpg"
+      "image": "dish-grits.png"
     },
     {
       "id": "po",
@@ -550,7 +550,7 @@ window.JB_DATA = {
       "food": true,
       "entree": false,
       "dineIn": false,
-      "image": "dish-potatoes-onions.jpg"
+      "image": "dish-potatoes-onions.png"
     },
     {
       "id": "cbh",
@@ -563,7 +563,7 @@ window.JB_DATA = {
       "food": true,
       "entree": false,
       "dineIn": false,
-      "image": "dish-corned-beef-hash.jpg"
+      "image": "dish-corned-beef-hash.png"
     },
     {
       "id": "gfr",
@@ -576,7 +576,7 @@ window.JB_DATA = {
       "food": true,
       "entree": false,
       "dineIn": false,
-      "image": "dish-garlic-fries.jpg"
+      "image": "dish-garlic-fries.png"
     },
     {
       "id": "fr",
@@ -589,7 +589,7 @@ window.JB_DATA = {
       "food": true,
       "entree": false,
       "dineIn": false,
-      "image": "dish-side-of-fruit.jpg"
+      "image": "dish-side-of-fruit.png"
     },
     {
       "id": "cc",
