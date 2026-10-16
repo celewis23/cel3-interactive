@@ -602,7 +602,7 @@ window.JB_DATA = {
       "food": true,
       "entree": false,
       "dineIn": false,
-      "image": "dish-cheesecake.jpg"
+      "image": "dish-cheesecake.png"
     },
     {
       "id": "bpd",
@@ -616,7 +616,7 @@ window.JB_DATA = {
       "food": true,
       "entree": false,
       "dineIn": false,
-      "image": "dish-new-orleans-style-bread-pudding.jpg"
+      "image": "dish-new-orleans-style-bread-pudding.png"
     },
     {
       "id": "rvc",
@@ -629,7 +629,7 @@ window.JB_DATA = {
       "food": true,
       "entree": false,
       "dineIn": false,
-      "image": "dish-red-velvet-cake.jpg"
+      "image": "dish-red-velvet-cake.png"
     },
     {
       "id": "d1",
@@ -643,7 +643,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-classic-mimosa.jpg"
+      "image": "drink-classic-mimosa.png"
     },
     {
       "id": "d2",
@@ -656,7 +656,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-strawberry-mimosa.jpg"
+      "image": "drink-strawberry-mimosa.png"
     },
     {
       "id": "d3",
@@ -669,7 +669,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-mango-mimosa.jpg"
+      "image": "drink-mango-mimosa.png"
     },
     {
       "id": "d4",
@@ -682,7 +682,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-peach-mimosa.jpg"
+      "image": "drink-peach-mimosa.png"
     },
     {
       "id": "d5",
@@ -695,7 +695,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-pineapple-mimosa.jpg"
+      "image": "drink-pineapple-mimosa.png"
     },
     {
       "id": "d6",
@@ -708,7 +708,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-watermelon-mimosa.jpg"
+      "image": "drink-watermelon-mimosa.png"
     },
     {
       "id": "d7",
@@ -722,7 +722,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": true,
-      "image": "drink-bottomless-mimosas-1-hr.jpg"
+      "image": "drink-bottomless-mimosas.png"
     },
     {
       "id": "t1",

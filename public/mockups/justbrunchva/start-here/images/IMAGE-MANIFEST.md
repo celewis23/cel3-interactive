@@ -16,7 +16,7 @@ For a small update, pass the changed filenames after the command (for example, `
 | dish-brunch-platter.png | Brunch Platter — uploaded photo | All concepts: Menu & Order; POS | 1448 × 1086 px (supplied) | 4:3 |
 | dish-cardel-platter.png | Cardel Platter | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-charbroiled-oysters.png | Charbroiled Oysters | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
-| dish-cheesecake.jpg | Cheesecake | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| dish-cheesecake.png | Cheesecake | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-chicken-golden-waffle.png | Chicken & Golden Waffle — uploaded photo | All concepts: Menu & Order; POS<br>after-hours/Home<br>golden-hour/Home<br>mimosa-pop/Home | 1448 × 1086 px (supplied) | 4:3 |
 | dish-cinnamon-toast-crunch-french-toast.png | Cinnamon Toast Crunch French Toast | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-combo-alfredo.png | Combo Alfredo (Pick 2) | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
@@ -37,12 +37,12 @@ For a small update, pass the changed filenames after the command (for example, `
 | dish-just-brunch-sampler.png | Just Brunch Sampler — uploaded photo | All concepts: Menu & Order; POS<br>after-hours/Home<br>golden-hour/Home<br>start-here/golden-hour/Golden Hour — Home (dark)-html/GoldenHour-Home.dc.html<br>start-here/golden-hour/Golden Hour — Home (light)-html/GoldenHour-Home.dc.html<br>start-here/golden-hour/Golden Hour — Instagram-html/GoldenHour-Instagram.dc.html<br>mimosa-pop/Home<br>start-here/mimosa-pop/Mimosa Pop — Instagram-html/MimosaPop-Instagram.dc.html | 1448 × 1086 px (supplied) | 4:3 |
 | dish-lamb-chops-alfredo.png | Lamb Chops Alfredo | All concepts: Menu & Order; POS | 1448 × 1086 px | 4:3 |
 | dish-lamb-chops-potatoes.png | Lamb Chops & Potatoes — uploaded photo | All concepts: Menu & Order; POS | 1536 × 1024 px (supplied) | 3:2 (supplied) |
-| dish-new-orleans-style-bread-pudding.jpg | New Orleans-Style Bread Pudding | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| dish-new-orleans-style-bread-pudding.png | New Orleans-Style Bread Pudding | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-oxtail-alfredo.png | Oxtail Alfredo | All concepts: Menu & Order; POS | 1448 × 1086 px | 4:3 |
 | dish-oxtail-grits.png | Oxtail & Grits — uploaded photo | All concepts: Menu & Order; POS<br>after-hours/Home<br>golden-hour/Home<br>mimosa-pop/Home | 1374 × 1145 px (supplied) | 6:5 (supplied) |
 | dish-pork-chop-fries.png | Pork Chop & Fries | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-potatoes-onions.png | Potatoes & Onions | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
-| dish-red-velvet-cake.jpg | Red Velvet Cake | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| dish-red-velvet-cake.png | Red Velvet Cake | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-red-velvet-waffle.png | Red Velvet Waffle | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-salmon-bites-grits.png | Salmon Bites & Grits | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | dish-seafood-basket.png | Seafood Basket | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
@@ -56,9 +56,8 @@ For a small update, pass the changed filenames after the command (for example, `
 | dish-wings-fries.png | Wings & Fries | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | drink-blue-hawaiian-breeze.jpg | Blue Hawaiian Breeze | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
 | drink-bottled-water.jpg | Bottled Water | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
-| drink-bottomless-mimosas-1-hr.jpg | Bottomless Mimosas (1 hr) | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
 | drink-brunch-way-mimosa.jpg | Brunch Way Mimosa | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
-| drink-classic-mimosa.jpg | Classic Mimosa | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| drink-classic-mimosa.png | Classic Mimosa | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | drink-coconut-rum-punch.jpg | Coconut Rum Punch | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
 | drink-coffee.jpg | Coffee | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
 | drink-dragon-fruit-mimosa-tower.jpg | Dragon Fruit Mimosa Tower | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
@@ -73,19 +72,19 @@ For a small update, pass the changed filenames after the command (for example, `
 | drink-lemonade.jpg | Lemonade | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
 | drink-lychee-martini.jpg | Lychee Martini | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
 | drink-mango-mimosa-tower.jpg | Mango Mimosa Tower | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
-| drink-mango-mimosa.jpg | Mango Mimosa | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| drink-mango-mimosa.png | Mango Mimosa | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | drink-margarita-mimosa.jpg | Margarita Mimosa | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
 | drink-peach-bellini.jpg | Peach Bellini | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
-| drink-peach-mimosa.jpg | Peach Mimosa | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| drink-peach-mimosa.png | Peach Mimosa | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | drink-pineapple-mimosa-tower.jpg | Pineapple Mimosa Tower | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
-| drink-pineapple-mimosa.jpg | Pineapple Mimosa | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| drink-pineapple-mimosa.png | Pineapple Mimosa | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | drink-sodas.jpg | Sodas | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
 | drink-spicy-bloody-mary.jpg | Spicy Bloody Mary | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
 | drink-strawberry-lemonade-mimosa.jpg | Strawberry Lemonade Mimosa | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
 | drink-strawberry-lemonade.jpg | Strawberry Lemonade | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
-| drink-bottomless-mimosas.png | Bottomless mimosas — uploaded photo | start-here/mimosa-pop/Mimosa Pop — Home (light)-html/MimosaPop-Home.dc.html (hero)<br>start-here/golden-hour/Golden Hour — Home (light)-html/GoldenHour-Home.dc.html (Bottomless, all day long) | 2170 × 725 px (supplied) | ~3:1 |
+| drink-bottomless-mimosas.png | Bottomless mimosas — uploaded photo | All concepts: Menu & Order; POS<br>start-here/mimosa-pop/Mimosa Pop — Home (light)-html/MimosaPop-Home.dc.html (hero)<br>start-here/golden-hour/Golden Hour — Home (light)-html/GoldenHour-Home.dc.html (Bottomless, all day long) | 2170 × 725 px (supplied) | ~3:1 |
 | drink-strawberry-mimosa-tower.png | Strawberry Mimosa Tower — uploaded photo | All concepts: Menu & Order; POS<br>start-here/after-hours/After Hours — Home (dark)-html/AfterHours-Home.dc.html<br>start-here/after-hours/After Hours — Instagram-html/AfterHours-Instagram.dc.html<br>start-here/golden-hour/Golden Hour — Home (light)-html/GoldenHour-Home.dc.html | 1122 × 1402 px (supplied) | 4:5 (supplied) |
-| drink-strawberry-mimosa.jpg | Strawberry Mimosa | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| drink-strawberry-mimosa.png | Strawberry Mimosa | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | drink-strawberry-reposado-fizz.jpg | Strawberry Reposado Fizz | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
 | drink-tequila-sunrise.jpg | Tequila Sunrise | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
 | drink-tiffany-mimosa.jpg | Tiffany Mimosa | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
@@ -94,7 +93,7 @@ For a small update, pass the changed filenames after the command (for example, `
 | drink-virgin-sunrise.jpg | Virgin Sunrise | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
 | drink-watermelon-cooler.jpg | Watermelon Cooler | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
 | drink-watermelon-mimosa-tower.jpg | Watermelon Mimosa Tower | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
-| drink-watermelon-mimosa.jpg | Watermelon Mimosa | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| drink-watermelon-mimosa.png | Watermelon Mimosa | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | ig-post-01.jpg | Just Brunch Instagram photo 1 | start-here/after-hours/After Hours — Home (dark)-html/AfterHours-Home.dc.html<br>start-here/after-hours/After Hours — Home (light)-html/AfterHours-Home.dc.html<br>start-here/after-hours/After Hours — Instagram-html/AfterHours-Instagram.dc.html<br>start-here/golden-hour/Golden Hour — Home (dark)-html/GoldenHour-Home.dc.html<br>start-here/golden-hour/Golden Hour — Home (light)-html/GoldenHour-Home.dc.html<br>start-here/golden-hour/Golden Hour — Instagram-html/GoldenHour-Instagram.dc.html<br>start-here/mimosa-pop/Mimosa Pop — Home (dark)-html/MimosaPop-Home.dc.html<br>start-here/mimosa-pop/Mimosa Pop — Home (light)-html/MimosaPop-Home.dc.html<br>start-here/mimosa-pop/Mimosa Pop — Instagram-html/MimosaPop-Instagram.dc.html | 1600 × 1600 px | 1:1 |
 | ig-post-02.jpg | Just Brunch Instagram photo 2 | start-here/after-hours/After Hours — Home (dark)-html/AfterHours-Home.dc.html<br>start-here/after-hours/After Hours — Home (light)-html/AfterHours-Home.dc.html<br>start-here/golden-hour/Golden Hour — Home (dark)-html/GoldenHour-Home.dc.html<br>start-here/golden-hour/Golden Hour — Home (light)-html/GoldenHour-Home.dc.html<br>start-here/mimosa-pop/Mimosa Pop — Home (dark)-html/MimosaPop-Home.dc.html<br>start-here/mimosa-pop/Mimosa Pop — Home (light)-html/MimosaPop-Home.dc.html | 1600 × 1600 px | 1:1 |
 | ig-post-03.jpg | Just Brunch Instagram photo 3 | start-here/after-hours/After Hours — Home (dark)-html/AfterHours-Home.dc.html<br>start-here/after-hours/After Hours — Home (light)-html/AfterHours-Home.dc.html<br>start-here/golden-hour/Golden Hour — Home (dark)-html/GoldenHour-Home.dc.html<br>start-here/golden-hour/Golden Hour — Home (light)-html/GoldenHour-Home.dc.html<br>start-here/mimosa-pop/Mimosa Pop — Home (dark)-html/MimosaPop-Home.dc.html<br>start-here/mimosa-pop/Mimosa Pop — Home (light)-html/MimosaPop-Home.dc.html | 1600 × 1600 px | 1:1 |
