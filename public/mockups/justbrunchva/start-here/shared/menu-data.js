@@ -935,7 +935,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-spicy-bloody-mary.jpg"
+      "image": "drink-spicy-bloody-mary.png"
     },
     {
       "id": "m2",
@@ -948,7 +948,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-tropical-punch.jpg"
+      "image": "drink-tropical-punch.png"
     },
     {
       "id": "m3",
@@ -961,7 +961,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-hennessy-lemonade.jpg"
+      "image": "drink-hennessy-lemonade.png"
     },
     {
       "id": "m4",
@@ -974,7 +974,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-tequila-sunrise.jpg"
+      "image": "drink-tequila-sunrise.png"
     },
     {
       "id": "m5",
@@ -987,7 +987,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-peach-bellini.jpg"
+      "image": "drink-peach-bellini.png"
     },
     {
       "id": "m6",
@@ -1000,7 +1000,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-lychee-martini.jpg"
+      "image": "drink-lychee-martini.png"
     },
     {
       "id": "m7",
@@ -1013,7 +1013,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-coconut-rum-punch.jpg"
+      "image": "drink-coconut-rum-punch.png"
     },
     {
       "id": "k1",
@@ -1026,7 +1026,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-virgin-sunrise.jpg"
+      "image": "drink-virgin-sunrise.png"
     },
     {
       "id": "k2",
@@ -1039,7 +1039,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-strawberry-lemonade.jpg"
+      "image": "drink-strawberry-lemonade.png"
     },
     {
       "id": "k3",
@@ -1052,7 +1052,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-tropical-breeze.jpg"
+      "image": "drink-tropical-breeze.png"
     },
     {
       "id": "k4",
@@ -1065,7 +1065,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-watermelon-cooler.jpg"
+      "image": "drink-watermelon-cooler.png"
     },
     {
       "id": "n1",
