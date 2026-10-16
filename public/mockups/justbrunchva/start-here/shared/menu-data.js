@@ -735,7 +735,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": true,
-      "image": "drink-mango-mimosa-tower.jpg"
+      "image": "drink-mango-mimosa-tower.png"
     },
     {
       "id": "t2",
@@ -748,7 +748,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": true,
-      "image": "drink-dragon-fruit-mimosa-tower.jpg"
+      "image": "drink-dragon-fruit-mimosa-tower.png"
     },
     {
       "id": "t3",
@@ -774,7 +774,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": true,
-      "image": "drink-lavender-mimosa-tower.jpg"
+      "image": "drink-lavender-mimosa-tower.png"
     },
     {
       "id": "t5",
@@ -787,7 +787,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": true,
-      "image": "drink-watermelon-mimosa-tower.jpg"
+      "image": "drink-watermelon-mimosa-tower.png"
     },
     {
       "id": "t6",
@@ -800,7 +800,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": true,
-      "image": "drink-pineapple-mimosa-tower.jpg"
+      "image": "drink-pineapple-mimosa-tower.png"
     },
     {
       "id": "s1",

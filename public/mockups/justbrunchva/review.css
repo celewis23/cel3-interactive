@@ -39,6 +39,8 @@ input, select, textarea { max-width: 100%; }
 .jb-field select { min-height: 48px; padding: 10px; border-radius: 12px; border: 1px solid var(--line2,#ddd); background: var(--surface,#fff); color: var(--text,#16121f); font: inherit; }
 .jb-photo { position: relative; isolation: isolate; overflow: hidden; }
 .jb-photo > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; border-radius: inherit; }
+/* Keep all three tiers visible in the newly supplied tower photos. */
+.jb-photo:is([data-photo="drink-mango-mimosa-tower.png"], [data-photo="drink-dragon-fruit-mimosa-tower.png"], [data-photo="drink-lavender-mimosa-tower.png"], [data-photo="drink-watermelon-mimosa-tower.png"], [data-photo="drink-pineapple-mimosa-tower.png"]) { height: auto !important; aspect-ratio: 4 / 3; }
 .jb-photo.is-photo-loaded > .jb-photo-placeholder { visibility: hidden; }
 .jb-hero-photo.is-photo-loaded::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(180deg,transparent 35%,#0e0d12d9 100%); }
 .jb-hero-photo.is-photo-loaded > .jb-photo-caption { color: var(--photo-accent,#F7D046); opacity: 1; text-shadow: 0 2px 8px #0009; }
