@@ -29,6 +29,10 @@ body{margin:0}
 .in{min-height:50px;border-radius:14px;border:2.5px solid #16121F;background:#FFFFFF;color:#16121F;padding:0 14px;font:500 16px 'Space Grotesk'}
 .lab{display:flex;flex-direction:column;gap:6px;font:700 14px 'Space Grotesk';color:#16121F;flex:1 1 160px}
 .ph{font:700 11px 'Space Grotesk';letter-spacing:.14em;text-transform:uppercase;opacity:.75}
+.ig-grid .post{width:100%;aspect-ratio:1;box-sizing:border-box;padding:18px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;color:#16121F;container-type:inline-size;border:3px solid #16121F;box-shadow:6px 6px 0 #16121F;border-radius:24px}
+.ig-grid .d{font-family:'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:-.01em;line-height:.92;margin:0}
+.ig-grid .chip{align-self:flex-start;display:inline-flex;padding:5px 10px;border-radius:999px;border:2px solid #16121F;font:700 11px 'Space Grotesk';background:#FFFFFF;color:#16121F}
+.ig-grid .card{border:2px solid #16121F;border-radius:12px;box-shadow:3px 3px 0 #16121F}
 </style>
 </helmet>
 <div class="mp {{themeClass}} jb-page" style="background: var(--bg); color: var(--text); font-family: 'Space Grotesk', sans-serif; min-height: 100vh">
@@ -145,8 +149,13 @@ body{margin:0}
 
   <section class="wrap" style="padding-bottom: 96px; display: flex; flex-direction: column; gap: 24px">
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px"><h2 class="disp" style="font-size: 44px">@justbrunchva</h2><a class="btn bw" href="/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20Instagram-html/MimosaPop-Instagram.dc.html">Follow</a></div>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px">
-      <div class="ink jb-photo" style="aspect-ratio: 1; background: #FFE14D" data-photo="ig-post-01.jpg" data-alt="Just Brunch Instagram photo 1"></div><div class="ink jb-photo" style="aspect-ratio: 1; background: #FF4FA0" data-photo="ig-post-02.jpg" data-alt="Just Brunch Instagram photo 2"></div><div class="ink jb-photo" style="aspect-ratio: 1; background: #6B3CF0" data-photo="ig-post-03.jpg" data-alt="Just Brunch Instagram photo 3"></div><div class="ink jb-photo" style="aspect-ratio: 1; background: #19C37D" data-photo="ig-post-04.jpg" data-alt="Just Brunch Instagram photo 4"></div><div class="ink jb-photo" style="aspect-ratio: 1; background: #2BB6E8" data-photo="ig-post-05.jpg" data-alt="Just Brunch Instagram photo 5"></div><div class="ink jb-photo" style="aspect-ratio: 1; background: #FFFFFF" data-photo="ig-post-06.jpg" data-alt="Just Brunch Instagram photo 6"></div>
+    <div class="ig-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px">
+      <div class="post" style="background: #FFE14D"><span class="chip">All day, every day</span><h2 class="d" style="font-size: clamp(28px,7cqi,52px)">Brunch like you mean it.</h2><span style="font-weight: 700; font-size: 13px">307 High St · Portsmouth</span></div>
+      <div class="post" style="background: #FF4FA0"><div class="card jb-photo" style="flex: 1; background: #FFFFFF; transform: rotate(-3deg); display: flex; align-items: flex-end; padding: 10px; font: 700 9px 'Space Grotesk'; letter-spacing: .1em; text-transform: uppercase" data-photo="dish-shrimp-grits.png" data-alt="Shrimp and grits">Photo · shrimp &amp; grits</div><div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px"><span class="d" style="font-size: 18px">Shrimp &amp; grits</span><span class="chip" style="background: #FFE14D; align-self: center">Fan fave</span></div></div>
+      <div class="post" style="background: #6B3CF0; color: #FFFFFF"><span class="chip">The bar</span><h2 class="d" style="font-size: clamp(24px,6cqi,46px); color: #FFFFFF">Mimosas, <span style="color: #FFE14D">no bottom.</span></h2><span style="font-weight: 700; font-size: 13px">Bottomless · towers · cocktails</span></div>
+      <div class="post" style="background: #19C37D"><span class="chip">Reservations open</span><h2 class="d" style="font-size: clamp(26px,6.5cqi,50px)">Save us a seat!</h2><a style="align-self: flex-start; background: #16121F; color: #FFFFFF; border-radius: 99px; padding: 8px 14px; font-weight: 700; font-size: 12px" href="/mockups/justbrunchva/start-here/mimosa-pop/Mimosa%20Pop%20%E2%80%94%20Reserve-html/MimosaPop-Reserve.dc.html">Book via link in bio →</a></div>
+      <div class="post" style="background: #FFFFFF; align-items: center; justify-content: center"><dc-import name="Logo" variant="color-light" size="32" plate="{{ false }}" hint-size="245px,46px"></dc-import></div>
+      <div class="post" style="background: #2BB6E8"><div class="card jb-photo" style="flex: 1; background: #FFFFFF; transform: rotate(2deg); display: flex; align-items: flex-end; padding: 10px; font: 700 9px 'Space Grotesk'; letter-spacing: .1em; text-transform: uppercase" data-photo="dish-just-brunch-sampler.png" data-alt="Just Brunch sampler">Photo · Just Brunch sampler</div><span class="d" style="font-size: 18px; padding-top: 12px">The sampler. All of it.</span></div>
     </div>
   </section>
 
