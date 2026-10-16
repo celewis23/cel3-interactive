@@ -53,16 +53,22 @@
     "dish-sunrise-breakfast.png": {"width":1086,"height":1448,"widths":[480,800,1086]},
     "dish-wings-fries.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
     "drink-blue-hawaiian-breeze.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
+    "drink-bottled-water.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
     "drink-bottomless-mimosas.png": {"width":2170,"height":725,"widths":[480,800,1200,1600]},
     "drink-brunch-way-mimosa.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
     "drink-classic-mimosa.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
     "drink-coconut-rum-punch.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
+    "drink-coffee.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
     "drink-dragon-fruit-mimosa-tower.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]},
     "drink-dragon-fruit-mimosa.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
+    "drink-fresh-orange-juice.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
     "drink-hennessy-lemonade.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
     "drink-hibiscus-mojito.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
+    "drink-hot-tea.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
+    "drink-iced-coffee.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
     "drink-lavender-french-75.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
     "drink-lavender-mimosa-tower.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]},
+    "drink-lemonade.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
     "drink-lychee-martini.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
     "drink-mango-mimosa-tower.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]},
     "drink-mango-mimosa.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
@@ -71,6 +77,7 @@
     "drink-peach-mimosa.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
     "drink-pineapple-mimosa-tower.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
     "drink-pineapple-mimosa.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "drink-sodas.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
     "drink-spicy-bloody-mary.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
     "drink-strawberry-lemonade-mimosa.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
     "drink-strawberry-lemonade.png": {"width":1374,"height":1145,"widths":[480,800,1200,1374]},
@@ -88,7 +95,11 @@
     "horizontal.png": {"width":1254,"height":1254,"widths":[480,800,1200,1254]},
     "restaurant-celebration.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]},
     "restaurant-crew.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]},
-    "restaurant-dining-room.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]}
+    "restaurant-dining-room.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]},
+    "suite-behold-green.png": {"width":1448,"height":1086,"widths":[480,800,1200,1448]},
+    "suite-cheers-red-roses.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "suite-ig-pink.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]},
+    "suite-va-leagues.png": {"width":1536,"height":1024,"widths":[480,800,1200,1536]}
   };
   // END GENERATED PHOTO SOURCES
   const brandColors = ['#F7D046','#F28AC7','#49C6E5','#5FD38D','#B38CF0'];
@@ -271,14 +282,27 @@
       banner.src=base+'start-here/images/horizontal.png';
       nav.prepend(banner);
       if(page!=='Home'){
-        const header=nav.closest('header'),actions=header.querySelector('.tbtn')?.parentElement;
+        const header=nav.closest('header'),row=header.querySelector(':scope > div'),logo=header.querySelector('a[aria-label="Just Brunch home"]');
+        let actions=header.querySelector('.tbtn')?.parentElement;
         const links=[...nav.querySelectorAll('a')],order=links.find(a=>a.textContent.trim()==='Menu'),reserve=links.find(a=>a.textContent.trim()==='Reserve');
-        if(actions&&order&&reserve){
+        const orderNav=links.find(a=>a.textContent.trim()==='Order');
+        if(actions&&order&&reserve&&row&&logo){
+          logo.classList.add('jb-header-logo');
+          if(actions===row){
+            const group=document.createElement('div');group.className='jb-header-actions';
+            [...row.children].filter(child=>![logo,nav,toggle].includes(child)).forEach(child=>group.append(child));
+            row.append(group);actions=group;
+          }
           header.classList.add('jb-mobile-home-header');
           header.querySelectorAll('a').forEach(a=>{if(!a.closest('nav')&&a.getAttribute('aria-label')!=='Just Brunch home')a.classList.add('jb-desktop-header-action');});
+          orderNav?.remove();
           const mobile=document.createElement('div');mobile.className='jb-mobile-header-actions';
-          mobile.innerHTML=`<a class="btn jb-mobile-reserve" href="${escape(reserve.href)}">Reserve</a><a class="jb-bag" data-bag href="${escape(order.href)}#bag">Bag · <span>${count()}</span> · <span>${money(subtotal())}</span></a><a class="btn jb-mobile-order" href="${escape(order.href)}">Order</a>`;
+          mobile.innerHTML=`<a class="jb-bag" data-bag href="${escape(order.href)}#bag">Bag · <span>${count()}</span> · <span>${money(subtotal())}</span></a><a class="btn jb-mobile-reserve" href="${escape(reserve.href)}">Reserve</a><a class="btn jb-mobile-order" href="${escape(order.href)}">Order</a>`;
           actions.append(mobile);
+          if(row&&logo){
+            if(concept==='golden-hour')row.append(nav,logo,toggle,actions);
+            else row.append(logo,nav,toggle,actions);
+          }
         }
       }
     });

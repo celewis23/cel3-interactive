@@ -55,21 +55,21 @@ For a small update, pass the changed filenames after the command (for example, `
 | dish-sunrise-breakfast.png | Sunrise Breakfast | All concepts: Menu & Order; POS | 1086 × 1448 px | 3:4 |
 | dish-wings-fries.png | Wings & Fries | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | drink-blue-hawaiian-breeze.png | Blue Hawaiian Breeze | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
-| drink-bottled-water.jpg | Bottled Water | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| drink-bottled-water.png | Bottled Water | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
 | drink-brunch-way-mimosa.png | Brunch Way Mimosa | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | drink-classic-mimosa.png | Classic Mimosa | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | drink-coconut-rum-punch.png | Coconut Rum Punch | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
-| drink-coffee.jpg | Coffee | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| drink-coffee.png | Coffee | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
 | drink-dragon-fruit-mimosa-tower.png | Dragon Fruit Mimosa Tower | All concepts: Menu & Order; POS | 1448 × 1086 px | 4:3 |
 | drink-dragon-fruit-mimosa.png | Dragon Fruit Mimosa | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
-| drink-fresh-orange-juice.jpg | Fresh Orange Juice | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| drink-fresh-orange-juice.png | Fresh Orange Juice | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
 | drink-hennessy-lemonade.png | Hennessy Lemonade | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
 | drink-hibiscus-mojito.png | Hibiscus Mojito | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
-| drink-hot-tea.jpg | Hot Tea | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
-| drink-iced-coffee.jpg | Iced Coffee | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| drink-hot-tea.png | Hot Tea | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
+| drink-iced-coffee.png | Iced Coffee | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
 | drink-lavender-french-75.png | Lavender French 75 | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
 | drink-lavender-mimosa-tower.png | Lavender Mimosa Tower | All concepts: Menu & Order; POS | 1448 × 1086 px | 4:3 |
-| drink-lemonade.jpg | Lemonade | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| drink-lemonade.png | Lemonade | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
 | drink-lychee-martini.png | Lychee Martini | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
 | drink-mango-mimosa-tower.png | Mango Mimosa Tower | All concepts: Menu & Order; POS | 1448 × 1086 px | 4:3 |
 | drink-mango-mimosa.png | Mango Mimosa | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
@@ -78,7 +78,7 @@ For a small update, pass the changed filenames after the command (for example, `
 | drink-peach-mimosa.png | Peach Mimosa | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
 | drink-pineapple-mimosa-tower.png | Pineapple Mimosa Tower | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
 | drink-pineapple-mimosa.png | Pineapple Mimosa | All concepts: Menu & Order; POS | 1536 × 1024 px | 3:2 |
-| drink-sodas.jpg | Sodas | All concepts: Menu & Order; POS | 1600 × 1200 px | 4:3 |
+| drink-sodas.png | Sodas | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
 | drink-spicy-bloody-mary.png | Spicy Bloody Mary | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
 | drink-strawberry-lemonade-mimosa.png | Strawberry Lemonade Mimosa | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
 | drink-strawberry-lemonade.png | Strawberry Lemonade | All concepts: Menu & Order; POS | 1374 × 1145 px | 6:5 |
@@ -103,8 +103,8 @@ For a small update, pass the changed filenames after the command (for example, `
 | restaurant-crew.png | Crew — good energy, uploaded photo | after-hours/Home atmosphere section (light and dark modes) | 1448 × 1086 px (supplied) | 4:3 |
 | restaurant-dining-room.png | Teal booths and brick dining room — uploaded photo | start-here/after-hours/After Hours — Home (dark)-html/AfterHours-Home.dc.html (hero vibe tile)<br>start-here/golden-hour/Golden Hour — Home (light)-html/GoldenHour-Home.dc.html (hero dining room)<br>start-here/mimosa-pop/Mimosa Pop — Home (light)-html/MimosaPop-Home.dc.html (hero Vibes tile) | 1448 × 1086 px (supplied) | 4:3 |
 | restaurant-celebration.png | Friends celebrating over brunch — uploaded photo | after-hours/Home atmosphere section (light and dark modes) | 1448 × 1086 px (supplied) | 4:3 |
-| suite-behold-green.jpg | Behold Green Room | start-here/after-hours/After Hours — Private Dining Suites-html/AfterHours-Suites.dc.html<br>start-here/golden-hour/Golden Hour — Private Dining Suites-html/GoldenHour-Suites.dc.html<br>start-here/mimosa-pop/Mimosa Pop — Private Dining Suites-html/MimosaPop-Suites.dc.html | 1600 × 1200 px | 4:3 |
-| suite-cheers-red-roses.jpg | Cheers Red Roses | start-here/after-hours/After Hours — Private Dining Suites-html/AfterHours-Suites.dc.html<br>start-here/golden-hour/Golden Hour — Private Dining Suites-html/GoldenHour-Suites.dc.html<br>start-here/mimosa-pop/Mimosa Pop — Private Dining Suites-html/MimosaPop-Suites.dc.html | 1600 × 1200 px | 4:3 |
-| suite-ig-pink.jpg | IG Pink Room | start-here/after-hours/After Hours — Private Dining Suites-html/AfterHours-Suites.dc.html<br>start-here/golden-hour/Golden Hour — Private Dining Suites-html/GoldenHour-Suites.dc.html<br>start-here/mimosa-pop/Mimosa Pop — Private Dining Suites-html/MimosaPop-Suites.dc.html | 1600 × 1200 px | 4:3 |
-| suite-va-leagues.jpg | VA Leagues Room | start-here/after-hours/After Hours — Private Dining Suites-html/AfterHours-Suites.dc.html<br>start-here/golden-hour/Golden Hour — Private Dining Suites-html/GoldenHour-Suites.dc.html<br>start-here/mimosa-pop/Mimosa Pop — Private Dining Suites-html/MimosaPop-Suites.dc.html | 1600 × 1200 px | 4:3 |
+| suite-behold-green.png | Behold Green Room | start-here/after-hours/After Hours — Private Dining Suites-html/AfterHours-Suites.dc.html<br>start-here/golden-hour/Golden Hour — Private Dining Suites-html/GoldenHour-Suites.dc.html<br>start-here/mimosa-pop/Mimosa Pop — Private Dining Suites-html/MimosaPop-Suites.dc.html | 1448 × 1086 px | 4:3 |
+| suite-cheers-red-roses.png | Cheers Red Roses | start-here/after-hours/After Hours — Private Dining Suites-html/AfterHours-Suites.dc.html<br>start-here/golden-hour/Golden Hour — Private Dining Suites-html/GoldenHour-Suites.dc.html<br>start-here/mimosa-pop/Mimosa Pop — Private Dining Suites-html/MimosaPop-Suites.dc.html | 1536 × 1024 px | 3:2 |
+| suite-ig-pink.png | IG Pink Room | start-here/after-hours/After Hours — Private Dining Suites-html/AfterHours-Suites.dc.html<br>start-here/golden-hour/Golden Hour — Private Dining Suites-html/GoldenHour-Suites.dc.html<br>start-here/mimosa-pop/Mimosa Pop — Private Dining Suites-html/MimosaPop-Suites.dc.html | 1536 × 1024 px | 3:2 |
+| suite-va-leagues.png | VA Leagues Room | start-here/after-hours/After Hours — Private Dining Suites-html/AfterHours-Suites.dc.html<br>start-here/golden-hour/Golden Hour — Private Dining Suites-html/GoldenHour-Suites.dc.html<br>start-here/mimosa-pop/Mimosa Pop — Private Dining Suites-html/MimosaPop-Suites.dc.html | 1536 × 1024 px | 3:2 |
 | window-table.jpg | window table | start-here/golden-hour/Golden Hour — Reserve-html/GoldenHour-Reserve.dc.html | 1600 × 1200 px | 4:3 |

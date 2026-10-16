@@ -1078,7 +1078,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-fresh-orange-juice.jpg"
+      "image": "drink-fresh-orange-juice.png"
     },
     {
       "id": "n2",
@@ -1091,7 +1091,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-coffee.jpg"
+      "image": "drink-coffee.png"
     },
     {
       "id": "n3",
@@ -1104,7 +1104,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-iced-coffee.jpg"
+      "image": "drink-iced-coffee.png"
     },
     {
       "id": "n4",
@@ -1117,7 +1117,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-hot-tea.jpg"
+      "image": "drink-hot-tea.png"
     },
     {
       "id": "n5",
@@ -1130,7 +1130,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-bottled-water.jpg"
+      "image": "drink-bottled-water.png"
     },
     {
       "id": "n6",
@@ -1143,7 +1143,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-lemonade.jpg"
+      "image": "drink-lemonade.png"
     },
     {
       "id": "n7",
@@ -1156,7 +1156,7 @@ window.JB_DATA = {
       "food": false,
       "entree": false,
       "dineIn": false,
-      "image": "drink-sodas.jpg"
+      "image": "drink-sodas.png"
     }
   ],
   "suites": [
@@ -1164,25 +1164,25 @@ window.JB_DATA = {
       "id": "va",
       "name": "VA Leagues Room",
       "cap": 40,
-      "image": "suite-va-leagues.jpg"
+      "image": "suite-va-leagues.png"
     },
     {
       "id": "pink",
       "name": "IG Pink Room",
       "cap": 15,
-      "image": "suite-ig-pink.jpg"
+      "image": "suite-ig-pink.png"
     },
     {
       "id": "green",
       "name": "Behold Green Room",
       "cap": 25,
-      "image": "suite-behold-green.jpg"
+      "image": "suite-behold-green.png"
     },
     {
       "id": "red",
       "name": "Cheers Red Roses",
       "cap": 25,
-      "image": "suite-cheers-red-roses.jpg"
+      "image": "suite-cheers-red-roses.png"
     }
   ],
   "taxRate": 0.06,
