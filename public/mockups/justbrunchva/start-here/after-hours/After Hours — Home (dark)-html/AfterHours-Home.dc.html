@@ -30,6 +30,8 @@ body{margin:0}
 .tile{border-radius:22px;display:flex;flex-direction:column;justify-content:space-between;padding:22px;box-sizing:border-box;color:#0E0D12}
 .tile small{font:700 11px 'DM Sans',sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
 .tile b{font:800 30px/1 'Bricolage Grotesque',sans-serif;letter-spacing:-.01em}
+.ah #vibe [data-photo="restaurant-celebration.png"] > img{object-position:100% 50%}
+.ah #vibe [data-photo="restaurant-crew.png"] > img{object-position:50% 25%}
 .tbtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--line2);background:transparent;color:var(--text);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
 .light-in{min-height:48px;border-radius:12px;border:0;padding:0 14px;font:500 16px 'DM Sans',sans-serif;background:#FFFFFF;color:#0E0D12}
 </style>
@@ -126,9 +128,9 @@ body{margin:0}
   </section>
 
   <section id="vibe" class="wrap" style="padding-top: 96px; padding-bottom: 96px; display: flex; flex-wrap: wrap; gap: 48px; align-items: center">
-    <div style="flex: 1 1 440px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
-      <div class="tile jb-photo" style="background: #B38CF0; min-height: 320px; grid-column: span 2" data-photo="restaurant-dining-room.jpg" data-alt="dining roomEvery weekend feels like a celebration"><small>Photo · dining room</small><b>Every weekend feels like a celebration</b></div>
-      <div class="tile jb-photo" style="background: #5FD38D; min-height: 320px" data-photo="restaurant-crew.jpg" data-alt="crewGood energy"><small>Photo · crew</small><b>Good energy</b></div>
+    <div style="flex: 1 1 440px; display: flex; flex-direction: column; gap: 12px">
+      <div class="tile jb-photo jb-hero-photo" style="background: #B38CF0; --photo-accent: #B38CF0; min-height: 320px" data-photo="restaurant-celebration.png" data-alt="Friends enjoying brunch and mimosas in the teal-booth dining room"><small class="jb-photo-caption">Dining room</small><b class="jb-photo-caption">Every weekend feels like a celebration</b></div>
+      <div class="tile jb-photo jb-hero-photo" style="background: #5FD38D; --photo-accent: #5FD38D; min-height: 320px" data-photo="restaurant-crew.png" data-alt="Two smiling Just Brunch crew members wearing black aprons"><small class="jb-photo-caption">The crew</small><b class="jb-photo-caption">Good energy</b></div>
     </div>
     <div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 20px">
       <span class="eyebrow" style="color: var(--lav)">Born in Portsmouth, VA</span>

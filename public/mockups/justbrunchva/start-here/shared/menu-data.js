@@ -31,7 +31,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-brunch-platter.jpg"
+      "image": "dish-brunch-platter.png"
     },
     {
       "id": "js",
@@ -86,7 +86,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-snapper-eggs-potatoes.jpg"
+      "image": "dish-snapper-eggs-potatoes.png"
     },
     {
       "id": "lp",
@@ -100,7 +100,7 @@ window.JB_DATA = {
       "food": true,
       "entree": true,
       "dineIn": false,
-      "image": "dish-lamb-chops-potatoes.jpg"
+      "image": "dish-lamb-chops-potatoes.png"
     },
     {
       "id": "bb",
