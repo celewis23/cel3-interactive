@@ -247,13 +247,20 @@ class Component extends DCLogic {
   toggleNav() { this.setState({ navOpen: !this.state.navOpen }); }
   audio() {
     var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
-    if (!this.ctx) {
+    // iOS treats Web Audio as ambient by default, so Silent Mode can mute it.
+    // Request media playback during the key/song gesture, before starting audio.
+    // https://bugs.webkit.org/show_bug.cgi?id=237322
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+    if (!this.ctx || this.ctx.state === 'closed') {
       this.ctx = new AC();
       this.bus = this.ctx.createDynamicsCompressor();
       this.bus.threshold.value = -14; this.bus.ratio.value = 4;
       this.bus.connect(this.ctx.destination);
     }
-    if (this.ctx.state === 'suspended') this.ctx.resume();
+    if (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted') {
+      // A blocked first press can retry on touch release or the next key gesture.
+      this.audioReady = this.ctx.resume().catch(function () {});
+    }
     return this.ctx;
   }
   voice(midi) {
@@ -286,7 +293,15 @@ class Component extends DCLogic {
   }
   press(midi) {
     var v = this.voice(midi);
-    setTimeout(function () { v.release(); }, 380);
+    var releaseAfterStart = function () { setTimeout(function () { v.release(); }, 380); };
+    if (this.ctx && this.ctx.state !== 'running') {
+      // Starting iPhone audio can outlast a tap. Begin the note's release timer
+      // only once audio is running, so the first tap is not silenced in advance.
+      var ctx = this.ctx;
+      this.audioReady.then(function () {
+        if (ctx.state === 'running') releaseAfterStart(); else v.release();
+      });
+    } else releaseAfterStart();
     this.setState({ active: midi }); clearTimeout(this.t);
     this.t = setTimeout(() => this.setState({ active: null }), 260);
   }
@@ -321,7 +336,12 @@ class Component extends DCLogic {
   }
   pUp(e) {
     if (!this.ptrs || !this.ptrs[e.pointerId]) return;
-    var p = this.ptrs[e.pointerId]; if (p.v) p.v.release();
+    var p = this.ptrs[e.pointerId];
+    // Touch activation arrives on release. If the first press was blocked,
+    // cancel its silent voice and play a short note from this allowed gesture.
+    var retry = e.type === 'pointerup' && p.m != null && this.ctx && this.ctx.state !== 'running';
+    if (p.v) p.v.release();
+    if (retry) this.press(p.m);
     delete this.ptrs[e.pointerId];
     this.syncDown();
   }
