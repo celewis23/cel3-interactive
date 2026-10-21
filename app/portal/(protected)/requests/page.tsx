@@ -46,6 +46,7 @@ export default function PortalRequestsPage() {
   const [panel, setPanel] = useState<RequestPanel>("list");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -81,7 +82,7 @@ export default function PortalRequestsPage() {
       body.append("description", form.description.trim());
       body.append("priority", form.priority);
       if (form.projectId) body.append("projectId", form.projectId);
-      for (const file of Array.from(fileRef.current?.files ?? [])) {
+      for (const file of files) {
         body.append("files", file);
       }
 
@@ -92,6 +93,7 @@ export default function PortalRequestsPage() {
       const newTicket: PortalTicket = data;
       setTickets((prev) => [newTicket, ...prev]);
       setForm({ title: "", description: "", projectId: "", priority: "medium" });
+      setFiles([]);
       if (fileRef.current) fileRef.current.value = "";
       setSelectedId(newTicket._id);
       setPanel("detail");
@@ -186,6 +188,8 @@ export default function PortalRequestsPage() {
             setForm={setForm}
             projects={projects}
             fileRef={fileRef}
+            files={files}
+            setFiles={setFiles}
             saving={saving}
             error={error}
             onSubmit={handleSubmit}
@@ -208,6 +212,8 @@ function NewRequestPanel({
   setForm,
   projects,
   fileRef,
+  files,
+  setFiles,
   saving,
   error,
   onSubmit,
@@ -217,6 +223,8 @@ function NewRequestPanel({
   setForm: React.Dispatch<React.SetStateAction<{ title: string; description: string; projectId: string; priority: string }>>;
   projects: PortalProject[];
   fileRef: React.RefObject<HTMLInputElement | null>;
+  files: File[];
+  setFiles: React.Dispatch<React.SetStateAction<File[]>>;
   saving: boolean;
   error: string;
   onSubmit: (e: React.FormEvent) => void;
@@ -287,14 +295,32 @@ function NewRequestPanel({
             />
           </div>
           <div>
-            <label className="text-xs text-white/50 mb-1.5 block">Upload assets</label>
+            <label className="text-xs text-white/50 mb-1.5 block" htmlFor="request-attachments">Attachments</label>
             <input
               ref={fileRef}
+              id="request-attachments"
+              disabled={saving}
+              onChange={(event) => {
+                const selected = Array.from(event.target.files ?? []);
+                setFiles((current) => [...current, ...selected]);
+                event.target.value = "";
+              }}
               type="file"
               multiple
               className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-sky-500 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-black"
             />
-            <p className="text-xs text-white/30 mt-2">Files are stored in your dedicated Google Drive portal folder.</p>
+            <p className="text-xs text-white/30 mt-2">Select multiple files at once or add more in separate batches. Images, documents, and other assets are welcome.</p>
+            {files.length > 0 && (
+              <ul className="mt-3 space-y-2" aria-label="Selected attachments">
+                {files.map((file, index) => (
+                  <li key={index} className="flex items-center gap-3 rounded-lg border border-white/10 px-3 py-2 text-sm">
+                    <span className="min-w-0 flex-1 truncate text-white/80" title={file.name}>{file.name}</span>
+                    <span className="shrink-0 text-xs text-white/40">{(file.size / (1024 * 1024)).toFixed(1)} MB</span>
+                    <button type="button" disabled={saving} aria-label={`Remove ${file.name}`} onClick={() => setFiles((current) => current.filter((_, i) => i !== index))} className="text-xs text-sky-300 disabled:opacity-40">Remove</button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl p-3">{error}</div>

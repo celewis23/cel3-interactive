@@ -1,3 +1,4 @@
+import { attachmentContentType } from '@/lib/messaging/attachments';
 import { withActivity } from "@/lib/audit/withActivity";
 export const runtime = "nodejs";
 
@@ -24,7 +25,7 @@ async function handleActivityPOST(
       const files = formData.getAll("files").filter((item): item is File => item instanceof File);
       attachments = await Promise.all(files.map(async (file) => ({
         fileName: file.name,
-        contentType: file.type || "application/octet-stream",
+        contentType: attachmentContentType(file.name, file.type),
         size: file.size,
         data: Buffer.from(await file.arrayBuffer()),
       })));

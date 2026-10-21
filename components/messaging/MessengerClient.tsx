@@ -1,5 +1,6 @@
 "use client";
 
+import { attachmentContentType, attachmentError, MESSAGE_ATTACHMENT_ACCEPT, MAX_ATTACHMENTS_PER_MESSAGE } from '@/lib/messaging/attachments';
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
@@ -60,17 +61,17 @@ type PortalUser = {
 };
 
 const POLL_MS = 15_000;
-const MAX_IMAGES_PER_MESSAGE = 8;
+
 const MESSAGE_URL_PATTERN = /\b((?:https?:\/\/|www\.)[^\s<>"']+)/gi;
 const TRAILING_URL_PUNCTUATION_PATTERN = /[.,!?;:)\]}]+$/;
 
-type SelectedImage = {
+type SelectedAttachment = {
   id: string;
   file: File;
   previewUrl: string;
 };
 
-type AttachmentUpdate = React.Dispatch<React.SetStateAction<SelectedImage[]>>;
+type AttachmentUpdate = React.Dispatch<React.SetStateAction<SelectedAttachment[]>>;
 
 async function readApiJson<T>(res: Response, fallbackMessage: string): Promise<T> {
   const text = await res.text();
@@ -184,8 +185,16 @@ function attachmentImageSrc(attachment: MessageAttachment) {
   return attachmentFileSrc(attachment) || attachment.thumbnailLink || attachment.webContentLink || attachment.fileUrl;
 }
 
-function revokeImagePreviews(images: SelectedImage[]) {
+function revokeAttachmentPreviews(images: SelectedAttachment[]) {
   images.forEach((image) => URL.revokeObjectURL(image.previewUrl));
+}
+
+function SelectedAttachmentPreview({ attachment }: { attachment: SelectedAttachment }) {
+  if (attachment.file.type.startsWith('image/')) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={attachment.previewUrl} alt={attachment.file.name} className="h-full w-full object-cover" />;
+  }
+  return <span title={attachment.file.name} className="flex h-full items-center break-all px-2 pb-5 pt-4 text-[10px] text-white/80">{attachment.file.name}</span>;
 }
 
 function senderInitial(name: string, email?: string | null) {
@@ -269,10 +278,10 @@ export default function MessengerClient({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [compose, setCompose] = useState("");
-  const [attachments, setAttachments] = useState<SelectedImage[]>([]);
+  const [attachments, setAttachments] = useState<SelectedAttachment[]>([]);
   const [newTitle, setNewTitle] = useState("");
   const [newBody, setNewBody] = useState("");
-  const [newAttachments, setNewAttachments] = useState<SelectedImage[]>([]);
+  const [newAttachments, setNewAttachments] = useState<SelectedAttachment[]>([]);
   const [portalUsers, setPortalUsers] = useState<PortalUser[]>([]);
   const [selectedPortalUserId, setSelectedPortalUserId] = useState("");
   const [portalUserSearch, setPortalUserSearch] = useState("");
@@ -289,8 +298,8 @@ export default function MessengerClient({
   const shouldStickToBottomRef = useRef(true);
   const lastScrollConversationIdRef = useRef("");
   const lastMessageIdRef = useRef("");
-  const attachmentsRef = useRef<SelectedImage[]>([]);
-  const newAttachmentsRef = useRef<SelectedImage[]>([]);
+  const attachmentsRef = useRef<SelectedAttachment[]>([]);
+  const newAttachmentsRef = useRef<SelectedAttachment[]>([]);
 
   const selected = useMemo(
     () => conversations.find((item) => item._id === selectedId) ?? null,
@@ -438,8 +447,8 @@ export default function MessengerClient({
     return () => {
       if (timestampTimerRef.current) window.clearTimeout(timestampTimerRef.current);
       if (scrollFrameRef.current) window.cancelAnimationFrame(scrollFrameRef.current);
-      revokeImagePreviews(attachmentsRef.current);
-      revokeImagePreviews(newAttachmentsRef.current);
+      revokeAttachmentPreviews(attachmentsRef.current);
+      revokeAttachmentPreviews(newAttachmentsRef.current);
     };
   }, []);
 
@@ -464,34 +473,37 @@ export default function MessengerClient({
     else router.push("/portal/messages");
   }
 
-  function addImageFiles(files: File[], update: AttachmentUpdate) {
+  function addAttachmentFiles(files: File[], update: AttachmentUpdate) {
     if (files.length === 0) return;
-    const selectedImages = files.filter((file) => file.type.startsWith("image/"));
-    if (selectedImages.length !== files.length) {
-      setError("Only image files can be sent in chat messages");
+    const selectedFiles = files;
+    const currentFiles = update === setNewAttachments ? newAttachments : attachments;
+    if (currentFiles.length + files.length > MAX_ATTACHMENTS_PER_MESSAGE) {
+      setError(`Attach ${MAX_ATTACHMENTS_PER_MESSAGE} files or fewer per message`);
+      return;
     }
-    const tooManyImages = selectedImages.length > 0 && selectedImages.length > MAX_IMAGES_PER_MESSAGE;
-    if (tooManyImages) {
-      setError(`Attach ${MAX_IMAGES_PER_MESSAGE} images or fewer per message`);
+    for (const file of files) {
+      const error = attachmentError({ fileName: file.name, contentType: attachmentContentType(file.name, file.type), size: file.size });
+      if (error) { setError(error); return; }
     }
+    setError('');
     update((current) => {
-      const available = Math.max(0, MAX_IMAGES_PER_MESSAGE - current.length);
-      const nextImages = selectedImages.slice(0, available).map((file, index) => ({
+      const available = Math.max(0, MAX_ATTACHMENTS_PER_MESSAGE - current.length);
+      const nextFiles = selectedFiles.slice(0, available).map((file, index) => ({
         id: `${Date.now()}-${index}-${file.name}`,
         file,
         previewUrl: URL.createObjectURL(file),
       }));
-      return [...current, ...nextImages];
+      return [...current, ...nextFiles];
     });
   }
 
-  function addImageAttachments(
+  function addAttachments(
     files: FileList | null,
     update: AttachmentUpdate,
     inputRef: React.RefObject<HTMLInputElement | null>
   ) {
     if (!files) return;
-    addImageFiles(Array.from(files), update);
+    addAttachmentFiles(Array.from(files), update);
     if (inputRef.current) inputRef.current.value = "";
   }
 
@@ -510,16 +522,16 @@ export default function MessengerClient({
 
     event.preventDefault();
     setError("");
-    addImageFiles(pastedImages.map((file, index) => {
+    addAttachmentFiles(pastedImages.map((file, index) => {
       if (file.name) return file;
       const extension = file.type.split("/")[1]?.split("+")[0] || "png";
       return new File([file], `pasted-image-${Date.now()}-${index}.${extension}`, { type: file.type || "image/png" });
     }), update);
   }
 
-  function removeImageAttachment(
+  function removeAttachment(
     index: number,
-    update: React.Dispatch<React.SetStateAction<SelectedImage[]>>
+    update: React.Dispatch<React.SetStateAction<SelectedAttachment[]>>
   ) {
     update((current) => {
       const removed = current[index];
@@ -540,7 +552,7 @@ export default function MessengerClient({
   async function sendMessage() {
     const body = compose.trim();
     if (!selectedId || (!body && attachments.length === 0)) return;
-    const selectedImages = attachments;
+    const selectedFiles = attachments;
     setSending(true);
     setError("");
     const optimistic: Message = {
@@ -554,7 +566,7 @@ export default function MessengerClient({
       body,
       createdAt: new Date().toISOString(),
       deletedAt: null,
-      attachments: selectedImages.map((image, index) => ({
+      attachments: selectedFiles.map((image, index) => ({
         _key: `pending-file-${index}`,
         driveFileId: "",
         fileName: image.file.name,
@@ -562,7 +574,7 @@ export default function MessengerClient({
         webViewLink: null,
         webContentLink: null,
         thumbnailLink: image.previewUrl,
-        contentType: image.file.type || "image/*",
+        contentType: attachmentContentType(image.file.name, image.file.type),
         size: image.file.size,
         localUrl: image.previewUrl,
       })),
@@ -572,12 +584,12 @@ export default function MessengerClient({
     setCompose("");
     setAttachments([]);
     try {
-      const hasFiles = selectedImages.length > 0;
+      const hasFiles = selectedFiles.length > 0;
       const init: RequestInit = { method: "POST" };
       if (hasFiles) {
         const formData = new FormData();
         formData.set("body", body);
-        selectedImages.forEach((image) => formData.append("files", image.file));
+        selectedFiles.forEach((image) => formData.append("files", image.file));
         init.body = formData;
       } else {
         init.headers = { "Content-Type": "application/json" };
@@ -587,12 +599,12 @@ export default function MessengerClient({
       const res = await fetch(`/api/messages/conversations/${selectedId}/messages`, init);
       const data = await readApiJson<{ message: Message }>(res, "Failed to send message");
       setMessages((prev) => prev.map((item) => item._id === optimistic._id ? data.message : item));
-      revokeImagePreviews(selectedImages);
+      revokeAttachmentPreviews(selectedFiles);
       void loadConversations(true);
     } catch (err) {
       setMessages((prev) => prev.filter((item) => item._id !== optimistic._id));
       setCompose(body);
-      setAttachments(selectedImages);
+      setAttachments(selectedFiles);
       setError(err instanceof Error ? err.message : "Failed to send message");
     } finally {
       setSending(false);
@@ -607,18 +619,18 @@ export default function MessengerClient({
       setError("Choose a portal user before starting a conversation");
       return;
     }
-    const selectedImages = newAttachments;
+    const selectedFiles = newAttachments;
     setStarting(true);
     setError("");
     try {
-      const hasFiles = selectedImages.length > 0;
+      const hasFiles = selectedFiles.length > 0;
       const init: RequestInit = { method: "POST" };
       if (hasFiles) {
         const formData = new FormData();
         formData.set("title", newTitle.trim());
         formData.set("body", body);
         if (mode === "admin") formData.set("portalUserId", selectedPortalUserId);
-        selectedImages.forEach((image) => formData.append("files", image.file));
+        selectedFiles.forEach((image) => formData.append("files", image.file));
         init.body = formData;
       } else {
         init.headers = { "Content-Type": "application/json" };
@@ -634,7 +646,7 @@ export default function MessengerClient({
       setNewTitle("");
       setNewBody("");
       setNewAttachments([]);
-      revokeImagePreviews(selectedImages);
+      revokeAttachmentPreviews(selectedFiles);
       setShowNewConversation(false);
       if (mode === "admin") {
         setSelectedPortalUserId(portalUsers[0]?._id || "");
@@ -828,7 +840,7 @@ export default function MessengerClient({
                               <div className={`${message.body ? "mt-3" : ""} grid gap-2`}>
                                 {message.attachments.map((attachment) => {
                                   const imageSrc = isImageAttachment(attachment) ? attachmentImageSrc(attachment) : null;
-                                  const href = attachment.webViewLink || attachment.fileUrl || attachment.webContentLink || imageSrc || "#";
+                                  const href = attachmentFileSrc(attachment) || attachment.webViewLink || attachment.fileUrl || attachment.webContentLink || imageSrc || "#";
                                   if (imageSrc) {
                                     return (
                                       <a
@@ -877,11 +889,10 @@ export default function MessengerClient({
                   <div className="mb-3 flex max-w-full gap-2 overflow-x-auto pb-1">
                     {attachments.map((image, index) => (
                       <span key={image.id} className="relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/5">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={image.previewUrl} alt={image.file.name} className="h-full w-full object-cover" />
+                        <SelectedAttachmentPreview attachment={image} />
                         <button
                           type="button"
-                          onClick={() => removeImageAttachment(index, setAttachments)}
+                          onClick={() => removeAttachment(index, setAttachments)}
                           className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-sm text-white/80 transition hover:text-white"
                           aria-label={`Remove ${image.file.name}`}
                         >
@@ -894,20 +905,21 @@ export default function MessengerClient({
                     ))}
                   </div>
                 )}
+                <p className="mb-2 text-xs text-white/40">Attach images, PDFs, documents, spreadsheets, or other supported files. Up to 8 files, 50 MB each.</p>
                 <div className="flex min-w-0 items-end gap-2 sm:gap-3">
                   <input
                     ref={fileInputRef}
                     type="file"
                     multiple
-                    accept="image/*"
+                    accept={MESSAGE_ATTACHMENT_ACCEPT}
                     className="hidden"
-                    onChange={(event) => addImageAttachments(event.target.files, setAttachments, fileInputRef)}
+                    onChange={(event) => addAttachments(event.target.files, setAttachments, fileInputRef)}
                   />
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/55 transition hover:border-sky-500/40 hover:text-white"
-                    aria-label="Attach images"
+                    aria-label="Attach files"
                   >
                     <svg width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="m21.44 11.05-8.49 8.49a6 6 0 0 1-8.49-8.49l8.49-8.49a4 4 0 1 1 5.66 5.66l-8.49 8.49a2 2 0 1 1-2.83-2.83l7.78-7.78" />
@@ -1050,11 +1062,10 @@ export default function MessengerClient({
                 <div className="flex max-w-full gap-2 overflow-x-auto pb-1">
                   {newAttachments.map((image, index) => (
                     <span key={image.id} className="relative block h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/5">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={image.previewUrl} alt={image.file.name} className="h-full w-full object-cover" />
+                      <SelectedAttachmentPreview attachment={image} />
                       <button
                         type="button"
-                        onClick={() => removeImageAttachment(index, setNewAttachments)}
+                        onClick={() => removeAttachment(index, setNewAttachments)}
                         className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-sm text-white/80 transition hover:text-white"
                         aria-label={`Remove ${image.file.name}`}
                       >
@@ -1072,9 +1083,9 @@ export default function MessengerClient({
                   ref={newFileInputRef}
                   type="file"
                   multiple
-                  accept="image/*"
+                  accept={MESSAGE_ATTACHMENT_ACCEPT}
                   className="hidden"
-                  onChange={(event) => addImageAttachments(event.target.files, setNewAttachments, newFileInputRef)}
+                  onChange={(event) => addAttachments(event.target.files, setNewAttachments, newFileInputRef)}
                 />
                 <button
                   type="button"
@@ -1084,9 +1095,9 @@ export default function MessengerClient({
                   <svg width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5 8.25 11l4 4L15 12l6 6M5 20h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Zm4-11.5h.01" />
                   </svg>
-                  Photos
+                  Attach files
                 </button>
-                <span className="text-xs text-white/30">{newAttachments.length}/{MAX_IMAGES_PER_MESSAGE}</span>
+                <span className="text-xs text-white/30">{newAttachments.length}/{MAX_ATTACHMENTS_PER_MESSAGE} files · 50 MB each</span>
               </div>
               <div className="flex flex-wrap items-center justify-end gap-2">
                 <button

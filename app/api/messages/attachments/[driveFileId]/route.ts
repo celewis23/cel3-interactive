@@ -23,7 +23,8 @@ export async function GET(
     return new NextResponse(body, {
       headers: {
         "Content-Type": result.mimeType,
-        "Content-Disposition": `inline; filename="${result.name.replace(/"/g, "'")}"`,
+        "Content-Disposition": `${result.mimeType.startsWith("image/") ? "inline" : "attachment"}; filename*=UTF-8''${encodeURIComponent(result.name)}`,
+        "X-Content-Type-Options": "nosniff",
         "Cache-Control": "private, max-age=300",
       },
     });

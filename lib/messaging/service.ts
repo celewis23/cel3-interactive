@@ -1,3 +1,4 @@
+import { attachmentError, MAX_ATTACHMENTS_PER_MESSAGE } from '@/lib/messaging/attachments';
 import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
 import { sql } from "@/lib/postgres";
@@ -8,24 +9,6 @@ import { logAudit } from "@/lib/audit/log";
 import { createFolder, downloadFileContent, listFiles, uploadFile } from "@/lib/google/drive";
 
 const MAX_MESSAGE_LENGTH = 5000;
-const MAX_ATTACHMENT_BYTES = 50 * 1024 * 1024;
-const MAX_ATTACHMENTS_PER_MESSAGE = 8;
-
-const ALLOWED_ATTACHMENT_TYPES = new Set([
-  "image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml", "image/avif",
-  "audio/mpeg", "audio/mp3", "audio/wav", "audio/x-wav", "audio/mp4", "audio/aac", "audio/ogg", "audio/webm", "audio/x-m4a",
-  "video/mp4", "video/webm", "video/quicktime",
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.ms-excel",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "application/vnd.ms-powerpoint",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-  "application/zip", "application/x-zip-compressed",
-  "text/plain", "text/csv",
-]);
-
 export type ConversationSummary = {
   _id: string;
   title: string | null;
@@ -229,11 +212,8 @@ function validateAttachments(attachments: MessageAttachmentInput[]) {
   }
 
   for (const attachment of attachments) {
-    if (!attachment.fileName || attachment.size <= 0) return { ok: false as const, error: "Attached files cannot be empty" };
-    if (attachment.size > MAX_ATTACHMENT_BYTES) return { ok: false as const, error: `${attachment.fileName} is too large. Max file size is 50 MB` };
-    if (!ALLOWED_ATTACHMENT_TYPES.has(attachment.contentType)) {
-      return { ok: false as const, error: `File type not allowed: ${attachment.contentType || "unknown"}` };
-    }
+    const error = attachmentError(attachment);
+    if (error) return { ok: false as const, error };
   }
 
   return { ok: true as const };
