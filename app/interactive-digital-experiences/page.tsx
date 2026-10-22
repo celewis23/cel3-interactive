@@ -1,13 +1,10 @@
-import type { Metadata } from "next";
+import { PageStructuredData } from "@/components/seo/StructuredData";
+import { publicPageMetadata } from "@/lib/seo/site";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
 import PillarLinks from "@/components/sections/PillarLinks";
 
-export const metadata: Metadata = {
-  title: "Business Websites & Digital Experiences | CEL3 Interactive",
-  description:
-    "Business websites and digital experiences that explain services clearly, support customer action, and are built to be maintained.",
-};
+export const metadata = publicPageMetadata("/interactive-digital-experiences");
 
 const WHAT_THIS_IS = [
   {
@@ -59,6 +56,7 @@ const FAQ = [
 export default function Page() {
   return (
     <main className="bg-black min-h-screen pt-24 md:pt-28">
+      <PageStructuredData path="/interactive-digital-experiences" />
       <Container>
         <div className="mx-auto max-w-6xl px-4">
           {/* Top bar */}

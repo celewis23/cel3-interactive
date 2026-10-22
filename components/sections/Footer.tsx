@@ -22,14 +22,14 @@ export default function Footer() {
               </p>
 
               <div className="mt-5 flex items-center gap-3 text-sm">
-                <Link
+                <Link prefetch={false}
                   href="/assessment"
                   className="rounded-full border border-white/20 bg-white/5 px-4 py-2 text-white/85 hover:bg-[rgb(var(--accent))] transition-colors"
                 >
                   Start With an Assessment
                 </Link>
 
-                <Link
+                <Link prefetch={false}
                   href="/work"
                   className="text-white/70 hover:text-[rgb(var(--accent))] transition-colors"
                 >
@@ -45,7 +45,7 @@ export default function Footer() {
               </div>
 
               {NAV_LINKS.map((l) => (
-                <Link
+                <Link prefetch={false}
                   key={l.href}
                   href={l.href}
                   className="text-sm text-white/70 hover:text-[rgb(var(--accent))] transition-colors"
@@ -62,7 +62,7 @@ export default function Footer() {
                 <ul className="space-y-2">
                   {PILLAR_LINKS.map((p) => (
                     <li key={p.href}>
-                      <Link
+                      <Link prefetch={false}
                         href={p.href}
                         className="text-sm text-white/70 hover:text-[rgb(var(--accent))] transition-colors"
                       >

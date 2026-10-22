@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 
 const FitSection = dynamic(() => import("./FitSection"), {
-  ssr: false,
+  ssr: true,
 });
 
 export default function FitSectionClient() {

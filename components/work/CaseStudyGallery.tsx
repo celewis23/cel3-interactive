@@ -1,5 +1,6 @@
 "use client";
 
+import MarketingImage from "@/components/seo/MarketingImage";
 import {
   createContext,
   type ReactNode,
@@ -65,10 +66,12 @@ export function CaseStudyGalleryPreview() {
   return (
     <div className="mt-8 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
       <div className="bg-black/40">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <MarketingImage
           src={selectedImage}
           alt={`${title} preview`}
+          width={1000}
+          height={625}
+          sizes="(min-width: 1024px) 620px, 92vw"
           className="aspect-[16/10] h-full w-full object-cover"
         />
       </div>
@@ -105,8 +108,7 @@ export function CaseStudyGalleryThumbnails() {
             aria-label={`Show ${title} gallery image ${i + 1}`}
             aria-pressed={isActive}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={url} alt={`${title} ${i + 1}`} className="aspect-[4/3] h-full w-full object-cover" />
+                <MarketingImage src={url} alt={`${title} ${i + 1}`} width={400} height={300} sizes="(min-width: 1024px) 220px, 45vw" loading="lazy" className="aspect-[4/3] h-full w-full object-cover" />
           </button>
         );
       })}

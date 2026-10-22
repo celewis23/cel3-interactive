@@ -1,13 +1,10 @@
-import type { Metadata } from "next";
+import { PageStructuredData } from "@/components/seo/StructuredData";
+import { publicPageMetadata } from "@/lib/seo/site";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
 import PillarLinks from "@/components/sections/PillarLinks";
 
-export const metadata: Metadata = {
-  title: "Custom Web Applications & Business Platforms | CEL3 Interactive",
-  description:
-    "Custom portals, dashboards, ecommerce systems, booking flows, internal tools, and workflow platforms for companies that off-the-shelf software does not fit.",
-};
+export const metadata = publicPageMetadata("/custom-web-applications");
 
 const WHAT_WE_BUILD = [
   {
@@ -67,6 +64,7 @@ const PRINCIPLES = [
 export default function CustomWebApplicationsPage() {
   return (
     <main className="bg-black min-h-screen pt-24 md:pt-28">
+      <PageStructuredData path="/custom-web-applications" />
       <Container>
         <div className="mx-auto max-w-6xl px-4 pb-20">
           <section className="max-w-3xl">

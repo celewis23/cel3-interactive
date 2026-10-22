@@ -1,3 +1,6 @@
+import MarketingImage from "@/components/seo/MarketingImage";
+import { CaseStudyStructuredData } from "@/components/seo/StructuredData";
+import { pageMetadata } from "@/lib/seo/site";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { sanityServer } from "@/lib/sanityServer";
@@ -66,10 +69,7 @@ export async function generateMetadata({ params }: PageProps) {
   const work = mergeWithFallback(data, fallback);
   if (!work) return { title: "Case Study" };
 
-  return {
-    title: `${work.title} | Work`,
-    description: work.summary ?? "Case study",
-  };
+  return pageMetadata(`/work/${encodeURIComponent(slug)}`, `${work.title} Case Study`, work.summary ?? `${work.title}: a CEL3 Interactive project case study.`);
 }
 
 export default async function WorkDetailPage({ params }: PageProps) {
@@ -91,9 +91,10 @@ export default async function WorkDetailPage({ params }: PageProps) {
 
   return (
     <main className="min-h-screen bg-black text-white">
+      <CaseStudyStructuredData work={work} image={heroUrl} />
       <CaseStudyGalleryProvider title={work.title} galleryImages={galleryItems}>
         <div className="mx-auto max-w-6xl px-4 pt-24 pb-16">
-          <Link href="/work" className="text-sm text-white/60 hover:text-white transition-colors">
+          <Link prefetch={false} href="/work" className="text-sm text-white/60 hover:text-white transition-colors">
             ← Back to Work
           </Link>
 
@@ -140,8 +141,7 @@ export default async function WorkDetailPage({ params }: PageProps) {
               <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
                 <div className="aspect-[16/10] bg-black/40">
                   {heroUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={heroUrl} alt={work.title} className="h-full w-full object-cover" />
+                              <MarketingImage src={heroUrl} alt={work.title} width={1200} height={750} sizes="(min-width: 1024px) 460px, 92vw" loading="eager" fetchPriority="high" className="h-full w-full object-cover" />
                   ) : (
                     <div className="h-full w-full" />
                   )}
