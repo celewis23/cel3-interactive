@@ -111,7 +111,7 @@ export default function AdminProfileSettings() {
     <div className="rounded-2xl border border-white/8 bg-white/3 p-5">
       <div className="mb-4">
         <h2 className="text-sm font-semibold text-white">Admin profile</h2>
-        <p className="mt-1 text-sm text-white/45">Add a profile picture for admin messaging and workspace identity.</p>
+        <p className="mt-1 text-sm text-white/45">Update your display name and profile picture across the backoffice.</p>
       </div>
 
       {loading ? (
@@ -145,8 +145,10 @@ export default function AdminProfileSettings() {
 
           <form onSubmit={handleNameSubmit} className="grid gap-3 sm:grid-cols-[1fr_auto]">
             <div>
-              <label className="mb-1.5 block text-xs text-white/50">Display name</label>
+              <label htmlFor="profile-display-name" className="mb-1.5 block text-xs text-white/50">Display name</label>
               <input
+                id="profile-display-name"
+                autoComplete="name"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 maxLength={80}

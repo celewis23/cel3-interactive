@@ -1263,7 +1263,7 @@ export default function InboxClient({ email, connectedNotice }: Props) {
   const [loadingThread, setLoadingThread] = useState(false);
 
   // Layout state
-  const [navExpanded, setNavExpanded] = useState(true);
+  const [navExpanded, setNavExpanded] = useState(false);
   const [mobileView, setMobileView] = useState<MobileView>("list");
 
   // Settings dropdown

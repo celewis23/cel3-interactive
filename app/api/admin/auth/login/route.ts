@@ -1,13 +1,13 @@
 import { withActivity } from "@/lib/audit/withActivity";
 import { NextRequest, NextResponse } from "next/server";
 import {
-  validateCredentials,
   createSessionToken,
   createStaffSessionToken,
   COOKIE_NAME,
 } from "@/lib/admin/auth";
 import { sanityServer } from "@/lib/sanityServer";
 import { verifyPassword } from "@/lib/admin/staffPassword";
+import { verifyOwnerPassword } from "@/lib/admin/ownerPassword";
 import { logAudit, AuditAction } from "@/lib/audit/log";
 
 export const runtime = "nodejs";
@@ -22,9 +22,12 @@ const COOKIE_OPTS = {
 
 async function handleActivityPOST(req: NextRequest) {
   const { username, password } = await req.json();
+  if (typeof username !== "string" || typeof password !== "string" || !username || !password || password.length > 1024) {
+    return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+  }
 
-  // ── 1. Try owner credentials (username/password from env) ─────────────────
-  if (validateCredentials(username, password)) {
+  // Owner passwords changed in the backoffice take precedence over configuration.
+  if (await verifyOwnerPassword(username, password)) {
     const token = createSessionToken("partial");
     const res = NextResponse.json({ ok: true, staffLogin: false });
     res.cookies.set(COOKIE_NAME, token, COOKIE_OPTS);

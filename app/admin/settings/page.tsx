@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AdminProfileSettings from "@/components/admin/AdminProfileSettings";
+import AdminPasswordSettings from "@/components/admin/AdminPasswordSettings";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -13,6 +14,7 @@ export default function AdminSettingsPage() {
       </div>
 
       <AdminProfileSettings />
+      <AdminPasswordSettings />
 
       <div className="grid gap-4 md:grid-cols-2">
         <Link

@@ -830,13 +830,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className={`px-3 py-4 ${theme === "light" ? "border-t border-black/8" : "border-t border-white/8"}`}>
           {/* Current user identity */}
           {currentUser && (
-            <div className="mb-2 flex items-center gap-2 px-3 py-2">
+            <Link href="/admin/profile" title="Manage your profile and password" className="mb-2 flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-sky-500/10">
               {profileAvatar("h-8 w-8", "text-xs")}
               <div className="min-w-0">
                 <div className={`text-xs font-medium truncate ${theme === "light" ? "text-black/75" : "text-white/70"}`}>{currentUser.name}</div>
                 <div className={`text-[10px] mt-0.5 truncate ${theme === "light" ? "text-black/40" : "text-white/30"}`}>{currentUser.email}</div>
               </div>
-            </div>
+            </Link>
           )}
           <button
             onClick={handleLogout}
@@ -937,13 +937,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* User + actions footer */}
         <div className={`flex-shrink-0 px-4 py-3 pb-8 ${theme === "light" ? "border-t border-black/8" : "border-t border-white/8"}`}>
           {currentUser && (
-            <div className="mb-1 flex items-center gap-3 px-4 py-2">
+            <Link href="/admin/profile" onClick={closeMoreMenu} title="Manage your profile and password" className="mb-1 flex items-center gap-3 rounded-xl px-4 py-2 hover:bg-sky-500/10">
               {profileAvatar("h-10 w-10", "text-sm")}
               <div className="min-w-0">
                 <div className={`text-sm font-medium truncate ${theme === "light" ? "text-[#111111]" : "text-white"}`}>{currentUser.name}</div>
                 <div className={`text-xs mt-0.5 truncate ${theme === "light" ? "text-black/40" : "text-white/40"}`}>{currentUser.email}</div>
               </div>
-            </div>
+            </Link>
           )}
           <button
             onClick={() => { closeMoreMenu(); handleLogout(); }}
@@ -1035,6 +1035,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </div>
 
                   <div className="py-2">
+                    <Link href="/admin/profile" className={accountRowClass}>
+                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0ZM4.5 20.25a7.5 7.5 0 0115 0" />
+                      </svg>
+                      <span>My profile &amp; password</span>
+                    </Link>
                     <Link href="/admin/settings" className={accountRowClass}>
                       <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12a7.5 7.5 0 1115 0 7.5 7.5 0 01-15 0Zm7.5-3v3l2.25 2.25" />
