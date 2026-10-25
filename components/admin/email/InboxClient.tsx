@@ -29,7 +29,7 @@ import {
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), { ssr: false });
 
 type Label = "INBOX" | "STARRED" | "SNOOZED" | "SENT" | "DRAFTS" | "SPAM" | "TRASH";
-type MobileView = "list" | "thread" | "compose";
+type MobileView = "list" | "thread";
 type ComposeMode = "compact" | "full";
 
 interface FolderDef { key: Label; label: string }
@@ -831,6 +831,8 @@ interface ComposePanelProps {
   onSwitchMode: (m: ComposeMode) => void;
   onClose: () => void;
   onSent: () => void;
+  minimized: boolean;
+  onMinimize: () => void;
   // Lifted state
   toEmails: string[]; setToEmails: (v: string[]) => void;
   ccEmails: string[]; setCcEmails: (v: string[]) => void;
@@ -843,7 +845,7 @@ interface ComposePanelProps {
 }
 
 function ComposePanel({
-  fromEmail, mode, onSwitchMode, onClose, onSent,
+  fromEmail, mode, onSwitchMode, onClose, onSent, minimized, onMinimize,
   toEmails, setToEmails,
   ccEmails, setCcEmails,
   bccEmails, setBccEmails,
@@ -883,7 +885,7 @@ function ComposePanel({
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
-    if (toEmails.length === 0 || !subject.trim() || (imagesLoading || (!hasMessageContent(html) && !attachedFiles.length && !driveLinks.length))) return;
+    if (sending || toEmails.length === 0 || !subject.trim() || (imagesLoading || (!hasMessageContent(html) && !attachedFiles.length && !driveLinks.length))) return;
     setSending(true); setError("");
     try {
       let finalHtml = html;
@@ -920,7 +922,7 @@ function ComposePanel({
     <button
       onClick={() => onSwitchMode(mode === "compact" ? "full" : "compact")}
       className="hidden lg:flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/4 px-2.5 py-1.5 text-xs text-white/50 hover:text-white hover:border-white/20 hover:bg-white/8 transition-colors"
-      title={mode === "compact" ? "Expand composer — hides email list" : "Compact — show email list alongside"}
+      title={mode === "compact" ? "Expand composer" : "Restore composer"}
     >
       {mode === "compact" ? (
         <>
@@ -934,38 +936,20 @@ function ComposePanel({
           <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 9L3.75 3.75M9 9H4.5m4.5 0V4.5m6 4.5l5.25-5.25M15 9h4.5M15 9V4.5m-10.5 15l5.25-5.25M4.5 19.5H9m0 0v-4.5m6 0l5.25 5.25M15 19.5h4.5m0 0v-4.5" />
           </svg>
-          Show list
+          Restore
         </>
       )}
     </button>
   );
 
-  // Shared header
   const header = (
-    <div className="flex items-center gap-2 px-4 h-11 border-b border-white/8 shrink-0">
-      <button
-        onClick={onClose}
-        className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition-colors"
-      >
-        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-        </svg>
+    <div className="flex items-center gap-2 px-4 h-12 border-b border-white/10 bg-[#172234] shrink-0">
+      <button type="button" onClick={onMinimize} className="flex-1 min-w-0 text-left" title={minimized ? "Restore message" : "Minimize message"}>
+        <span className="block truncate text-sm font-semibold text-white">{subject || "New message"}</span>
       </button>
-      <div className="flex-1 min-w-0">
-        <span className="text-sm font-semibold text-white">New Email</span>
-        {fromEmail && (
-          <span className="text-xs text-white/30 ml-2 hidden sm:inline">Sending as {fromEmail}</span>
-        )}
-      </div>
+      <button type="button" onClick={onMinimize} aria-label={minimized ? "Restore composer" : "Minimize composer"} className="w-8 h-8 rounded-lg text-white/60 hover:bg-white/10 hover:text-white">{minimized ? "□" : "−"}</button>
       {modeToggle}
-      <button
-        onClick={onClose}
-        className="hidden lg:flex w-8 h-8 items-center justify-center rounded-lg text-white/35 hover:text-white hover:bg-white/5 transition-colors"
-      >
-        <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+      <button type="button" onClick={done ? onSent : onClose} disabled={sending} aria-label="Close composer" title="Discard message" className="w-8 h-8 rounded-lg text-white/60 hover:bg-white/10 hover:text-white disabled:opacity-30">×</button>
     </div>
   );
 
@@ -973,7 +957,7 @@ function ComposePanel({
     return (
       <div className="flex flex-col h-full">
         {header}
-        <div className="flex flex-col items-center justify-center flex-1 text-center px-6">
+        <div className={`${minimized ? "hidden" : "flex"} flex-col items-center justify-center flex-1 text-center px-6`}>
           <div className="w-12 h-12 rounded-full bg-sky-500/12 flex items-center justify-center mb-4">
             <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" className="text-sky-300">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -1020,7 +1004,13 @@ function ComposePanel({
   return (
     <div className="flex flex-col h-full">
       {header}
-      <form onSubmit={handleSend} className="flex flex-col flex-1 min-h-0">
+      <form onSubmit={handleSend} onKeyDown={event => {
+        if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+          event.preventDefault();
+          event.currentTarget.requestSubmit();
+        }
+      }} className={`${minimized ? "hidden" : "flex"} flex-col flex-1 min-h-0`}>
+        <div className="px-4 py-2 text-xs text-white/40 border-b border-white/6 truncate">From {fromEmail}</div>
         <div className="flex-1 overflow-y-auto">
           {/* To */}
           <div className="flex items-start gap-3 px-4 py-2.5 border-b border-white/6">
@@ -1149,8 +1139,9 @@ function ComposePanel({
             </div>
           )}
 
-          {/* Toolbar — sits right below compose box */}
-          <div className="flex items-center gap-2 px-4 py-3 border-t border-white/8 flex-wrap">
+        </div>
+          {/* Keep sending controls visible while the message scrolls. */}
+          <div className="flex shrink-0 items-center gap-2 px-4 py-3 border-t border-white/8 flex-wrap">
             {/* Attach file */}
             <button
               type="button"
@@ -1192,9 +1183,10 @@ function ComposePanel({
             <button
               type="button"
               onClick={onClose}
+              disabled={sending}
               className="rounded-xl border border-white/10 bg-black px-3 py-1.5 text-sm text-white/60 transition-colors hover:border-white/20 hover:text-white"
             >
-              Cancel
+              Discard
             </button>
             <button
               type="submit"
@@ -1219,7 +1211,6 @@ function ComposePanel({
               )}
             </button>
           </div>
-        </div>
         <input
           ref={fileInputRef}
           type="file"
@@ -1291,6 +1282,7 @@ export default function InboxClient({ email, connectedNotice }: Props) {
 
   // ── Compose state — lifted so it persists across compact ↔ full mode switches ──
   const [composeMode, setComposeMode] = useState<ComposeMode | null>(null);
+  const [composeMinimized, setComposeMinimized] = useState(false);
   const [composeToEmails, setComposeToEmails] = useState<string[]>([]);
   const [composeCcEmails, setComposeCcEmails] = useState<string[]>([]);
   const [composeBccEmails, setComposeBccEmails] = useState<string[]>([]);
@@ -1391,7 +1383,6 @@ export default function InboxClient({ email, connectedNotice }: Props) {
     const existing = threadsRef.current.find((thread) => thread.id === id);
     if (existing && !existing.isRead) markThreadRead(id);
     setSelectedId(id);
-    setComposeMode(null);
     setMobileView("thread");
     setThreadData(null);
     setLoadingThread(true);
@@ -1413,14 +1404,15 @@ export default function InboxClient({ email, connectedNotice }: Props) {
   }
 
   function openCompose() {
+    if (composeMode) { setComposeMinimized(false); return; }
+    setComposeMinimized(false);
     // Reset all fields for a fresh compose
     setComposeToEmails([]); setComposeCcEmails([]); setComposeBccEmails([]);
     setComposeShowCc(false); setComposeShowBcc(false);
     setComposeSubject(""); setComposeAttachedFiles([]);
     setComposeHtml("");
     setComposeMode("compact");
-    setSelectedId(null); setThreadData(null);
-    setMobileView("compose");
+
     // Load signature
     fetch("/api/admin/email/signature")
       .then(r => r.ok ? r.json() : { html: "" })
@@ -1432,19 +1424,20 @@ export default function InboxClient({ email, connectedNotice }: Props) {
 
   function switchComposeMode(m: ComposeMode) {
     // Only changes the mode — all compose content persists
+    setComposeMinimized(false);
     setComposeMode(m);
   }
 
   function closeCompose() {
+    if (!window.confirm("Discard this message? Your message and attachments will be removed.")) return;
     setComposeMode(null);
-    setMobileView("list");
   }
 
   function switchLabel(lbl: Label) {
     if (lbl === label) return;
     setLabel(lbl); setSearch("");
     setSelectedId(null); setThreadData(null);
-    setComposeMode(null); setMobileView("list");
+    setMobileView("list");
   }
 
   function handleNext() {
@@ -1487,17 +1480,10 @@ export default function InboxClient({ email, connectedNotice }: Props) {
     if (nextThread) openThread(nextThread.id);
   }
 
-  // Thread list is hidden on desktop only when compose is in "full" mode
-  const threadListClass = composeMode === "full"
-    ? "hidden"
-    : mobileView !== "list"
-      ? "hidden lg:flex lg:w-80 xl:w-96 lg:shrink-0"
-      : "flex flex-1 lg:flex-none lg:w-80 xl:w-96 lg:shrink-0";
-
-  // Right panel visible when compose is open OR thread is selected OR on desktop always
-  const rightPanelClass = mobileView === "list" && composeMode === null
-    ? "hidden lg:flex"
-    : "flex";
+  const threadListClass = mobileView !== "list"
+    ? "hidden lg:flex lg:w-80 xl:w-96 lg:shrink-0"
+    : "flex flex-1 lg:flex-none lg:w-80 xl:w-96 lg:shrink-0";
+  const rightPanelClass = mobileView === "list" ? "hidden lg:flex" : "flex";
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-[#06080d]">
@@ -1624,7 +1610,7 @@ export default function InboxClient({ email, connectedNotice }: Props) {
           </nav>
         </div>
 
-        {/* Thread list — hidden on desktop when compose is "full" */}
+        {/* Thread list */}
         <div className={`flex-col border-r border-white/8 bg-[#070a0f] min-w-0 ${threadListClass}`}>
           <div className="flex items-center justify-between px-4 h-11 border-b border-white/8 shrink-0">
             <div className="flex items-center gap-2 min-w-0">
@@ -1719,25 +1705,9 @@ export default function InboxClient({ email, connectedNotice }: Props) {
           )}
         </div>
 
-        {/* Right panel — compose or email view */}
+        {/* Message reading panel */}
         <div className={`flex-1 flex flex-col min-w-0 bg-[#06080d] ${rightPanelClass}`}>
-          {composeMode ? (
-            <ComposePanel
-              fromEmail={email}
-              mode={composeMode}
-              onSwitchMode={switchComposeMode}
-              onClose={closeCompose}
-              onSent={closeCompose}
-              toEmails={composeToEmails} setToEmails={setComposeToEmails}
-              ccEmails={composeCcEmails} setCcEmails={setComposeCcEmails}
-              bccEmails={composeBccEmails} setBccEmails={setComposeBccEmails}
-              showCc={composeShowCc} setShowCc={setComposeShowCc}
-              showBcc={composeShowBcc} setShowBcc={setComposeShowBcc}
-              subject={composeSubject} setSubject={setComposeSubject}
-              html={composeHtml} setHtml={setComposeHtml}
-              attachedFiles={composeAttachedFiles} setAttachedFiles={setComposeAttachedFiles}
-            />
-          ) : selectedId ? (
+          {selectedId ? (
             <EmailView
               threadId={selectedId}
               data={threadData}
@@ -1773,6 +1743,34 @@ export default function InboxClient({ email, connectedNotice }: Props) {
           )}
         </div>
       </div>
+      {composeMode && (
+        <section role="dialog" aria-modal="false" aria-label="Compose email"
+          className={`fixed z-[2100] flex flex-col overflow-hidden border border-white/15 bg-[#0c111b] shadow-[0_24px_90px_rgba(0,0,0,0.65)] ${
+            composeMinimized
+              ? "bottom-20 lg:bottom-0 right-3 lg:right-6 w-72 h-12 rounded-t-xl"
+              : composeMode === "full"
+                ? "inset-x-3 top-20 bottom-20 lg:inset-x-[12%] lg:top-24 lg:bottom-6 rounded-2xl"
+                : "inset-x-2 bottom-20 h-[min(640px,calc(100dvh-160px))] rounded-t-2xl lg:left-auto lg:right-6 lg:bottom-0 lg:w-[580px] lg:max-w-[calc(100vw-48px)] lg:h-[min(680px,calc(100dvh-100px))]"
+          }`}>
+            <ComposePanel
+              fromEmail={email}
+              mode={composeMode}
+              onSwitchMode={switchComposeMode}
+              onClose={closeCompose}
+              onSent={() => { setComposeMode(null); fetchThreads(label, currentToken, true); }}
+              minimized={composeMinimized}
+              onMinimize={() => setComposeMinimized(value => !value)}
+              toEmails={composeToEmails} setToEmails={setComposeToEmails}
+              ccEmails={composeCcEmails} setCcEmails={setComposeCcEmails}
+              bccEmails={composeBccEmails} setBccEmails={setComposeBccEmails}
+              showCc={composeShowCc} setShowCc={setComposeShowCc}
+              showBcc={composeShowBcc} setShowBcc={setComposeShowBcc}
+              subject={composeSubject} setSubject={setComposeSubject}
+              html={composeHtml} setHtml={setComposeHtml}
+              attachedFiles={composeAttachedFiles} setAttachedFiles={setComposeAttachedFiles}
+            />
+        </section>
+      )}
     </div>
   );
 }
