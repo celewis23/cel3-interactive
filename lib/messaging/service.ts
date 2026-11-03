@@ -28,7 +28,11 @@ export type ConversationSummary = {
   participantCount: number;
 };
 
+export type MessageReply = { messageId: string; senderName: string; body: string };
+export type MessageReaction = { emoji: string; actorId: string; name: string };
 export type MessageRecord = {
+  replyTo: MessageReply | null;
+  reactions: MessageReaction[];
   _id: string;
   conversationId: string;
   senderActorId: string;
@@ -142,6 +146,7 @@ type ParticipantRow = {
 };
 
 type MessageRow = {
+  metadata: { replyTo?: MessageReply } | null;
   id: string;
   conversation_id: string;
   sender_actor_id: string;
@@ -326,6 +331,8 @@ function mapMessage(row: MessageRow, attachments: MessageAttachment[] = []): Mes
     updatedAt: toIso(row.updated_at),
     deletedAt: toIso(row.deleted_at),
     attachments,
+    replyTo: row.metadata?.replyTo ?? null,
+    reactions: [],
   };
 }
 
@@ -380,10 +387,12 @@ async function fetchMessagesForConversations(conversationIds: string[]) {
     [conversationIds]
   );
   const attachments = await fetchAttachments(rows.map((row) => row.id));
+  const reactions = await sql.query<{ message_id: string; emoji: string; actor_id: string; display_name: string }>(
+    `SELECT r.* FROM messaging_message_reactions r JOIN messaging_messages m ON m.id = r.message_id WHERE m.conversation_id = ANY($1::text[]) ORDER BY r.created_at`, [conversationIds]);
   const byConversation = new Map<string, MessageRecord[]>();
   for (const row of rows) {
     const current = byConversation.get(row.conversation_id) ?? [];
-    current.push(mapMessage(row, attachments.get(row.id) ?? []));
+    current.push({ ...mapMessage(row, attachments.get(row.id) ?? []), reactions: reactions.filter((r) => r.message_id === row.id).map((r) => ({ emoji: r.emoji, actorId: r.actor_id, name: r.display_name })) });
     byConversation.set(row.conversation_id, current);
   }
   return byConversation;
@@ -562,6 +571,7 @@ export async function getConversation(actor: MessagingActor, conversationId: str
       unreadCount: unreadCountFor(actor, conversation!, hydratedMessages),
     },
     messages: hydratedMessages,
+    actorId: actor.actorId,
   };
 }
 
@@ -588,7 +598,8 @@ async function createMessageDocument(
   actor: MessagingActor,
   body: string,
   now = new Date().toISOString(),
-  attachments: MessageAttachment[] = []
+  attachments: MessageAttachment[] = [],
+  replyTo: MessageReply | null = null
 ) {
   const id = randomUUID();
   const messageType = attachments.length > 0 && !body ? "Attachment" : "Text";
@@ -609,7 +620,7 @@ async function createMessageDocument(
       actor.avatarUrl,
       body,
       messageType,
-      null,
+      replyTo ? JSON.stringify({ replyTo }) : null,
       now,
       null,
       null,
@@ -657,6 +668,8 @@ async function createMessageDocument(
     updatedAt: null,
     deletedAt: null,
     attachments,
+    replyTo,
+    reactions: [],
   } satisfies MessageRecord;
 }
 
@@ -960,13 +973,21 @@ export async function sendConversationMessage(
   conversationId: string,
   bodyInput: unknown,
   req?: NextRequest,
-  attachmentInputs: MessageAttachmentInput[] = []
+  attachmentInputs: MessageAttachmentInput[] = [],
+  replyToInput?: unknown
 ) {
   const conversation = await fetchConversation(conversationId);
   if (!actorCanAccessConversation(actor, conversation)) {
     return { error: "Conversation not found", status: 404 };
   }
 
+  let replyTo: MessageReply | null = null;
+  if (replyToInput !== undefined && replyToInput !== null && replyToInput !== "") {
+    if (typeof replyToInput !== "string") return { error: "Invalid reply target", status: 400 };
+    const targets = await sql.query<MessageRow>(`SELECT * FROM messaging_messages WHERE id = $1 AND conversation_id = $2 AND deleted_at IS NULL`, [replyToInput, conversationId]);
+    if (!targets[0]) return { error: "Reply target not found in this conversation", status: 400 };
+    replyTo = { messageId: targets[0].id, senderName: targets[0].sender_name, body: targets[0].body.slice(0, 500) || "Attachment" };
+  }
   const now = new Date().toISOString();
   const uploadResult = await uploadConversationAttachments(conversation!, actor, attachmentInputs, now);
   if (uploadResult.error) return { error: uploadResult.error, status: uploadResult.status ?? 400 };
@@ -976,7 +997,7 @@ export async function sendConversationMessage(
   if (!validation.ok) return { error: validation.error, status: 400 };
 
   const preview = messagePreview(validation.body, attachments);
-  const message = await createMessageDocument(conversationId, actor, validation.body, now, attachments);
+  const message = await createMessageDocument(conversationId, actor, validation.body, now, attachments, replyTo);
 
   await sql.query(
     `UPDATE messaging_conversations
@@ -1197,4 +1218,16 @@ async function notifyClientForAdminMessage(conversation: ConversationRecord, act
     href: `/portal/messages?conversation=${conversation._id}`,
     tag: `message:${conversation._id}:${new Date().toISOString()}`,
   }).catch((err) => console.error("MESSAGING_CLIENT_PUSH_ERR:", err));
+}
+
+export const MESSAGE_REACTION_EMOJIS = ["\u2764\ufe0f", "\ud83d\udc4d", "\ud83d\udc4e", "\ud83d\ude02", "\ud83d\ude2e", "\ud83d\ude22", "\ud83c\udf89", "\ud83d\ude4f"];
+export async function setMessageReaction(actor: MessagingActor, conversationId: string, messageId: string, emoji: unknown, active: unknown) {
+  const conversation = await fetchConversation(conversationId);
+  if (!actorCanAccessConversation(actor, conversation)) return { error: "Conversation not found", status: 404 };
+  if (typeof emoji !== "string" || !MESSAGE_REACTION_EMOJIS.includes(emoji) || typeof active !== "boolean") return { error: "Invalid reaction", status: 400 };
+  const targets = await sql.query(`SELECT id FROM messaging_messages WHERE id = $1 AND conversation_id = $2 AND deleted_at IS NULL`, [messageId, conversationId]);
+  if (!targets.length) return { error: "Message not found", status: 404 };
+  if (active) await sql.query(`INSERT INTO messaging_message_reactions (message_id, actor_id, emoji, display_name) VALUES ($1,$2,$3,$4) ON CONFLICT (message_id, actor_id, emoji) DO NOTHING`, [messageId, actor.actorId, emoji, actor.name]);
+  else await sql.query(`DELETE FROM messaging_message_reactions WHERE message_id = $1 AND actor_id = $2 AND emoji = $3`, [messageId, actor.actorId, emoji]);
+  return { status: 200 };
 }

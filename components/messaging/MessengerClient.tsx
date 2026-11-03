@@ -36,7 +36,11 @@ type MessageAttachment = {
   localUrl?: string;
 };
 
+type Reply = { messageId: string; senderName: string; body: string };
+const REACTION_EMOJIS = ["❤️", "👍", "👎", "😂", "😮", "😢", "🎉", "🙏"];
 type Message = {
+  replyTo?: Reply | null;
+  reactions?: { emoji: string; actorId: string; name: string }[];
   _id: string;
   conversationId: string;
   senderActorId: string;
@@ -277,6 +281,11 @@ export default function MessengerClient({
   const [loadingThread, setLoadingThread] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const [replyTo, setReplyTo] = useState<Reply | null>(null);
+  const [actorId, setActorId] = useState("");
+  const [reactionBusy, setReactionBusy] = useState("");
+  const [reactionPicker, setReactionPicker] = useState("");
+  const composeRef = useRef<HTMLTextAreaElement>(null);
   const [compose, setCompose] = useState("");
   const [attachments, setAttachments] = useState<SelectedAttachment[]>([]);
   const [newTitle, setNewTitle] = useState("");
@@ -336,8 +345,9 @@ export default function MessengerClient({
     if (!silent) setLoadingThread(true);
     try {
       const res = await fetch(`/api/messages/conversations/${conversationId}`, { cache: "no-store" });
-      const data = await readApiJson<{ conversation: Conversation; messages?: Message[] }>(res, "Failed to load conversation");
+      const data = await readApiJson<{ conversation: Conversation; messages?: Message[]; actorId: string }>(res, "Failed to load conversation");
       setMessages(data.messages ?? []);
+      setActorId(data.actorId);
       setConversations((prev) => prev.map((item) => item._id === conversationId ? data.conversation : item));
       await fetch(`/api/messages/conversations/${conversationId}/read`, { method: "POST" }).catch(() => {});
     } catch (err) {
@@ -441,6 +451,8 @@ export default function MessengerClient({
   useEffect(() => {
     shouldStickToBottomRef.current = true;
     setVisibleTimestampId("");
+    setReplyTo(null);
+    setReactionPicker("");
   }, [selectedId]);
 
   useEffect(() => {
@@ -549,10 +561,30 @@ export default function MessengerClient({
     }, 2400);
   }
 
+  async function reactToMessage(message: Message, emoji: string) {
+    if (reactionBusy) return;
+    const active = !message.reactions?.some((r) => r.emoji === emoji && r.actorId === actorId);
+    setReactionBusy(message._id);
+    setError("");
+    try {
+      const res = await fetch(`/api/messages/conversations/${selectedId}/messages/${message._id}/reactions`, {
+        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ emoji, active }),
+      });
+      await readApiJson(res, "Failed to update reaction");
+      setMessages((items) => items.map((item) => item._id !== message._id ? item : { ...item, reactions: [
+        ...(item.reactions ?? []).filter((r) => !(r.emoji === emoji && r.actorId === actorId)),
+        ...(active ? [{ emoji, actorId, name: "You" }] : []),
+      ] }));
+      setReactionPicker("");
+    } catch (err) { setError(err instanceof Error ? err.message : "Failed to update reaction"); }
+    finally { setReactionBusy(""); }
+  }
+
   async function sendMessage() {
     const body = compose.trim();
-    if (!selectedId || (!body && attachments.length === 0)) return;
+    if (sending || !selectedId || (!body && attachments.length === 0)) return;
     const selectedFiles = attachments;
+    const sentReply = replyTo;
     setSending(true);
     setError("");
     const optimistic: Message = {
@@ -578,10 +610,12 @@ export default function MessengerClient({
         size: image.file.size,
         localUrl: image.previewUrl,
       })),
+      replyTo: sentReply,
       pending: true,
     };
     setMessages((prev) => [...prev, optimistic]);
     setCompose("");
+    setReplyTo(null);
     setAttachments([]);
     try {
       const hasFiles = selectedFiles.length > 0;
@@ -589,11 +623,12 @@ export default function MessengerClient({
       if (hasFiles) {
         const formData = new FormData();
         formData.set("body", body);
+        if (sentReply) formData.set("replyToId", sentReply.messageId);
         selectedFiles.forEach((image) => formData.append("files", image.file));
         init.body = formData;
       } else {
         init.headers = { "Content-Type": "application/json" };
-        init.body = JSON.stringify({ body });
+        init.body = JSON.stringify({ body, replyToId: sentReply?.messageId });
       }
 
       const res = await fetch(`/api/messages/conversations/${selectedId}/messages`, init);
@@ -604,6 +639,7 @@ export default function MessengerClient({
     } catch (err) {
       setMessages((prev) => prev.filter((item) => item._id !== optimistic._id));
       setCompose(body);
+      setReplyTo(sentReply);
       setAttachments(selectedFiles);
       setError(err instanceof Error ? err.message : "Failed to send message");
     } finally {
@@ -808,7 +844,7 @@ export default function MessengerClient({
                   messages.map((message) => {
                     const mine = mode === "admin" ? message.senderKind === "admin" : message.senderKind === "client";
                     return (
-                      <div key={message._id} className={`flex min-w-0 items-end gap-2 ${mine ? "flex-row-reverse" : "flex-row"}`}>
+                      <div id={`message-${message._id}`} key={message._id} className={`flex min-w-0 items-end gap-2 ${mine ? "flex-row-reverse" : "flex-row"}`}>
                         <Avatar
                           name={mine ? "You" : message.senderName}
                           email={message.senderEmail}
@@ -816,7 +852,6 @@ export default function MessengerClient({
                           mine={mine}
                         />
                         <div
-                          role="button"
                           tabIndex={0}
                           onClick={() => showTimestamp(message._id)}
                           onKeyDown={(event) => {
@@ -835,6 +870,12 @@ export default function MessengerClient({
                           )}
                           <span className={`absolute bottom-0 h-4 w-4 ${mine ? "-right-1 bg-sky-500" : "-left-1 bg-white"} rotate-45`} aria-hidden="true" />
                           <div className="relative z-10">
+                            {message.replyTo && (
+                              <button type="button" onClick={(event) => { event.stopPropagation(); document.getElementById(`message-${message.replyTo!.messageId}`)?.scrollIntoView({ behavior: "smooth", block: "center" }); }} className="mb-2 block w-full rounded-lg border-l-2 border-black/30 bg-black/10 px-3 py-2 text-left text-xs">
+                                <span className="block font-semibold">{message.replyTo.senderName}</span>
+                                <span className="block line-clamp-2 whitespace-pre-wrap">{message.replyTo.body}</span>
+                              </button>
+                            )}
                             {message.body && <MessageBody body={message.body} />}
                             {message.attachments && message.attachments.length > 0 && (
                               <div className={`${message.body ? "mt-3" : ""} grid gap-2`}>
@@ -876,6 +917,18 @@ export default function MessengerClient({
                                 })}
                               </div>
                             )}
+                            {!message.pending && (
+                              <div className="mt-2 flex flex-wrap items-center gap-1" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
+                                {[...new Set((message.reactions ?? []).map((r) => r.emoji))].map((emoji) => {
+                                  const reactions = message.reactions!.filter((r) => r.emoji === emoji);
+                                  const active = reactions.some((r) => r.actorId === actorId);
+                                  return <button key={emoji} type="button" disabled={!!reactionBusy} aria-pressed={active} title={reactions.map((r) => r.name).join(", ")} aria-label={`${emoji}, ${reactions.length} reactions${active ? ", remove your reaction" : ", react"}`} onClick={() => void reactToMessage(message, emoji)} className={`rounded-full border px-2 py-1 text-xs ${active ? "border-black/50 bg-black/15" : "border-black/10 bg-black/5"}`}>{emoji} {reactions.length}</button>;
+                                })}
+                                <button type="button" className="rounded-lg px-2 py-1 text-xs hover:bg-black/10" onClick={() => { setReplyTo({ messageId: message._id, senderName: message.senderName, body: message.body.slice(0, 500) || "Attachment" }); composeRef.current?.focus(); }}>Reply</button>
+                                <button type="button" aria-expanded={reactionPicker === message._id} className="rounded-lg px-2 py-1 text-xs hover:bg-black/10" onClick={() => setReactionPicker(reactionPicker === message._id ? "" : message._id)}>React</button>
+                                {reactionPicker === message._id && <div role="group" aria-label="Choose a reaction" className="flex flex-wrap gap-1 rounded-xl bg-black/10 p-1">{REACTION_EMOJIS.map((emoji) => <button key={emoji} type="button" disabled={!!reactionBusy} aria-label={`React ${emoji}`} onClick={() => void reactToMessage(message, emoji)} className="rounded-lg p-2 hover:bg-black/15">{emoji}</button>)}</div>}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -885,6 +938,7 @@ export default function MessengerClient({
               </div>
 
               <div className="shrink-0 w-full max-w-full border-t border-white/8 bg-[#06080d] p-3 max-md:pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:p-4">
+                {replyTo && <div className="mb-3 flex items-center gap-3 rounded-xl border-l-2 border-sky-400 bg-white/5 p-3 text-xs text-white/70"><div className="min-w-0 flex-1"><span className="font-semibold">Replying to {replyTo.senderName}</span><p className="truncate">{replyTo.body}</p></div><button type="button" aria-label="Cancel reply" onClick={() => setReplyTo(null)} className="p-2">✕</button></div>}
                 {attachments.length > 0 && (
                   <div className="mb-3 flex max-w-full gap-2 overflow-x-auto pb-1">
                     {attachments.map((image, index) => (
@@ -926,6 +980,7 @@ export default function MessengerClient({
                     </svg>
                   </button>
                   <textarea
+                    ref={composeRef}
                     value={compose}
                     onChange={(event) => setCompose(event.target.value)}
                     onPaste={(event) => addPastedImages(event, setAttachments)}

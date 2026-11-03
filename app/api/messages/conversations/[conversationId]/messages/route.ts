@@ -17,11 +17,13 @@ async function handleActivityPOST(
     const { conversationId } = await params;
     const contentType = req.headers.get("content-type") ?? "";
     let bodyInput: unknown = "";
+    let replyToInput: unknown;
     let attachments: MessageAttachmentInput[] = [];
 
     if (contentType.includes("multipart/form-data")) {
       const formData = await req.formData();
       bodyInput = formData.get("body") ?? "";
+      replyToInput = formData.get("replyToId");
       const files = formData.getAll("files").filter((item): item is File => item instanceof File);
       attachments = await Promise.all(files.map(async (file) => ({
         fileName: file.name,
@@ -32,9 +34,10 @@ async function handleActivityPOST(
     } else {
       const body = await req.json().catch(() => ({}));
       bodyInput = body.body;
+      replyToInput = body.replyToId;
     }
 
-    const result = await sendConversationMessage(actor, conversationId, bodyInput, req, attachments);
+    const result = await sendConversationMessage(actor, conversationId, bodyInput, req, attachments, replyToInput);
     if ("error" in result) {
       return NextResponse.json({ error: result.error }, { status: result.status });
     }
