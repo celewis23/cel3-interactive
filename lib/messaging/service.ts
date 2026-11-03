@@ -1,3 +1,4 @@
+import { MESSAGE_REACTION_EMOJIS } from "@/lib/messaging/reactions";
 import { attachmentError, MAX_ATTACHMENTS_PER_MESSAGE } from '@/lib/messaging/attachments';
 import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
@@ -1220,7 +1221,6 @@ async function notifyClientForAdminMessage(conversation: ConversationRecord, act
   }).catch((err) => console.error("MESSAGING_CLIENT_PUSH_ERR:", err));
 }
 
-export const MESSAGE_REACTION_EMOJIS = ["\u2764\ufe0f", "\ud83d\udc4d", "\ud83d\udc4e", "\ud83d\ude02", "\ud83d\ude2e", "\ud83d\ude22", "\ud83c\udf89", "\ud83d\ude4f"];
 export async function setMessageReaction(actor: MessagingActor, conversationId: string, messageId: string, emoji: unknown, active: unknown) {
   const conversation = await fetchConversation(conversationId);
   if (!actorCanAccessConversation(actor, conversation)) return { error: "Conversation not found", status: 404 };

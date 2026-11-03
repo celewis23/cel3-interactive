@@ -2,6 +2,8 @@
 
 import { attachmentContentType, attachmentError, MESSAGE_ATTACHMENT_ACCEPT, MAX_ATTACHMENTS_PER_MESSAGE } from '@/lib/messaging/attachments';
 import Link from "next/link";
+import { createPortal } from "react-dom";
+import { MESSAGE_REACTION_EMOJIS, POPULAR_REACTION_EMOJIS } from "@/lib/messaging/reactions";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
@@ -37,7 +39,6 @@ type MessageAttachment = {
 };
 
 type Reply = { messageId: string; senderName: string; body: string };
-const REACTION_EMOJIS = ["❤️", "👍", "👎", "😂", "😮", "😢", "🎉", "🙏"];
 type Message = {
   replyTo?: Reply | null;
   reactions?: { emoji: string; actorId: string; name: string }[];
@@ -285,6 +286,11 @@ export default function MessengerClient({
   const [actorId, setActorId] = useState("");
   const [reactionBusy, setReactionBusy] = useState("");
   const [reactionPicker, setReactionPicker] = useState("");
+  const [menuPosition, setMenuPosition] = useState({ left: 12, top: 12 });
+  const [moreEmojis, setMoreEmojis] = useState(false);
+  const holdRef = useRef<{ timer: number; x: number; y: number } | null>(null);
+  const heldMessageRef = useRef("");
+  const menuRef = useRef<HTMLDivElement>(null);
   const composeRef = useRef<HTMLTextAreaElement>(null);
   const [compose, setCompose] = useState("");
   const [attachments, setAttachments] = useState<SelectedAttachment[]>([]);
@@ -457,6 +463,7 @@ export default function MessengerClient({
 
   useEffect(() => {
     return () => {
+      if (holdRef.current) window.clearTimeout(holdRef.current.timer);
       if (timestampTimerRef.current) window.clearTimeout(timestampTimerRef.current);
       if (scrollFrameRef.current) window.cancelAnimationFrame(scrollFrameRef.current);
       revokeAttachmentPreviews(attachmentsRef.current);
@@ -551,6 +558,43 @@ export default function MessengerClient({
       return current.filter((_, itemIndex) => itemIndex !== index);
     });
   }
+
+  function cancelMessageHold() {
+    if (holdRef.current) window.clearTimeout(holdRef.current.timer);
+    holdRef.current = null;
+  }
+
+  function openMessageMenu(message: Message, element: HTMLElement) {
+    if (message.pending) return;
+    const rect = element.getBoundingClientRect();
+    setMenuPosition({
+      left: Math.max(12, Math.min(rect.left, window.innerWidth - 316)),
+      top: Math.max(12, Math.min(rect.top > 80 ? rect.top - 64 : rect.bottom + 8, window.innerHeight - 76)),
+    });
+    setMoreEmojis(false);
+    setVisibleTimestampId("");
+    setReactionPicker(message._id);
+  }
+
+  useEffect(() => {
+    if (!reactionPicker) return;
+    const previousFocus = document.activeElement;
+    menuRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    const dismiss = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setReactionPicker("");
+      if (event.key === "Tab") {
+        const buttons = Array.from(menuRef.current?.querySelectorAll<HTMLButtonElement>("button:not(:disabled)") ?? []);
+        const index = buttons.indexOf(document.activeElement as HTMLButtonElement);
+        event.preventDefault();
+        buttons[(index + (event.shiftKey ? -1 : 1) + buttons.length) % buttons.length]?.focus();
+      }
+    };
+    document.addEventListener("keydown", dismiss);
+    return () => {
+      document.removeEventListener("keydown", dismiss);
+      if (previousFocus instanceof HTMLElement) previousFocus.focus({ preventScroll: true });
+    };
+  }, [reactionPicker]);
 
   function showTimestamp(messageId: string) {
     if (timestampTimerRef.current) window.clearTimeout(timestampTimerRef.current);
@@ -835,7 +879,7 @@ export default function MessengerClient({
             <>
               <div
                 ref={messagesViewportRef}
-                onScroll={handleMessagesScroll}
+                onScroll={() => { cancelMessageHold(); setReactionPicker(""); handleMessagesScroll(); }}
                 className="min-h-0 w-full max-w-full space-y-3 overflow-y-auto overflow-x-hidden overscroll-contain p-3 md:p-5"
               >
                 {messages.length === 0 ? (
@@ -853,15 +897,41 @@ export default function MessengerClient({
                         />
                         <div
                           tabIndex={0}
+                          onPointerDown={(event) => {
+                            if (message.pending || event.button !== 0 || (event.target as HTMLElement).closest("button")) return;
+                            cancelMessageHold();
+                            heldMessageRef.current = "";
+                            const element = event.currentTarget;
+                            holdRef.current = { x: event.clientX, y: event.clientY, timer: window.setTimeout(() => {
+                              heldMessageRef.current = message._id;
+                              holdRef.current = null;
+                              openMessageMenu(message, element);
+                            }, 450) };
+                          }}
+                          onPointerMove={(event) => {
+                            if (holdRef.current && Math.hypot(event.clientX - holdRef.current.x, event.clientY - holdRef.current.y) > 10) cancelMessageHold();
+                          }}
+                          onPointerUp={cancelMessageHold}
+                          onPointerCancel={cancelMessageHold}
+                          onPointerLeave={cancelMessageHold}
+                          onClickCapture={(event) => {
+                            if (heldMessageRef.current === message._id) {
+                              event.preventDefault(); event.stopPropagation(); heldMessageRef.current = "";
+                            }
+                          }}
+                          onContextMenu={(event) => { event.preventDefault(); cancelMessageHold(); openMessageMenu(message, event.currentTarget); }}
                           onClick={() => showTimestamp(message._id)}
                           onKeyDown={(event) => {
-                            if (event.key === "Enter" || event.key === " ") {
+                            if (event.target !== event.currentTarget) return;
+                            if (event.key === "Enter" || event.key === " " || event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) {
                               event.preventDefault();
-                              showTimestamp(message._id);
+                              openMessageMenu(message, event.currentTarget);
                             }
                           }}
                           className={`relative z-0 max-w-[calc(100%-3rem)] rounded-2xl border px-4 py-3 text-left shadow-sm outline-none transition-transform active:scale-[0.99] md:max-w-[min(680px,78%)] ${mine ? "rounded-br-sm border-sky-400/40 bg-sky-500 text-black" : "rounded-bl-sm border-black/5 bg-white text-[#111111]"}`}
-                          aria-label={`Message sent ${formatTime(message.createdAt)}`}
+                          style={{ WebkitTouchCallout: "none", userSelect: "none" }}
+                          aria-haspopup="dialog"
+                          aria-label={`Message sent ${formatTime(message.createdAt)}. Hold for reactions and reply, or press Enter.`}
                         >
                           {visibleTimestampId === message._id && (
                             <span className={`absolute -top-8 z-20 whitespace-nowrap rounded-full border border-black/10 bg-white px-3 py-1 text-[11px] font-medium text-black/65 shadow-lg ${mine ? "right-0" : "left-0"}`}>
@@ -917,16 +987,14 @@ export default function MessengerClient({
                                 })}
                               </div>
                             )}
-                            {!message.pending && (
+                            {!message.pending && !!message.reactions?.length && (
                               <div className="mt-2 flex flex-wrap items-center gap-1" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
                                 {[...new Set((message.reactions ?? []).map((r) => r.emoji))].map((emoji) => {
                                   const reactions = message.reactions!.filter((r) => r.emoji === emoji);
                                   const active = reactions.some((r) => r.actorId === actorId);
                                   return <button key={emoji} type="button" disabled={!!reactionBusy} aria-pressed={active} title={reactions.map((r) => r.name).join(", ")} aria-label={`${emoji}, ${reactions.length} reactions${active ? ", remove your reaction" : ", react"}`} onClick={() => void reactToMessage(message, emoji)} className={`rounded-full border px-2 py-1 text-xs ${active ? "border-black/50 bg-black/15" : "border-black/10 bg-black/5"}`}>{emoji} {reactions.length}</button>;
                                 })}
-                                <button type="button" className="rounded-lg px-2 py-1 text-xs hover:bg-black/10" onClick={() => { setReplyTo({ messageId: message._id, senderName: message.senderName, body: message.body.slice(0, 500) || "Attachment" }); composeRef.current?.focus(); }}>Reply</button>
-                                <button type="button" aria-expanded={reactionPicker === message._id} className="rounded-lg px-2 py-1 text-xs hover:bg-black/10" onClick={() => setReactionPicker(reactionPicker === message._id ? "" : message._id)}>React</button>
-                                {reactionPicker === message._id && <div role="group" aria-label="Choose a reaction" className="flex flex-wrap gap-1 rounded-xl bg-black/10 p-1">{REACTION_EMOJIS.map((emoji) => <button key={emoji} type="button" disabled={!!reactionBusy} aria-label={`React ${emoji}`} onClick={() => void reactToMessage(message, emoji)} className="rounded-lg p-2 hover:bg-black/15">{emoji}</button>)}</div>}
+
                               </div>
                             )}
                           </div>
@@ -1023,6 +1091,24 @@ export default function MessengerClient({
           )}
         </section>
       </div>
+
+      {reactionPicker && (() => {
+        const message = messages.find((item) => item._id === reactionPicker);
+        if (!message) return null;
+        return createPortal(
+          <div className="fixed inset-0 z-[100]" onPointerDown={(event) => { event.stopPropagation(); setReactionPicker(""); }}>
+            <div ref={menuRef} role="dialog" aria-modal="true" aria-label="Message reactions and reply" style={menuPosition} className="fixed w-[292px] max-w-[calc(100vw-24px)] overflow-hidden rounded-2xl border border-white/15 bg-[#161a22] p-2 text-white shadow-2xl shadow-black/50" onPointerDown={(event) => event.stopPropagation()} onContextMenu={(event) => event.preventDefault()}>
+              <div className="flex items-center justify-between gap-0.5">
+                {POPULAR_REACTION_EMOJIS.map((emoji) => <button key={emoji} type="button" disabled={!!reactionBusy} aria-label={`React ${emoji}`} aria-pressed={message.reactions?.some((r) => r.emoji === emoji && r.actorId === actorId) ?? false} onClick={() => void reactToMessage(message, emoji)} className="flex h-10 w-9 items-center justify-center rounded-full text-xl hover:bg-white/10 aria-pressed:bg-white/15 focus-visible:outline-2 focus-visible:outline-sky-400">{emoji}</button>)}
+                <button type="button" aria-label="More emojis" aria-expanded={moreEmojis} onClick={() => { if (!moreEmojis) setMenuPosition((position) => ({ ...position, top: Math.max(12, Math.min(position.top, window.innerHeight - Math.min(220, window.innerHeight * 0.4) - 80)) })); setMoreEmojis(!moreEmojis); }} className="flex h-10 w-9 items-center justify-center rounded-full text-2xl text-white/65 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-sky-400">+</button>
+                <button type="button" aria-label="Reply to message" onClick={() => { setReplyTo({ messageId: message._id, senderName: message.senderName, body: message.body.slice(0, 500) || "Attachment" }); setReactionPicker(""); window.requestAnimationFrame(() => composeRef.current?.focus()); }} className="flex h-10 w-9 items-center justify-center rounded-full text-white/80 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-sky-400">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="m9 5-7 7 7 7M2 12h12a7 7 0 0 1 7 7" /></svg>
+                </button>
+              </div>
+              {moreEmojis && <div role="group" aria-label="More emoji reactions" className="mt-2 grid max-h-[min(220px,40dvh)] grid-cols-7 gap-0.5 overflow-y-auto border-t border-white/10 pt-2">{MESSAGE_REACTION_EMOJIS.map((emoji) => <button key={emoji} type="button" disabled={!!reactionBusy} aria-label={`React ${emoji}`} aria-pressed={message.reactions?.some((r) => r.emoji === emoji && r.actorId === actorId) ?? false} onClick={() => void reactToMessage(message, emoji)} className="flex h-10 items-center justify-center rounded-lg text-xl hover:bg-white/10 aria-pressed:bg-white/15 focus-visible:outline-2 focus-visible:outline-sky-400">{emoji}</button>)}</div>}
+            </div>
+          </div>, document.body);
+      })()}
 
       {showNewConversation && (
         <div className="fixed inset-0 z-50 flex w-[100dvw] max-w-full items-start justify-center overflow-x-hidden overflow-y-auto bg-black/65 px-3 py-4 backdrop-blur-sm sm:px-4 sm:pt-24 md:justify-start md:pl-[max(1rem,calc((100vw-1120px)/2+1rem))]">
