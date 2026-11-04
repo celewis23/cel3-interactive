@@ -278,6 +278,7 @@ export default function MessengerClient({
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedId, setSelectedId] = useState(initialConversationId || queryConversationId || "");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [loadedConversationId, setLoadedConversationId] = useState("");
   const [loadingList, setLoadingList] = useState(true);
   const [loadingThread, setLoadingThread] = useState(false);
   const [sending, setSending] = useState(false);
@@ -356,6 +357,7 @@ export default function MessengerClient({
       const res = await fetch(`/api/messages/conversations/${conversationId}`, { cache: "no-store" });
       const data = await readApiJson<{ conversation: Conversation; messages?: Message[]; actorId: string }>(res, "Failed to load conversation");
       setMessages(data.messages ?? []);
+      setLoadedConversationId(conversationId);
       setActorId(data.actorId);
       setConversations((prev) => prev.map((item) => item._id === conversationId ? data.conversation : item));
       await fetch(`/api/messages/conversations/${conversationId}/read`, { method: "POST" }).catch(() => {});
@@ -416,7 +418,8 @@ export default function MessengerClient({
   const scrollToLatestMessage = useCallback((behavior: ScrollBehavior = "auto") => {
     const viewport = messagesViewportRef.current;
     if (!viewport) return;
-    viewport.scrollTo({ top: viewport.scrollHeight, behavior });
+    // The viewport is bottom-anchored; older content has negative offsets.
+    viewport.scrollTo({ top: 0, behavior });
   }, []);
 
   const scheduleScrollToLatestMessage = useCallback((behavior: ScrollBehavior = "auto") => {
@@ -433,12 +436,12 @@ export default function MessengerClient({
   const handleMessagesScroll = useCallback(() => {
     const viewport = messagesViewportRef.current;
     if (!viewport) return;
-    const distanceFromBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+    const distanceFromBottom = Math.abs(viewport.scrollTop);
     shouldStickToBottomRef.current = distanceFromBottom < 96;
   }, []);
 
   useLayoutEffect(() => {
-    if (!selectedId || loadingThread) return;
+    if (!selectedId || loadingThread || loadedConversationId !== selectedId) return;
 
     const switchedConversation = selectedId !== lastScrollConversationIdRef.current;
     const messageChanged = latestMessageId !== lastMessageIdRef.current;
@@ -454,8 +457,14 @@ export default function MessengerClient({
 
     if (!shouldScroll) return;
     shouldStickToBottomRef.current = true;
-    scheduleScrollToLatestMessage(switchedConversation ? "auto" : "smooth");
-  }, [latestMessageId, loadingThread, scheduleScrollToLatestMessage, selectedId]);
+    if (switchedConversation) {
+      // Position the newly mounted feed before paint, without inheriting any
+      // smooth-scroll CSS or animating from the oldest message.
+      scrollToLatestMessage("instant");
+    } else {
+      scheduleScrollToLatestMessage("smooth");
+    }
+  }, [latestMessageId, loadedConversationId, loadingThread, scheduleScrollToLatestMessage, scrollToLatestMessage, selectedId]);
 
   useEffect(() => {
     shouldStickToBottomRef.current = true;
@@ -489,6 +498,9 @@ export default function MessengerClient({
   }
 
   function returnToConversationList() {
+    lastScrollConversationIdRef.current = "";
+    lastMessageIdRef.current = "";
+    setLoadedConversationId("");
     setSelectedId("");
     setMessages([]);
     if (mode === "admin") router.push("/admin/messages");
@@ -889,7 +901,7 @@ export default function MessengerClient({
             <div className="flex flex-1 items-center justify-center p-8 text-center text-sm text-white/35">
               {mode === "admin" ? "Choose a client conversation from the list." : "Start a conversation or choose an existing one."}
             </div>
-          ) : loadingThread ? (
+          ) : loadingThread || loadedConversationId !== selectedId ? (
             <div className="min-h-0 space-y-3 overflow-hidden p-5">
               {[0, 1, 2, 3].map((item) => <div key={item} className="h-14 animate-pulse rounded-xl bg-white/5" />)}
             </div>
@@ -898,8 +910,11 @@ export default function MessengerClient({
               <div
                 ref={messagesViewportRef}
                 onScroll={() => { cancelMessageHold(); setReactionPicker(""); handleMessagesScroll(); }}
-                className="min-h-0 w-full max-w-full space-y-3 overflow-y-auto overflow-x-hidden overscroll-contain p-3 md:p-5"
+                className="flex min-h-0 w-full max-w-full flex-col-reverse overflow-y-auto overflow-x-hidden overscroll-contain p-3 md:p-5"
               >
+                {/* One normal-flow child preserves chronological DOM and visual
+                    order while the viewport starts at its bottom, even as images load. */}
+                <div className="shrink-0 space-y-3">
                 {messages.length === 0 ? (
                   <div className="flex h-full items-center justify-center text-sm text-white/35">No messages in this conversation yet.</div>
                 ) : (
@@ -1022,6 +1037,7 @@ export default function MessengerClient({
                     );
                   })
                 )}
+                </div>
               </div>
 
               <div className="shrink-0 w-full max-w-full border-t border-white/8 bg-[#06080d] p-3 max-md:pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:p-4">
