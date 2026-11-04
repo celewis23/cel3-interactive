@@ -1,11 +1,9 @@
 "use client";
 import AttachmentChip from "./AttachmentPreview";
+import EmailBody from "./EmailBody";
 import ComposeAttachments from "./ComposeAttachments";
 import { sendComposerMessage, attachedFilesFrom, type AttachedFile } from "./compose-files";
 import { hasMessageContent } from "@/lib/gmail/mime";
-
-// NOTE: dangerouslySetInnerHTML is used for rendering HTML email bodies.
-// Acceptable for an internal admin tool where the operator controls the Gmail account.
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
@@ -213,12 +211,7 @@ function MessageCard({
       {!collapsed && (
         <div className="border-t border-white/5">
           {message.bodyHtml ? (
-            <div
-              className="bg-white px-5 py-4 overflow-x-auto text-gray-900 text-sm"
-              dangerouslySetInnerHTML={{
-                __html: resolveCidReferences(message.bodyHtml, message.id, message.attachments),
-              }}
-            />
+            <EmailBody html={resolveCidReferences(message.bodyHtml, message.id, message.attachments)} />
           ) : (
             <pre className="bg-white px-5 py-4 whitespace-pre-wrap text-sm text-gray-900 font-sans leading-relaxed">
               {message.bodyText}
