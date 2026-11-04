@@ -619,7 +619,7 @@ function EmailView({
   }
 
   return (
-    <div className="flex flex-col h-full" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+    <div className="flex flex-col h-full min-h-0 overflow-hidden" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       <div className="flex items-center justify-between px-4 h-11 border-b border-white/8 shrink-0">
         <div className="flex items-center gap-1">
           <button
@@ -667,7 +667,7 @@ function EmailView({
           </button>
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 min-h-0 overflow-y-auto">
         {loading ? (
           <div className="flex items-center justify-center h-32">
             <p className="text-sm text-white/30 animate-pulse">Loading…</p>
@@ -1486,7 +1486,7 @@ export default function InboxClient({ email, connectedNotice }: Props) {
   const rightPanelClass = mobileView === "list" ? "hidden lg:flex" : "flex";
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-[#06080d]">
+    <div className="flex flex-1 flex-col h-full min-h-0 overflow-hidden bg-[#06080d]">
       {/* ── Page header (hidden on mobile thread/compose) ── */}
       <div
         className={`flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-white/8 shrink-0 ${
@@ -1611,7 +1611,7 @@ export default function InboxClient({ email, connectedNotice }: Props) {
         </div>
 
         {/* Thread list */}
-        <div className={`flex-col border-r border-white/8 bg-[#070a0f] min-w-0 ${threadListClass}`}>
+        <div className={`flex-col border-r border-white/8 bg-[#070a0f] min-w-0 min-h-0 overflow-hidden ${threadListClass}`}>
           <div className="flex items-center justify-between px-4 h-11 border-b border-white/8 shrink-0">
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-sm font-medium text-white truncate">
@@ -1645,7 +1645,7 @@ export default function InboxClient({ email, connectedNotice }: Props) {
               {newCount} new — tap to load
             </button>
           )}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {loading ? (
               <div className="space-y-px py-1">
                 {Array.from({ length: 10 }).map((_, i) => (
@@ -1706,7 +1706,7 @@ export default function InboxClient({ email, connectedNotice }: Props) {
         </div>
 
         {/* Message reading panel */}
-        <div className={`flex-1 flex flex-col min-w-0 bg-[#06080d] ${rightPanelClass}`}>
+        <div className={`flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden bg-[#06080d] ${rightPanelClass}`}>
           {selectedId ? (
             <EmailView
               threadId={selectedId}

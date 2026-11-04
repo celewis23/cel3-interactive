@@ -740,7 +740,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const isMessagesWorkspace = pathname === "/admin/messages" || pathname.startsWith("/admin/messages/");
   const isFullBleedWorkspace = isEmailInbox || pathname === "/admin/notes";
   const mainClass = isFullBleedWorkspace
-    ? "flex-1 overflow-hidden flex flex-col pb-14 lg:pb-0"
+    ? "flex-1 min-h-0 overflow-hidden flex flex-col pb-14 lg:pb-0"
     : isMessagesWorkspace
       ? "flex-1 min-h-0 w-full p-4 pb-28 lg:flex lg:flex-col lg:overflow-hidden lg:p-0"
       : "flex-1 p-4 pb-28 lg:p-8 max-w-6xl w-full mx-auto";
@@ -777,7 +777,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className={`admin-shell ${shellClass} ${isMessagesWorkspace ? "lg:h-dvh lg:min-h-0 lg:overflow-hidden" : ""}`}>
+    <div className={`admin-shell ${shellClass} ${isEmailInbox ? "h-dvh min-h-0 overflow-hidden" : isMessagesWorkspace ? "lg:h-dvh lg:min-h-0 lg:overflow-hidden" : ""}`}>
       <DateInputAutoPicker />
 
       {/* Sidebar — desktop only */}
