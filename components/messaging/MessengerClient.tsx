@@ -288,6 +288,9 @@ export default function MessengerClient({
   const [reactionPicker, setReactionPicker] = useState("");
   const [menuPosition, setMenuPosition] = useState({ left: 12, top: 12 });
   const [moreEmojis, setMoreEmojis] = useState(false);
+  const [selectingMessageText, setSelectingMessageText] = useState(false);
+  const [copiedMessageId, setCopiedMessageId] = useState("");
+  const selectedTextRef = useRef<HTMLTextAreaElement>(null);
   const holdRef = useRef<{ timer: number; x: number; y: number } | null>(null);
   const heldMessageRef = useRef("");
   const menuRef = useRef<HTMLDivElement>(null);
@@ -569,9 +572,11 @@ export default function MessengerClient({
     const rect = element.getBoundingClientRect();
     setMenuPosition({
       left: Math.max(12, Math.min(rect.left, window.innerWidth - 316)),
-      top: Math.max(12, Math.min(rect.top > 80 ? rect.top - 64 : rect.bottom + 8, window.innerHeight - 76)),
+      top: Math.max(12, Math.min(rect.top > 80 ? rect.top - 64 : rect.bottom + 8, window.innerHeight - (message.body ? 116 : 76))),
     });
     setMoreEmojis(false);
+    setSelectingMessageText(false);
+    setCopiedMessageId("");
     setVisibleTimestampId("");
     setReactionPicker(message._id);
   }
@@ -583,8 +588,8 @@ export default function MessengerClient({
     const dismiss = (event: KeyboardEvent) => {
       if (event.key === "Escape") setReactionPicker("");
       if (event.key === "Tab") {
-        const buttons = Array.from(menuRef.current?.querySelectorAll<HTMLButtonElement>("button:not(:disabled)") ?? []);
-        const index = buttons.indexOf(document.activeElement as HTMLButtonElement);
+        const buttons = Array.from(menuRef.current?.querySelectorAll<HTMLElement>("button:not(:disabled), textarea") ?? []);
+        const index = buttons.indexOf(document.activeElement as HTMLElement);
         event.preventDefault();
         buttons[(index + (event.shiftKey ? -1 : 1) + buttons.length) % buttons.length]?.focus();
       }
@@ -603,6 +608,19 @@ export default function MessengerClient({
       setVisibleTimestampId((current) => current === messageId ? "" : current);
       timestampTimerRef.current = null;
     }, 2400);
+  }
+
+  async function copyMessageText(message: Message) {
+    try {
+      await navigator.clipboard.writeText(message.body);
+      setCopiedMessageId(message._id);
+    } catch {
+      setSelectingMessageText(true);
+      setMoreEmojis(false);
+      setMenuPosition((position) => ({ ...position, top: Math.max(12, Math.min(position.top, window.innerHeight - 280)) }));
+      window.requestAnimationFrame(() => { selectedTextRef.current?.focus(); selectedTextRef.current?.select(); });
+      setError("Copy was unavailable. Select the text and use your device's Copy action.");
+    }
   }
 
   async function reactToMessage(message: Message, emoji: string) {
@@ -903,8 +921,9 @@ export default function MessengerClient({
                             heldMessageRef.current = "";
                             const element = event.currentTarget;
                             holdRef.current = { x: event.clientX, y: event.clientY, timer: window.setTimeout(() => {
-                              heldMessageRef.current = message._id;
                               holdRef.current = null;
+                              if (window.getSelection()?.toString()) return;
+                              heldMessageRef.current = message._id;
                               openMessageMenu(message, element);
                             }, 450) };
                           }}
@@ -919,8 +938,8 @@ export default function MessengerClient({
                               event.preventDefault(); event.stopPropagation(); heldMessageRef.current = "";
                             }
                           }}
-                          onContextMenu={(event) => { event.preventDefault(); cancelMessageHold(); openMessageMenu(message, event.currentTarget); }}
-                          onClick={() => showTimestamp(message._id)}
+                          onContextMenu={(event) => { cancelMessageHold(); if (window.getSelection()?.toString()) return; event.preventDefault(); openMessageMenu(message, event.currentTarget); }}
+                          onClick={() => { if (!window.getSelection()?.toString()) showTimestamp(message._id); }}
                           onKeyDown={(event) => {
                             if (event.target !== event.currentTarget) return;
                             if (event.key === "Enter" || event.key === " " || event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) {
@@ -929,7 +948,7 @@ export default function MessengerClient({
                             }
                           }}
                           className={`relative z-0 max-w-[calc(100%-3rem)] rounded-2xl border px-4 py-3 text-left shadow-sm outline-none transition-transform active:scale-[0.99] md:max-w-[min(680px,78%)] ${mine ? "rounded-br-sm border-sky-400/40 bg-sky-500 text-black" : "rounded-bl-sm border-black/5 bg-white text-[#111111]"}`}
-                          style={{ WebkitTouchCallout: "none", userSelect: "none" }}
+                          style={{ userSelect: "text", WebkitUserSelect: "text" }}
                           aria-haspopup="dialog"
                           aria-label={`Message sent ${formatTime(message.createdAt)}. Hold for reactions and reply, or press Enter.`}
                         >
@@ -1097,14 +1116,25 @@ export default function MessengerClient({
         if (!message) return null;
         return createPortal(
           <div className="fixed inset-0 z-[100]" onPointerDown={(event) => { event.stopPropagation(); setReactionPicker(""); }}>
-            <div ref={menuRef} role="dialog" aria-modal="true" aria-label="Message reactions and reply" style={menuPosition} className="fixed w-[292px] max-w-[calc(100vw-24px)] overflow-hidden rounded-2xl border border-white/15 bg-[#161a22] p-2 text-white shadow-2xl shadow-black/50" onPointerDown={(event) => event.stopPropagation()} onContextMenu={(event) => event.preventDefault()}>
+            <div ref={menuRef} role="dialog" aria-modal="true" aria-label="Message actions" style={menuPosition} className="fixed w-[292px] max-w-[calc(100vw-24px)] overflow-hidden rounded-2xl border border-white/15 bg-[#161a22] p-2 text-white shadow-2xl shadow-black/50" onPointerDown={(event) => event.stopPropagation()} onContextMenu={(event) => { if (!(event.target instanceof HTMLTextAreaElement)) event.preventDefault(); }}>
               <div className="flex items-center justify-between gap-0.5">
                 {POPULAR_REACTION_EMOJIS.map((emoji) => <button key={emoji} type="button" disabled={!!reactionBusy} aria-label={`React ${emoji}`} aria-pressed={message.reactions?.some((r) => r.emoji === emoji && r.actorId === actorId) ?? false} onClick={() => void reactToMessage(message, emoji)} className="flex h-10 w-9 items-center justify-center rounded-full text-xl hover:bg-white/10 aria-pressed:bg-white/15 focus-visible:outline-2 focus-visible:outline-sky-400">{emoji}</button>)}
-                <button type="button" aria-label="More emojis" aria-expanded={moreEmojis} onClick={() => { if (!moreEmojis) setMenuPosition((position) => ({ ...position, top: Math.max(12, Math.min(position.top, window.innerHeight - Math.min(220, window.innerHeight * 0.4) - 80)) })); setMoreEmojis(!moreEmojis); }} className="flex h-10 w-9 items-center justify-center rounded-full text-2xl text-white/65 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-sky-400">+</button>
+                <button type="button" aria-label="More emojis" aria-expanded={moreEmojis} onClick={() => { if (!moreEmojis) setMenuPosition((position) => ({ ...position, top: Math.max(12, Math.min(position.top, window.innerHeight - Math.min(220, window.innerHeight * 0.4) - 120)) })); setSelectingMessageText(false); setMoreEmojis(!moreEmojis); }} className="flex h-10 w-9 items-center justify-center rounded-full text-2xl text-white/65 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-sky-400">+</button>
                 <button type="button" aria-label="Reply to message" onClick={() => { setReplyTo({ messageId: message._id, senderName: message.senderName, body: message.body.slice(0, 500) || "Attachment" }); setReactionPicker(""); window.requestAnimationFrame(() => composeRef.current?.focus()); }} className="flex h-10 w-9 items-center justify-center rounded-full text-white/80 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-sky-400">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="m9 5-7 7 7 7M2 12h12a7 7 0 0 1 7 7" /></svg>
                 </button>
               </div>
+              {message.body && <div className="mt-1 flex gap-1 border-t border-white/10 pt-1">
+                <button type="button" onClick={() => void copyMessageText(message)} className="flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs text-white/80 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-sky-400">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2" /><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" /></svg>
+                  <span role="status">{copiedMessageId === message._id ? "Copied" : "Copy"}</span>
+                </button>
+                <button type="button" onClick={() => { setSelectingMessageText(true); setMoreEmojis(false); setMenuPosition((position) => ({ ...position, top: Math.max(12, Math.min(position.top, window.innerHeight - 280)) })); window.requestAnimationFrame(() => { selectedTextRef.current?.focus(); selectedTextRef.current?.select(); }); }} className="flex-1 rounded-lg px-3 py-2 text-xs text-white/80 hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-sky-400">Select text</button>
+              </div>}
+              {selectingMessageText && <div className="mt-2 border-t border-white/10 pt-2">
+                <textarea ref={selectedTextRef} readOnly value={message.body} rows={4} aria-label="Select message text to copy" className="w-full resize-none select-text rounded-lg bg-black/20 p-3 text-sm text-white outline-none focus:ring-1 focus:ring-sky-400" style={{ userSelect: "text", WebkitUserSelect: "text" }} />
+                <p className="px-1 pt-1 text-[11px] text-white/50">Select the words you need, then use Copy.</p>
+              </div>}
               {moreEmojis && <div role="group" aria-label="More emoji reactions" className="mt-2 grid max-h-[min(220px,40dvh)] grid-cols-7 gap-0.5 overflow-y-auto border-t border-white/10 pt-2">{MESSAGE_REACTION_EMOJIS.map((emoji) => <button key={emoji} type="button" disabled={!!reactionBusy} aria-label={`React ${emoji}`} aria-pressed={message.reactions?.some((r) => r.emoji === emoji && r.actorId === actorId) ?? false} onClick={() => void reactToMessage(message, emoji)} className="flex h-10 items-center justify-center rounded-lg text-xl hover:bg-white/10 aria-pressed:bg-white/15 focus-visible:outline-2 focus-visible:outline-sky-400">{emoji}</button>)}</div>}
             </div>
           </div>, document.body);
