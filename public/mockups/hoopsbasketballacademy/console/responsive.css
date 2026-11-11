@@ -1,0 +1,61 @@
+/* Shared phone/tablet layout for the exported Hoops console screens. */
+.console-shell, .console-shell main { min-width: 0; }
+.console-shell main :where(div, label) { min-width: 0; }
+.console-shell input:not([type="checkbox"]):not([type="radio"]),
+.console-shell textarea, .console-shell select { max-width: 100%; min-width: 0; }
+.console-shell :where(button, a):focus-visible { outline: 3px solid #FF6A13; outline-offset: 3px; }
+
+@media (max-width: 900px) {
+  .console-shell { display: block !important; min-height: 100vh !important; }
+  .console-sidebar { width: 100%; }
+  .navroot { min-height: 0 !important; height: auto !important; padding: 12px 16px !important; gap: 12px !important; }
+  .navroot .show-m { display: flex !important; }
+  .navroot .hide-m { display: none !important; }
+  .navroot nav { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px !important; }
+  .navroot .nav { min-height: 48px; padding: 8px 10px; }
+  .navroot .nav svg { flex-shrink: 0; }
+  .console-shell main.mp { padding: 20px 16px 120px !important; }
+}
+
+@media (max-width: 600px) {
+  .console-shell main .card { padding: 16px !important; }
+  .console-shell main .card[style*="padding: 0"] { padding: 0 !important; }
+  .console-shell main h1 { font-size: 36px !important; line-height: 1.05; overflow-wrap: anywhere; }
+  .console-shell main .d { overflow-wrap: anywhere; }
+  .console-shell main :where(.btn, .seg, .chip, .tab, .ib, .sec, .f) { min-height: 44px !important; }
+  .console-shell main :where(input, textarea, select) { font-size: 16px !important; }
+  .console-shell main input[type="checkbox"] { flex-shrink: 0; }
+  .console-shell main [style*="display: flex"]:not([style*="flex-direction: column"]) { flex-wrap: wrap; }
+  .console-shell main label[style*="display: flex"]:has(input:not([type="checkbox"]):not([type="radio"])) { flex-wrap: nowrap; }
+  .console-shell main label svg { flex-shrink: 0; }
+  .console-shell main [style*="flex: 1"],
+  .console-shell main [style*="flex: 999"] { min-width: 0 !important; max-width: 100%; }
+  .console-shell main > div > [style*="flex: 1 1"],
+  .console-shell main > div > [style*="flex: 999 1"] { flex-basis: 100% !important; }
+  .console-shell main .kan { grid-template-columns: minmax(0, 1fr) !important; }
+  .console-shell .kan > div { min-height: 0 !important; }
+  .console-shell .dashboard-row { gap: 10px !important; }
+  .console-shell .dashboard-row > [style*="flex: 1"] { flex-basis: 50%; }
+  .console-shell .drill-row { display: grid !important; grid-template-columns: 10px repeat(4, auto); }
+  .console-shell .drill-row > div { grid-column: 2 / -1; }
+  .console-shell .drill-row > .ib:first-of-type { grid-column: 2; }
+  .console-shell .inbox-folders { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); border-bottom: 1px solid #E3E9F5; }
+  .console-shell .inbox-folders .k { grid-column: 1 / -1; margin: 12px 0 4px !important; }
+  .console-shell .inbox-threads { max-height: 340px; overflow-y: auto; border-bottom: 1px solid #E3E9F5; }
+  .console-shell .inbox-reply { flex-wrap: nowrap !important; }
+  .console-shell .inbox-reply label { min-width: 0; }
+  .console-shell .editor-canvas { min-height: 0 !important; padding: 10px !important; }
+  .console-shell .qr-code { grid-template-columns: repeat(21, 10px) !important; padding: 12px !important; }
+  .console-shell .qr-code > span { width: 10px !important; height: 10px !important; }
+  /* Keep wide data tables scrollable inside their cards, not the entire page. */
+  .console-shell main [style*="overflow-x: auto"] { max-width: 100%; overscroll-behavior-x: contain; }
+  #hoops-chrome .pill a { min-height: 36px; }
+  /* Put the preview switcher after the page so it cannot cover admin controls. */
+  #hoops-chrome { position: static !important; align-items: center !important; margin: 16px 8px; }
+  #hoops-chrome .badge { background: #012169 !important; }
+}
+
+@media (max-width: 360px) {
+  .navroot nav { grid-template-columns: minmax(0, 1fr); }
+  .console-shell main.mp { padding-left: 12px !important; padding-right: 12px !important; }
+}

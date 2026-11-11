@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <base href="/mockups/hoopsbasketballacademy/console/">
 <script src="/mockups/hoopsbasketballacademy/preview-chrome.js" data-section="console" defer></script>
 
@@ -42,9 +43,10 @@ summary{list-style:none}
 }
 @media (min-width: 641px){.show-m{display:none!important}}
 </style>
+<link rel="stylesheet" href="./responsive.css">
 </helmet>
-<div style="font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; width: 100%; min-height: 1100px; display: flex; flex-wrap: wrap">
-<div style="flex: 1 1 248px; max-width: 100%"><dc-import name="AdminNav" active="bill" hint-size="100%,1100px"></dc-import></div>
+<div class="console-shell" style="font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; width: 100%; min-height: 1100px; display: flex; flex-wrap: wrap">
+<div class="console-sidebar" style="flex: 1 1 248px; max-width: 100%"><dc-import name="AdminNav" active="bill" hint-size="100%,1100px"></dc-import></div>
 <main class="mp" style="flex: 999 1 560px; min-width: 0; padding: 28px 32px 40px">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
 <div><div class="k">PAYMENTS RUN THROUGH STRIPE</div><h1 class="d" style="font-size: clamp(40px, 6vw, 56px); color: #012169; margin: 8px 0 0">Billing</h1></div>

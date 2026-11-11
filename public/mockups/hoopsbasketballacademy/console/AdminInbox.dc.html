@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <base href="/mockups/hoopsbasketballacademy/console/">
 <script src="/mockups/hoopsbasketballacademy/preview-chrome.js" data-section="console" defer></script>
 
@@ -40,9 +41,10 @@ summary{list-style:none}
 }
 @media (min-width: 641px){.show-m{display:none!important}}
 </style>
+<link rel="stylesheet" href="./responsive.css">
 </helmet>
-<div style="font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; width: 100%; min-height: 1100px; display: flex; flex-wrap: wrap">
-<div style="flex: 1 1 248px; max-width: 100%"><dc-import name="AdminNav" active="inbox" hint-size="100%,1100px"></dc-import></div>
+<div class="console-shell" style="font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; width: 100%; min-height: 1100px; display: flex; flex-wrap: wrap">
+<div class="console-sidebar" style="flex: 1 1 248px; max-width: 100%"><dc-import name="AdminNav" active="inbox" hint-size="100%,1100px"></dc-import></div>
 <main class="mp" style="flex: 999 1 560px; min-width: 0; padding: 28px 32px 40px">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
 <div><div class="k">EMAIL + APP MESSAGES IN ONE PLACE</div><h1 class="d" style="font-size: clamp(40px, 6vw, 56px); color: #012169; margin: 8px 0 0">Inbox</h1></div>
@@ -50,7 +52,7 @@ summary{list-style:none}
 </div>
 
 <div style="display: flex; flex-wrap: wrap; margin-top: 22px; background: #FFFFFF; border-radius: 18px; overflow: hidden; box-shadow: 0 1px 0 #DCE3F0; min-height: 860px">
-<div style="flex: 1 1 200px; padding: 14px; border-right: 1px solid #E3E9F5; display: flex; flex-direction: column; gap: 4px">
+<div class="inbox-folders" style="flex: 1 1 200px; padding: 14px; border-right: 1px solid #E3E9F5; display: flex; flex-direction: column; gap: 4px">
 <sc-for list="{{folders}}" as="f" hint-placeholder-count="6"><button class="f" onClick="{{f.pick}}" style="background: {{f.bg}}; color: {{f.fg}}"><span>{{f.t}}</span><span style="font-size: 12px; opacity: .8">{{f.n}}</span></button></sc-for>
 <div class="k" style="margin: 18px 12px 6px">GROUPS</div>
 <button class="f" style="background: transparent; color: #0B1530">All parents</button>
@@ -58,7 +60,7 @@ summary{list-style:none}
 <button class="f" style="background: transparent; color: #0B1530">League captains</button>
 </div>
 
-<div style="flex: 1 1 300px; border-right: 1px solid #E3E9F5; min-width: 0">
+<div class="inbox-threads" style="flex: 1 1 300px; border-right: 1px solid #E3E9F5; min-width: 0">
 <sc-for list="{{threads}}" as="t" hint-placeholder-count="6">
 <button class="th" onClick="{{t.pick}}" style="background: {{t.bg}}">
 <div style="display: flex; justify-content: space-between; gap: 8px"><span style="font-weight: 800; font-size: 14px; color: #0B1530">{{t.from}}</span><span style="font-size: 12px; color: #4A5675">{{t.when}}</span></div>
@@ -83,7 +85,7 @@ summary{list-style:none}
 <div style="padding: 14px; border-top: 1px solid #E3E9F5; display: flex; gap: 8px; flex-wrap: wrap">
 <button class="btn" onClick="{{quick1}}" style="background: #F3F6FB; color: #012169; min-height: 36px; font-size: 13px">Saturday works</button>
 <button class="btn" onClick="{{quick2}}" style="background: #F3F6FB; color: #012169; min-height: 36px; font-size: 13px">Sending homework now</button>
-<div style="display: flex; gap: 8px; width: 100%">
+<div class="inbox-reply" style="display: flex; gap: 8px; width: 100%">
 <label style="flex: 1"><span style="position: absolute; left: -9999px">Reply</span><input placeholder="Reply via {{cur.via}}…" style="width: 100%; min-height: 48px; border-radius: 12px; border: 2px solid #DCE3F0; padding: 0 14px; font: 500 14px 'Inter'"></label>
 <button class="btn" style="background: #012169; color: #FFFFFF; min-height: 48px">Send</button>
 </div>

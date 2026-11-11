@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <base href="/mockups/hoopsbasketballacademy/console/">
 <script src="/mockups/hoopsbasketballacademy/preview-chrome.js" data-section="console" defer></script>
 
@@ -41,9 +42,10 @@ summary{list-style:none}
 }
 @media (min-width: 641px){.show-m{display:none!important}}
 </style>
+<link rel="stylesheet" href="./responsive.css">
 </helmet>
-<div style="font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; width: 100%; min-height: 1100px; display: flex; flex-wrap: wrap">
-<div style="flex: 1 1 248px; max-width: 100%"><dc-import name="AdminNav" active="dash" hint-size="100%,1100px"></dc-import></div>
+<div class="console-shell" style="font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; width: 100%; min-height: 1100px; display: flex; flex-wrap: wrap">
+<div class="console-sidebar" style="flex: 1 1 248px; max-width: 100%"><dc-import name="AdminNav" active="dash" hint-size="100%,1100px"></dc-import></div>
 <main class="mp" style="flex: 999 1 560px; min-width: 0; padding: 28px 32px 40px">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px">
 <div><div class="k">TUESDAY, NOVEMBER 10</div><h1 class="d" style="font-size: clamp(40px, 6vw, 56px); color: #012169; margin: 8px 0 0">Good afternoon, Coach.</h1></div>
@@ -86,7 +88,7 @@ summary{list-style:none}
 <div style="display: flex; justify-content: space-between; align-items: center"><div class="k">NEW WORKOUT REQUESTS</div><a href="AdminRequests.dc.html" style="font-size: 13px; font-weight: 700">All requests →</a></div>
 <div style="display: flex; flex-direction: column; gap: 0; margin-top: 8px">
 <sc-for list="{{reqs}}" as="r" hint-placeholder-count="3">
-<div style="display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid #E3E9F5">
+<div class="dashboard-row" style="display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid #E3E9F5">
 <span style="width: 40px; height: 40px; border-radius: 50%; background: #E3ECFA; color: #012169; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 14px">{{r.ini}}</span>
 <div style="flex: 1"><div style="font-weight: 800">{{r.name}} <span style="font-weight: 600; color: #4A5675">· {{r.age}}</span></div><div style="font-size: 13px; color: #4A5675; margin-top: 2px">{{r.goals}} · parent {{r.parent}}</div></div>
 <span style="font-size: 12px; color: #4A5675; font-weight: 600">{{r.when}}</span>

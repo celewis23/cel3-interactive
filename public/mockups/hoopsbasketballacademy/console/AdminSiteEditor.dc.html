@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <base href="/mockups/hoopsbasketballacademy/console/">
 <script src="/mockups/hoopsbasketballacademy/preview-chrome.js" data-section="console" defer></script>
 
@@ -42,9 +43,10 @@ summary{list-style:none}
 }
 @media (min-width: 641px){.show-m{display:none!important}}
 </style>
+<link rel="stylesheet" href="./responsive.css">
 </helmet>
-<div style="font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; width: 100%; min-height: 1100px; display: flex; flex-wrap: wrap">
-<div style="flex: 1 1 248px; max-width: 100%"><dc-import name="AdminNav" active="site" hint-size="100%,1100px"></dc-import></div>
+<div class="console-shell" style="font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; width: 100%; min-height: 1100px; display: flex; flex-wrap: wrap">
+<div class="console-sidebar" style="flex: 1 1 248px; max-width: 100%"><dc-import name="AdminNav" active="site" hint-size="100%,1100px"></dc-import></div>
 <main class="mp" style="flex: 999 1 560px; min-width: 0; padding: 20px 24px 32px; display: flex; flex-direction: column; gap: 14px">
 <!-- toolbar -->
 <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: #FFFFFF; border-radius: 14px; padding: 8px 10px; box-shadow: 0 1px 0 #DCE3F0">
@@ -76,7 +78,7 @@ summary{list-style:none}
 </div>
 
 <!-- canvas -->
-<div style="flex: 999 1 460px; min-width: 0; background: #DCE3F0; border-radius: 16px; padding: 22px; display: flex; justify-content: center; min-height: 860px">
+<div class="editor-canvas" style="flex: 999 1 460px; min-width: 0; background: #DCE3F0; border-radius: 16px; padding: 22px; display: flex; justify-content: center; min-height: 860px">
 <div style="width: {{frameW}}; max-width: 100%; background: #FFFFFF; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(1,33,105,.18); align-self: flex-start">
 <div style="background: #012169; color: #FFFFFF; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700"><span class="d" style="font-size: 18px">Hoops</span><span style="opacity: .8">Programs · Legends · League · About</span></div>
 <button class="pv" onClick="{{selHero}}" style="background: {{heroBg}}; color: {{heroFg}}; padding: {{heroPad}}; box-shadow: {{ringHero}}">

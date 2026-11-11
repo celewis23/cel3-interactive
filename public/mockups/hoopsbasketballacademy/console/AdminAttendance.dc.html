@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <base href="/mockups/hoopsbasketballacademy/console/">
 <script src="/mockups/hoopsbasketballacademy/preview-chrome.js" data-section="console" defer></script>
 
@@ -44,9 +45,10 @@ summary{list-style:none}
 }
 @media (min-width: 641px){.show-m{display:none!important}}
 </style>
+<link rel="stylesheet" href="./responsive.css">
 </helmet>
-<div style="font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; width: 100%; min-height: 1100px; display: flex; flex-wrap: wrap">
-<div style="flex: 1 1 248px; max-width: 100%"><dc-import name="AdminNav" active="att" hint-size="100%,1100px"></dc-import></div>
+<div class="console-shell" style="font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; width: 100%; min-height: 1100px; display: flex; flex-wrap: wrap">
+<div class="console-sidebar" style="flex: 1 1 248px; max-width: 100%"><dc-import name="AdminNav" active="att" hint-size="100%,1100px"></dc-import></div>
 <main class="mp" style="flex: 999 1 560px; min-width: 0; padding: 28px 32px 40px">
 <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
 <div><div class="k">ATHLETES SCAN WITH THE HOOPS APP</div><h1 class="d" style="font-size: clamp(40px, 6vw, 56px); color: #012169; margin: 8px 0 0">Check-in &amp; attendance</h1></div>
@@ -59,7 +61,7 @@ summary{list-style:none}
 <div class="card" style="flex: 1 1 380px; background: #012169; color: #FFFFFF; text-align: center; padding: 30px">
 <div style="font-size: 11px; font-weight: 800; letter-spacing: .14em; color: #8FB8FF">{{cur.t}} · {{cur.name}}</div>
 <div class="d" style="font-size: 44px; margin-top: 10px">Scan to check in</div>
-<div style="display: inline-grid; grid-template-columns: repeat(21, 12px); gap: 0; padding: 18px; border-radius: 18px; background: #FFFFFF; margin-top: 22px">
+<div class="qr-code" style="display: inline-grid; grid-template-columns: repeat(21, 12px); gap: 0; padding: 18px; border-radius: 18px; background: #FFFFFF; margin-top: 22px">
 <sc-for list="{{qr}}" as="q" hint-placeholder-count="441"><span style="width: 12px; height: 12px; background: {{q}}"></span></sc-for>
 </div>
 <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 16px; font-size: 13px; color: #B7C3E0"><span style="width: 8px; height: 8px; border-radius: 50%; background: #FF6A13"></span>Code refreshes every 30 seconds · only works at the gym</div>
