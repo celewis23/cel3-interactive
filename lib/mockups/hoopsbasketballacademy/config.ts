@@ -105,7 +105,7 @@ export const HOOPS_OFFER_EXPIRES_AT = new Date("2026-11-15T23:59:59-05:00");
 export const HOOPS_OVERAGE_RATE_NOTE = "Work beyond the included hours is billed at $125/hour, quoted before we start. Unused hours don't roll over.";
 
 export const HOOPS_TIMELINE = {
-  summary: "Your website goes live first, about 7 weeks after kickoff. Tier 1 alone takes about 7 weeks; adding a tier later adds its own build time from the day you book it.",
+  summary: "Your website goes live first, about 2 weeks after kickoff. Tier 1 alone takes about 2 weeks; adding a tier later adds its own build time from the day you book it.",
   allThreeWeeks: 25,
 };
 
