@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<base href="/mockups/hoopsbasketballacademy/console/">
+<script src="/mockups/hoopsbasketballacademy/preview-chrome.js" data-section="console" defer></script>
+
+<title>Console — Athletes</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap">
+<style>
+body{margin:0;background:#F3F6FB}
+*{box-sizing:border-box}
+.d{font-family:'Archivo',sans-serif;font-stretch:62%;font-weight:900;text-transform:uppercase;line-height:.88}
+.m{font-family:'JetBrains Mono',monospace}
+a{color:#00539B}a:hover{color:#012169}
+.card{background:#FFFFFF;border-radius:18px;padding:22px;box-shadow:0 1px 0 #DCE3F0}
+.k{font-size:11px;font-weight:800;letter-spacing:.12em;color:#4A5675}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:12px;font:700 14px 'Inter',sans-serif;text-decoration:none;border:0;cursor:pointer}
+.row{width:100%;display:flex;align-items:center;gap:12px;border:0;cursor:pointer;border-radius:12px;padding:10px 12px;text-align:left;font-family:'Inter',sans-serif}
+.tab{min-height:44px;padding:0 16px;border:0;background:transparent;font:700 14px 'Inter',sans-serif;cursor:pointer}
+
+summary::-webkit-details-marker{display:none}
+summary{list-style:none}
+@media (max-width: 640px){
+.sp{padding-left:20px!important;padding-right:20px!important}
+.sv{padding-top:64px!important;padding-bottom:64px!important}
+.panel{padding:24px!important}
+.mp{padding:16px!important}
+.hide-m{display:none!important}
+.scroll-m{flex-wrap:nowrap!important;overflow-x:auto!important}
+.tabs-m{flex-direction:row!important;flex-wrap:nowrap!important;overflow-x:auto!important;padding-bottom:4px}
+.tabs-m .tab{width:auto!important;white-space:nowrap;flex:none!important;min-height:52px!important}
+.img-m{height:240px!important}
+.navroot{min-height:0!important;padding:12px 14px!important}
+}
+@media (min-width: 641px){.show-m{display:none!important}}
+</style>
+</helmet>
+<div style="font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; width: 100%; min-height: 1100px; display: flex; flex-wrap: wrap">
+<div style="flex: 1 1 248px; max-width: 100%"><dc-import name="AdminNav" active="ath" hint-size="100%,1100px"></dc-import></div>
+<main class="mp" style="flex: 999 1 560px; min-width: 0; padding: 28px 32px 40px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+<div><div class="k">48 ACTIVE · 3 PROGRAMS</div><h1 class="d" style="font-size: clamp(40px, 6vw, 56px); color: #012169; margin: 8px 0 0">Athletes</h1></div>
+<div style="display: flex; gap: 10px; flex-wrap: wrap"><a class="btn" href="AdminInbox.dc.html" style="background: #FFFFFF; color: #012169; box-shadow: inset 0 0 0 1px #DCE3F0">Message a group</a><a class="btn" href="AdminRequests.dc.html" style="background: #012169; color: #FFFFFF">Add athlete</a></div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 22px; align-items: flex-start">
+<div class="card" style="flex: 1 1 320px; padding: 14px">
+<label style="display: flex; align-items: center; gap: 8px; background: #F3F6FB; border-radius: 12px; padding: 0 12px; min-height: 44px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A5675" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><input aria-label="Search athletes" placeholder="Search athletes" style="border: 0; outline: none; background: transparent; font: 500 14px 'Inter'; flex: 1"></label>
+<div style="display: flex; flex-direction: column; gap: 4px; margin-top: 10px">
+<sc-for list="{{list}}" as="a" hint-placeholder-count="8">
+<button class="row" onClick="{{a.pick}}" style="background: {{a.bg}}; color: {{a.fg}}">
+<span style="width: 38px; height: 38px; border-radius: 50%; background: {{a.av}}; color: #FFFFFF; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; flex: none">{{a.ini}}</span>
+<span style="flex: 1"><span style="display: block; font-weight: 800; font-size: 14px">{{a.name}}</span><span style="display: block; font-size: 12px; opacity: .75; margin-top: 2px">{{a.prog}} · Age {{a.age}}</span></span>
+<span class="m" style="font-size: 12px; font-weight: 700">{{a.att}}%</span>
+</button>
+</sc-for>
+</div>
+</div>
+
+<div style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<div class="card" style="background: #012169; color: #FFFFFF; padding: 26px">
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center">
+<span class="d" style="width: 84px; height: 84px; border-radius: 22px; background: #FF6A13; color: #012169; font-size: 52px; display: flex; align-items: center; justify-content: center">{{cur.num}}</span>
+<div style="flex: 1; min-width: 220px"><div class="d" style="font-size: 52px">{{cur.name}}</div><div style="color: #B7C3E0; font-weight: 600; margin-top: 6px">{{cur.prog}} · {{cur.pos}} · Age {{cur.age}} · Parent: {{cur.parent}}</div></div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<a class="btn" href="AdminInbox.dc.html" style="background: #00539B; color: #FFFFFF">Message</a>
+<a class="btn" href="AdminDrills.dc.html" style="background: #FFFFFF; color: #012169">Send homework</a>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr)); gap: 10px; margin-top: 22px">
+<div style="padding: 14px; border-radius: 14px; background: #0A2C7A"><div style="font-size: 11px; font-weight: 800; letter-spacing: .1em; color: #B7C3E0">ATTENDANCE</div><div class="d" style="font-size: 40px; margin-top: 6px">{{cur.att}}%</div></div>
+<div style="padding: 14px; border-radius: 14px; background: #0A2C7A"><div style="font-size: 11px; font-weight: 800; letter-spacing: .1em; color: #B7C3E0">HOMEWORK DONE</div><div class="d" style="font-size: 40px; margin-top: 6px">{{cur.hw}}%</div></div>
+<div style="padding: 14px; border-radius: 14px; background: #0A2C7A"><div style="font-size: 11px; font-weight: 800; letter-spacing: .1em; color: #B7C3E0">OVERALL</div><div class="d" style="font-size: 40px; margin-top: 6px">{{cur.ovr}}</div></div>
+<div style="padding: 14px; border-radius: 14px; background: #0A2C7A"><div style="font-size: 11px; font-weight: 800; letter-spacing: .1em; color: #B7C3E0">MEMBER SINCE</div><div class="d" style="font-size: 40px; margin-top: 6px">{{cur.since}}</div></div>
+</div>
+</div>
+
+<div class="card" style="padding: 0">
+<div style="display: flex; gap: 4px; padding: 6px 12px; border-bottom: 1px solid #E3E9F5; flex-wrap: wrap" role="tablist">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="4"><button class="tab" role="tab" onClick="{{t.pick}}" style="color: {{t.fg}}; box-shadow: {{t.line}}">{{t.t}}</button></sc-for>
+</div>
+<div style="padding: 22px">
+<sc-if value="{{tProg}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; gap: 28px">
+<div style="flex: 1 1 280px; display: flex; flex-direction: column; gap: 14px">
+<div class="k">SKILL RATINGS · UPDATED NOV 3</div>
+<sc-for list="{{cur.skills}}" as="s" hint-placeholder-count="6">
+<div style="display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 700">
+<span style="width: 92px">{{s.n}}</span>
+<span style="flex: 1; height: 10px; border-radius: 5px; background: #E3E9F5; overflow: hidden"><span style="display: block; height: 100%; background: #00539B; width: {{s.w}}"></span></span>
+<span class="m" style="width: 26px; text-align: right">{{s.v}}</span>
+<span class="m" style="width: 34px; font-size: 12px; color: #00539B">+{{s.d}}</span>
+</div>
+</sc-for>
+<button class="btn" style="background: #F3F6FB; color: #012169; align-self: flex-start">Update ratings</button>
+</div>
+<div style="flex: 1 1 280px">
+<div class="k">FREE THROWS · % MADE BY WEEK</div>
+<div style="display: flex; align-items: flex-end; gap: 8px; height: 190px; margin-top: 16px; border-bottom: 2px solid #E3E9F5">
+<sc-for list="{{cur.ft}}" as="p" hint-placeholder-count="8"><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; height: 100%"><span class="m" style="font-size: 10px; color: #4A5675">{{p.v}}</span><span style="width: 100%; height: {{p.h}}; background: {{p.c}}; border-radius: 5px 5px 0 0"></span></div></sc-for>
+</div>
+<div style="margin-top: 14px; padding: 14px; border-radius: 12px; background: #F3F6FB; font-size: 14px; line-height: 1.5"><b>Latest note:</b> Left-hand finishes are way more confident. Next: keep the eyes up out of the crossover.</div>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{tHw}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{hwList}}" as="h" hint-placeholder-count="5">
+<div style="display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 12px; background: #F3F6FB">
+<span style="font-size: 11px; font-weight: 800; letter-spacing: .08em; padding: 6px 10px; border-radius: 999px; background: {{h.bg}}; color: {{h.fg}}">{{h.st}}</span>
+<span style="flex: 1; font-weight: 700">{{h.t}}</span>
+<span style="font-size: 13px; color: #4A5675">{{h.d}}</span>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{tAtt}}" hint-placeholder-val="{{ false }}">
+<div class="k">LAST 8 WEEKS · EACH SQUARE IS A SCHEDULED SESSION</div>
+<div style="display: grid; grid-template-columns: repeat(16, 28px); gap: 6px; margin-top: 14px">
+<sc-for list="{{attGrid}}" as="g" hint-placeholder-count="16"><span title="{{g.t}}" style="width: 28px; height: 28px; border-radius: 6px; background: {{g.c}}"></span></sc-for>
+</div>
+<div style="display: flex; gap: 18px; margin-top: 14px; font-size: 13px; color: #4A5675; font-weight: 600"><span style="display: flex; gap: 6px; align-items: center"><span style="width: 12px; height: 12px; border-radius: 3px; background: #00539B"></span>Scanned in</span><span style="display: flex; gap: 6px; align-items: center"><span style="width: 12px; height: 12px; border-radius: 3px; background: #FF6A13"></span>Late</span><span style="display: flex; gap: 6px; align-items: center"><span style="width: 12px; height: 12px; border-radius: 3px; background: #DCE3F0"></span>Missed</span></div>
+</sc-if>
+<sc-if value="{{tNotes}}" hint-placeholder-val="{{ false }}">
+<label style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; font-weight: 700">New note (visible to parent)
+<textarea style="min-height: 90px; border-radius: 12px; border: 2px solid #DCE3F0; padding: 12px; font: 500 14px 'Inter'" placeholder="What did you see today?"></textarea></label>
+<div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px">
+<div style="padding: 14px; border-radius: 12px; background: #F3F6FB; font-size: 14px; line-height: 1.5"><div class="k">NOV 3</div>Left-hand finishes are way more confident. Next: eyes up out of the crossover.</div>
+<div style="padding: 14px; border-radius: 12px; background: #F3F6FB; font-size: 14px; line-height: 1.5"><div class="k">OCT 20</div>Great energy. Footwork on the closeout still drifting, we'll keep drilling it.</div>
+</div>
+</sc-if>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { sel: 0, tab: 'Progress' }; }
+  renderVals() {
+    const s = this.state;
+    const A = [
+      ['Malik Carter','MC','Development','Guard',14,'Denise Carter',96,92,78,'2023','23'],
+      ['Ty Robinson','TR','Development','Wing',13,'Keisha Robinson',88,85,71,'2024','5'],
+      ['Mia Chen','MC','Foundations','Guard',10,'David Chen',100,60,58,'2026','2'],
+      ['Jordan Price','JP','Elite','Guard',17,'Alicia Price',94,97,84,'2021','11'],
+      ['Ava Lewis','AL','Elite','Forward',16,'Mark Lewis',90,88,80,'2022','32'],
+      ['Noah Brooks','NB','Foundations','Guard',8,'Tara Brooks',82,70,52,'2025','7'],
+      ['Isaiah Ford','IF','Development','Big',12,'Paul Ford',75,64,63,'2025','44'],
+      ['Zoe Grant','ZG','Development','Wing',13,'Renee Grant',91,90,70,'2024','15']
+    ].map(([name,ini,prog,pos,age,parent,att,hw,ovr,since,num], i) => {
+      const base = ovr;
+      const skills = [['Handle',4,3],['Shooting',-2,4],['Finishing',3,6],['Footwork',1,2],['Defense',-4,1],['IQ',2,3]].map(([n,o,d]) => ({ n, v: base+o, w: (base+o)+'%', d }));
+      const ftv = [0,1,2,3,4,5,6,7].map(k => Math.min(95, base - 18 + k*3 + (k%2)));
+      const ft = ftv.map((v,k) => ({ v, h: (v-30)*2.4+'px', c: k===7 ? '#FF6A13' : '#00539B' }));
+      return { name, ini, prog, pos, age, parent, att, hw, ovr, since, num, skills, ft, av: ['#012169','#00539B','#2E6FB0'][i%3] };
+    });
+    const cur = A[s.sel];
+    const list = A.map((a,i) => ({ ...a, pick: () => this.setState({ sel: i }), bg: i===s.sel ? '#012169' : 'transparent', fg: i===s.sel ? '#FFFFFF' : '#0B1530' }));
+    const tabs = ['Progress','Homework','Attendance','Notes'].map(t => ({ t, pick: () => this.setState({ tab: t }), fg: s.tab===t ? '#012169' : '#4A5675', line: s.tab===t ? 'inset 0 -3px 0 #FF6A13' : 'none' }));
+    const hwList = [['DONE','Two-ball pound series','Done Nov 8'],['DONE','Form shooting 100','Done Nov 6'],['DUE','Left-hand finishing package','Due Fri'],['DUE','Wall passes + footwork','Due Sun'],['MISSED','Defensive slides 3x30','Was due Nov 1']].map(([st,t,d]) => ({ st, t, d, bg: st==='DONE' ? '#00539B' : st==='DUE' ? '#E3ECFA' : '#FFE3D3', fg: st==='DONE' ? '#FFFFFF' : st==='DUE' ? '#012169' : '#8A3305' }));
+    const pat = 'pppplppppmppppppppplpppppmpppppp';
+    const attGrid = pat.split('').map((c,i) => ({ c: c==='p' ? '#00539B' : c==='l' ? '#FF6A13' : '#DCE3F0', t: c==='p' ? 'Scanned in' : c==='l' ? 'Late' : 'Missed' }));
+    return { list, cur, tabs, hwList, attGrid, tProg: s.tab==='Progress', tHw: s.tab==='Homework', tAtt: s.tab==='Attendance', tNotes: s.tab==='Notes' };
+  }
+}
+</script>
+</body>
+</html>

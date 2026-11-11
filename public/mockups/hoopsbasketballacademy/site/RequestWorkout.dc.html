@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<base href="/mockups/hoopsbasketballacademy/site/">
+<script src="/mockups/hoopsbasketballacademy/preview-chrome.js" data-section="site" defer></script>
+
+<title>Request a Workout</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap">
+<style>
+body{margin:0;background:#FFFFFF}
+*{box-sizing:border-box}
+.d{font-family:'Archivo',sans-serif;font-stretch:62%;font-weight:900;text-transform:uppercase;line-height:.88}
+a{color:#00539B}a:hover{color:#012169}
+.lbl{display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:700;color:#0B1530}
+.inp{min-height:52px;border-radius:12px;border:2px solid #DCE3F0;padding:0 16px;font:500 16px 'Inter',sans-serif;color:#0B1530;background:#FFFFFF;width:100%}
+.inp:focus{outline:none;border-color:#00539B}
+.chip{min-height:44px;padding:0 18px;border-radius:999px;font:700 14px 'Inter',sans-serif;cursor:pointer;border:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:54px;padding:0 28px;border-radius:999px;font:700 16px 'Inter',sans-serif;text-decoration:none;border:0;cursor:pointer}
+
+summary::-webkit-details-marker{display:none}
+summary{list-style:none}
+@media (max-width: 640px){
+.sp{padding-left:20px!important;padding-right:20px!important}
+.sv{padding-top:64px!important;padding-bottom:64px!important}
+.panel{padding:24px!important}
+.mp{padding:16px!important}
+.hide-m{display:none!important}
+.scroll-m{flex-wrap:nowrap!important;overflow-x:auto!important}
+.tabs-m{flex-direction:row!important;flex-wrap:nowrap!important;overflow-x:auto!important;padding-bottom:4px}
+.tabs-m .tab{width:auto!important;white-space:nowrap;flex:none!important;min-height:52px!important}
+.img-m{height:240px!important;min-height:240px!important}
+.navroot{min-height:0!important;padding:12px 14px!important}
+}
+@media (min-width: 641px){.show-m{display:none!important}}
+</style>
+</helmet>
+<div style="font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; width: 100%; min-height: 1250px">
+<dc-import name="SiteNav" active="request" hint-size="100%,82px"></dc-import>
+
+<div class="sp" style="max-width: 1280px; margin: 0 auto; padding: 64px 32px 96px; row-gap: 20px; display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start">
+<!-- left -->
+<aside class="panel" style="flex: 1 1 300px; min-width: 0; background: #012169; color: #FFFFFF; border-radius: 28px; padding: 40px">
+<h1 class="d" style="font-size: clamp(60px, 9vw, 88px); margin: 0">Request a<br><span style="color: #FF6A13">workout</span></h1>
+<p style="font-size: 17px; line-height: 1.6; color: #D6DEF0; margin: 22px 0 0">Two minutes. No payment, no commitment. Coach reads every request himself.</p>
+<div style="margin-top: 34px; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; gap: 16px"><span class="d" style="font-size: 36px; color: #8FB8FF; width: 30px">1</span><div><div style="font-weight: 800">You send this request</div><div style="font-size: 14px; color: #B7C3E0; margin-top: 4px">It lands in Coach's inbox right away.</div></div></div>
+<div style="display: flex; gap: 16px"><span class="d" style="font-size: 36px; color: #8FB8FF; width: 30px">2</span><div><div style="font-weight: 800">Coach reaches out</div><div style="font-size: 14px; color: #B7C3E0; margin-top: 4px">By phone or email within [X] hours to talk it through.</div></div></div>
+<div style="display: flex; gap: 16px"><span class="d" style="font-size: 36px; color: #FF6A13; width: 30px">3</span><div><div style="font-weight: 800">One link to join</div><div style="font-size: 14px; color: #B7C3E0; margin-top: 4px">If it's a fit, you get a link to enroll and get the app.</div></div></div>
+</div>
+</aside>
+
+<!-- form -->
+<section class="panel" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; border-radius: 28px; padding: 44px">
+<sc-if value="{{notDone}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; gap: 8px">
+<sc-for list="{{bar}}" as="b" hint-placeholder-count="3"><div style="flex: 1"><div style="height: 6px; border-radius: 3px; background: {{b.c}}"></div><div style="font-size: 13px; font-weight: 700; margin-top: 10px; color: {{b.t}}">{{b.label}}</div></div></sc-for>
+</div>
+
+<sc-if value="{{s1}}" hint-placeholder-val="{{ true }}">
+<h2 class="d" style="font-size: 56px; color: #012169; margin: 36px 0 0">About your athlete</h2>
+<div style="margin-top: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 18px">
+<label class="lbl">Athlete's first name<input class="inp" placeholder="First name"></label>
+<label class="lbl">Last name<input class="inp" placeholder="Last name"></label>
+<label class="lbl">Age<input class="inp" placeholder="12" inputmode="numeric"></label>
+<label class="lbl">Grade / school<input class="inp" placeholder="7th · Lincoln Middle"></label>
+</div>
+<div style="margin-top: 26px; font-size: 14px; font-weight: 700">Position</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px">
+<sc-for list="{{pos}}" as="p" hint-placeholder-count="4"><button class="chip" onClick="{{p.pick}}" style="background: {{p.bg}}; color: {{p.fg}}">{{p.t}}</button></sc-for>
+</div>
+<div style="margin-top: 26px; font-size: 14px; font-weight: 700">Experience</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px">
+<sc-for list="{{exp}}" as="p" hint-placeholder-count="4"><button class="chip" onClick="{{p.pick}}" style="background: {{p.bg}}; color: {{p.fg}}">{{p.t}}</button></sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{s2}}" hint-placeholder-val="{{ false }}">
+<h2 class="d" style="font-size: 56px; color: #012169; margin: 36px 0 0">Goals &amp; schedule</h2>
+<div style="margin-top: 26px; font-size: 14px; font-weight: 700">What should we work on? Pick all that apply.</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px">
+<sc-for list="{{goals}}" as="p" hint-placeholder-count="8"><button class="chip" onClick="{{p.pick}}" style="background: {{p.bg}}; color: {{p.fg}}">{{p.t}}</button></sc-for>
+</div>
+<div style="margin-top: 26px; font-size: 14px; font-weight: 700">Best days</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px">
+<sc-for list="{{days}}" as="p" hint-placeholder-count="7"><button class="chip" onClick="{{p.pick}}" style="background: {{p.bg}}; color: {{p.fg}}; min-width: 64px">{{p.t}}</button></sc-for>
+</div>
+<label class="lbl" style="margin-top: 26px">Anything Coach should know?<textarea class="inp" style="min-height: 120px; padding: 14px 16px; resize: vertical" placeholder="Current team, injuries, tryout dates, goals…"></textarea></label>
+</sc-if>
+
+<sc-if value="{{s3}}" hint-placeholder-val="{{ false }}">
+<h2 class="d" style="font-size: 56px; color: #012169; margin: 36px 0 0">Parent / guardian</h2>
+<div style="margin-top: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 18px">
+<label class="lbl">Your name<input class="inp" placeholder="Full name"></label>
+<label class="lbl">Relationship<input class="inp" placeholder="Parent"></label>
+<label class="lbl">Email<input class="inp" type="email" placeholder="you@email.com"></label>
+<label class="lbl">Mobile<input class="inp" type="tel" placeholder="(555) 555-0123"></label>
+</div>
+<div style="margin-top: 26px; font-size: 14px; font-weight: 700">How should Coach reach you?</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px">
+<sc-for list="{{contact}}" as="p" hint-placeholder-count="3"><button class="chip" onClick="{{p.pick}}" style="background: {{p.bg}}; color: {{p.fg}}">{{p.t}}</button></sc-for>
+</div>
+</sc-if>
+
+<div style="margin-top: 40px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+<button class="btn" onClick="{{back}}" style="background: #F3F6FB; color: #012169; visibility: {{backVis}}">Back</button>
+<button class="btn" onClick="{{next}}" style="background: #012169; color: #FFFFFF">{{nextLabel}}</button>
+</div>
+</sc-if>
+
+<sc-if value="{{done}}" hint-placeholder-val="{{ false }}">
+<div style="text-align: center; padding: 60px 10px">
+<div style="width: 96px; height: 96px; border-radius: 50%; background: #FF6A13; display: flex; align-items: center; justify-content: center; margin: 0 auto"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#012169" stroke-width="3.5" aria-hidden="true"><path d="M4 12l5 5L20 6"></path></svg></div>
+<h2 class="d" style="font-size: clamp(60px, 9vw, 88px); color: #012169; margin: 28px 0 0">Request sent.</h2>
+<p style="font-size: 18px; line-height: 1.6; color: #4A5675; max-width: 520px; margin: 18px auto 0">Coach will reach out within [X] hours by phone or email. A copy of your request is on its way to your email.</p>
+<div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 32px">
+<a class="btn" href="Main.dc.html" style="background: #012169; color: #FFFFFF">Back to home</a>
+<a class="btn" href="Legends.dc.html" style="background: #F3F6FB; color: #012169">Meet the Legends</a>
+</div>
+</div>
+</sc-if>
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1250}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { step: 1, pos: 'Guard', exp: 'Rec league', goals: ['Ball handling','Shooting'], days: ['Tue','Thu'], contact: 'Call' }; }
+  renderVals() {
+    const s = this.state;
+    const on = (a) => a ? { bg: '#012169', fg: '#FFFFFF' } : { bg: '#F3F6FB', fg: '#0B1530' };
+    const single = (key, list) => list.map(t => ({ t, ...on(s[key] === t), pick: () => this.setState({ [key]: t }) }));
+    const multi = (key, list) => list.map(t => ({ t, ...on(s[key].includes(t)), pick: () => this.setState({ [key]: s[key].includes(t) ? s[key].filter(x => x !== t) : [...s[key], t] }) }));
+    const bar = ['Athlete','Goals','Parent'].map((label, i) => ({ label, c: i < s.step ? '#00539B' : '#DCE3F0', t: i < s.step ? '#012169' : '#4A5675' }));
+    return {
+      s1: s.step === 1, s2: s.step === 2, s3: s.step === 3, done: s.step === 4, notDone: s.step < 4, bar,
+      pos: single('pos', ['Guard','Wing','Big','Not sure yet']),
+      exp: single('exp', ['Just starting','Rec league','School team','AAU / travel']),
+      goals: multi('goals', ['Ball handling','Shooting','Finishing','Footwork','Defense','Strength & speed','Game IQ','Confidence']),
+      days: multi('days', ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']),
+      contact: single('contact', ['Call','Email']),
+      back: () => this.setState({ step: Math.max(1, s.step - 1) }),
+      next: () => this.setState({ step: s.step + 1 }),
+      backVis: s.step > 1 ? 'visible' : 'hidden',
+      nextLabel: s.step === 3 ? 'Send request' : 'Continue'
+    };
+  }
+}
+</script>
+</body>
+</html>

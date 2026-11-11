@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<base href="/mockups/hoopsbasketballacademy/console/">
+<script src="/mockups/hoopsbasketballacademy/preview-chrome.js" data-section="console" defer></script>
+
+<title>Console — Requests & Enrollment</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap">
+<style>
+body{margin:0;background:#F3F6FB}
+*{box-sizing:border-box}
+.d{font-family:'Archivo',sans-serif;font-stretch:62%;font-weight:900;text-transform:uppercase;line-height:.88}
+.m{font-family:'JetBrains Mono',monospace}
+a{color:#00539B}a:hover{color:#012169}
+.card{background:#FFFFFF;border-radius:18px;padding:22px;box-shadow:0 1px 0 #DCE3F0}
+.k{font-size:11px;font-weight:800;letter-spacing:.12em;color:#4A5675}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:12px;font:700 14px 'Inter',sans-serif;text-decoration:none;border:0;cursor:pointer}
+.lead{width:100%;text-align:left;border:0;cursor:pointer;border-radius:14px;padding:14px;font-family:'Inter',sans-serif}
+.chip{min-height:40px;padding:0 14px;border-radius:999px;border:0;font:700 13px 'Inter',sans-serif;cursor:pointer}
+
+summary::-webkit-details-marker{display:none}
+summary{list-style:none}
+@media (max-width: 640px){
+.kan{display:flex!important;overflow-x:auto!important;scroll-snap-type:x mandatory}
+.kan > *{flex:0 0 78%!important;scroll-snap-align:start;min-height:0!important}
+.sp{padding-left:20px!important;padding-right:20px!important}
+.sv{padding-top:64px!important;padding-bottom:64px!important}
+.panel{padding:24px!important}
+.mp{padding:16px!important}
+.hide-m{display:none!important}
+.scroll-m{flex-wrap:nowrap!important;overflow-x:auto!important}
+.tabs-m{flex-direction:row!important;flex-wrap:nowrap!important;overflow-x:auto!important;padding-bottom:4px}
+.tabs-m .tab{width:auto!important;white-space:nowrap;flex:none!important;min-height:52px!important}
+.img-m{height:240px!important}
+.navroot{min-height:0!important;padding:12px 14px!important}
+}
+@media (min-width: 641px){.show-m{display:none!important}}
+</style>
+</helmet>
+<div style="font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; width: 100%; min-height: 1100px; display: flex; flex-wrap: wrap">
+<div style="flex: 1 1 248px; max-width: 100%"><dc-import name="AdminNav" active="req" hint-size="100%,1100px"></dc-import></div>
+<main class="mp" style="flex: 999 1 560px; min-width: 0; padding: 28px 32px 40px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+<div><div class="k">FROM THE WEBSITE</div><h1 class="d" style="font-size: clamp(40px, 6vw, 56px); color: #012169; margin: 8px 0 0">Workout requests</h1></div>
+<div style="font-size: 14px; color: #4A5675; font-weight: 600">Talk offline first. Enroll in one click when it's a fit.</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 22px; align-items: flex-start">
+<!-- board -->
+<div class="kan" style="flex: 999 1 520px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 12px">
+<sc-for list="{{cols}}" as="c" hint-placeholder-count="4">
+<div style="background: #E8EEF8; border-radius: 16px; padding: 10px; min-height: 520px">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 6px 12px"><span style="font-weight: 800; font-size: 13px; letter-spacing: .06em; color: #012169">{{c.t}}</span><span class="m" style="font-size: 12px; font-weight: 700; color: #4A5675">{{c.n}}</span></div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{c.items}}" as="l" hint-placeholder-count="2">
+<button class="lead" onClick="{{l.pick}}" style="background: {{l.bg}}; color: {{l.fg}}; box-shadow: {{l.ring}}">
+<div style="font-weight: 800; font-size: 15px">{{l.name}}</div>
+<div style="font-size: 12px; margin-top: 4px; opacity: .8">Age {{l.age}} · {{l.pos}}</div>
+<div style="font-size: 12px; margin-top: 8px; font-weight: 700; opacity: .9">{{l.goals}}</div>
+<div style="font-size: 11px; margin-top: 10px; opacity: .7">{{l.when}}</div>
+</button>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+
+<!-- detail / enroll -->
+<div class="card" style="flex: 1 1 380px; min-width: 0">
+<sc-if value="{{showDetail}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: center; gap: 14px">
+<span style="width: 56px; height: 56px; border-radius: 50%; background: #012169; color: #FFFFFF; font-weight: 800; display: flex; align-items: center; justify-content: center">{{cur.ini}}</span>
+<div><div class="d" style="font-size: 36px; color: #012169">{{cur.name}}</div><div style="font-size: 13px; color: #4A5675; font-weight: 600; margin-top: 4px">Age {{cur.age}} · {{cur.pos}} · {{cur.exp}}</div></div>
+</div>
+<div style="margin-top: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="padding: 12px; border-radius: 12px; background: #F3F6FB"><div class="k">WORK ON</div><div style="font-weight: 700; font-size: 14px; margin-top: 4px">{{cur.goals}}</div></div>
+<div style="padding: 12px; border-radius: 12px; background: #F3F6FB"><div class="k">BEST DAYS</div><div style="font-weight: 700; font-size: 14px; margin-top: 4px">{{cur.days}}</div></div>
+</div>
+<div style="margin-top: 16px; padding: 14px; border-radius: 14px; box-shadow: inset 0 0 0 1px #DCE3F0">
+<div class="k">PARENT</div>
+<div style="font-weight: 800; margin-top: 6px">{{cur.parent}}</div>
+<div style="font-size: 13px; color: #4A5675; margin-top: 2px">Prefers {{cur.contact}} · (555) 555-01{{cur.ph}}</div>
+<div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap">
+<a class="btn" href="tel:+15555550100" style="background: #F3F6FB; color: #012169; min-height: 40px">Call</a>
+<a class="btn" href="AdminInbox.dc.html" style="background: #F3F6FB; color: #012169; min-height: 40px">Email</a>
+</div>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px; margin-top: 16px; font-size: 13px; font-weight: 700">Notes from the call
+<textarea style="min-height: 84px; border-radius: 12px; border: 2px solid #DCE3F0; padding: 12px; font: 500 14px 'Inter'; resize: vertical">Talked Tue. Plays rec, wants to make the middle school team in spring. Weak left hand.</textarea></label>
+<div style="display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap">
+<button class="btn" onClick="{{startEnroll}}" style="background: #FF6A13; color: #0B1530; flex: 1">Enroll athlete</button>
+<button class="btn" style="background: #F3F6FB; color: #4A5675">Not a fit</button>
+</div>
+</sc-if>
+
+<sc-if value="{{showEnroll}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; justify-content: space-between; align-items: center"><div class="k">ENROLL · {{cur.name}}</div><button class="btn" onClick="{{cancel}}" style="background: transparent; color: #4A5675; min-height: 36px; padding: 0 8px">Cancel</button></div>
+<div style="display: flex; flex-direction: column; gap: 16px; margin-top: 14px">
+<div style="display: flex; gap: 12px"><span style="width: 26px; height: 26px; border-radius: 50%; background: #00539B; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex: none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="4" aria-hidden="true"><path d="M4 12l5 5L20 6"></path></svg></span><div><div style="font-weight: 800">Athlete profile</div><div style="font-size: 13px; color: #4A5675">Filled in from the request</div></div></div>
+<div style="display: flex; gap: 12px"><span class="m" style="width: 26px; height: 26px; border-radius: 50%; background: #012169; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex: none; font-size: 12px">2</span><div style="flex: 1"><div style="font-weight: 800">Program</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px"><sc-for list="{{programs}}" as="p" hint-placeholder-count="4"><button class="chip" onClick="{{p.pick}}" style="background: {{p.bg}}; color: {{p.fg}}">{{p.t}}</button></sc-for></div></div></div>
+<div style="display: flex; gap: 12px"><span class="m" style="width: 26px; height: 26px; border-radius: 50%; background: #012169; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex: none; font-size: 12px">3</span><div style="flex: 1"><div style="font-weight: 800">Billing via Stripe</div>
+<div style="display: flex; flex-direction: column; gap: 6px; margin-top: 8px"><sc-for list="{{plans}}" as="p" hint-placeholder-count="3"><button class="lead" onClick="{{p.pick}}" style="background: {{p.bg}}; color: #0B1530; box-shadow: {{p.ring}}; padding: 10px 12px; display: flex; justify-content: space-between"><span style="font-weight: 700; font-size: 14px">{{p.t}}</span><span class="m" style="font-size: 13px">{{p.price}}</span></button></sc-for></div>
+<div style="font-size: 12px; color: #4A5675; margin-top: 6px">Parent gets a secure Stripe checkout link. Card is saved for auto-pay.</div></div></div>
+<div style="display: flex; gap: 12px"><span class="m" style="width: 26px; height: 26px; border-radius: 50%; background: #012169; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex: none; font-size: 12px">4</span><div style="flex: 1"><div style="font-weight: 800">App invites</div>
+<label style="display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 14px"><input type="checkbox" checked="" style="width: 18px; height: 18px; accent-color: #00539B">Parent · {{cur.parent}} (email + app invite)</label>
+<label style="display: flex; align-items: center; gap: 10px; margin-top: 6px; font-size: 14px"><input type="checkbox" checked="" style="width: 18px; height: 18px; accent-color: #00539B">Athlete · {{cur.name}} (linked to parent)</label></div></div>
+<div style="display: flex; gap: 12px"><span class="m" style="width: 26px; height: 26px; border-radius: 50%; background: #012169; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex: none; font-size: 12px">5</span><div style="flex: 1"><div style="font-weight: 800">First homework</div><div style="font-size: 13px; color: #4A5675; margin-top: 4px">Starter: Ball control basics · 3 drills · 15 min</div></div></div>
+</div>
+<button class="btn" onClick="{{finish}}" style="background: #012169; color: #FFFFFF; width: 100%; margin-top: 20px; min-height: 52px">Enroll &amp; send invites</button>
+</sc-if>
+
+<sc-if value="{{showDone}}" hint-placeholder-val="{{ false }}">
+<div style="text-align: center; padding: 20px 0 6px">
+<div style="width: 72px; height: 72px; border-radius: 50%; background: #FF6A13; display: flex; align-items: center; justify-content: center; margin: 0 auto"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#012169" stroke-width="3.5" aria-hidden="true"><path d="M4 12l5 5L20 6"></path></svg></div>
+<div class="d" style="font-size: 44px; color: #012169; margin-top: 18px">{{cur.name}} is in.</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 18px">
+<div style="padding: 12px 14px; border-radius: 12px; background: #F3F6FB; font-size: 14px"><b>Program:</b> {{program}}</div>
+<div style="padding: 12px 14px; border-radius: 12px; background: #F3F6FB; font-size: 14px"><b>Stripe:</b> {{plan}} — checkout link sent</div>
+<div style="padding: 12px 14px; border-radius: 12px; background: #F3F6FB; font-size: 14px"><b>App:</b> invites sent to parent and athlete</div>
+<div style="padding: 12px 14px; border-radius: 12px; background: #F3F6FB; font-size: 14px"><b>Homework:</b> Ball control basics, due Fri</div>
+</div>
+<a class="btn" href="AdminAthletes.dc.html" style="background: #012169; color: #FFFFFF; width: 100%; margin-top: 16px">Open athlete profile</a>
+</sc-if>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { sel: 'jw', mode: 'detail', prog: 'Development', plan: 'm', enrolled: [] }; }
+  renderVals() {
+    const s = this.state;
+    const L = [
+      { id:'jw', ini:'JW', name:'Jayden Wallace', age:12, pos:'Guard', exp:'Rec league', goals:'Ball handling, shooting', days:'Tue, Thu', parent:'Tasha Wallace', contact:'call', ph:'42', when:'2h ago', col:'New' },
+      { id:'am', ini:'AM', name:'Ava Mitchell', age:15, pos:'Wing', exp:'School team', goals:'Finishing, exposure', days:'Mon, Wed', parent:'Rob Mitchell', contact:'email', ph:'17', when:'Yesterday', col:'New' },
+      { id:'lt', ini:'LT', name:'Liam Torres', age:9, pos:'Not sure yet', exp:'Just starting', goals:'Fundamentals', days:'Sat', parent:'Maria Torres', contact:'call', ph:'88', when:'Mon', col:'New' },
+      { id:'kb', ini:'KB', name:'Kendall Byrd', age:13, pos:'Big', exp:'AAU', goals:'Footwork, post moves', days:'Tue, Thu', parent:'Andre Byrd', contact:'call', ph:'63', when:'Last week', col:'Contacted' },
+      { id:'sp', ini:'SP', name:'Sofia Perez', age:11, pos:'Guard', exp:'Rec league', goals:'Confidence, shooting', days:'Wed', parent:'Lena Perez', contact:'call', ph:'29', when:'Last week', col:'Contacted' },
+      { id:'dh', ini:'DH', name:'Darius Hill', age:16, pos:'Guard', exp:'School team', goals:'Shooting off the move', days:'Mon, Fri', parent:'Kim Hill', contact:'call', ph:'51', when:'Eval Thu 5 PM', col:'Evaluation' },
+      { id:'ej', ini:'EJ', name:'Elijah James', age:14, pos:'Wing', exp:'AAU', goals:'Defense, strength', days:'Sat', parent:'Carla James', contact:'email', ph:'35', when:'Eval Sat 10 AM', col:'Evaluation' },
+      { id:'mc', ini:'MC', name:'Mia Chen', age:10, pos:'Guard', exp:'Rec league', goals:'Ball handling', days:'Tue', parent:'David Chen', contact:'call', ph:'70', when:'Enrolled Nov 2', col:'Enrolled' }
+    ].map(l => s.enrolled.includes(l.id) ? { ...l, col: 'Enrolled', when: 'Enrolled just now' } : l);
+    const cur = L.find(l => l.id === s.sel);
+    const cols = ['New','Contacted','Evaluation','Enrolled'].map(t => {
+      const items = L.filter(l => l.col === t).map(l => ({ ...l, pick: () => this.setState({ sel: l.id, mode: s.enrolled.includes(l.id) ? 'done' : 'detail' }), bg: l.id === s.sel ? '#012169' : '#FFFFFF', fg: l.id === s.sel ? '#FFFFFF' : '#0B1530', ring: l.id === s.sel ? 'none' : '0 1px 0 #DCE3F0' }));
+      return { t: t.toUpperCase(), n: items.length, items };
+    });
+    const on = b => b ? { bg: '#012169', fg: '#FFFFFF' } : { bg: '#F3F6FB', fg: '#0B1530' };
+    const programs = ['Foundations','Development','Elite','Private'].map(t => ({ t, ...on(s.prog === t), pick: () => this.setState({ prog: t }) }));
+    const P = [['m','Monthly membership','[PRICE]/mo'],['p','10-session pack','[PRICE]'],['i','Pay per session','[PRICE]']];
+    const plans = P.map(([id,t,price]) => ({ t, price, pick: () => this.setState({ plan: id }), bg: s.plan === id ? '#E3ECFA' : '#FFFFFF', ring: s.plan === id ? 'inset 0 0 0 2px #00539B' : 'inset 0 0 0 1px #DCE3F0' }));
+    return {
+      cols, cur, programs, plans, program: s.prog, plan: P.find(p => p[0] === s.plan)[1],
+      showDetail: s.mode === 'detail', showEnroll: s.mode === 'enroll', showDone: s.mode === 'done',
+      startEnroll: () => this.setState({ mode: 'enroll' }),
+      cancel: () => this.setState({ mode: 'detail' }),
+      finish: () => this.setState({ mode: 'done', enrolled: [...s.enrolled, s.sel] })
+    };
+  }
+}
+</script>
+</body>
+</html>

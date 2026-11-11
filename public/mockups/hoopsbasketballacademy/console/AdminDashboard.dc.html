@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<base href="/mockups/hoopsbasketballacademy/console/">
+<script src="/mockups/hoopsbasketballacademy/preview-chrome.js" data-section="console" defer></script>
+
+<title>Console — Dashboard</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap">
+<style>
+body{margin:0;background:#F3F6FB}
+*{box-sizing:border-box}
+.d{font-family:'Archivo',sans-serif;font-stretch:62%;font-weight:900;text-transform:uppercase;line-height:.88}
+.m{font-family:'JetBrains Mono',monospace}
+a{color:#00539B}a:hover{color:#012169}
+.card{background:#FFFFFF;border-radius:18px;padding:22px;box-shadow:0 1px 0 #DCE3F0}
+.k{font-size:11px;font-weight:800;letter-spacing:.12em;color:#4A5675}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:12px;font:700 14px 'Inter',sans-serif;text-decoration:none;border:0;cursor:pointer}
+.seg{min-height:40px;padding:0 16px;border-radius:10px;border:0;font:700 13px 'Inter',sans-serif;cursor:pointer}
+
+summary::-webkit-details-marker{display:none}
+summary{list-style:none}
+@media (max-width: 640px){
+.sp{padding-left:20px!important;padding-right:20px!important}
+.sv{padding-top:64px!important;padding-bottom:64px!important}
+.panel{padding:24px!important}
+.mp{padding:16px!important}
+.hide-m{display:none!important}
+.scroll-m{flex-wrap:nowrap!important;overflow-x:auto!important}
+.tabs-m{flex-direction:row!important;flex-wrap:nowrap!important;overflow-x:auto!important;padding-bottom:4px}
+.tabs-m .tab{width:auto!important;white-space:nowrap;flex:none!important;min-height:52px!important}
+.img-m{height:240px!important}
+.navroot{min-height:0!important;padding:12px 14px!important}
+}
+@media (min-width: 641px){.show-m{display:none!important}}
+</style>
+</helmet>
+<div style="font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; width: 100%; min-height: 1100px; display: flex; flex-wrap: wrap">
+<div style="flex: 1 1 248px; max-width: 100%"><dc-import name="AdminNav" active="dash" hint-size="100%,1100px"></dc-import></div>
+<main class="mp" style="flex: 999 1 560px; min-width: 0; padding: 28px 32px 40px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px">
+<div><div class="k">TUESDAY, NOVEMBER 10</div><h1 class="d" style="font-size: clamp(40px, 6vw, 56px); color: #012169; margin: 8px 0 0">Good afternoon, Coach.</h1></div>
+<div style="display: flex; gap: 10px; flex-wrap: wrap">
+<label style="display: flex; align-items: center; gap: 8px; background: #FFFFFF; border-radius: 12px; padding: 0 14px; min-height: 44px; box-shadow: inset 0 0 0 1px #DCE3F0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A5675" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><input aria-label="Search" placeholder="Search athletes, parents, drills" style="border: 0; outline: none; font: 500 14px 'Inter'; width: 100%; min-width: 0"></label>
+<a class="btn" href="AdminDrills.dc.html" style="background: #FFFFFF; color: #012169; box-shadow: inset 0 0 0 1px #DCE3F0">Build workout</a>
+<a class="btn" href="AdminAttendance.dc.html" style="background: #012169; color: #FFFFFF">Start check-in</a>
+</div>
+</div>
+
+<div style="display: flex; gap: 6px; margin-top: 24px; background: #FFFFFF; border-radius: 12px; padding: 4px; width: fit-content">
+<sc-for list="{{ranges}}" as="r" hint-placeholder-count="3"><button class="seg" onClick="{{r.pick}}" style="background: {{r.bg}}; color: {{r.fg}}">{{r.t}}</button></sc-for>
+</div>
+
+<div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 14px">
+<sc-for list="{{kpis}}" as="k" hint-placeholder-count="5">
+<div class="card" style="background: {{k.bg}}; color: {{k.fg}}">
+<div style="font-size: 11px; font-weight: 800; letter-spacing: .12em; opacity: .8">{{k.label}}</div>
+<div class="d" style="font-size: 58px; margin-top: 10px">{{k.v}}</div>
+<div style="font-size: 13px; font-weight: 600; margin-top: 8px; opacity: .8">{{k.sub}}</div>
+</div>
+</sc-for>
+</div>
+
+<div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr)); gap: 14px">
+<div class="card">
+<div style="display: flex; justify-content: space-between; align-items: center"><div class="k">TODAY'S SESSIONS</div><a href="AdminAttendance.dc.html" style="font-size: 13px; font-weight: 700">Attendance →</a></div>
+<div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px">
+<sc-for list="{{sessions}}" as="s" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 14px; background: #F3F6FB">
+<div class="m" style="font-weight: 700; color: #012169; width: 74px">{{s.time}}</div>
+<div style="flex: 1"><div style="font-weight: 800">{{s.name}}</div><div style="font-size: 13px; color: #4A5675; margin-top: 2px">{{s.workout}}</div></div>
+<div style="text-align: right"><div class="m" style="font-weight: 700">{{s.in}}</div><div style="font-size: 11px; color: #4A5675; font-weight: 700">CHECKED IN</div></div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div class="card">
+<div style="display: flex; justify-content: space-between; align-items: center"><div class="k">NEW WORKOUT REQUESTS</div><a href="AdminRequests.dc.html" style="font-size: 13px; font-weight: 700">All requests →</a></div>
+<div style="display: flex; flex-direction: column; gap: 0; margin-top: 8px">
+<sc-for list="{{reqs}}" as="r" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid #E3E9F5">
+<span style="width: 40px; height: 40px; border-radius: 50%; background: #E3ECFA; color: #012169; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 14px">{{r.ini}}</span>
+<div style="flex: 1"><div style="font-weight: 800">{{r.name}} <span style="font-weight: 600; color: #4A5675">· {{r.age}}</span></div><div style="font-size: 13px; color: #4A5675; margin-top: 2px">{{r.goals}} · parent {{r.parent}}</div></div>
+<span style="font-size: 12px; color: #4A5675; font-weight: 600">{{r.when}}</span>
+<a class="btn" href="AdminRequests.dc.html" style="background: #012169; color: #FFFFFF; min-height: 38px; padding: 0 14px">Open</a>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div class="card">
+<div class="k">HOMEWORK COMPLETION · THIS WEEK</div>
+<div style="display: flex; flex-direction: column; gap: 16px; margin-top: 18px">
+<sc-for list="{{hw}}" as="h" hint-placeholder-count="4">
+<div><div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 700"><span>{{h.g}}</span><span class="m">{{h.v}}%</span></div>
+<div style="height: 10px; border-radius: 5px; background: #E3E9F5; margin-top: 8px; overflow: hidden"><div style="height: 100%; border-radius: 5px; width: {{h.w}}; background: {{h.c}}"></div></div></div>
+</sc-for>
+</div>
+</div>
+
+<div class="card">
+<div style="display: flex; justify-content: space-between; align-items: center"><div class="k">LATEST MESSAGES</div><a href="AdminInbox.dc.html" style="font-size: 13px; font-weight: 700">Inbox →</a></div>
+<div style="display: flex; flex-direction: column; margin-top: 8px">
+<sc-for list="{{msgs}}" as="m" hint-placeholder-count="3">
+<div style="display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid #E3E9F5">
+<span style="width: 10px; height: 10px; border-radius: 50%; background: {{m.dot}}; margin-top: 6px"></span>
+<div style="flex: 1"><div style="font-weight: 800; font-size: 14px">{{m.from}} <span style="font-weight: 600; color: #4A5675; font-size: 12px; margin-left: 6px">{{m.via}}</span></div><div style="font-size: 13px; color: #4A5675; margin-top: 3px">{{m.t}}</div></div>
+<span style="font-size: 12px; color: #4A5675">{{m.when}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { r: 'Week' }; }
+  renderVals() {
+    const R = { Today: ['1','48','14 / 18','71%','$1,240'], Week: ['3','48','61 / 72','76%','$4,980'], Month: ['11','48','248 / 290','74%','$19,400'] };
+    const v = R[this.state.r];
+    const kpis = [
+      { label:'NEW REQUESTS', v:v[0], sub:'Waiting on a reply', bg:'#FF6A13', fg:'#0B1530' },
+      { label:'ACTIVE ATHLETES', v:v[1], sub:'+4 enrolled this month', bg:'#012169', fg:'#FFFFFF' },
+      { label:'CHECK-INS', v:v[2], sub:'Scanned at the door', bg:'#FFFFFF', fg:'#0B1530' },
+      { label:'HOMEWORK DONE', v:v[3], sub:'Of assigned workouts', bg:'#FFFFFF', fg:'#0B1530' },
+      { label:'REVENUE', v:v[4], sub:'Via Stripe', bg:'#FFFFFF', fg:'#0B1530' }
+    ];
+    const ranges = ['Today','Week','Month'].map(t => ({ t, pick: () => this.setState({ r: t }), bg: this.state.r === t ? '#012169' : 'transparent', fg: this.state.r === t ? '#FFFFFF' : '#4A5675' }));
+    return {
+      kpis, ranges,
+      sessions: [
+        { time:'4:30 PM', name:'Foundations · 7–10', workout:'Footwork & ball control · 60 min', in:'— / 10' },
+        { time:'6:00 PM', name:'Development · 11–14', workout:'Guard skills · 75 min', in:'— / 12' },
+        { time:'7:30 PM', name:'Elite · 15–18', workout:'Finishing through contact · 90 min', in:'— / 8' }
+      ],
+      reqs: [
+        { ini:'JW', name:'Jayden Wallace', age:'12', goals:'Ball handling, shooting', parent:'Tasha W.', when:'2h ago' },
+        { ini:'AM', name:'Ava Mitchell', age:'15', goals:'Finishing, college exposure', parent:'Rob M.', when:'Yesterday' },
+        { ini:'LT', name:'Liam Torres', age:'9', goals:'Just starting out', parent:'Maria T.', when:'Mon' }
+      ],
+      hw: [['Foundations',82,'#00539B'],['Development',74,'#00539B'],['Elite',91,'#012169'],['Private clients',58,'#FF6A13']].map(([g,v,c]) => ({ g, v, c, w: v+'%' })),
+      msgs: [
+        { from:'Denise Carter', via:'APP · PARENT', t:'Malik has a game Thursday, can he do Saturday instead?', when:'12m', dot:'#FF6A13' },
+        { from:'Ty Robinson', via:'APP · ATHLETE', t:'Finished the pound series. Left hand is getting better.', when:'1h', dot:'#FF6A13' },
+        { from:'Rob Mitchell', via:'EMAIL', t:'Re: Ava — availability for an evaluation', when:'3h', dot:'#DCE3F0' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

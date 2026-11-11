@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Hoops Basketball Academy — platform preview</title>
+<meta name="description" content="A clickable preview of your new website, Admin Console, and apps, plus your interactive proposal.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+  :root{
+    --navy:#012169; --royal:#00539B; --deep-navy:#00103F; --orange:#FF6A13;
+    --bg:#F3F6FB; --text:#0B1530; --muted:#4A5675; --line:#DCE3F0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .d{font-family:'Archivo',sans-serif;font-stretch:62%;font-weight:900;text-transform:uppercase;line-height:.92}
+  .m{font-family:'JetBrains Mono',monospace}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .k{font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+
+  header.hero{background:linear-gradient(180deg,var(--navy),var(--deep-navy));color:#fff;padding:64px 0 80px}
+  .badge{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+    color:#B7C3E0;background:rgba(255,255,255,.08);border-radius:999px;padding:6px 14px;margin-bottom:22px}
+  .brand{display:flex;align-items:center;gap:14px;margin-bottom:28px}
+  .brand span.name{font-size:30px}
+  .brand span.sub{display:block;font-size:11px;letter-spacing:.22em;font-weight:700;color:#B7C3E0;margin-top:2px}
+  h1{font-size:clamp(32px,5vw,52px);margin:0 0 16px;max-width:18ch;line-height:1.02}
+  .hero p.lead{font-size:18px;color:#D6DEF0;max-width:56ch;margin:0}
+
+  section{padding:56px 0}
+  .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+  @media (max-width:860px){.grid3{grid-template-columns:1fr}}
+  .card{background:#fff;border-radius:18px;padding:22px;box-shadow:0 1px 0 var(--line)}
+  .points .card{display:flex;gap:14px;align-items:flex-start}
+  .points .num{flex:none;width:34px;height:34px;border-radius:10px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+  .steps{display:flex;flex-direction:column;gap:14px;max-width:640px}
+  .step{display:flex;gap:16px;align-items:flex-start;background:#fff;border-radius:16px;padding:18px 20px}
+  .step .num{flex:none;width:30px;height:30px;border-radius:50%;background:var(--orange);color:var(--deep-navy);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px}
+
+  .section-card{background:#fff;border-radius:22px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 0 var(--line)}
+  .thumb{height:140px;background:linear-gradient(135deg,var(--navy),var(--royal));display:flex;align-items:center;justify-content:center;color:#fff}
+  .thumb .mark{width:56px;height:56px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center}
+  .section-body{padding:22px;display:flex;flex-direction:column;gap:14px;flex:1}
+  .section-body p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+  .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;border-radius:999px;
+    background:var(--navy);color:#fff;font-weight:700;font-size:14px;text-decoration:none;border:0;cursor:pointer}
+  .btn.orange{background:var(--orange);color:var(--deep-navy)}
+  .btn.ghost{background:#fff;color:var(--navy);box-shadow:inset 0 0 0 1.5px var(--line)}
+  .linklist{display:flex;flex-wrap:wrap;gap:10px;margin:0;padding:0;list-style:none}
+  .linklist a{font-size:13px;font-weight:700;color:var(--royal);text-decoration:none;padding:8px 2px}
+  .linklist a:hover{color:var(--orange)}
+  .btngrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  @media (max-width:640px){.btngrid{grid-template-columns:1fr 1fr}}
+  .btncell{display:flex;flex-direction:column;gap:6px}
+  .btncell a.gobtn{display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:8px 10px;
+    border-radius:12px;background:var(--bg);color:var(--navy);font-weight:800;font-size:13px;text-decoration:none;
+    box-shadow:inset 0 0 0 1px var(--line)}
+  .btncell a.gobtn:hover{background:#E3ECFA}
+  .btncell .cap{font-size:11px;color:var(--muted);text-align:center;line-height:1.3}
+  .grouplabel{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:18px 0 10px}
+  .grouplabel:first-child{margin-top:0}
+  .installnote{font-size:12px;color:var(--muted);background:var(--bg);border-radius:10px;padding:10px 12px;margin-top:4px}
+
+  .cta{background:linear-gradient(135deg,var(--navy),var(--deep-navy));color:#fff;border-radius:24px;padding:48px 36px;
+    display:flex;flex-direction:column;align-items:flex-start;gap:16px;text-align:left}
+  .cta .offer{font-size:13px;font-weight:800;letter-spacing:.06em;color:#B7C3E0;text-transform:uppercase}
+  .cta h2{font-size:clamp(26px,4vw,38px);margin:0;max-width:20ch}
+  .cta .price{font-size:15px;color:#D6DEF0}
+  .cta .price b{color:#fff;font-size:17px}
+
+  footer{padding:32px 0 100px;color:var(--muted);font-size:12px;text-align:center}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="badge">Preview &middot; sample data</span>
+    <div class="brand">
+      <svg width="48" height="48" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="#FF6A13"></circle><path d="M2 20h36M20 2v36M7 7c6 5 6 21 0 26M33 7c-6 5-6 21 0 26" stroke="#012169" stroke-width="2.2" fill="none"></path></svg>
+      <span><span class="d name">Hoops Basketball Academy</span><span class="sub">PLATFORM PREVIEW &middot; BY CEL3 INTERACTIVE</span></span>
+    </div>
+    <h1 class="d">Your new website and training platform, ready to explore.</h1>
+    <p class="lead">Click through the full system below &mdash; the public website, your Admin Console, and the Coach and Family &amp; Athlete apps &mdash; then review and accept your proposal.</p>
+  </div>
+</header>
+
+<section class="points">
+  <div class="wrap">
+    <div class="k" style="margin-bottom:14px">What this is</div>
+    <div class="grid3">
+      <div class="card"><span class="num">1</span><div><strong>It's a clickable preview</strong>, not the live site &mdash; every screen below is real and interactive.</div></div>
+      <div class="card"><span class="num">2</span><div><strong>Names and stats are sample data</strong> &mdash; nothing here reflects a real athlete or family yet.</div></div>
+      <div class="card"><span class="num">3</span><div><strong>Nothing you type is saved or sent</strong> &mdash; click around freely, forms here don't submit anywhere.</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="k" style="margin-bottom:14px">How it works</div>
+    <div class="steps">
+      <div class="step"><span class="num">1</span><div><strong>Open each part below</strong> &mdash; the website, Admin Console, or an app screen.</div></div>
+      <div class="step"><span class="num">2</span><div><strong>Click around</strong> &mdash; buttons, tabs, filters and forms all work.</div></div>
+      <div class="step"><span class="num">3</span><div>Use the floating <strong>&ldquo;&larr; Overview&rdquo;</strong> button (bottom right, on every screen) to come back here anytime.</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="grid3">
+
+      <div class="section-card">
+        <div class="thumb"><span class="mark"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#012169" stroke-width="2.4"><path d="M3 12h18M12 3v18M5 6c4 3 4 12 0 15M19 6c-4 3-4 12 0 15"></path></svg></span></div>
+        <div class="section-body">
+          <h3 class="d" style="font-size:22px;margin:0">The Website</h3>
+          <p>Brings in new families: an interactive home page, Request a Workout form, Hoops Legends wall, and your live 3x3 League page.</p>
+          <a class="btn" href="/mockups/hoopsbasketballacademy/site">Open the website</a>
+          <ul class="linklist">
+            <li><a href="/mockups/hoopsbasketballacademy/site">Home</a></li>
+            <li><a href="/mockups/hoopsbasketballacademy/site/request">Request a Workout</a></li>
+            <li><a href="/mockups/hoopsbasketballacademy/site/legends">Hoops Legends</a></li>
+            <li><a href="/mockups/hoopsbasketballacademy/site/league">3x3 League</a></li>
+            <li><a href="/mockups/hoopsbasketballacademy/site/about">About</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="thumb"><span class="mark"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#012169" stroke-width="2.4"><path d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"></path></svg></span></div>
+        <div class="section-body">
+          <h3 class="d" style="font-size:22px;margin:0">Admin Console</h3>
+          <p>How you run the academy: requests &amp; one-click enrollment, athletes &amp; progress, drills &amp; workouts, a unified inbox, check-in, billing and your site editor.</p>
+          <div class="btngrid">
+            <div class="btncell"><a class="gobtn" href="/mockups/hoopsbasketballacademy/console">Dashboard</a></div>
+            <div class="btncell"><a class="gobtn" href="/mockups/hoopsbasketballacademy/console/requests">Requests</a></div>
+            <div class="btncell"><a class="gobtn" href="/mockups/hoopsbasketballacademy/console/athletes">Athletes</a></div>
+            <div class="btncell"><a class="gobtn" href="/mockups/hoopsbasketballacademy/console/drills">Drills</a></div>
+            <div class="btncell"><a class="gobtn" href="/mockups/hoopsbasketballacademy/console/inbox">Inbox</a></div>
+            <div class="btncell"><a class="gobtn" href="/mockups/hoopsbasketballacademy/console/attendance">Check-in</a></div>
+            <div class="btncell"><a class="gobtn" href="/mockups/hoopsbasketballacademy/console/billing">Billing</a></div>
+            <div class="btncell"><a class="gobtn" href="/mockups/hoopsbasketballacademy/console/site-editor">Site editor</a></div>
+            <div class="btncell"><a class="gobtn" href="/mockups/hoopsbasketballacademy/console/settings">Settings</a></div>
+          </div>
+          <div class="installnote">Installs on your computer like an app &mdash; no app store needed.</div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="thumb"><span class="mark"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#012169" stroke-width="2.4"><path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM11 18h2"></path></svg></span></div>
+        <div class="section-body">
+          <h3 class="d" style="font-size:22px;margin:0">The Apps</h3>
+          <p>The Coach app puts your console in your pocket. The Family &amp; Athlete app gives parents progress and messages, and athletes homework, a workout timer, and scan-in check-in.</p>
+          <div class="grouplabel">Parents</div>
+          <div class="btngrid">
+            <div class="btncell"><a class="gobtn" href="/mockups/hoopsbasketballacademy/app/parent-home">Home</a></div>
+            <div class="btncell"><a class="gobtn" href="/mockups/hoopsbasketballacademy/app/messages">Messages</a></div>
+          </div>
+          <div class="grouplabel">Athletes</div>
+          <div class="btngrid">
+            <div class="btncell"><a class="gobtn" href="/mockups/hoopsbasketballacademy/app/today">Today</a></div>
+            <div class="btncell"><a class="gobtn" href="/mockups/hoopsbasketballacademy/app/workout">Workout</a></div>
+            <div class="btncell"><a class="gobtn" href="/mockups/hoopsbasketballacademy/app/checkin">Check in</a></div>
+            <div class="btncell"><a class="gobtn" href="/mockups/hoopsbasketballacademy/app/progress">Progress</a></div>
+          </div>
+          <div class="installnote">Both apps install straight from the browser &mdash; no app store, no waiting on approval.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="cta">
+      <span class="offer">Your special offer</span>
+      <h2 class="d">Like what you see? View your proposal.</h2>
+      <p class="price">Complete Platform &mdash; <b>$2,000</b> one-time + <b>$125/month</b>, visual site editor included free.</p>
+      <a class="btn orange" href="/mockups/hoopsbasketballacademy/proposal">View your proposal</a>
+    </div>
+  </div>
+</section>
+
+<footer>Prepared for Hoops Basketball Academy by CEL3 Interactive &middot; This is a private preview link and is not indexed.</footer>
+
+</body>
+</html>

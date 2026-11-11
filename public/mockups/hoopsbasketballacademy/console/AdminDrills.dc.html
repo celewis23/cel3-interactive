@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<base href="/mockups/hoopsbasketballacademy/console/">
+<script src="/mockups/hoopsbasketballacademy/preview-chrome.js" data-section="console" defer></script>
+
+<title>Console — Drill Library & Workout Builder</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap">
+<style>
+body{margin:0;background:#F3F6FB}
+*{box-sizing:border-box}
+.d{font-family:'Archivo',sans-serif;font-stretch:62%;font-weight:900;text-transform:uppercase;line-height:.88}
+.m{font-family:'JetBrains Mono',monospace}
+a{color:#00539B}a:hover{color:#012169}
+.card{background:#FFFFFF;border-radius:18px;padding:20px;box-shadow:0 1px 0 #DCE3F0}
+.k{font-size:11px;font-weight:800;letter-spacing:.12em;color:#4A5675}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:12px;font:700 14px 'Inter',sans-serif;text-decoration:none;border:0;cursor:pointer}
+.chip{min-height:36px;padding:0 12px;border-radius:999px;border:0;font:700 12px 'Inter',sans-serif;cursor:pointer}
+.ib{width:36px;height:36px;border-radius:10px;border:0;cursor:pointer;background:#F3F6FB;color:#012169;font:800 16px 'Inter';display:flex;align-items:center;justify-content:center}
+
+summary::-webkit-details-marker{display:none}
+summary{list-style:none}
+@media (max-width: 640px){
+.sp{padding-left:20px!important;padding-right:20px!important}
+.sv{padding-top:64px!important;padding-bottom:64px!important}
+.panel{padding:24px!important}
+.mp{padding:16px!important}
+.hide-m{display:none!important}
+.scroll-m{flex-wrap:nowrap!important;overflow-x:auto!important}
+.tabs-m{flex-direction:row!important;flex-wrap:nowrap!important;overflow-x:auto!important;padding-bottom:4px}
+.tabs-m .tab{width:auto!important;white-space:nowrap;flex:none!important;min-height:52px!important}
+.img-m{height:240px!important}
+.navroot{min-height:0!important;padding:12px 14px!important}
+}
+@media (min-width: 641px){.show-m{display:none!important}}
+</style>
+</helmet>
+<div style="font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; width: 100%; min-height: 1100px; display: flex; flex-wrap: wrap">
+<div style="flex: 1 1 248px; max-width: 100%"><dc-import name="AdminNav" active="drills" hint-size="100%,1100px"></dc-import></div>
+<main class="mp" style="flex: 999 1 560px; min-width: 0; padding: 28px 32px 40px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+<div><div class="k">LIBRARY · 64 DRILLS · 18 SAVED WORKOUTS</div><h1 class="d" style="font-size: clamp(40px, 6vw, 56px); color: #012169; margin: 8px 0 0">Drills &amp; workouts</h1></div>
+<button class="btn" style="background: #FFFFFF; color: #012169; box-shadow: inset 0 0 0 1px #DCE3F0">New drill</button>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 22px; align-items: flex-start">
+<!-- library -->
+<div class="card" style="flex: 1 1 360px; min-width: 0">
+<div class="k">DRILL LIBRARY</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px">
+<sc-for list="{{cats}}" as="c" hint-placeholder-count="6"><button class="chip" onClick="{{c.pick}}" style="background: {{c.bg}}; color: {{c.fg}}">{{c.t}}</button></sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 14px">
+<sc-for list="{{lib}}" as="l" hint-placeholder-count="8">
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; background: #F3F6FB">
+<span style="width: 48px; height: 48px; border-radius: 12px; background: {{l.c}}; display: flex; align-items: center; justify-content: center; flex: none"><svg width="20" height="20" viewBox="0 0 24 24" fill="#FFFFFF" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg></span>
+<div style="flex: 1; min-width: 0"><div style="font-weight: 800; font-size: 14px">{{l.name}}</div><div style="font-size: 12px; color: #4A5675; margin-top: 3px">{{l.cat}} · {{l.min}} min · {{l.lvl}}</div></div>
+<button class="btn" onClick="{{l.add}}" aria-label="Add {{l.name}} to workout" style="background: #012169; color: #FFFFFF; min-height: 36px; padding: 0 12px">Add</button>
+</div>
+</sc-for>
+</div>
+</div>
+
+<!-- builder -->
+<div style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<div class="card">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: flex-start">
+<div><div class="k">WORKOUT BUILDER</div><label><span style="position: absolute; left: -9999px">Workout name</span><input value="Guard skills — Tue 6:00 PM" style="border: 0; outline: none; font: 900 34px 'Archivo'; font-stretch: 62%; text-transform: uppercase; color: #012169; margin-top: 6px; width: 100%"></label></div>
+<div style="text-align: right"><div class="d" style="font-size: 52px; color: #012169">{{total}}<span style="font-size: 24px"> min</span></div><div class="k">{{count}} DRILLS</div></div>
+</div>
+<div style="display: flex; height: 54px; border-radius: 12px; overflow: hidden; margin-top: 16px; background: #E3E9F5">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="5"><div title="{{r.name}}" style="width: {{r.w}}; background: {{r.c}}; color: #FFFFFF; font-size: 11px; font-weight: 800; padding: 8px; border-right: 2px solid #FFFFFF; overflow: hidden; white-space: nowrap">{{r.min}}′</div></sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+<div style="display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 14px; box-shadow: inset 0 0 0 1px #E3E9F5">
+<span class="hide-m" style="color: #4A5675; cursor: grab" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"></circle><circle cx="15" cy="6" r="1.6"></circle><circle cx="9" cy="12" r="1.6"></circle><circle cx="15" cy="12" r="1.6"></circle><circle cx="9" cy="18" r="1.6"></circle><circle cx="15" cy="18" r="1.6"></circle></svg></span>
+<span class="m hide-m" style="font-size: 13px; color: #00539B; font-weight: 700; width: 56px">{{r.start}}</span>
+<span style="width: 10px; height: 34px; border-radius: 4px; background: {{r.c}}"></span>
+<div style="flex: 1; min-width: 0"><div style="font-weight: 800; font-size: 14px">{{r.name}}</div><div style="font-size: 12px; color: #4A5675">{{r.cat}}</div></div>
+<button class="ib" onClick="{{r.dec}}" aria-label="Less time">−</button>
+<span class="m" style="width: 52px; text-align: center; font-weight: 700">{{r.min}}:00</span>
+<button class="ib" onClick="{{r.inc}}" aria-label="More time">+</button>
+<button class="ib" onClick="{{r.del}}" aria-label="Remove drill" style="color: #8A3305">×</button>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px">
+<button class="btn" style="background: #F3F6FB; color: #012169">Save workout</button>
+<button class="btn" style="background: #F3F6FB; color: #012169">Attach to Tue 6:00 PM session</button>
+<button class="btn" onClick="{{openSend}}" style="background: #FF6A13; color: #0B1530; margin-left: auto">Send as homework</button>
+</div>
+</div>
+
+<sc-if value="{{sendOpen}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="background: #012169; color: #FFFFFF">
+<div style="display: flex; justify-content: space-between; align-items: center"><div style="font-size: 11px; font-weight: 800; letter-spacing: .12em; color: #8FB8FF">SEND AS HOMEWORK</div><button class="btn" onClick="{{closeSend}}" style="background: transparent; color: #B7C3E0; min-height: 32px">Close</button></div>
+<sc-if value="{{notSent}}" hint-placeholder-val="{{ true }}">
+<div style="font-weight: 700; margin-top: 12px">Who gets it?</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px">
+<sc-for list="{{targets}}" as="t" hint-placeholder-count="5"><button class="chip" onClick="{{t.pick}}" style="background: {{t.bg}}; color: {{t.fg}}">{{t.t}}</button></sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 16px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700">Due<input value="Fri, Nov 13" style="min-height: 44px; border-radius: 10px; border: 0; padding: 0 12px; font: 600 14px 'Inter'"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; flex: 1; min-width: 220px">Note to athletes<input value="Left hand only on the finishing package. Film one rep for me." style="min-height: 44px; border-radius: 10px; border: 0; padding: 0 12px; font: 500 14px 'Inter'"></label>
+</div>
+<label style="display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 14px"><input type="checkbox" checked="" style="width: 18px; height: 18px; accent-color: #FF6A13">Also notify parents</label>
+<button class="btn" onClick="{{send}}" style="background: #FF6A13; color: #0B1530; margin-top: 16px; width: 100%; min-height: 50px">Send to {{targetCount}} athlete(s)</button>
+</sc-if>
+<sc-if value="{{sent}}" hint-placeholder-val="{{ false }}">
+<div class="d" style="font-size: 40px; margin-top: 14px">Sent.</div>
+<div style="color: #D6DEF0; margin-top: 8px">It's in their app now with the drill timer. You'll see each one as they mark it complete.</div>
+</sc-if>
+</div>
+</sc-if>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { cat: 'All', w: [['wu',10],['pound',8],['fig8',7],['cns',20],['mik',10],['live',15]], send: false, sent: false, tg: ['Development group'] }; }
+  renderVals() {
+    const s = this.state;
+    const color = { 'Warm-up':'#8FB8FF', 'Ball handling':'#00539B', 'Shooting':'#012169', 'Finishing':'#FF6A13', 'Defense':'#2E6FB0', 'Game':'#0B1530' };
+    const D = {
+      wu:['Dynamic warm-up','Warm-up',10,'All levels'], pound:['Two-ball pound series','Ball handling',8,'All levels'], fig8:['Figure-8 + crossovers','Ball handling',7,'Beginner'],
+      cns:['Catch & shoot, 5 spots','Shooting',20,'Intermediate'], form:['Form shooting 100','Shooting',15,'All levels'], mik:['Mikan + reverse Mikan','Finishing',10,'All levels'],
+      euro:['Euro step package','Finishing',12,'Advanced'], slides:['Defensive slides 3x30','Defense',6,'All levels'], close:['Closeout + contain','Defense',10,'Intermediate'], live:['Live 3-on-3','Game',15,'All levels']
+    };
+    const cats = ['All','Warm-up','Ball handling','Shooting','Finishing','Defense','Game'].map(t => ({ t, pick: () => this.setState({ cat: t }), bg: s.cat===t ? '#012169' : '#F3F6FB', fg: s.cat===t ? '#FFFFFF' : '#0B1530' }));
+    const lib = Object.entries(D).filter(([id,d]) => s.cat==='All' || d[1]===s.cat).map(([id,[name,cat,min,lvl]]) => ({ name, cat, min, lvl, c: color[cat], add: () => this.setState({ w: [...s.w, [id, min]], sent: false }) }));
+    const total = s.w.reduce((a,[,m]) => a+m, 0);
+    let t = 0;
+    const fmt = m => Math.floor(m/60) + ':' + String(m%60).padStart(2,'0');
+    const rows = s.w.map(([id,min], i) => {
+      const [name,cat] = D[id]; const start = fmt(t); t += min;
+      const set = v => { const w = s.w.slice(); w[i] = [id, Math.max(1, v)]; this.setState({ w }); };
+      return { name, cat, min, start, c: color[cat], w: (min/Math.max(total,1)*100)+'%', inc: () => set(min+1), dec: () => set(min-1), del: () => this.setState({ w: s.w.filter((_,k) => k!==i) }) };
+    });
+    const T = ['Development group','Malik Carter','Ty Robinson','Zoe Grant','Isaiah Ford'];
+    const targets = T.map(x => ({ t: x, bg: s.tg.includes(x) ? '#FF6A13' : '#0A2C7A', fg: s.tg.includes(x) ? '#0B1530' : '#FFFFFF', pick: () => this.setState({ tg: s.tg.includes(x) ? s.tg.filter(y => y!==x) : [...s.tg, x] }) }));
+    const targetCount = s.tg.reduce((a,x) => a + (x==='Development group' ? 12 : 1), 0);
+    return { cats, lib, rows, total, count: rows.length, targets, targetCount, sendOpen: s.send, sent: s.sent, notSent: !s.sent,
+      openSend: () => this.setState({ send: true, sent: false }), closeSend: () => this.setState({ send: false }), send: () => this.setState({ sent: true }) };
+  }
+}
+</script>
+</body>
+</html>

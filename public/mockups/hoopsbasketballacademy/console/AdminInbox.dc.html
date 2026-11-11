@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<base href="/mockups/hoopsbasketballacademy/console/">
+<script src="/mockups/hoopsbasketballacademy/preview-chrome.js" data-section="console" defer></script>
+
+<title>Console — Inbox</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&amp;family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#F3F6FB}
+*{box-sizing:border-box}
+.d{font-family:'Archivo',sans-serif;font-stretch:62%;font-weight:900;text-transform:uppercase;line-height:.88}
+a{color:#00539B}a:hover{color:#012169}
+.k{font-size:11px;font-weight:800;letter-spacing:.12em;color:#4A5675}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:12px;font:700 14px 'Inter',sans-serif;text-decoration:none;border:0;cursor:pointer}
+.f{width:100%;display:flex;justify-content:space-between;align-items:center;min-height:42px;padding:0 12px;border-radius:10px;border:0;cursor:pointer;font:700 14px 'Inter',sans-serif;text-align:left}
+.th{width:100%;text-align:left;border:0;cursor:pointer;padding:14px 16px;font-family:'Inter',sans-serif;border-bottom:1px solid #E3E9F5}
+
+summary::-webkit-details-marker{display:none}
+summary{list-style:none}
+@media (max-width: 640px){
+.sp{padding-left:20px!important;padding-right:20px!important}
+.sv{padding-top:64px!important;padding-bottom:64px!important}
+.panel{padding:24px!important}
+.mp{padding:16px!important}
+.hide-m{display:none!important}
+.scroll-m{flex-wrap:nowrap!important;overflow-x:auto!important}
+.tabs-m{flex-direction:row!important;flex-wrap:nowrap!important;overflow-x:auto!important;padding-bottom:4px}
+.tabs-m .tab{width:auto!important;white-space:nowrap;flex:none!important;min-height:52px!important}
+.img-m{height:240px!important}
+.navroot{min-height:0!important;padding:12px 14px!important}
+}
+@media (min-width: 641px){.show-m{display:none!important}}
+</style>
+</helmet>
+<div style="font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; width: 100%; min-height: 1100px; display: flex; flex-wrap: wrap">
+<div style="flex: 1 1 248px; max-width: 100%"><dc-import name="AdminNav" active="inbox" hint-size="100%,1100px"></dc-import></div>
+<main class="mp" style="flex: 999 1 560px; min-width: 0; padding: 28px 32px 40px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+<div><div class="k">EMAIL + APP MESSAGES IN ONE PLACE</div><h1 class="d" style="font-size: clamp(40px, 6vw, 56px); color: #012169; margin: 8px 0 0">Inbox</h1></div>
+<button class="btn" style="background: #012169; color: #FFFFFF">New message</button>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; margin-top: 22px; background: #FFFFFF; border-radius: 18px; overflow: hidden; box-shadow: 0 1px 0 #DCE3F0; min-height: 860px">
+<div style="flex: 1 1 200px; padding: 14px; border-right: 1px solid #E3E9F5; display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{folders}}" as="f" hint-placeholder-count="6"><button class="f" onClick="{{f.pick}}" style="background: {{f.bg}}; color: {{f.fg}}"><span>{{f.t}}</span><span style="font-size: 12px; opacity: .8">{{f.n}}</span></button></sc-for>
+<div class="k" style="margin: 18px 12px 6px">GROUPS</div>
+<button class="f" style="background: transparent; color: #0B1530">All parents</button>
+<button class="f" style="background: transparent; color: #0B1530">Development athletes</button>
+<button class="f" style="background: transparent; color: #0B1530">League captains</button>
+</div>
+
+<div style="flex: 1 1 300px; border-right: 1px solid #E3E9F5; min-width: 0">
+<sc-for list="{{threads}}" as="t" hint-placeholder-count="6">
+<button class="th" onClick="{{t.pick}}" style="background: {{t.bg}}">
+<div style="display: flex; justify-content: space-between; gap: 8px"><span style="font-weight: 800; font-size: 14px; color: #0B1530">{{t.from}}</span><span style="font-size: 12px; color: #4A5675">{{t.when}}</span></div>
+<div style="display: flex; gap: 6px; align-items: center; margin-top: 4px"><span style="font-size: 10px; font-weight: 800; letter-spacing: .08em; padding: 3px 7px; border-radius: 6px; background: {{t.tagBg}}; color: {{t.tagFg}}">{{t.via}}</span><span style="font-size: 13px; font-weight: 700; color: #0B1530">{{t.subj}}</span></div>
+<div style="font-size: 13px; color: #4A5675; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{t.prev}}</div>
+</button>
+</sc-for>
+</div>
+
+<div style="flex: 999 1 420px; min-width: 0; display: flex; flex-direction: column">
+<div style="padding: 18px 22px; border-bottom: 1px solid #E3E9F5; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center">
+<div><div style="font-weight: 800; font-size: 18px">{{cur.from}}</div><div style="font-size: 13px; color: #4A5675; margin-top: 2px">{{cur.role}} · {{cur.via}}</div></div>
+<a class="btn" href="AdminAthletes.dc.html" style="background: #F3F6FB; color: #012169; min-height: 38px">View athlete</a>
+</div>
+<div style="flex: 1; padding: 22px; display: flex; flex-direction: column; gap: 12px; background: #FAFBFD">
+<sc-for list="{{msgs}}" as="m" hint-placeholder-count="3">
+<div style="display: flex; justify-content: {{m.side}}">
+<div style="max-width: 72%; padding: 12px 16px; border-radius: 16px; background: {{m.bg}}; color: {{m.fg}}; font-size: 14px; line-height: 1.5">{{m.t}}<div style="font-size: 11px; opacity: .7; margin-top: 6px">{{m.when}}</div></div>
+</div>
+</sc-for>
+</div>
+<div style="padding: 14px; border-top: 1px solid #E3E9F5; display: flex; gap: 8px; flex-wrap: wrap">
+<button class="btn" onClick="{{quick1}}" style="background: #F3F6FB; color: #012169; min-height: 36px; font-size: 13px">Saturday works</button>
+<button class="btn" onClick="{{quick2}}" style="background: #F3F6FB; color: #012169; min-height: 36px; font-size: 13px">Sending homework now</button>
+<div style="display: flex; gap: 8px; width: 100%">
+<label style="flex: 1"><span style="position: absolute; left: -9999px">Reply</span><input placeholder="Reply via {{cur.via}}…" style="width: 100%; min-height: 48px; border-radius: 12px; border: 2px solid #DCE3F0; padding: 0 14px; font: 500 14px 'Inter'"></label>
+<button class="btn" style="background: #012169; color: #FFFFFF; min-height: 48px">Send</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { f: 'All', t: 0, extra: {} }; }
+  renderVals() {
+    const s = this.state;
+    const T = [
+      { from:'Denise Carter', role:'Parent of Malik Carter', via:'APP', subj:'Thursday session', when:'12m', prev:'Malik has a game Thursday, can he do Saturday instead?', msgs:[['in','Hi Coach! Malik has a school game Thursday. Can he make it up Saturday?','4:02 PM']] },
+      { from:'Ty Robinson', role:'Athlete · Development', via:'APP', subj:'Homework done', when:'1h', prev:'Finished the pound series. Left hand is getting better.', msgs:[['in','Finished the pound series. Left hand is getting better.','3:10 PM'],['in','Should I do the finishing one tomorrow too?','3:11 PM']] },
+      { from:'Rob Mitchell', role:'Request · Ava Mitchell', via:'EMAIL', subj:'Re: Ava — evaluation', when:'3h', prev:'Wednesday after 5 works best for us. Thanks for calling.', msgs:[['out','Great talking with you, Rob. When could Ava come in for an evaluation?','Yesterday'],['in','Wednesday after 5 works best for us. Thanks for calling.','1:20 PM']] },
+      { from:'Stripe', role:'Billing', via:'EMAIL', subj:'Payout of $2,480 sent', when:'Mon', prev:'Your payout is on the way to your bank account.', msgs:[['in','Your payout is on the way to your bank account ending in ••42.','Mon 9:00 AM']] },
+      { from:'Andre Byrd', role:'Parent of Kendall Byrd', via:'EMAIL', subj:'Following up', when:'Sun', prev:'Is the AAU schedule going to conflict?', msgs:[['in','Is the AAU schedule going to conflict with Tuesdays?','Sun 7:45 PM']] },
+      { from:'League · Blue Chips', role:'Team captain', via:'APP', subj:'Roster change', when:'Sat', prev:'Can we swap Chris for Jordan next week?', msgs:[['in','Can we swap Chris for Jordan next week?','Sat 6:12 PM']] }
+    ];
+    const tag = { APP:['#E3ECFA','#012169'], EMAIL:['#FFE3D3','#8A3305'] };
+    const F = [['All',T.length],['App messages',T.filter(t=>t.via==='APP').length],['Email',T.filter(t=>t.via==='EMAIL').length],['Sent',''],['Archived','']];
+    const match = { 'All':()=>true, 'App messages':t=>t.via==='APP', 'Email':t=>t.via==='EMAIL', 'Sent':()=>false, 'Archived':()=>false };
+    const folders = F.map(([t,n]) => ({ t, n, pick: () => this.setState({ f: t }), bg: s.f===t ? '#012169' : 'transparent', fg: s.f===t ? '#FFFFFF' : '#0B1530' }));
+    const threads = T.map((t,i) => ({ ...t, i })).filter(match[s.f]).map(t => ({ ...t, tagBg: tag[t.via][0], tagFg: tag[t.via][1], pick: () => this.setState({ t: t.i }), bg: t.i===s.t ? '#E3ECFA' : '#FFFFFF' }));
+    const cur = T[s.t];
+    const all = [...cur.msgs, ...(s.extra[s.t] || [])];
+    const msgs = all.map(([dir,t,when]) => ({ t, when, side: dir==='in' ? 'flex-start' : 'flex-end', bg: dir==='in' ? '#FFFFFF' : '#012169', fg: dir==='in' ? '#0B1530' : '#FFFFFF' }));
+    const reply = txt => () => this.setState({ extra: { ...s.extra, [s.t]: [...(s.extra[s.t] || []), ['out', txt, 'Just now']] } });
+    return { folders, threads, cur, msgs, quick1: reply('Saturday works. See him at 10!'), quick2: reply('Sending the homework to your app now.') };
+  }
+}
+</script>
+</body>
+</html>
