@@ -1,0 +1,48 @@
+html, body { margin: 0; background: #00103F; }
+.hoops-app { width: 390px !important; height: 844px !important; position: relative; }
+.hoops-app :where(div, label, span) { min-width: 0; }
+.hoops-app > div[style*="overflow-y: auto"] { min-height: 0; overscroll-behavior-y: contain; padding-bottom: 32px !important; }
+.hoops-app > nav { flex-shrink: 0; min-height: 76px; padding-bottom: max(22px, env(safe-area-inset-bottom)) !important; }
+.hoops-app :where(button, a) { min-height: 44px !important; }
+.hoops-app button { flex-shrink: 0; min-width: 44px; }
+.hoops-app :where(button, input) { font-family: Inter, system-ui, sans-serif !important; }
+.hoops-app .app-player-content { min-height: 0; overflow-y: auto; }
+.hoops-app .app-scan-code, .hoops-app .app-scan-target { left: 50% !important; transform: translateX(-50%); }
+.hoops-app .tb { min-width: 0; flex: 1; }
+.hoops-app input { min-width: 0; max-width: 100%; font-size: 16px !important; }
+.hoops-app :where(button, a, input):focus-visible { outline: 3px solid #FF6A13; outline-offset: 2px; }
+.app-notice { border-radius: 12px; padding: 12px; background: #E3ECFA; color: #012169; font: 600 14px/1.5 Inter, sans-serif; }
+.app-tv { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; background: #012169; color: white; padding: 24px; }
+.app-tv .btn { background: white; color: #012169; }
+.app-chip-row { flex-wrap: wrap; }
+.app-billing-action { padding: 16px; border: 2px solid #00539B; border-radius: 16px; background: white; color: #012169; }
+.app-billing-action .btn { margin-top: 12px; width: 100%; background: #012169; color: white; }
+.hoops-role-switcher { display: flex; gap: 8px; align-items: center; justify-content: center; }
+.hoops-role-switcher a { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0 20px; border: 1px solid #526890; border-radius: 999px; color: #fff; text-decoration: none; font: 700 14px Inter, sans-serif; }
+.hoops-role-switcher a[aria-current="page"] { color: #0B1530; background: #FF6A13; border-color: #FF6A13; }
+.hoops-phone-shell { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; background: #00103F; padding: 32px 16px; box-sizing: border-box; font-family: Inter, sans-serif; }
+.hoops-phone-frame { width: 390px; height: 844px; border-radius: 44px; overflow: hidden; box-shadow: 0 30px 70px #00084080, 0 0 0 10px #00103F, 0 0 0 12px #233463; }
+.hoops-phone-caption { color: #B7C3E0; font-size: 13px; text-decoration: none; }
+
+@media (max-width: 700px), (pointer: coarse) and (max-height: 700px) {
+  html, body { height: 100%; overflow: hidden; }
+  .hoops-phone-shell { padding: 0; min-height: 0; height: 100dvh; display: block; }
+  .hoops-phone-frame { width: 100%; height: 100%; border-radius: 0; box-shadow: none; }
+  .hoops-phone-frame > #dc-root, #dc-root > .sc-host { height: 100%; }
+  .hoops-app { width: 100% !important; height: 100dvh !important; }
+  .hoops-role-switcher, .hoops-phone-caption { display: none; }
+  /* Keep overview access above the tabs without covering the app's content. */
+  .hoops-app > nav { margin-bottom: calc(64px + env(safe-area-inset-bottom)); }
+  #hoops-chrome { left: 0; right: 0 !important; bottom: 0 !important; align-items: center !important; gap: 0 !important; background: #00103F; padding: 2px 0 max(2px, env(safe-area-inset-bottom)); }
+  #hoops-chrome .badge { display: block; font-size: 8px !important; padding: 2px 8px !important; }
+  #hoops-chrome .pill { box-shadow: none !important; padding: 0 8px !important; gap: 5px !important; font-size: 10px !important; background: transparent !important; }
+  #hoops-chrome .pill a { min-height: 44px; }
+  body:has(.hoops-app[data-overlay="true"]) #hoops-chrome { display: none; }
+}
+
+@media (max-width: 360px) {
+  .hoops-app .card { padding: 12px !important; }
+  .hoops-app .chip { padding: 0 10px; }
+  .hoops-app > div:first-child .d { font-size: 28px !important; }
+}
+@media (prefers-reduced-motion: reduce) { .hoops-app * { animation: none !important; } }

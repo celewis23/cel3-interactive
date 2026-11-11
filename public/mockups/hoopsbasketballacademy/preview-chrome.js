@@ -5,7 +5,7 @@
   var SECTIONS = [
     { key: "site", label: "Website", href: ROOT + "/site" },
     { key: "console", label: "Console", href: ROOT + "/console" },
-    { key: "app", label: "Apps", href: ROOT + "/app/parent-home" },
+    { key: "app", label: "Apps", href: ROOT + "/app/parent" },
   ];
 
   function mount() {
@@ -31,11 +31,11 @@
       "#hoops-chrome .badge{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#B7C3E0;" +
       "background:rgba(255,255,255,.1);border-radius:999px;padding:4px 10px;}" +
       "@media (max-width:520px){#hoops-chrome{right:8px;bottom:8px;}" +
-      "#hoops-chrome .pill{padding:7px 11px;gap:7px;font-size:11px;}}" +
+      "#hoops-chrome .pill{padding:7px 11px;gap:7px;font-size:11px;max-width:calc(100vw - 16px);box-sizing:border-box;flex-wrap:wrap;justify-content:center;}}" +
       "</style>" +
       '<div id="hoops-chrome">' +
       '<span class="badge">Preview · sample data</span>' +
-      '<div class="pill"><a href="' + ROOT + '">← Overview</a><span class="sep">|</span>' + links + "</div>" +
+      '<div class="pill"><a href="' + ROOT + '">← Back to overview</a><span class="sep">|</span>' + links + "</div>" +
       "</div>";
     document.body.appendChild(wrap);
   }

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<base href="/mockups/hoopsbasketballacademy/app/">
+<link rel="stylesheet" href="./preview.css">
+<script src="./demo-state.js"></script>
+<script src="/mockups/hoopsbasketballacademy/preview-chrome.js" data-section="app" defer></script>
+<script src="/mockups/hoopsbasketballacademy/phone-frame.js" data-role="parent" defer></script>
+<title>Parent app</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+.d{font-family:'Archivo',sans-serif;font-stretch:62%;font-weight:900;text-transform:uppercase;line-height:.9}
+.m{font-family:'JetBrains Mono',monospace}
+.k{font-size:11px;font-weight:800;letter-spacing:.12em;color:#4A5675}
+.tb{display:flex;flex-direction:column;align-items:center;gap:4px;font:700 11px 'Inter';border:0;background:transparent;cursor:pointer;min-width:64px;padding-top:10px}
+.card{background:#FFFFFF;border-radius:16px;padding:16px}
+.btn{border:0;cursor:pointer;font:800 14px 'Inter',sans-serif;border-radius:12px;min-height:46px;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 14px}
+.chip{border:0;cursor:pointer;font:700 13px 'Inter',sans-serif;border-radius:999px;min-height:38px;padding:0 14px}
+</style>
+<link rel="stylesheet" href="./preview.css">
+</helmet>
+<div class="hoops-app" data-overlay="{{isOverlay}}" style="width: 390px; height: 844px; font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; display: flex; flex-direction: column; overflow: hidden">
+<div style="background: #012169; color: #FFFFFF; padding: 22px 18px 18px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<div><div style="font-size: 13px; color: #B7C3E0; font-weight: 600">{{kicker}}</div><div class="d" style="font-size: 34px; margin-top: 4px">{{title}}</div></div>
+<button onClick="{{switchKid}}" style="min-height: 40px; padding: 0 14px; border-radius: 999px; border: 0; background: #00539B; color: #FFFFFF; font: 700 13px 'Inter'; cursor: pointer">{{kid.first}} ▾</button>
+</div>
+<sc-if value="{{showBanner}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: center; gap: 10px; margin-top: 16px; padding: 12px 14px; border-radius: 14px; background: #0A2C7A; font-size: 14px; font-weight: 600">
+<span style="width: 26px; height: 26px; border-radius: 50%; background: #FF6A13; display: flex; align-items: center; justify-content: center; flex: none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#012169" stroke-width="4" aria-hidden="true"><path d="M4 12l5 5L20 6"></path></svg></span>
+{{kid.first}} checked in at {{kid.checkin}}
+</div>
+</sc-if>
+</div>
+
+<div style="flex: 1; overflow-y: auto; padding: 14px 14px 20px; display: flex; flex-direction: column; gap: 12px">
+<sc-if value="{{notice}}"><div class="app-notice" role="status">{{notice}}</div></sc-if>
+
+<sc-if value="{{vHome}}" hint-placeholder-val="{{ true }}">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div class="card" style="padding: 12px"><div class="k">ATTEND.</div><div class="d" style="font-size: 30px; color: #012169; margin-top: 6px">{{kid.att}}%</div></div>
+<div class="card" style="padding: 12px"><div class="k">HOMEWORK</div><div class="d" style="font-size: 30px; color: #012169; margin-top: 6px">{{kid.hwDone}}/4</div></div>
+<div class="card" style="padding: 12px"><div class="k">OVERALL</div><div class="d" style="font-size: 30px; color: #012169; margin-top: 6px">{{kid.ovr}}</div></div>
+</div>
+<div class="card">
+<div class="k">NEXT SESSION</div>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; gap: 10px"><div><div style="font-weight: 800; font-size: 16px">{{kid.next}}</div><div style="font-size: 13px; color: #4A5675; margin-top: 2px">{{kid.when}}</div></div><button class="btn" onClick="{{goCoach}}" style="background: #F3F6FB; color: #012169; min-height: 40px">Can't make it</button></div>
+</div>
+<div class="card">
+<div class="k">FROM COACH · NOV 3</div>
+<div style="font-size: 15px; line-height: 1.5; margin-top: 8px">{{kid.note}}</div>
+</div>
+<button class="card" onClick="{{goProgress}}" style="border: 0; text-align: left; cursor: pointer; font-family: 'Inter'; color: #0B1530">
+<div style="display: flex; justify-content: space-between"><span class="k">SKILLS</span><span style="font-size: 12px; font-weight: 800; color: #00539B">See progress →</span></div>
+<div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px">
+<sc-for list="{{skills4}}" as="s" hint-placeholder-count="4"><div style="display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700"><span style="width: 74px">{{s.n}}</span><span style="flex: 1; height: 8px; border-radius: 4px; background: #E3E9F5; overflow: hidden"><span style="display: block; height: 100%; width: {{s.w}}; background: #00539B"></span></span><span class="m" style="width: 24px; text-align: right">{{s.v}}</span></div></sc-for>
+</div>
+</button>
+<button class="card" onClick="{{goBilling}}" style="border: 0; text-align: left; cursor: pointer; font-family: 'Inter'; color: #0B1530; background: #FFE9DC; display: flex; justify-content: space-between; align-items: center"><span><span style="display: block; font-weight: 800; font-size: 14px">{{kid.first}} · {{kid.prog}} membership</span><span style="display: block; font-size: 12px; color: #8A3305; margin-top: 2px">Auto-pay Dec 9 · {{cardLabel}}</span></span><span class="m" style="font-weight: 700">[PRICE]</span></button>
+</sc-if>
+
+<sc-if value="{{vProgress}}" hint-placeholder-val="{{ false }}">
+<div class="card">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><div class="k">SKILL RATINGS · UPDATED NOV 3</div><div class="d" style="font-size: 26px; color: #012169">{{kid.ovr}}</div></div>
+<div style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px">
+<sc-for list="{{skills}}" as="s" hint-placeholder-count="6"><div style="display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700"><span style="width: 74px">{{s.n}}</span><span style="flex: 1; height: 8px; border-radius: 4px; background: #E3E9F5; overflow: hidden"><span style="display: block; height: 100%; width: {{s.w}}; background: #00539B"></span></span><span class="m" style="width: 24px; text-align: right">{{s.v}}</span><span class="m" style="width: 26px; font-size: 11px; color: #00539B">+{{s.d}}</span></div></sc-for>
+</div>
+</div>
+<div class="card">
+<div class="k">FREE THROWS · % BY WEEK</div>
+<div style="display: flex; align-items: flex-end; gap: 6px; height: 100px; margin-top: 12px">
+<sc-for list="{{ft}}" as="p" hint-placeholder-count="8"><span style="flex: 1; height: {{p.h}}; background: {{p.c}}; border-radius: 4px 4px 0 0"></span></sc-for>
+</div>
+<div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: #4A5675; font-weight: 600"><span>Sep</span><span style="color: #B4460B; font-weight: 800">{{kid.ftNow}}% now</span></div>
+</div>
+<div class="card">
+<div class="k">ATTENDANCE · LAST 16 SESSIONS</div>
+<div style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; margin-top: 12px">
+<sc-for list="{{att}}" as="a" hint-placeholder-count="16"><span title="{{a.t}}" style="height: 30px; border-radius: 6px; background: {{a.c}}"></span></sc-for>
+</div>
+</div>
+<div class="card">
+<div class="k">HOMEWORK</div>
+<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px">
+<sc-for list="{{hw}}" as="h" hint-placeholder-count="4"><div style="display: flex; align-items: center; gap: 10px; font-size: 14px"><span style="font-size: 10px; font-weight: 800; letter-spacing: .06em; padding: 5px 8px; border-radius: 999px; background: {{h.bg}}; color: {{h.fg}}">{{h.st}}</span><span style="flex: 1; font-weight: 700">{{h.t}}</span></div></sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{vCoach}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: center; gap: 10px; padding-bottom: 4px">
+<span style="width: 40px; height: 40px; border-radius: 50%; background: #FF6A13; color: #012169; font-weight: 800; display: flex; align-items: center; justify-content: center">CH</span>
+<div><div style="font-weight: 800">Coach [Name]</div><div style="font-size: 12px; color: #4A5675">Usually replies in a few hours</div></div>
+</div>
+<sc-for list="{{msgs}}" as="m" hint-placeholder-count="4">
+<div style="align-self: {{m.side}}; max-width: 80%; padding: 12px 14px; border-radius: 16px; background: {{m.bg}}; color: {{m.fg}}; font-size: 14px; line-height: 1.5">{{m.t}}</div>
+</sc-for>
+<div style="display: flex; gap: 6px; flex-wrap: wrap">
+<button class="chip" onClick="{{q1}}" style="background: #FFFFFF; color: #012169">Thank you!</button>
+<button class="chip" onClick="{{q2}}" style="background: #FFFFFF; color: #012169">{{kid.first}} will miss next session</button>
+</div>
+</sc-if>
+
+<sc-if value="{{vBilling}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="background: #012169; color: #FFFFFF">
+<div style="font-size: 11px; font-weight: 800; letter-spacing: .12em; color: #8FB8FF">CURRENT PLAN</div>
+<div class="d" style="font-size: 30px; margin-top: 8px">{{kid.prog}} monthly</div>
+<div style="display: flex; justify-content: space-between; margin-top: 14px; font-size: 14px"><span style="color: #B7C3E0">Next payment</span><span style="font-weight: 800">Dec 9 · [PRICE]</span></div>
+<div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 14px"><span style="color: #B7C3E0">Pays with</span><span style="font-weight: 800">{{cardLabel}}</span></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button class="btn" onClick="{{updateCard}}" style="background: #FFFFFF; color: #012169">Update card</button>
+<button class="btn" onClick="{{receipts}}" style="background: #FFFFFF; color: #012169">Download receipts</button>
+</div>
+<sc-if value="{{billAction}}"><div class="app-billing-action" role="region" aria-label="Update demo card"><strong>Update card · preview</strong><p>No real card details are collected. Try switching to the sample Mastercard ending 24.</p><button class="btn" onClick="{{saveCard}}">Use demo Mastercard</button><button class="btn" onClick="{{cancelCard}}">Cancel</button></div></sc-if>
+<div class="k" style="margin-top: 4px">PAYMENT HISTORY</div>
+<sc-for list="{{pays}}" as="p" hint-placeholder-count="4">
+<div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: 14px"><div><div style="font-weight: 800; font-size: 14px">{{p.t}}</div><div style="font-size: 12px; color: #4A5675; margin-top: 2px">{{p.d}}</div></div><span style="font-size: 11px; font-weight: 800; padding: 5px 9px; border-radius: 999px; background: #E3F4EA; color: #0F5132">PAID</span></div>
+</sc-for>
+</sc-if>
+</div>
+
+<sc-if value="{{vCoach}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 10px 12px; display: flex; gap: 8px; background: #FFFFFF; box-shadow: 0 -1px 0 #DCE3F0">
+<label style="flex: 1"><span style="position: absolute; left: -9999px">Message</span><input aria-label="Message" value="{{draft}}" onInput="{{setDraft}}" onKeyDown="{{composerKey}}" placeholder="Message Coach" style="width: 100%; min-height: 46px; border-radius: 999px; border: 2px solid #DCE3F0; padding: 0 16px; font: 500 14px 'Inter'"></label>
+<button aria-label="Send" onClick="{{sendMessage}}" style="width: 46px; height: 46px; border-radius: 50%; border: 0; background: #FF6A13; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#012169" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+</div>
+</sc-if>
+
+<nav style="background: #FFFFFF; display: flex; justify-content: space-around; padding-bottom: 22px; box-shadow: 0 -1px 0 #DCE3F0" aria-label="Parent app">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="4"><button class="tb" onClick="{{t.go}}" style="color: {{t.c}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="{{t.d}}"></path></svg>{{t.t}}</button></sc-for>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"startTab":{"editor":"enum","options":["home","progress","coach","billing"],"default":"home"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { tab: p.startTab || 'home', kid: 0, extra: {}, draft: '', cardUpdated: false, billAction: false }; this.state = window.hoopsDemo.restore('parent', this.state); }
+  componentDidUpdate(){ window.hoopsDemo.save('parent', this.state); }
+  renderVals() {
+    const s = this.state;
+    const K = [
+      { first:'Malik', prog:'Development', att:96, hwDone:3, ovr:78, base:78, next:'Guard skills', when:'Thu · 6:00 PM · 75 min', checkin:'5:58 PM', ftNow:76, note:'Left-hand finishes are way more confident. Next: keep the eyes up out of the crossover.', attPat:'pppplppppmpppppp' },
+      { first:'Jada', prog:'Foundations', att:92, hwDone:2, ovr:61, base:61, next:'Footwork & ball control', when:'Wed · 4:30 PM · 60 min', checkin:'4:24 PM', ftNow:58, note:'Great energy! Working on keeping her eyes up while dribbling.', attPat:'pppmpppppplppppp' }
+    ];
+    const kid = K[s.kid];
+    const go = (tab) => () => this.setState({ tab, notice: '', billAction: false, draft: '' });
+    const skills = [['Handle',4,4],['Shooting',-2,5],['Finishing',3,6],['Footwork',1,2],['Defense',-4,1],['IQ',2,3]].map(([n,o,d]) => ({ n, v: kid.base+o, w: (kid.base+o)+'%', d }));
+    const ftv = [0,1,2,3,4,5,6,7].map(i => kid.ftNow - 18 + Math.round(i*18/7));
+    const H = s.kid===0 ? [['DONE','Two-ball pound series'],['DONE','Form shooting 100'],['DONE','Wall passes'],['DUE SUN','Left-hand finishing package']] : [['DONE','Ball control basics'],['DONE','Stationary dribbling'],['DUE FRI','Footwork ladder'],['DUE SUN','Form shooting 50']];
+    const base = s.kid === 0 ? [['in','Hi Coach! Malik has a school game Thursday. Can he make it up Saturday?'],['out','Saturday works. See him at 10! Good luck Thursday.'],['out','Sending a workout to make up the missed reps: Left-hand finishing package, due Sunday.']] : [['in', 'How is Jada doing with ball control?'], ['out', 'Great energy! We are practicing keeping her eyes up while dribbling.']];
+    const ICON = { home:'M3 11l9-7 9 7v9H3z', progress:'M4 20V10M10 20V4M16 20v-7M22 20H2', coach:'M4 4h16v12H8l-4 4z', billing:'M3 6h18v12H3zM3 10h18' };
+    const titles = { home:"'s week", progress:"'s progress", coach:'Coach', billing:'Billing' };
+    const title = s.tab==='coach' || s.tab==='billing' ? titles[s.tab] : kid.first + titles[s.tab];
+    const reply = (t) => () => this.setState({ extra: { ...s.extra, [s.kid]: [...(s.extra[s.kid] || []), t] } });
+    const sendMessage = () => { const text = (s.draft || '').trim(); if (text) this.setState({ extra: { ...s.extra, [s.kid]: [...(s.extra[s.kid] || []), text] }, draft: '' }); };
+    return {
+      notice: s.notice || '', isOverlay: false,
+      draft: s.draft || '', setDraft: e => this.setState({ draft: e.target.value }), sendMessage, composerKey: e => { if (e.key === 'Enter') { e.preventDefault(); sendMessage(); } },
+      billAction: s.billAction, updateCard: () => this.setState({ billAction: true, notice: '' }), cancelCard: () => this.setState({ billAction: false }), saveCard: () => this.setState({ cardUpdated: true, billAction: false, notice: 'Demo card updated. No payment details were collected or sent.' }),
+      cardLabel: s.cardUpdated ? 'Demo Mastercard ••24 · auto-pay on' : 'Visa ••41 · auto-pay on',
+      receipts: () => { window.hoopsDemo.downloadReceipt(kid.first); this.setState({ notice: 'Sample receipt downloaded for ' + kid.first + '. This is not a real payment receipt.' }); },
+      kid, title, kicker: 'Hi, Denise', showBanner: s.tab==='home',
+      switchKid: () => this.setState({ kid: (s.kid+1)%2, draft: '', notice: '', billAction: false }),
+      vHome: s.tab==='home', vProgress: s.tab==='progress', vCoach: s.tab==='coach', vBilling: s.tab==='billing',
+      goCoach: go('coach'), goProgress: go('progress'), goBilling: go('billing'),
+      skills, skills4: skills.filter(x => x.n !== 'Footwork' && x.n !== 'IQ'),
+      ft: ftv.map((v,i) => ({ h: Math.max(8,(v-30)*2)+'px', c: i===7 ? '#FF6A13' : '#00539B' })),
+      att: kid.attPat.split('').map(c => ({ c: c==='p' ? '#00539B' : c==='l' ? '#FF6A13' : '#DCE3F0', t: c==='p' ? 'Present' : c==='l' ? 'Late' : 'Missed' })),
+      hw: H.map(([st,t]) => ({ st, t, bg: st==='DONE' ? '#00539B' : '#E3ECFA', fg: st==='DONE' ? '#FFFFFF' : '#012169' })),
+      msgs: [...base, ...(s.extra[s.kid] || []).map(t => ['in', t])].map(([dir,t]) => ({ t, side: dir==='in' ? 'flex-end' : 'flex-start', bg: dir==='in' ? '#012169' : '#FFFFFF', fg: dir==='in' ? '#FFFFFF' : '#0B1530' })),
+      q1: reply('Thank you!'), q2: reply("Heads up: " + kid.first + " will miss the next session."),
+      pays: [{ t:kid.first + ' · November membership', d:'Paid Nov 9 · Visa ••41' },{ t:kid.first + ' · October membership', d:'Paid Oct 9 · Visa ••41' },{ t:kid.first + ' · 3x3 League fee', d:'Paid Sep 28 · Visa ••41' },{ t:kid.first + ' · September membership', d:'Paid Sep 9 · Visa ••41' }],
+      tabs: [['home','Home'],['progress','Progress'],['coach','Coach'],['billing','Billing']].map(([id,t]) => ({ t, d: ICON[id], c: s.tab===id ? '#012169' : '#4A5675', go: go(id) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

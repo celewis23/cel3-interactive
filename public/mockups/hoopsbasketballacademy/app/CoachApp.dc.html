@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<base href="/mockups/hoopsbasketballacademy/app/">
+<link rel="stylesheet" href="./preview.css">
+<script src="./demo-state.js"></script>
+<script src="/mockups/hoopsbasketballacademy/preview-chrome.js" data-section="app" defer></script>
+<script src="/mockups/hoopsbasketballacademy/phone-frame.js" data-role="coach" defer></script>
+<title>Coach app</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+.d{font-family:'Archivo',sans-serif;font-stretch:62%;font-weight:900;text-transform:uppercase;line-height:.9}
+.m{font-family:'JetBrains Mono',monospace}
+.k{font-size:11px;font-weight:800;letter-spacing:.12em;color:#4A5675}
+.tb{display:flex;flex-direction:column;align-items:center;gap:4px;font:700 11px 'Inter';border:0;background:transparent;cursor:pointer;min-width:58px;padding-top:10px}
+.card{background:#FFFFFF;border-radius:16px;padding:14px}
+.row{width:100%;display:flex;align-items:center;gap:12px;border:0;cursor:pointer;text-align:left;font-family:'Inter',sans-serif;background:#FFFFFF;border-radius:14px;padding:12px;color:#0B1530}
+.btn{border:0;cursor:pointer;font:800 14px 'Inter',sans-serif;border-radius:12px;min-height:46px;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 14px}
+.chip{border:0;cursor:pointer;font:700 13px 'Inter',sans-serif;border-radius:999px;min-height:38px;padding:0 14px}
+</style>
+<link rel="stylesheet" href="./preview.css">
+</helmet>
+<div class="hoops-app" data-overlay="{{isOverlay}}" style="width: 390px; height: 844px; font-family: 'Inter', sans-serif; color: #0B1530; background: #F3F6FB; display: flex; flex-direction: column; overflow: hidden">
+<div style="background: #012169; color: #FFFFFF; padding: 22px 18px 16px; display: flex; align-items: center; gap: 12px">
+<sc-if value="{{hasBack}}" hint-placeholder-val="{{ false }}"><button onClick="{{back}}" aria-label="Back" style="width: 40px; height: 40px; border-radius: 12px; border: 0; background: #0A2C7A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button></sc-if>
+<div style="flex: 1"><div style="font-size: 11px; font-weight: 800; letter-spacing: .14em; color: #8FB8FF">{{kicker}}</div><div class="d" style="font-size: 30px; margin-top: 4px">{{title}}</div></div>
+<span style="width: 38px; height: 38px; border-radius: 50%; background: #FF6A13; color: #012169; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center">CH</span>
+</div>
+
+<div style="flex: 1; overflow-y: auto; padding: 14px 14px 20px; display: flex; flex-direction: column; gap: 12px">
+<sc-if value="{{notice}}"><div class="app-notice" role="status">{{notice}}</div></sc-if>
+
+<!-- TODAY -->
+<sc-if value="{{vToday}}" hint-placeholder-val="{{ true }}">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div class="card"><div class="k">REQUESTS</div><div class="d" style="font-size: 30px; color: #012169; margin-top: 6px">{{reqCount}}</div></div>
+<div class="card"><div class="k">IN TODAY</div><div class="d" style="font-size: 30px; color: #012169; margin-top: 6px">{{inCount}}/12</div></div>
+<div class="card"><div class="k">HOMEWORK</div><div class="d" style="font-size: 30px; color: #012169; margin-top: 6px">76%</div></div>
+</div>
+<div class="k" style="margin-top: 4px">TODAY'S SESSIONS</div>
+<sc-for list="{{sessions}}" as="s" hint-placeholder-count="3">
+<button class="row" onClick="{{s.open}}">
+<span class="m" style="font-weight: 700; color: #012169; width: 66px; font-size: 13px">{{s.time}}</span>
+<span style="flex: 1"><span style="display: block; font-weight: 800; font-size: 15px">{{s.name}}</span><span style="display: block; font-size: 12px; color: #4A5675; margin-top: 2px">{{s.workout}}</span></span>
+<span style="font-size: 12px; font-weight: 800; color: #00539B">Check-in →</span>
+</button>
+</sc-for>
+<div class="k" style="margin-top: 4px">NEW WORKOUT REQUESTS</div>
+<sc-for list="{{reqs}}" as="r" hint-placeholder-count="2">
+<button class="row" onClick="{{r.open}}">
+<span style="width: 40px; height: 40px; border-radius: 50%; background: #E3ECFA; color: #012169; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; flex: none">{{r.ini}}</span>
+<span style="flex: 1"><span style="display: block; font-weight: 800; font-size: 15px">{{r.name}} · {{r.age}}</span><span style="display: block; font-size: 12px; color: #4A5675; margin-top: 2px">{{r.goals}}</span></span>
+<span style="font-size: 11px; font-weight: 800; padding: 5px 9px; border-radius: 999px; background: {{r.tagBg}}; color: {{r.tagFg}}">{{r.status}}</span>
+</button>
+</sc-for>
+<div class="k" style="margin-top: 4px">ACTIVITY</div>
+<div class="card" style="display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{activity}}" as="a" hint-placeholder-count="3"><div style="display: flex; gap: 10px; font-size: 14px; line-height: 1.4"><span style="width: 9px; height: 9px; border-radius: 50%; background: {{a.c}}; margin-top: 6px; flex: none"></span><span style="flex: 1">{{a.t}}</span><span style="font-size: 12px; color: #4A5675">{{a.when}}</span></div></sc-for>
+</div>
+</sc-if>
+
+<!-- REQUEST DETAIL -->
+<sc-if value="{{vReq}}" hint-placeholder-val="{{ false }}">
+<div class="card">
+<div class="d" style="font-size: 32px; color: #012169">{{req.name}}</div>
+<div style="font-size: 13px; color: #4A5675; margin-top: 6px; font-weight: 600">Age {{req.age}} · {{req.pos}} · {{req.exp}}</div>
+<div style="margin-top: 12px; padding: 12px; border-radius: 12px; background: #F3F6FB; font-size: 14px"><b>Work on:</b> {{req.goals}}<br><b>Best days:</b> {{req.days}}</div>
+<div style="margin-top: 10px; padding: 12px; border-radius: 12px; background: #F3F6FB; font-size: 14px"><b>Parent:</b> {{req.parent}}<br>(555) 555-01{{req.ph}} · prefers {{req.contact}}</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button class="btn" onClick="{{callParent}}" style="background: #FFFFFF; color: #012169">Call</button>
+<button class="btn" onClick="{{emailParent}}" style="background: #FFFFFF; color: #012169">Email</button>
+</div>
+<sc-if value="{{reqNotEnrolled}}" hint-placeholder-val="{{ true }}">
+<button class="btn" onClick="{{enroll}}" style="background: #FF6A13; color: #0B1530; min-height: 54px">Enroll athlete</button>
+<div style="font-size: 12px; color: #4A5675; text-align: center; line-height: 1.5">Creates the profile, sends a Stripe payment link and app invites to the family.</div>
+</sc-if>
+<sc-if value="{{reqEnrolled}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="background: #012169; color: #FFFFFF; text-align: center; padding: 22px">
+<div class="d" style="font-size: 34px">{{req.first}} is in.</div>
+<div style="font-size: 13px; color: #D6DEF0; margin-top: 8px; line-height: 1.5">Payment link and app invites sent to {{req.parent}}. Starter homework assigned.</div>
+</div>
+</sc-if>
+</sc-if>
+
+<!-- ATHLETES -->
+<sc-if value="{{vAthletes}}" hint-placeholder-val="{{ false }}">
+<label style="display: flex; align-items: center; gap: 8px; background: #FFFFFF; border-radius: 12px; padding: 0 12px; min-height: 46px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A5675" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><input value="{{query}}" onInput="{{searchAthletes}}" aria-label="Search athletes" placeholder="Search athletes" style="border: 0; outline: none; font: 500 15px 'Inter'; flex: 1; background: transparent"></label>
+<sc-for list="{{athletes}}" as="a" hint-placeholder-count="6">
+<button class="row" onClick="{{a.open}}">
+<span style="width: 40px; height: 40px; border-radius: 50%; background: {{a.av}}; color: #FFFFFF; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; flex: none">{{a.ini}}</span>
+<span style="flex: 1"><span style="display: block; font-weight: 800; font-size: 15px">{{a.name}}</span><span style="display: block; font-size: 12px; color: #4A5675; margin-top: 2px">{{a.prog}} · Age {{a.age}}</span></span>
+<span class="m" style="font-size: 12px; font-weight: 700; color: #00539B">{{a.ovr}} OVR</span>
+</button>
+</sc-for>
+</sc-if>
+
+<!-- ATHLETE DETAIL -->
+<sc-if value="{{vAthlete}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="background: #012169; color: #FFFFFF; position: relative; overflow: hidden">
+<span class="d" style="position: absolute; right: 10px; top: -6px; font-size: 110px; color: #0A2C7A">{{ath.num}}</span>
+<div style="position: relative"><div style="font-size: 11px; font-weight: 800; letter-spacing: .12em; color: #8FB8FF">{{ath.prog}} · {{ath.pos}}</div><div class="d" style="font-size: 36px; margin-top: 8px">{{ath.name}}</div><div style="font-size: 13px; color: #B7C3E0; margin-top: 6px">Parent: {{ath.parent}}</div></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div class="card"><div class="k">ATTEND.</div><div class="d" style="font-size: 26px; color: #012169; margin-top: 6px">{{ath.att}}%</div></div>
+<div class="card"><div class="k">HOMEWORK</div><div class="d" style="font-size: 26px; color: #012169; margin-top: 6px">{{ath.hw}}%</div></div>
+<div class="card"><div class="k">OVERALL</div><div class="d" style="font-size: 26px; color: #012169; margin-top: 6px">{{ath.ovr}}</div></div>
+</div>
+<div class="card" style="display: flex; flex-direction: column; gap: 10px">
+<div class="k">SKILLS</div>
+<sc-for list="{{ath.skills}}" as="s" hint-placeholder-count="5"><div style="display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700"><span style="width: 72px">{{s.n}}</span><span style="flex: 1; height: 8px; border-radius: 4px; background: #E3E9F5; overflow: hidden"><span style="display: block; height: 100%; width: {{s.w}}; background: #00539B"></span></span><span class="m" style="width: 24px; text-align: right">{{s.v}}</span></div></sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button class="btn" onClick="{{msgAthlete}}" style="background: #FFFFFF; color: #012169">Message</button>
+<button class="btn" onClick="{{hwAthlete}}" style="background: #FF6A13; color: #0B1530">Send homework</button>
+</div>
+</sc-if>
+
+<!-- CHECK-IN -->
+<sc-if value="{{vCheck}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; gap: 6px; overflow-x: auto">
+<sc-for list="{{sessChips}}" as="c" hint-placeholder-count="3"><button class="chip" onClick="{{c.pick}}" style="background: {{c.bg}}; color: {{c.fg}}; flex: none">{{c.t}}</button></sc-for>
+</div>
+<div class="card" style="background: #012169; color: #FFFFFF; text-align: center; padding: 20px">
+<div style="font-size: 11px; font-weight: 800; letter-spacing: .14em; color: #8FB8FF">{{sess.time}} · {{sess.name}}</div>
+<div style="display: inline-grid; grid-template-columns: repeat(21, 10px); padding: 14px; border-radius: 14px; background: #FFFFFF; margin-top: 14px">
+<sc-for list="{{qr}}" as="q" hint-placeholder-count="441"><span style="width: 10px; height: 10px; background: {{q}}"></span></sc-for>
+</div>
+<div style="font-size: 12px; color: #B7C3E0; margin-top: 12px">Athletes scan this with the Hoops app · refreshes every 30s</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 14px">
+<button class="btn" onClick="{{showTv}}" style="background: #FFFFFF; color: #012169">Show on gym TV</button>
+<button class="btn" onClick="{{simScan}}" style="background: #FF6A13; color: #0B1530">Simulate a scan</button>
+</div>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: baseline"><div class="k">LIVE ROSTER</div><div class="d" style="font-size: 26px; color: #012169">{{inCount}} / 12</div></div>
+<sc-for list="{{roster}}" as="r" hint-placeholder-count="12">
+<div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: {{r.bg}}">
+<span style="flex: 1; font-weight: 700; font-size: 14px">{{r.name}}</span>
+<span class="m" style="font-size: 12px; font-weight: 700; color: {{r.sc}}">{{r.st}}</span>
+</div>
+</sc-for>
+</sc-if>
+
+<!-- INBOX -->
+<sc-if value="{{vInbox}}" hint-placeholder-val="{{ false }}">
+<sc-for list="{{threads}}" as="t" hint-placeholder-count="4">
+<button class="row" onClick="{{t.open}}">
+<span style="width: 40px; height: 40px; border-radius: 50%; background: #E3ECFA; color: #012169; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; flex: none">{{t.ini}}</span>
+<span style="flex: 1; min-width: 0"><span style="display: flex; justify-content: space-between"><span style="font-weight: 800; font-size: 15px">{{t.from}}</span><span style="font-size: 12px; color: #4A5675">{{t.when}}</span></span><span style="display: block; font-size: 11px; font-weight: 800; letter-spacing: .08em; color: #00539B; margin-top: 2px">{{t.role}}</span><span style="display: block; font-size: 13px; color: #4A5675; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{t.prev}}</span></span>
+</button>
+</sc-for>
+</sc-if>
+
+<!-- THREAD -->
+<sc-if value="{{vThread}}" hint-placeholder-val="{{ false }}">
+<div style="font-size: 12px; color: #4A5675; text-align: center; font-weight: 700">{{thread.role}} · in-app message</div>
+<sc-for list="{{msgs}}" as="m" hint-placeholder-count="3">
+<div style="align-self: {{m.side}}; max-width: 80%; padding: 12px 14px; border-radius: 16px; background: {{m.bg}}; color: {{m.fg}}; font-size: 14px; line-height: 1.5">{{m.t}}</div>
+</sc-for>
+<div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px">
+<button class="chip" onClick="{{quick1}}" style="background: #FFFFFF; color: #012169">Sounds good!</button>
+<button class="chip" onClick="{{quick2}}" style="background: #FFFFFF; color: #012169">See you Saturday at 10</button>
+</div>
+</sc-if>
+
+<!-- HOMEWORK -->
+<sc-if value="{{vHw}}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{hwNotSent}}" hint-placeholder-val="{{ true }}">
+<div class="k">1 · PICK A WORKOUT</div>
+<sc-for list="{{workouts}}" as="w" hint-placeholder-count="3">
+<button class="row" onClick="{{w.pick}}" style="box-shadow: {{w.ring}}">
+<span style="width: 10px; height: 36px; border-radius: 4px; background: {{w.c}}"></span>
+<span style="flex: 1"><span style="display: block; font-weight: 800; font-size: 15px">{{w.name}}</span><span style="display: block; font-size: 12px; color: #4A5675; margin-top: 2px">{{w.meta}}</span></span>
+</button>
+</sc-for>
+<div class="k" style="margin-top: 4px">2 · WHO GETS IT</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{targets}}" as="t" hint-placeholder-count="5"><button class="chip" onClick="{{t.pick}}" style="background: {{t.bg}}; color: {{t.fg}}">{{t.t}}</button></sc-for>
+</div>
+<div class="k" style="margin-top: 4px">3 · DUE</div>
+<div class="app-chip-row" style="display: flex; gap: 6px">
+<sc-for list="{{dues}}" as="d" hint-placeholder-count="3"><button class="chip" onClick="{{d.pick}}" style="background: {{d.bg}}; color: {{d.fg}}">{{d.t}}</button></sc-for>
+</div>
+<button class="btn" onClick="{{sendHw}}" style="background: #012169; color: #FFFFFF; min-height: 54px; margin-top: 6px">Send to {{targetCount}} athlete(s)</button>
+</sc-if>
+<sc-if value="{{hwSent}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="background: #012169; color: #FFFFFF; text-align: center; padding: 24px">
+<div class="d" style="font-size: 40px">Sent.</div>
+<div style="font-size: 14px; color: #D6DEF0; margin-top: 8px; line-height: 1.5">{{hwSummary}} is in their app now. You'll see each one as they finish.</div>
+<button class="btn" onClick="{{hwAgain}}" style="background: #FFFFFF; color: #012169; width: 100%; margin-top: 16px">Send another</button>
+</div>
+</sc-if>
+<div class="k" style="margin-top: 6px">THIS WEEK</div>
+<sc-for list="{{assigned}}" as="a" hint-placeholder-count="3">
+<div class="card">
+<div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 14px"><span>{{a.name}}</span><span class="m">{{a.done}}/{{a.total}}</span></div>
+<div style="height: 8px; border-radius: 4px; background: #E3E9F5; margin-top: 8px; overflow: hidden"><div style="height: 100%; width: {{a.w}}; background: #00539B"></div></div>
+<div style="font-size: 12px; color: #4A5675; margin-top: 6px">{{a.who}} · due {{a.due}}</div>
+</div>
+</sc-for>
+</sc-if>
+</div>
+
+<sc-if value="{{showComposer}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 10px 12px; display: flex; gap: 8px; background: #FFFFFF; box-shadow: 0 -1px 0 #DCE3F0">
+<label style="flex: 1"><span style="position: absolute; left: -9999px">Message</span><input aria-label="Message" value="{{draft}}" onInput="{{setDraft}}" onKeyDown="{{composerKey}}" placeholder="Message {{thread.first}}" style="width: 100%; min-height: 46px; border-radius: 999px; border: 2px solid #DCE3F0; padding: 0 16px; font: 500 14px 'Inter'"></label>
+<button aria-label="Send" onClick="{{sendMessage}}" style="width: 46px; height: 46px; border-radius: 50%; border: 0; background: #FF6A13; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#012169" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+</div>
+</sc-if>
+
+<nav style="background: #FFFFFF; display: flex; justify-content: space-around; align-items: flex-start; padding-bottom: 22px; box-shadow: 0 -1px 0 #DCE3F0" aria-label="Coach app">
+<sc-for list="{{tabsL}}" as="t" hint-placeholder-count="2"><button class="tb" onClick="{{t.go}}" style="color: {{t.c}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="{{t.d}}"></path></svg>{{t.t}}</button></sc-for>
+<button onClick="{{goCheck}}" aria-label="Check-in" style="width: 62px; height: 62px; margin-top: -18px; border-radius: 50%; border: 0; cursor: pointer; background: #FF6A13; color: #0B1530; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 5px #F3F6FB"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3z"></path></svg></button>
+<sc-for list="{{tabsR}}" as="t" hint-placeholder-count="2"><button class="tb" onClick="{{t.go}}" style="color: {{t.c}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="{{t.d}}"></path></svg>{{t.t}}</button></sc-for>
+</nav>
+<sc-if value="{{tv}}"><div class="app-tv" role="dialog" aria-label="Gym TV preview"><div class="d" style="font-size:32px">{{sess.name}} · {{sess.time}}</div><div style="display:grid;grid-template-columns:repeat(21,10px);padding:14px;background:white"><sc-for list="{{qr}}" as="q"><span style="width:10px;height:10px;background:{{q}}"></span></sc-for></div><div>Preview · sample check-in code</div><button class="btn" onClick="{{closeTv}}">Back to check-in</button></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"startTab":{"editor":"enum","options":["today","athletes","checkin","inbox","homework"],"default":"today"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { tab: p.startTab || 'today', sub: null, req: 0, ath: 0, thr: 0, sess: 1, n: 7, enrolled: [], extra: {}, wk: 0, tg: ['Development group'], due: 'Fri', sent: false, draft: '', query: '', returnTo: null, qrTick: 0, scans: {}, assignments: [] }; this.state = window.hoopsDemo.restore('coach', this.state); }
+  componentDidMount(){ this.qrTimer = setInterval(() => this.setState({ qrTick: (this.state.qrTick || 0) + 1 }), 30000); }
+  componentWillUnmount(){ clearInterval(this.qrTimer); }
+  componentDidUpdate(){ window.hoopsDemo.save('coach', this.state); }
+  renderVals() {
+    const s = this.state;
+    const go = (tab) => () => this.setState({ tab, sub: null, returnTo: null, notice: '' });
+    const R = [
+      { ini:'JW', name:'Jayden Wallace', first:'Jayden', age:12, pos:'Guard', exp:'Rec league', goals:'Ball handling, shooting', days:'Tue, Thu', parent:'Tasha Wallace', contact:'call', ph:'42' },
+      { ini:'AM', name:'Ava Mitchell', first:'Ava', age:15, pos:'Wing', exp:'School team', goals:'Finishing, college exposure', days:'Mon, Wed', parent:'Rob Mitchell', contact:'email', ph:'17' }
+    ];
+    const A = [
+      ['Malik Carter','MC','Development','Guard',14,'Denise Carter',96,92,78,'23'],
+      ['Ty Robinson','TR','Development','Wing',13,'Keisha Robinson',88,85,71,'5'],
+      ['Zoe Grant','ZG','Development','Wing',13,'Renee Grant',91,90,70,'15'],
+      ['Isaiah Ford','IF','Development','Big',12,'Paul Ford',75,64,63,'44'],
+      ['Jordan Price','JP','Elite','Guard',17,'Alicia Price',94,97,84,'11'],
+      ['Mia Chen','MC','Foundations','Guard',10,'David Chen',100,60,58,'2']
+    ].map(([name,ini,prog,pos,age,parent,att,hw,ovr,num],i) => ({ name, ini, prog, pos, age, parent, att, hw, ovr, num, av: ['#012169','#00539B','#2E6FB0'][i%3],
+      skills: [['Handle',4],['Shooting',-2],['Finishing',3],['Footwork',1],['Defense',-4]].map(([n,o]) => ({ n, v: ovr+o, w: (ovr+o)+'%' })), open: () => this.setState({ tab: 'athletes', sub: 'athlete', ath: i }) }));
+    const S = [{ time:'4:30 PM', name:'Foundations', workout:'Footwork & ball control · 60 min' },{ time:'6:00 PM', name:'Development', workout:'Guard skills · 75 min' },{ time:'7:30 PM', name:'Elite', workout:'Finishing through contact · 90 min' }];
+    const T = [
+      { ini:'DC', from:'Denise Carter', first:'Denise', role:'PARENT · MALIK', when:'12m', msgs:[['in','Hi Coach! Malik has a school game Thursday. Can he make it up Saturday?']] },
+      { ini:'TR', from:'Ty Robinson', first:'Ty', role:'ATHLETE · DEVELOPMENT', when:'1h', msgs:[['in','Finished the pound series. Left hand is getting better.'],['in','Should I do the finishing one tomorrow too?']] },
+      { ini:'RM', from:'Rob Mitchell', first:'Rob', role:'REQUEST · AVA MITCHELL', when:'3h', msgs:[['out','Great talking with you, Rob. When could Ava come in for an evaluation?'],['in','Wednesday after 5 works best for us.']] },
+      { ini:'AB', from:'Andre Byrd', first:'Andre', role:'PARENT · KENDALL', when:'Sun', msgs:[['in','Is the AAU schedule going to conflict with Tuesdays?']] }
+    ];
+    A.forEach(a => {
+      if (!T.some(t => t.from === a.parent || t.from === a.name)) T.push({ ini: a.ini, from: a.name, first: a.name.split(' ')[0], role: 'ATHLETE · ' + a.prog.toUpperCase(), when: 'Now', msgs: [['in', 'Ready for the next workout, Coach.']] });
+    });
+    const all = [...T[s.thr].msgs, ...(s.extra[s.thr] || [])];
+    const sendMessage = () => { const text = (s.draft || '').trim(); if (text) this.setState({ extra: { ...s.extra, [s.thr]: [...(s.extra[s.thr] || []), ['out', text]] }, draft: '' }); };
+    const reply = (txt) => () => this.setState({ extra: { ...s.extra, [s.thr]: [...(s.extra[s.thr] || []), ['out', txt]] } });
+    // QR
+    const cells = []; let seed = 11 + s.sess*17 + (s.qrTick || 0)*31;
+    const finder = (r,c,R0,C0) => { const y=r-R0, x=c-C0; if (y<0||x<0||y>6||x>6) return null; return (y===0||y===6||x===0||x===6||(y>=2&&y<=4&&x>=2&&x<=4)); };
+    for (let r=0;r<21;r++) for (let c=0;c<21;c++) { let f = finder(r,c,0,0); if (f===null) f = finder(r,c,0,14); if (f===null) f = finder(r,c,14,0);
+      if (f===null) { const nf=(r<8&&c<8)||(r<8&&c>12)||(r>12&&c<8); seed=(seed*1103515245+12345)%2147483648; f = nf ? false : (seed>>16)%2===0; } cells.push(f ? '#012169' : '#FFFFFF'); }
+    const names = ['Malik Carter','Ty Robinson','Zoe Grant','Isaiah Ford','Kendall Byrd','Sofia Perez','Jayden Wallace','Elijah James','Darius Hill','Ava Lewis','Mia Chen','Noah Brooks'];
+    const times = ['5:48','5:51','5:52','5:55','5:57','5:58','5:59','6:00','6:01','6:03','6:06','6:09'];
+    const roster = names.map((name,i) => { const inn = i < (s.scans[s.sess] ?? (s.sess === 1 ? 7 : 0)); return { name, st: inn ? times[i] : 'NOT YET', sc: inn ? '#00539B' : '#4A5675', bg: inn ? '#E3ECFA' : '#FFFFFF' }; });
+    const W = [{ name:'Left-hand finishing package', meta:'4 drills · 22 min', c:'#FF6A13' },{ name:'Two-ball pound series', meta:'3 drills · 18 min', c:'#00539B' },{ name:'Form shooting 100', meta:'1 drill · 15 min', c:'#012169' }];
+    const TG = ['Development group', ...A.map(a => a.name)];
+    const on = b => b ? { bg:'#012169', fg:'#FFFFFF' } : { bg:'#FFFFFF', fg:'#0B1530' };
+    const ICON = { today:'M3 11l9-7 9 7v9H3z', athletes:'M16 20v-2a4 4 0 0 0-8 0v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', inbox:'M4 4h16v12H8l-4 4z', homework:'M4 6h16M4 12h10M4 18h7' };
+    const tab = (id, t) => ({ t, d: ICON[id], c: s.tab===id ? '#012169' : '#4A5675', go: go(id) });
+    const titles = { today:['TUESDAY, NOV 10','Today'], athletes:['48 ACTIVE','Athletes'], checkin:['SCAN TO CHECK IN','Check-in'], inbox:['IN-APP MESSAGES','Inbox'], homework:['SEND FROM ANYWHERE','Homework'] };
+    let [kicker, title] = titles[s.tab];
+    if (s.sub==='req') { kicker='WORKOUT REQUEST'; title='Request'; }
+    if (s.sub==='athlete') { kicker='ATHLETE'; title='Profile'; }
+    if (s.sub==='thread') { kicker='MESSAGES'; title=T[s.thr].first; }
+    const req = R[s.req], enrolled = s.enrolled.includes(s.req);
+    const reqs = R.map((r,i) => { const e = s.enrolled.includes(i); return { ...r, status: e ? 'ENROLLED' : 'NEW', tagBg: e ? '#E3F4EA' : '#FFE3D3', tagFg: e ? '#0F5132' : '#8A3305', open: () => this.setState({ tab:'today', sub:'req', req:i }) }; });
+    return {
+      notice: s.notice || '', isOverlay: !!s.tv,
+      draft: s.draft || '', setDraft: e => this.setState({ draft: e.target.value }), sendMessage, composerKey: e => { if (e.key === 'Enter') { e.preventDefault(); sendMessage(); } },
+      query: s.query || '', searchAthletes: e => this.setState({ query: e.target.value }),
+      callParent: () => this.setState({ notice: 'Preview only: call ' + req.parent + ' using the saved family phone number. No call was placed.' }),
+      emailParent: () => this.setState({ notice: 'Preview only: email ' + req.parent + ' about ' + req.first + "'s evaluation. No email was sent." }),
+      showTv: () => this.setState({ tv: true }), closeTv: () => this.setState({ tv: false }), tv: !!s.tv,
+      kicker, title, hasBack: !!s.sub || !!s.returnTo, back: () => this.setState(s.returnTo ? { ...s.returnTo, returnTo: null, draft: '', notice: '' } : { sub: null, notice: '' }),
+      vToday: s.tab==='today' && !s.sub, vReq: s.sub==='req', vAthletes: s.tab==='athletes' && !s.sub, vAthlete: s.sub==='athlete', vCheck: s.tab==='checkin', vInbox: s.tab==='inbox' && !s.sub, vThread: s.sub==='thread', vHw: s.tab==='homework',
+      showComposer: s.sub==='thread',
+      reqCount: R.length - s.enrolled.length, inCount: s.scans[s.sess] ?? (s.sess === 1 ? 7 : 0),
+      sessions: S.map((x,i) => ({ ...x, open: () => this.setState({ tab:'checkin', sub:null, sess:i }) })),
+      reqs, req, reqEnrolled: enrolled, reqNotEnrolled: !enrolled, enroll: () => this.setState({ enrolled: [...s.enrolled, s.req] }),
+      activity: [{ t:'Ty Robinson finished Two-ball pound series', when:'1h', c:'#00539B' },{ t:'Malik Carter checked in at 5:58 PM', when:'Tue', c:'#00539B' },{ t:'Grant family payment received', when:'Mon', c:'#0F5132' }],
+      athletes: A.filter(a => a.name.toLowerCase().includes((s.query || '').toLowerCase())), ath: A[s.ath],
+      msgAthlete: () => this.setState({ tab:'inbox', sub:'thread', thr: T.findIndex(t => t.from === A[s.ath].parent || t.from === A[s.ath].name), draft: '', returnTo: { tab: 'athletes', sub: 'athlete', ath: s.ath } }),
+      hwAthlete: () => this.setState({ tab:'homework', sub:null, tg:[A[s.ath].name], sent:false, returnTo: { tab: 'athletes', sub: 'athlete', ath: s.ath } }),
+      sessChips: S.map((x,i) => ({ t: x.time, ...on(s.sess===i), pick: () => this.setState({ sess:i }) })), sess: S[s.sess], qr: cells, roster, simScan: () => this.setState({ scans: { ...s.scans, [s.sess]: Math.min(12, (s.scans[s.sess] ?? (s.sess === 1 ? 7 : 0))+1) } }),
+      threads: T.map((t,i) => ({ ...t, prev: t.msgs.at(-1)[1], open: () => this.setState({ tab:'inbox', sub:'thread', thr:i, draft: '', returnTo: { tab:'inbox', sub:null } }) })), thread: T[s.thr],
+      msgs: all.map(([dir,t]) => ({ t, side: dir==='in' ? 'flex-start' : 'flex-end', bg: dir==='in' ? '#FFFFFF' : '#012169', fg: dir==='in' ? '#0B1530' : '#FFFFFF' })),
+      quick1: reply('Sounds good!'), quick2: reply('See you Saturday at 10.'),
+      workouts: W.map((w,i) => ({ ...w, ring: s.wk===i ? 'inset 0 0 0 2px #00539B' : 'none', pick: () => this.setState({ wk:i }) })),
+      targets: TG.map(x => ({ t:x, ...(s.tg.includes(x) ? { bg:'#FF6A13', fg:'#0B1530' } : { bg:'#FFFFFF', fg:'#0B1530' }), pick: () => this.setState({ tg: s.tg.includes(x) ? s.tg.filter(y=>y!==x) : [...s.tg, x] }) })),
+      targetCount: s.tg.includes('Development group') ? 12 : s.tg.length,
+      dues: ['Fri','Sun','Next Tue'].map(t => ({ t, ...on(s.due===t), pick: () => this.setState({ due:t }) })),
+      hwSent: s.sent, hwNotSent: !s.sent, hwSummary: W[s.wk].name, sendHw: () => { if (!s.tg.length) { this.setState({ notice: 'Pick at least one athlete or group.' }); return; } this.setState({ sent:true, notice: '', assignments: [...s.assignments, { name: W[s.wk].name, done: 0, total: s.tg.includes('Development group') ? 12 : s.tg.length, who: s.tg.join(', '), due: s.due, w: '0%' }] }); }, hwAgain: () => this.setState({ sent:false }),
+      assigned: [...s.assignments, ...[['Two-ball pound series',9,12,'Development group','Fri'],['Form shooting 100',7,12,'Development group','Thu'],['Euro step package',6,8,'Elite group','Sat']].map(([name,done,total,who,due]) => ({ name, done, total, who, due, w: (done/total*100)+'%' }))],
+      tabsL: [tab('today','Today'), tab('athletes','Athletes')], tabsR: [tab('inbox','Inbox'), tab('homework','Homework')], goCheck: go('checkin')
+    };
+  }
+}
+</script>
+</body>
+</html>

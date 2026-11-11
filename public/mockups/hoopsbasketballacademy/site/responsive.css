@@ -1,0 +1,54 @@
+/* Shared responsive layout for the public Hoops website mockup. */
+.hoops-site, .hoops-site :where(div, section, aside, label) { min-width: 0; }
+.hoops-site img { max-width: 100%; }
+.hoops-site .d { overflow-wrap: anywhere; }
+.hoops-site :where(input, select, textarea) { min-width: 0; max-width: 100%; }
+.hoops-site :where(a, button):focus-visible { outline: 3px solid #FF6A13; outline-offset: 3px; }
+.site-menu-panel, .site-menu-backdrop, .site-menu-toggle { display: none; }
+
+@media (max-width: 1000px) {
+  .snav .snav-desk { display: none !important; }
+  .snav > nav { padding: 14px 16px !important; gap: 10px !important; }
+  .snav .site-menu-toggle { display: inline-flex !important; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0; min-height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: white; color: #012169; font: 800 14px Inter, sans-serif; cursor: pointer; }
+  body:has(.site-menu-panel.is-open) { overflow: hidden; }
+  .site-menu-panel { display: flex; flex-direction: column; gap: 24px; position: fixed; inset: 0 auto 0 0; width: min(340px, calc(100vw - 40px)); height: 100dvh; z-index: 1000001; padding: max(20px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom)); box-sizing: border-box; background: white; color: #012169; overflow-y: auto; overscroll-behavior: contain; transform: translateX(-100%); visibility: hidden; transition: transform 240ms ease, visibility 240ms; }
+  .site-menu-panel.is-open { transform: translateX(0); visibility: visible; box-shadow: 12px 0 40px #00103f66; }
+  .site-menu-panel nav { display: flex; flex-direction: column; gap: 6px; }
+  .site-menu-backdrop { display: block; position: fixed; inset: 0; z-index: 1000000; border: 0; padding: 0; background: #00103f99; opacity: 0; visibility: hidden; transition: opacity 240ms ease, visibility 240ms; }
+  .site-menu-backdrop.is-open { opacity: 1; visibility: visible; }
+  .site-drawer-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .site-drawer-close { flex-shrink: 0; width: 44px; min-height: 44px; border: 0; border-radius: 12px; color: white; background: #012169; font-size: 20px; cursor: pointer; }
+}
+
+@media (max-width: 640px) {
+  .hoops-site .site-hero-content { padding: 48px 20px 56px !important; gap: 36px !important; }
+  .hoops-site .heroimg { width: 100% !important; opacity: .35; }
+  .hoops-site h1.d { font-size: clamp(44px, 12vw, 68px) !important; line-height: .98; }
+  .hoops-site h2.d { font-size: clamp(36px, 10vw, 54px) !important; line-height: 1; }
+  .hoops-site h3.d { font-size: clamp(28px, 8vw, 42px) !important; line-height: 1.05; }
+  .hoops-site .d { overflow-wrap: anywhere; }
+  .hoops-site .sp { padding-left: 20px !important; padding-right: 20px !important; }
+  .hoops-site .sv { padding-top: 48px !important; padding-bottom: 48px !important; }
+  .hoops-site .panel { padding: 20px !important; border-radius: 20px !important; }
+  .hoops-site .panel > [style*="flex:"] { flex-basis: 100% !important; max-width: 100%; }
+  .hoops-site .panel > [style*="padding: 26px"] { padding: 16px !important; }
+  .hoops-site :where(input, textarea, select) { font-size: 16px !important; }
+  .hoops-site :where(.btn, .chip, .tab) { min-height: 44px !important; }
+  .hoops-site .btn { white-space: normal; text-align: center; }
+  .hoops-site [style*="transform: rotate"] { transform: none !important; }
+  .hoops-site [style*="overflow-x: auto"], .hoops-site .scroll-m, .hoops-site .tabs-m { max-width: 100%; overscroll-behavior-x: contain; }
+  #hoops-chrome { position: static !important; align-items: center !important; margin: 16px 8px; }
+  #hoops-chrome .badge { background: #012169 !important; }
+  #hoops-chrome .pill { flex-wrap: wrap; justify-content: center; max-width: calc(100vw - 16px); box-sizing: border-box; gap: 5px !important; font-size: 10px !important; }
+  #hoops-chrome .pill a { min-height: 36px; }
+}
+
+@media (max-width: 360px) {
+  .snav > nav > a { gap: 6px !important; }
+  .snav > nav > a > svg { width: 30px; height: 30px; }
+  .snav > nav > a > span > span:last-child { font-size: 8px !important; letter-spacing: .12em !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-menu-panel, .site-menu-backdrop { transition: none; }
+}

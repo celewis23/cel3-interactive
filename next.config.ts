@@ -7,6 +7,14 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/mockups": ["./app/mockups/access.html", "./app/mockups/directory.html"],
   },
+  async redirects() {
+    const root = '/mockups/hoopsbasketballacademy/app';
+    const oldScreens = ['parent-home', 'messages', 'today', 'workout', 'checkin', 'progress', 'ParentHome.dc.html', 'ParentMessages.dc.html', 'AthleteToday.dc.html', 'AthleteWorkout.dc.html', 'AthleteCheckin.dc.html', 'AthleteProgress.dc.html'];
+    return [
+      { source: root, destination: root + '/parent', permanent: false },
+      ...oldScreens.map(screen => ({ source: root + '/' + screen, destination: root + '/parent', permanent: false })),
+    ];
+  },
   async rewrites() {
     return [
       { source: "/mockups/index.html", destination: "/mockups" },
@@ -40,12 +48,9 @@ const nextConfig: NextConfig = {
       { source: "/mockups/hoopsbasketballacademy/console/billing", destination: "/mockups/hoopsbasketballacademy/console/AdminBilling.dc.html" },
       { source: "/mockups/hoopsbasketballacademy/console/settings", destination: "/mockups/hoopsbasketballacademy/console/AdminSettings.dc.html" },
       { source: "/mockups/hoopsbasketballacademy/console/site-editor", destination: "/mockups/hoopsbasketballacademy/console/AdminSiteEditor.dc.html" },
-      { source: "/mockups/hoopsbasketballacademy/app/parent-home", destination: "/mockups/hoopsbasketballacademy/app/ParentHome.dc.html" },
-      { source: "/mockups/hoopsbasketballacademy/app/messages", destination: "/mockups/hoopsbasketballacademy/app/ParentMessages.dc.html" },
-      { source: "/mockups/hoopsbasketballacademy/app/today", destination: "/mockups/hoopsbasketballacademy/app/AthleteToday.dc.html" },
-      { source: "/mockups/hoopsbasketballacademy/app/workout", destination: "/mockups/hoopsbasketballacademy/app/AthleteWorkout.dc.html" },
-      { source: "/mockups/hoopsbasketballacademy/app/checkin", destination: "/mockups/hoopsbasketballacademy/app/AthleteCheckin.dc.html" },
-      { source: "/mockups/hoopsbasketballacademy/app/progress", destination: "/mockups/hoopsbasketballacademy/app/AthleteProgress.dc.html" },
+      { source: "/mockups/hoopsbasketballacademy/app/coach", destination: "/mockups/hoopsbasketballacademy/app/CoachApp.dc.html" },
+      { source: "/mockups/hoopsbasketballacademy/app/parent", destination: "/mockups/hoopsbasketballacademy/app/ParentApp.dc.html" },
+      { source: "/mockups/hoopsbasketballacademy/app/athlete", destination: "/mockups/hoopsbasketballacademy/app/AthleteApp.dc.html" },
     ];
   },
   async headers() {
