@@ -33,7 +33,8 @@
 .topBar {
   background: linear-gradient(180deg, var(--navy), var(--deep-navy));
   color: #fff;
-  padding: 36px 20px 48px;
+  /* Leave room for the fixed 72px site navigation above the proposal. */
+  padding: 108px 20px 48px;
 }
 
 .topBarInner {
@@ -42,6 +43,11 @@
 }
 
 .backLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 8px;
   color: #b7c3e0;
   text-decoration: none;
   font-size: 13px;
@@ -49,6 +55,7 @@
 }
 
 .backLink:hover { color: #fff; }
+.backLink:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
 
 .h1 {
   font-size: clamp(28px, 4vw, 42px);
