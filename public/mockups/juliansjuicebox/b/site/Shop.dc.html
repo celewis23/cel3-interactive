@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<base href="/mockups/juliansjuicebox/b/site/">
+<script src="/mockups/juliansjuicebox/preview-chrome.js" data-section="site" data-design="b" defer></script>
+<script src="/mockups/juliansjuicebox/cart-state.js"></script>
+<title>Julian's Juicebox — Shop, cart and checkout</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+img{max-width:100%;display:block}
+a{color:#1f5c2c}a:hover{color:#123a1b}
+</style>
+</helmet>
+<div style="font-family: 'Figtree', sans-serif; color: #14261a; background: #ffffff; font-size: 17px; line-height: 1.5; min-height: 900px">
+
+<header style="max-width: 1360px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 28px">
+<a href="/mockups/juliansjuicebox/b/site" aria-label="Julian's Juicebox home"><img src="./assets/bfdb1cc27445575d8a051a44c5e91832.png" alt="Julian's Juicebox" style="height: 60px; width: auto"></a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 0 28px; font-weight: 600; font-size: 16px">
+<a href="/mockups/juliansjuicebox/b/site" style="color: #14261a; text-decoration: none; padding: 12px 0">Home</a>
+<a href="/mockups/juliansjuicebox/b/site/shop" style="color: #1f5c2c; text-decoration: underline; text-underline-offset: 6px; padding: 12px 0">Shop</a>
+<a href="/mockups/juliansjuicebox/b/site/about" style="color: #14261a; text-decoration: none; padding: 12px 0">About</a>
+<a href="/mockups/juliansjuicebox/b/site" style="color: #14261a; text-decoration: none; padding: 12px 0">Take Our Quiz</a>
+<a href="/mockups/juliansjuicebox/b/site" style="color: #14261a; text-decoration: none; padding: 12px 0">FAQs</a>
+</nav>
+<button type="button" onClick="{{goCart}}" style="min-height: 48px; padding: 0 22px; border: 0; border-radius: 999px; background: #1f5c2c; color: #ffffff; font: inherit; font-weight: 700; cursor: pointer">Cart · {{cartCount}}</button>
+</header>
+
+<sc-if value="{{isShop}}" hint-placeholder-val="{{true}}">
+<div style="max-width: 1360px; margin: 0 auto; padding: 24px 24px 96px">
+<h1 style="margin: 0 0 8px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(40px, 5.4vw, 80px); line-height: 0.98; letter-spacing: -0.02em">Shop</h1>
+<p style="margin: 0 0 24px; font-size: 19px; max-width: 640px">100% organic, raw &amp; cold pressed. Shipped frozen to the 48 contiguous states, Monday through Wednesday.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px">
+<sc-for list="{{cats}}" as="c" hint-placeholder-count="7">
+<button type="button" onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="min-height: 46px; padding: 0 18px; border-radius: 999px; border: 2px solid #14261a; background: {{c.bg}}; color: {{c.fg}}; font: inherit; font-weight: 700; font-size: 15px; cursor: pointer">{{c.label}}</button>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start">
+<div style="flex: 999 1 560px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 16px">
+<sc-for list="{{products}}" as="p" hint-placeholder-count="8">
+<article style="background: #f6f7f4; border-radius: 22px; padding: 12px; display: flex; flex-direction: column; gap: 12px">
+<sc-if value="{{p.hasImg}}" hint-placeholder-val="{{false}}"><img src="{{p.img}}" alt="" style="width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 14px"></sc-if>
+<sc-if value="{{p.isSwatch}}" hint-placeholder-val="{{true}}"><div aria-hidden="true" style="aspect-ratio: 4 / 3; border-radius: 14px; background: {{p.color}}; color: {{p.ink}}; display: flex; align-items: flex-end; padding: 14px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 26px; line-height: 1">{{p.name}}</div></sc-if>
+<div style="padding: 0 6px">
+<div style="font-weight: 700; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #1f5c2c">{{p.catLabel}}</div>
+<h2 style="margin: 4px 0 6px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px; line-height: 1.15">{{p.name}}</h2>
+<p style="margin: 0; font-size: 15px; color: #4a5a4e">{{p.desc}}</p>
+</div>
+<div style="margin-top: auto; padding: 0 6px 6px; display: flex; align-items: center; justify-content: space-between; gap: 10px">
+<strong>{{p.priceLabel}}</strong>
+<sc-if value="{{p.available}}" hint-placeholder-val="{{true}}"><button type="button" onClick="{{p.add}}" style="min-height: 46px; padding: 0 18px; border: 0; border-radius: 999px; background: #f6c744; color: #14261a; font: inherit; font-weight: 700; cursor: pointer">Add to cart</button></sc-if>
+<sc-if value="{{p.soldOut}}" hint-placeholder-val="{{false}}"><span style="min-height: 46px; display: flex; align-items: center; padding: 0 16px; border: 2px dashed #6f7d72; border-radius: 999px; color: #4a5a4e; font-weight: 700; font-size: 15px">Sold out</span></sc-if>
+</div>
+</article>
+</sc-for>
+</div>
+<aside id="cart" aria-label="Your cart" style="flex: 1 1 320px; max-width: 100%; background: #eaf2dc; border-radius: 22px; padding: 22px">
+<h2 style="margin: 0 0 14px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 28px">Your cart</h2>
+<sc-if value="{{isEmpty}}" hint-placeholder-val="{{true}}"><p style="margin: 0">Nothing in here yet. Add a juice, a cleanse or a shot and it shows up here.</p></sc-if>
+<sc-if value="{{hasItems}}" hint-placeholder-val="{{false}}">
+<ul style="list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{lines}}" as="l" hint-placeholder-count="2">
+<li style="display: flex; justify-content: space-between; gap: 12px"><span>{{l.qty}} × {{l.name}}</span><strong>{{l.total}}</strong></li>
+</sc-for>
+</ul>
+<div style="display: flex; justify-content: space-between; border-top: 2px solid #14261a; padding-top: 12px; margin-bottom: 16px; font-weight: 700; font-size: 19px"><span>Subtotal</span><span>{{subtotal}}</span></div>
+<button type="button" onClick="{{goCart}}" style="width: 100%; min-height: 54px; border: 0; border-radius: 999px; background: #1f5c2c; color: #ffffff; font: inherit; font-weight: 700; cursor: pointer">View cart &amp; check out</button>
+</sc-if>
+<p style="margin: 16px 0 0; font-size: 15px; color: #4a5a4e">Juices ship frozen in 2-inch styrofoam-lined boxes and keep in the freezer for up to 6 months.</p>
+</aside>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{inCheckout}}" hint-placeholder-val="{{false}}">
+<div style="max-width: 1240px; margin: 0 auto; padding: 24px 24px 96px">
+<ol aria-label="Checkout steps" style="list-style: none; margin: 0 0 28px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+<li style="padding: 10px 18px; border-radius: 999px; font-weight: 700; font-size: 15px; background: {{s.bg}}; color: {{s.fg}}">{{s.label}}</li>
+</sc-for>
+</ol>
+<div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+<div style="flex: 999 1 520px; min-width: 0">
+
+<sc-if value="{{isCart}}" hint-placeholder-val="{{true}}">
+<h1 style="margin: 0 0 20px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(34px, 4.2vw, 56px); line-height: 1; letter-spacing: -0.02em">Your cart</h1>
+<sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}"><p style="margin: 0 0 20px; font-size: 19px">Your cart is empty.</p></sc-if>
+<ul style="list-style: none; margin: 0; padding: 0; border-top: 2px solid #14261a">
+<sc-for list="{{lines}}" as="l" hint-placeholder-count="3">
+<li style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; padding: 18px 0; border-bottom: 1px solid #c9d2c4">
+<span aria-hidden="true" style="flex: none; width: 56px; height: 56px; border-radius: 14px; background: {{l.color}}"></span>
+<div style="flex: 1 1 220px; min-width: 0"><div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px; line-height: 1.15">{{l.name}}</div><div style="font-size: 15px; color: #4a5a4e">{{l.each}} each · {{l.catLabel}}</div></div>
+<div style="display: flex; align-items: center; gap: 6px">
+<button type="button" onClick="{{l.dec}}" aria-label="One fewer" style="width: 44px; height: 44px; border: 2px solid #14261a; border-radius: 50%; background: #ffffff; font: inherit; font-weight: 700; font-size: 20px; cursor: pointer">−</button>
+<span style="min-width: 32px; text-align: center; font-weight: 700" aria-live="polite">{{l.qty}}</span>
+<button type="button" onClick="{{l.inc}}" aria-label="One more" style="width: 44px; height: 44px; border: 2px solid #14261a; border-radius: 50%; background: #ffffff; font: inherit; font-weight: 700; font-size: 20px; cursor: pointer">+</button>
+</div>
+<strong style="min-width: 96px; text-align: right">{{l.total}}</strong>
+<button type="button" onClick="{{l.remove}}" style="min-height: 44px; padding: 0 8px; border: 0; background: transparent; color: #1f5c2c; font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer">Remove</button>
+</li>
+</sc-for>
+</ul>
+<button type="button" onClick="{{goShop}}" style="margin-top: 20px; min-height: 50px; padding: 0 22px; border: 2px solid #14261a; border-radius: 999px; background: #ffffff; font: inherit; font-weight: 700; cursor: pointer">Keep shopping</button>
+</sc-if>
+
+<sc-if value="{{isInfo}}" hint-placeholder-val="{{false}}">
+<h1 style="margin: 0 0 20px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(34px, 4.2vw, 56px); line-height: 1; letter-spacing: -0.02em">Where's it going?</h1>
+<form style="display: flex; flex-direction: column; gap: 14px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600">Email<input type="email" placeholder="you@email.com" style="min-height: 52px; padding: 0 16px; border: 1px solid #6f7d72; border-radius: 12px; font: inherit"></label>
+<label style="display: flex; align-items: center; gap: 10px; min-height: 44px"><input type="checkbox" checked="" style="width: 20px; height: 20px">Add me to the mailing list and send my app link</label>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 14px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600">First name<input type="text" style="min-height: 52px; padding: 0 16px; border: 1px solid #6f7d72; border-radius: 12px; font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600">Last name<input type="text" style="min-height: 52px; padding: 0 16px; border: 1px solid #6f7d72; border-radius: 12px; font: inherit"></label>
+</div>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600">Street address<input type="text" style="min-height: 52px; padding: 0 16px; border: 1px solid #6f7d72; border-radius: 12px; font: inherit"></label>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: 14px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600">City<input type="text" style="min-height: 52px; padding: 0 16px; border: 1px solid #6f7d72; border-radius: 12px; font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600">State<input type="text" style="min-height: 52px; padding: 0 16px; border: 1px solid #6f7d72; border-radius: 12px; font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600">ZIP code<input type="text" inputmode="numeric" style="min-height: 52px; padding: 0 16px; border: 1px solid #6f7d72; border-radius: 12px; font: inherit"></label>
+</div>
+<fieldset style="margin: 6px 0 0; border: 2px solid #1f5c2c; border-radius: 16px; padding: 14px 18px">
+<legend style="font-weight: 700; padding: 0 8px">Delivery</legend>
+<label style="display: flex; align-items: center; gap: 12px; min-height: 44px"><input type="radio" name="ship" checked="" style="width: 20px; height: 20px"><span style="flex: 1">Frozen shipping · 1–3 days in transit</span><strong>[SHIPPING RATE]</strong></label>
+</fieldset>
+<p style="margin: 0; font-size: 15px; color: #4a5a4e">We ship to the 48 contiguous states. Orders take 1–3 days to process and go out Monday through Wednesday.</p>
+</form>
+</sc-if>
+
+<sc-if value="{{isPay}}" hint-placeholder-val="{{false}}">
+<h1 style="margin: 0 0 20px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(34px, 4.2vw, 56px); line-height: 1; letter-spacing: -0.02em">Payment</h1>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 10px; margin-bottom: 18px">
+<button type="button" style="min-height: 54px; border: 0; border-radius: 12px; background: #14261a; color: #ffffff; font: inherit; font-weight: 700; cursor: pointer">Apple Pay</button>
+<button type="button" style="min-height: 54px; border: 2px solid #14261a; border-radius: 12px; background: #ffffff; color: #14261a; font: inherit; font-weight: 700; cursor: pointer">PayPal</button>
+</div>
+<p style="margin: 0 0 14px; font-weight: 600; color: #4a5a4e">Or pay by card</p>
+<form style="display: flex; flex-direction: column; gap: 14px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600">Name on card<input type="text" style="min-height: 52px; padding: 0 16px; border: 1px solid #6f7d72; border-radius: 12px; font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600">Card number<input type="text" inputmode="numeric" placeholder="Card number" style="min-height: 52px; padding: 0 16px; border: 1px solid #6f7d72; border-radius: 12px; font: inherit"></label>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600">Expires<input type="text" placeholder="MM / YY" style="min-height: 52px; padding: 0 16px; border: 1px solid #6f7d72; border-radius: 12px; font: inherit"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 600">Security code<input type="text" inputmode="numeric" placeholder="CVC" style="min-height: 52px; padding: 0 16px; border: 1px solid #6f7d72; border-radius: 12px; font: inherit"></label>
+</div>
+<label style="display: flex; align-items: center; gap: 10px; min-height: 44px"><input type="checkbox" checked="" style="width: 20px; height: 20px">Billing address is the same as shipping</label>
+<label style="display: flex; align-items: center; gap: 10px; min-height: 44px"><input type="checkbox" style="width: 20px; height: 20px">Save this card to my account for next time</label>
+</form>
+</sc-if>
+
+</div>
+<aside aria-label="Order summary" style="flex: 1 1 340px; max-width: 100%; background: #eaf2dc; border-radius: 22px; padding: 24px">
+<h2 style="margin: 0 0 14px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 26px">Order summary</h2>
+<ul style="list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{lines}}" as="l" hint-placeholder-count="2">
+<li style="display: flex; justify-content: space-between; gap: 12px"><span>{{l.qty}} × {{l.name}}</span><span>{{l.total}}</span></li>
+</sc-for>
+</ul>
+<div style="display: flex; justify-content: space-between; padding: 6px 0"><span>Subtotal</span><strong>{{subtotal}}</strong></div>
+<div style="display: flex; justify-content: space-between; padding: 6px 0"><span>Frozen shipping</span><strong>[SHIPPING RATE]</strong></div>
+<div style="display: flex; justify-content: space-between; border-top: 2px solid #14261a; margin-top: 8px; padding-top: 12px; font-weight: 700; font-size: 20px"><span>Total</span><span>{{subtotal}} + shipping</span></div>
+<sc-if value="{{hasItems}}" hint-placeholder-val="{{true}}">
+<button type="button" onClick="{{next}}" style="width: 100%; margin-top: 18px; min-height: 56px; border: 0; border-radius: 999px; background: #1f5c2c; color: #ffffff; font: inherit; font-weight: 700; cursor: pointer">{{nextLabel}}</button>
+</sc-if>
+<button type="button" onClick="{{back}}" style="width: 100%; margin-top: 10px; min-height: 50px; border: 2px solid #14261a; border-radius: 999px; background: transparent; color: #14261a; font: inherit; font-weight: 700; cursor: pointer">{{backLabel}}</button>
+<p style="margin: 16px 0 0; font-size: 15px; color: #4a5a4e">Every cleanse comes with a Juice Cleanse Guide.</p>
+</aside>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isDone}}" hint-placeholder-val="{{false}}">
+<div style="max-width: 820px; margin: 0 auto; padding: 40px 24px 96px">
+<div style="background: #1f5c2c; color: #ffffff; border-radius: 28px; padding: clamp(26px, 4vw, 56px)">
+<p style="margin: 0 0 12px; font-weight: 700; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: #f6c744">Order #2144 confirmed</p>
+<h1 style="margin: 0 0 16px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(36px, 5vw, 68px); line-height: 0.98; letter-spacing: -0.02em">Thank you! Your juice is on the way.</h1>
+<p style="margin: 0; font-size: 19px">A receipt is headed to your inbox. Total paid: {{subtotal}} + shipping.</p>
+</div>
+<h2 style="margin: 40px 0 16px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 30px">What happens next</h2>
+<ol style="margin: 0 0 32px; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px">
+<li style="background: #f6f7f4; border-radius: 18px; padding: 20px"><strong>1. We press &amp; pack</strong><br>Orders take 1–3 days to process.</li>
+<li style="background: #f6f7f4; border-radius: 18px; padding: 20px"><strong>2. It ships frozen</strong><br>1–3 days in transit, out Monday through Wednesday.</li>
+<li style="background: #f6f7f4; border-radius: 18px; padding: 20px"><strong>3. Freeze, then thaw</strong><br>Keep frozen up to 6 months. Move to the fridge 24–48 hours before drinking.</li>
+</ol>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<a href="/mockups/juliansjuicebox/b/app/orders" style="background: #f6c744; color: #14261a; text-decoration: none; padding: 16px 28px; border-radius: 999px; font-weight: 700">Track it in the app</a>
+<button type="button" onClick="{{startOver}}" style="min-height: 56px; padding: 0 26px; border: 2px solid #14261a; border-radius: 999px; background: #ffffff; font: inherit; font-weight: 700; cursor: pointer">Back to the shop</button>
+</div>
+</div>
+</sc-if>
+
+<footer style="background: #14261a; color: #ffffff; padding: 40px 24px">
+<div style="max-width: 1360px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 16px 48px; font-size: 16px">
+<p style="flex: 1 1 280px; margin: 0; color: #cddccf">© 2026, Julian's Juicebox LLC. The information on this site does not replace professional medical advice.</p>
+<a href="#refund" style="color: #ffffff">Refund Policy</a><a href="#privacy" style="color: #ffffff">Privacy Policy</a><a href="#terms" style="color: #ffffff">Terms of Service</a><a href="#contact" style="color: #ffffff">Contact Us</a>
+</div>
+</footer>
+<a href="/mockups/juliansjuicebox" style="position: sticky; bottom: 16px; z-index: 20; align-self: flex-start; display: inline-flex; align-items: center; min-height: 48px; margin: 0 0 16px 16px; padding: 0 20px; border-radius: 999px; background: #141a16; color: #ffffff; border: 2px solid #ffffff; font-family: system-ui, sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0; text-transform: none; text-decoration: none">← Back to overview</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4300}}'>
+class Component extends DCLogic {
+renderVals() {
+var self = this;
+var st = this.state || {};
+var view = st.view || 'shop';
+var cat = st.cat || 'all';
+var cart = st.cart !== undefined ? st.cart : (window.JuiceboxCart ? window.JuiceboxCart.load('b') : {});
+var set = function (o) { return function () { self.setState(o); }; };
+var money = function (n) { return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); };
+var catNames = { cleanse: 'Cleansing Juiceboxes', goal: 'Goal Oriented Juiceboxes', juice: 'Build A Box', mylk: 'Nut Mylks', shots: 'Immunity Shots', packs: 'Juice Packs' };
+var WINTER = './assets/808cf7128d9de6af0ea164f0ed65d68c.png', BOX = './assets/2a162c44adca7420648fff937b0459ee.png', LINEUP = './assets/939262e5784f820deb79886509afb4c9.png', APPLE = './assets/b391adf87340b511a096bfef0c1639e0.png', SHOTS = './assets/36f2ed4c6ecbf1cf8fcd7f5a2351dd09.png';
+var raw = [
+['seasonal','cleanse','Winter Juice Cleanse','Our 36th seasonal cleanse: 24 juices, 3 immunity shots and 1 free 8oz shot. Limited boxes.',149.99,'$149.99',1,WINTER],
+['master','cleanse','Master Cleanse','A full-body reset designed to detox and restore balance from head to toe.',108,'From $108.00',1,'#7a1f3d'],
+['weight','cleanse','Weight Loss Cleanse','Nourish your body while helping to reach your weight loss goals.',108,'From $108.00',1,'#b0391f'],
+['gut','cleanse','Gut Reset Cleanse','Promote digestion and gut health with this targeted cleanse.',104,'From $104.00',1,'#2f7d32'],
+['antiaging','cleanse','Anti-Aging Cleanse','[SHORT DESCRIPTION]',108,'From $108.00',1,'#f09aae'],
+['lowsugar','cleanse','Low Sugar Cleanse (Diabetic Friendly)','Diabetic-friendly, low-sugar options for stable energy and wellness.',108,'From $108.00',1,'#9cbf3a'],
+['liver','cleanse','Liver & Colon Cleanse','Support detoxification and rejuvenation for a healthier you.',108,'From $108.00',1,'#5a1230'],
+['thirty','cleanse','30 Day Juice Cleanse','Julian\'s Juicebox x ImaniRaw: 240 bottles (8 per day) and 30 immunity shots.',1500,'$1,500.00',1,BOX],
+['immune','goal','Immune Boost Box','Tropic Breeze, Sweet Red, Apple A Day, Rise N Shine and Beauty Juice.',54,'From $54.00',1,'#e2731c'],
+['energy','goal','Energy Box','[SHORT DESCRIPTION]',0,'[PRICE]',1,'#f2c230'],
+['fruit','goal','Fruit Juicebox','[SHORT DESCRIPTION]',54,'From $54.00',1,'#a3172c'],
+['veggie','goal','Veggie Juicebox','Rise N Shine, Liver Tonic, Beauty Juice and Greenhouse.',54,'From $54.00',1,'#2f7d32'],
+['monthly','goal','Monthly Juice Box','[SHORT DESCRIPTION]',187.5,'From $187.50',1,LINEUP],
+['apple','juice','Apple A Day','Granny Smith, Pink Lady & Fuji apple, ginger.',7,'$7.00',1,APPLE],
+['beauty','juice','Beauty Juice','Pineapple, cucumber, celery, cilantro, mint.',7,'$7.00',1,'#9cbf3a'],
+['green','juice','Green House','Celery, cucumber, green apple, kale, lemon, ginger, parsley.',7,'$7.00',1,'#2f7d32'],
+['lemonade','juice','Lemonade Stand','Green apple, lemon.',7,'$7.00',1,'#f2c230'],
+['livertonic','juice','Liver Tonic','Beet, pineapple, Fuji apple, lemon, ginger.',7,'$7.00',1,'#7a1f3d'],
+['rise','juice','Rise & Shine','Carrot, orange, lemon, ginger.',7,'$7.00',1,'#e2731c'],
+['sweetred','juice','Sweet Red','Red grapes.',7,'$7.00',1,'#a3172c'],
+['grape','juice','Grape Lemonade','[INGREDIENTS]',7,'$7.00',0,'#6b3fa0'],
+['hydrator','juice','Hydrator','Watermelon, lime.',7,'$7.00',0,'#c0392b'],
+['strawberry','mylk','Strawberry Mylk','Cashews, strawberries, dates & coconut water.',7.5,'$7.50',1,'#f09aae'],
+['banana','mylk','Banana Mylk','Walnuts, bananas, dates & coconut water.',7.5,'$7.50',0,'#f2dc8c'],
+['chocolate','mylk','Chocolate Mylk','Almonds, cacao, dates & coconut water.',7.5,'$7.50',0,'#5b3a29'],
+['mylkpack','mylk','Mylk Pack','21 bottles — 7 each of Chocolate, Strawberry and Banana Mylk.',0,'[PRICE]',1,'#d9b38c'],
+['shot','shots','Immunity Booster Shot','2 oz of pineapple, orange, lemon, ginger, turmeric and black pepper.',4.5,'$4.50',1,SHOTS],
+['shot30','shots','Immunity Booster Shots (30 Pack)','A month of your daily boost.',119.99,'$119.99',1,'#f2c230'],
+['risepack','packs','Rise N Shine Juice Pack','A full pack of Rise N Shine.',104,'From $104.00',1,'#e2731c']
+];
+var light = { '#f2c230': 1, '#f09aae': 1, '#9cbf3a': 1, '#f2dc8c': 1, '#d9b38c': 1, '#e2731c': 1 };
+var add = function (id, d) { return function () { var base = (self.state && self.state.cart !== undefined) ? self.state.cart : (window.JuiceboxCart ? window.JuiceboxCart.load('b') : {}); var c = Object.assign({}, base); c[id] = Math.max(0, (c[id] || 0) + d); if (!c[id]) delete c[id]; self.setState({ cart: c }); if (window.JuiceboxCart) window.JuiceboxCart.save('b', c); }; };
+var all = raw.map(function (r) {
+var isImg = r[7].charAt(0) === '/';
+return { id: r[0], cat: r[1], catLabel: catNames[r[1]], name: r[2], desc: r[3], num: r[4], priceLabel: r[5], available: !!r[6], soldOut: !r[6],
+hasImg: isImg, isSwatch: !isImg, img: isImg ? r[7] : '', color: isImg ? '#eaf2dc' : r[7], ink: light[r[7]] ? '#14261a' : '#ffffff', add: add(r[0], 1) };
+});
+var products = all.filter(function (p) { return cat === 'all' || p.cat === cat; });
+var lines = all.filter(function (p) { return cart[p.id]; }).map(function (p) {
+var q = cart[p.id];
+return { name: p.name, catLabel: p.catLabel, qty: q, color: p.hasImg ? '#c9d2c4' : p.color, each: p.num ? money(p.num) : '[PRICE]', total: p.num ? money(p.num * q) : '[PRICE]',
+inc: add(p.id, 1), dec: add(p.id, -1), remove: add(p.id, -q), sum: p.num * q };
+});
+var count = 0, sub = 0;
+lines.forEach(function (l) { count += l.qty; sub += l.sum; });
+var cats = [['all', 'Everything']].concat(Object.keys(catNames).map(function (k) { return [k, catNames[k]]; })).map(function (c) {
+var on = c[0] === cat;
+return { label: c[1], on: on, bg: on ? '#14261a' : '#ffffff', fg: on ? '#ffffff' : '#14261a', pick: set({ cat: c[0] }) };
+});
+var order = ['cart', 'info', 'pay', 'done'];
+var idx = order.indexOf(view);
+var steps = ['1 · Cart', '2 · Details', '3 · Payment', '4 · Confirmed'].map(function (label, i) {
+var on = i === idx, past = i < idx;
+return { label: label, bg: on ? '#1f5c2c' : past ? '#eaf2dc' : '#f6f7f4', fg: on ? '#ffffff' : '#14261a' };
+});
+var nextLabels = { cart: 'Continue to details', info: 'Continue to payment', pay: 'Place order · ' + money(sub) + ' + shipping' };
+var backLabels = { cart: 'Keep shopping', info: 'Back to cart', pay: 'Back to details' };
+return { products: products, cats: cats, lines: lines, cartCount: count, subtotal: money(sub), isEmpty: !lines.length, hasItems: !!lines.length, steps: steps,
+isShop: view === 'shop', isCart: view === 'cart', isInfo: view === 'info', isPay: view === 'pay', isDone: view === 'done', inCheckout: idx >= 0 && idx < 3,
+goCart: set({ view: 'cart' }), goShop: set({ view: 'shop' }),
+next: set({ view: order[Math.min(idx + 1, 3)] }), nextLabel: nextLabels[view] || '',
+back: set({ view: idx <= 0 ? 'shop' : order[idx - 1] }), backLabel: backLabels[view] || '',
+startOver: set({ view: 'shop', cart: {} }) };
+}
+}
+</script>
+</body>
+</html>

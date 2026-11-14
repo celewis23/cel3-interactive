@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<base href="/mockups/juliansjuicebox/">
+<title>Julian's Juicebox — platform preview</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+img{max-width:100%;display:block}
+a{color:#245c22}a:hover{color:#163d15}
+</style>
+</helmet>
+<div style="font-family: 'Inter', sans-serif; color: #141a16; background: #ffffff; font-size: 17px; line-height: 1.55">
+
+<header style="max-width: 1160px; margin: 0 auto; padding: 28px 24px 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px">
+<img src="./assets/bfdb1cc27445575d8a051a44c5e91832.png" alt="Julian's Juicebox" style="height: 64px; width: auto">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #4d5a50">Platform preview · by CEL3 Interactive</div>
+</div>
+<span style="border: 1px dashed #4d5a50; color: #4d5a50; border-radius: 999px; padding: 6px 14px; font-size: 14px; font-weight: 600">Preview · sample data</span>
+</header>
+
+<section style="max-width: 1160px; margin: 0 auto; padding: 56px 24px 48px">
+<h1 style="margin: 0 0 20px; max-width: 900px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(38px, 5.4vw, 72px); line-height: 1.02; letter-spacing: -0.02em">Your new website, store and apps, ready to explore.</h1>
+<p style="margin: 0; max-width: 720px; font-size: 20px; color: #2d3a31">Click through the website, the Admin Console, and the owner and customer apps in three different designs. When you have a favorite, review and accept your proposal.</p>
+</section>
+
+<section style="max-width: 1160px; margin: 0 auto; padding: 0 24px 56px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 20px">
+<div style="background: #f3f6ee; border-radius: 20px; padding: 28px">
+<h2 style="margin: 0 0 14px; font-family: 'Space Grotesk', sans-serif; font-size: 24px">What this is</h2>
+<ol style="margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px">
+<li><strong>A clickable preview.</strong> It is not the live site, and nothing here changes juliansjuicebox.com.</li>
+<li><strong>Sample data.</strong> The orders, customers and sales numbers are made up to show how things work.</li>
+<li><strong>Safe to click.</strong> Preview actions stay in your browser. Nothing is sent or charged.</li>
+</ol>
+</div>
+<div style="background: #f3f6ee; border-radius: 20px; padding: 28px">
+<h2 style="margin: 0 0 14px; font-family: 'Space Grotesk', sans-serif; font-size: 24px">How it works</h2>
+<ol style="margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px">
+<li><strong>Open each part below.</strong> Website, Admin Console or app screen, in any of the three designs.</li>
+<li><strong>Click around.</strong> Add juices to the cart, check out, take the quiz, switch console pages.</li>
+<li><strong>Come back here.</strong> Use the “← Back to overview” button at the bottom of each website and console preview.</li>
+</ol>
+</div>
+</section>
+
+<section style="max-width: 1160px; margin: 0 auto; padding: 0 24px 24px">
+<h2 style="margin: 0 0 10px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(28px, 3.4vw, 44px); line-height: 1.05; letter-spacing: -0.02em">Three designs. Same features in each.</h2>
+<p style="margin: 0 0 28px; max-width: 760px; color: #2d3a31">Every design includes the website, the store with cart and checkout, the Admin Console, and both apps. You pick the look.</p>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 20px">
+<sc-for list="{{concepts}}" as="c" hint-placeholder-count="3">
+<article style="border: 1px solid #c9d2c4; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column">
+<img src="{{c.img}}" alt="" style="width: 100%; aspect-ratio: 16 / 10; object-fit: cover">
+<div style="padding: 24px; display: flex; flex-direction: column; gap: 18px; flex: 1">
+<div>
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #245c22">{{c.tag}}</div>
+<h3 style="margin: 4px 0 6px; font-family: 'Space Grotesk', sans-serif; font-size: 28px; line-height: 1.1">{{c.name}}</h3>
+<p style="margin: 0; color: #2d3a31">{{c.blurb}}</p>
+</div>
+<a href="{{c.home}}" style="display: block; text-align: center; background: #245c22; color: #ffffff; text-decoration: none; padding: 14px 20px; border-radius: 999px; font-weight: 700">Open the website</a>
+<div>
+<h4 style="margin: 0 0 6px; font-size: 15px">The Website</h4>
+<div style="display: flex; flex-wrap: wrap; gap: 4px 18px"><a href="{{c.home}}" style="padding: 8px 0">Home</a><a href="{{c.shop}}" style="padding: 8px 0">Shop, cart &amp; checkout</a><a href="{{c.about}}" style="padding: 8px 0">About</a></div>
+</div>
+<div>
+<h4 style="margin: 0 0 6px; font-size: 15px">Admin Console</h4>
+<div style="display: flex; flex-wrap: wrap; gap: 4px 18px"><a href="{{c.admin}}" style="padding: 8px 0">Open the console</a></div>
+</div>
+<div>
+<h4 style="margin: 0 0 6px; font-size: 15px">The Apps</h4>
+<div style="display: flex; flex-wrap: wrap; gap: 4px 18px"><a href="{{c.owner}}" style="padding: 8px 0">Owner app</a><a href="{{c.order}}" style="padding: 8px 0">Customer: Order</a><a href="{{c.orders}}" style="padding: 8px 0">My orders</a><a href="{{c.bulletins}}" style="padding: 8px 0">Bulletins</a></div>
+</div>
+</div>
+</article>
+</sc-for>
+</div>
+</section>
+
+<section style="max-width: 1160px; margin: 0 auto; padding: 32px 24px 56px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 20px">
+<div>
+<h3 style="margin: 0 0 8px; font-family: 'Space Grotesk', sans-serif; font-size: 22px">The Website</h3>
+<p style="margin: 0; color: #2d3a31">Brings in new customers with your story, the quiz, FAQs, and a shop where they can order everything you sell without leaving your site.</p>
+</div>
+<div>
+<h3 style="margin: 0 0 8px; font-family: 'Space Grotesk', sans-serif; font-size: 22px">Admin Console</h3>
+<p style="margin: 0; color: #2d3a31">One place to run it all: orders, products, inventory, customers, subscriptions, discounts, the site editor, media, inbox and bulletins.</p>
+</div>
+<div>
+<h3 style="margin: 0 0 8px; font-family: 'Space Grotesk', sans-serif; font-size: 22px">The Apps</h3>
+<p style="margin: 0; color: #2d3a31">The owner app puts the console on your phone. The customer app lets people order, track orders and get your bulletins. Both install from the browser, with no app store.</p>
+</div>
+</section>
+
+<section style="background: #141a16; color: #ffffff; padding: 72px 24px">
+<div style="max-width: 1160px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(30px, 4vw, 52px); line-height: 1.05; letter-spacing: -0.02em">Like what you see? View your proposal.</h2>
+<a href="/mockups/juliansjuicebox/proposal" style="background: #f2c230; color: #141a16; text-decoration: none; padding: 18px 32px; border-radius: 999px; font-weight: 700; font-size: 18px">View your proposal</a>
+</div>
+</section>
+
+<footer style="max-width: 1160px; margin: 0 auto; padding: 28px 24px 40px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; font-size: 15px; color: #4d5a50">
+<span>Prepared for Julian's Juicebox by CEL3 Interactive</span>
+<span>This is a private preview link and is not indexed.</span>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2700}}'>
+class Component extends DCLogic {
+renderVals() {
+var concepts = [
+{ tag: 'Design A', name: 'The Label', blurb: 'Built like your bottle label: bold name bars, ingredient lists and big numbers.', img: './assets/939262e5784f820deb79886509afb4c9.png', home: '/mockups/juliansjuicebox/a/site', shop: '/mockups/juliansjuicebox/a/site/shop', about: '/mockups/juliansjuicebox/a/site/about', admin: '/mockups/juliansjuicebox/a/console', owner: '/mockups/juliansjuicebox/a/app/owner', order: '/mockups/juliansjuicebox/a/app', orders: '/mockups/juliansjuicebox/a/app/orders', bulletins: '/mockups/juliansjuicebox/a/app/bulletins' },
+{ tag: 'Design B', name: 'The Studio', blurb: 'Fresh and photo-led, opening on the sunlit juice lineup in leaf green.', img: './assets/d97f7b9c92daa581124e9a5dfaa8eda4.png', home: '/mockups/juliansjuicebox/b/site', shop: '/mockups/juliansjuicebox/b/site/shop', about: '/mockups/juliansjuicebox/b/site/about', admin: '/mockups/juliansjuicebox/b/console', owner: '/mockups/juliansjuicebox/b/app/owner', order: '/mockups/juliansjuicebox/b/app', orders: '/mockups/juliansjuicebox/b/app/orders', bulletins: '/mockups/juliansjuicebox/b/app/bulletins' },
+{ tag: 'Design C', name: 'Color Block', blurb: 'Loud, juice-colored bands and heavy rounded type.', img: './assets/2a162c44adca7420648fff937b0459ee.png', home: '/mockups/juliansjuicebox/c/site', shop: '/mockups/juliansjuicebox/c/site/shop', about: '/mockups/juliansjuicebox/c/site/about', admin: '/mockups/juliansjuicebox/c/console', owner: '/mockups/juliansjuicebox/c/app/owner', order: '/mockups/juliansjuicebox/c/app', orders: '/mockups/juliansjuicebox/c/app/orders', bulletins: '/mockups/juliansjuicebox/c/app/bulletins' }
+];
+return { concepts: concepts };
+}
+}
+</script>
+</body>
+</html>

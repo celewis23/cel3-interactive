@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<base href="/mockups/juliansjuicebox/b/site/">
+<script src="/mockups/juliansjuicebox/preview-chrome.js" data-section="site" data-design="b" defer></script>
+<script src="/mockups/juliansjuicebox/cart-state.js"></script>
+<title>Julian's Juicebox — Concept B, The Studio</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=Figtree:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+img{max-width:100%;display:block}
+a{color:#1f5c2c}a:hover{color:#123a1b}
+</style>
+</helmet>
+<div style="font-family: 'Figtree', sans-serif; color: #14261a; background: #ffffff; font-size: 17px; line-height: 1.55">
+
+<header style="max-width: 1360px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 28px">
+<a href="#top" aria-label="Julian's Juicebox home"><img src="./assets/bfdb1cc27445575d8a051a44c5e91832.png" alt="Julian's Juicebox" style="height: 60px; width: auto"></a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 0 28px; font-weight: 600; font-size: 16px">
+<a href="/mockups/juliansjuicebox/b/site/shop" style="color: #14261a; text-decoration: none; padding: 12px 0">Shop</a>
+<a href="/mockups/juliansjuicebox/b/site/about" style="color: #14261a; text-decoration: none; padding: 12px 0">About</a>
+<a href="#cleanse" style="color: #14261a; text-decoration: none; padding: 12px 0">Cleanses</a>
+<a href="#quiz" style="color: #14261a; text-decoration: none; padding: 12px 0">Take Our Quiz</a>
+<a href="#raw" style="color: #14261a; text-decoration: none; padding: 12px 0">Why Raw?</a>
+<a href="#faq" style="color: #14261a; text-decoration: none; padding: 12px 0">FAQs</a>
+<a href="#account" style="color: #14261a; text-decoration: none; padding: 12px 0">Log in</a>
+<a href="/mockups/juliansjuicebox/b/site/shop" data-cart-badge="b" style="color: #14261a; text-decoration: none; padding: 12px 0">Cart</a>
+</nav>
+<a href="#app" style="background: #1f5c2c; color: #ffffff; text-decoration: none; padding: 13px 22px; border-radius: 999px; font-weight: 700">Get the app</a>
+</header>
+
+<section id="top">
+<img src="./assets/d97f7b9c92daa581124e9a5dfaa8eda4.png" alt="Five Julian's Juicebox juices on a sunlit table with fresh fruit and vegetables" style="width: 100%; height: clamp(360px, 56vw, 860px); object-fit: cover; object-position: right center">
+<div style="max-width: 1360px; margin: clamp(-470px, -31vw, -40px) auto 0; padding: 0 24px; position: relative">
+<div style="background: #1f5c2c; color: #ffffff; border-radius: 28px; padding: clamp(24px, 3vw, 44px); max-width: 540px">
+<p style="margin: 0 0 14px; font-weight: 700; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: #f6c744">Meet Julian the Juiceman</p>
+<h1 style="margin: 0 0 18px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(38px, 4.2vw, 62px); line-height: 0.98; letter-spacing: -0.02em">Juice the way it's supposed to be!</h1>
+<p style="margin: 0 0 24px; font-size: 19px">The easiest way to get your fruits &amp; veggies in. 100% organic, raw &amp; cold pressed, shipped frozen to your doorstep.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<a href="#shop" style="background: #f6c744; color: #14261a; text-decoration: none; padding: 16px 28px; border-radius: 999px; font-weight: 700">Build your juicebox</a>
+<a href="#quiz" style="border: 2px solid #ffffff; color: #ffffff; text-decoration: none; padding: 14px 26px; border-radius: 999px; font-weight: 700">Take our quiz</a>
+</div>
+</div>
+</div>
+</section>
+
+<section style="max-width: 1360px; margin: 0 auto; padding: 56px 24px 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px 32px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: clamp(22px, 2.2vw, 30px); line-height: 1.1">
+<p style="margin: 0; border-top: 3px solid #14261a; padding-top: 14px">No additives.</p>
+<p style="margin: 0; border-top: 3px solid #14261a; padding-top: 14px">No preservatives.</p>
+<p style="margin: 0; border-top: 3px solid #14261a; padding-top: 14px">No processing.</p>
+</section>
+
+<section style="max-width: 1360px; margin: 0 auto; padding: 64px 24px 88px">
+<h2 style="margin: 0 0 32px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(34px, 4.2vw, 60px); line-height: 1; letter-spacing: -0.02em">Find your juicebox</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 24px">
+<a href="#cleanse" style="text-decoration: none; color: #14261a; display: flex; flex-direction: column; gap: 14px"><img src="./assets/808cf7128d9de6af0ea164f0ed65d68c.png" alt="" style="width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 22px"><span style="font-weight: 700; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f5c2c">Short term results</span><span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 28px; line-height: 1.1">Cleansing Juiceboxes</span></a>
+<a href="#goals" style="text-decoration: none; color: #14261a; display: flex; flex-direction: column; gap: 14px"><img src="./assets/939262e5784f820deb79886509afb4c9.png" alt="" style="width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 22px"><span style="font-weight: 700; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f5c2c">Long term results</span><span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 28px; line-height: 1.1">Goal Oriented Juiceboxes</span></a>
+<a href="#shop" style="text-decoration: none; color: #14261a; display: flex; flex-direction: column; gap: 14px"><img src="./assets/b391adf87340b511a096bfef0c1639e0.png" alt="" style="width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 22px"><span style="font-weight: 700; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f5c2c">Specifically for you</span><span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 28px; line-height: 1.1">Build Your Juicebox</span></a>
+<a href="#shots" style="text-decoration: none; color: #14261a; display: flex; flex-direction: column; gap: 14px"><img src="./assets/36f2ed4c6ecbf1cf8fcd7f5a2351dd09.png" alt="" style="width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 22px"><span style="font-weight: 700; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f5c2c">Your daily boost</span><span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 28px; line-height: 1.1">Immunity Shots</span></a>
+</div>
+</section>
+
+<section id="cleanse" style="background: #eaf2dc; padding: 88px 24px">
+<div style="max-width: 1360px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 48px; align-items: center">
+<img src="./assets/808cf7128d9de6af0ea164f0ed65d68c.png" alt="Winter Cleanse — eight bottles on a snowy table" style="flex: 1 1 440px; min-width: 0; border-radius: 28px">
+<div style="flex: 1 1 400px">
+<p style="margin: 0 0 14px; font-weight: 700; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f5c2c">Our 36th seasonal cleanse is here</p>
+<h2 style="margin: 0 0 24px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(36px, 4.6vw, 68px); line-height: 0.98; letter-spacing: -0.02em">The Winter Juice Cleanse</h2>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 24px">
+<div style="background: #ffffff; border-radius: 20px; padding: 18px"><div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 52px; line-height: 1; color: #1f5c2c">24</div><div style="font-weight: 600; font-size: 15px; line-height: 1.3">organic cold-pressed juices</div></div>
+<div style="background: #ffffff; border-radius: 20px; padding: 18px"><div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 52px; line-height: 1; color: #1f5c2c">3</div><div style="font-weight: 600; font-size: 15px; line-height: 1.3">immunity shots</div></div>
+<div style="background: #ffffff; border-radius: 20px; padding: 18px"><div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 52px; line-height: 1; color: #1f5c2c">1</div><div style="font-weight: 600; font-size: 15px; line-height: 1.3">free 8oz shot</div></div>
+</div>
+<p style="margin: 0 0 24px; font-size: 19px">Shipped to your doorstep. Limited production. Limited boxes.</p>
+<a href="/mockups/juliansjuicebox/b/site/shop" style="display: inline-block; background: #1f5c2c; color: #ffffff; text-decoration: none; padding: 16px 28px; border-radius: 999px; font-weight: 700">Order your winter cleanse — $149.99</a>
+<p id="goals" style="margin: 28px 0 0; font-size: 16px"><strong>More cleanses:</strong> Master · Weight Loss · Gut Reset · Anti-Aging · Low Sugar (Diabetic Friendly) · Liver &amp; Colon · 30 Day.<br><strong>Goal boxes:</strong> Immune Boost · Energy · Fruit · Veggie · Monthly.</p>
+</div>
+</div>
+</section>
+
+<section id="shop" style="max-width: 1360px; margin: 0 auto; padding: 88px 24px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px 32px; margin-bottom: 32px">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(34px, 4.2vw, 60px); line-height: 1; letter-spacing: -0.02em">Build your juicebox</h2>
+<p style="margin: 0; max-width: 420px">Specifically for you. Every bottle is 8 fl. oz, 100% juice, 100% raw.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 12px">
+<sc-for list="{{juices}}" as="j" hint-placeholder-count="8">
+<div style="background: #f6f7f4; border-radius: 20px; padding: 18px 20px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 44px; height: 44px; border-radius: 50%; background: {{j.color}}"></span>
+<div style="flex: 1; min-width: 0"><div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.15">{{j.name}}</div><div style="font-size: 15px; color: #4a5a4e">{{j.parts}}</div></div>
+<div style="font-weight: 700">{{j.price}}</div>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; margin-top: 28px">
+<a href="/mockups/juliansjuicebox/b/site/shop" style="background: #f6c744; color: #14261a; text-decoration: none; padding: 16px 28px; border-radius: 999px; font-weight: 700">Shop everything</a>
+<p id="shots" style="margin: 0; color: #4a5a4e">Sold out right now: Hydrator, Grape Lemonade, Banana Mylk, Chocolate Mylk. Add Immunity Shots for your daily boost.</p>
+</div>
+</section>
+
+<section id="raw" style="background: #1f5c2c; color: #ffffff; padding: 96px 24px">
+<div style="max-width: 1360px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 48px; align-items: center">
+<div style="flex: 1 1 420px">
+<h2 style="margin: 0 0 24px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(40px, 5.4vw, 84px); line-height: 0.98; letter-spacing: -0.02em">Why raw?</h2>
+<p style="margin: 0 0 16px; font-size: 21px">We skip high-heat pasteurization and high-pressure processing, because both strip juice of its nutrients and flavor. Our mission is to offer the purest, unaltered juice experience.</p>
+<p style="margin: 0 0 24px; font-size: 21px">Raw cold pressed juice — Mother Nature's gift to you!</p>
+<a href="#why-raw" style="color: #f6c744; font-weight: 700">Learn more</a>
+</div>
+<img src="./assets/b391adf87340b511a096bfef0c1639e0.png" alt="Apple A Day with apples and ginger" style="flex: 1 1 420px; min-width: 0; border-radius: 28px">
+</div>
+</section>
+
+<section id="quiz" style="max-width: 1000px; margin: 0 auto; padding: 96px 24px">
+<p style="margin: 0 0 14px; font-weight: 700; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: #1f5c2c; text-align: center">Take our quiz · three quick questions</p>
+<div style="background: #eaf2dc; border-radius: 28px; padding: clamp(24px, 4vw, 56px); text-align: center">
+<sc-if value="{{quizAsking}}" hint-placeholder-val="{{true}}">
+<p style="margin: 0 0 8px; font-weight: 600" aria-live="polite">{{quizStep}}</p>
+<h2 style="margin: 0 0 28px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(30px, 3.8vw, 52px); line-height: 1.02; letter-spacing: -0.02em">{{quizQ}}</h2>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px">
+<sc-for list="{{quizOpts}}" as="o" hint-placeholder-count="3">
+<button type="button" onClick="{{o.pick}}" style="min-height: 56px; padding: 0 26px; border: 0; border-radius: 999px; background: #ffffff; color: #14261a; font: inherit; font-weight: 700; cursor: pointer">{{o.label}}</button>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{quizDone}}" hint-placeholder-val="{{false}}">
+<p style="margin: 0 0 8px; font-weight: 600">Your match</p>
+<h2 style="margin: 0 0 14px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(30px, 3.8vw, 52px); line-height: 1.02; letter-spacing: -0.02em">{{resName}}</h2>
+<p style="margin: 0 0 8px; font-size: 19px">{{resWhy}}</p>
+<p style="margin: 0 0 8px; font-size: 19px"><strong>Bottles you'll like:</strong> {{resBottles}}.</p>
+<sc-if value="{{resMonthly}}" hint-placeholder-val="{{false}}"><p style="margin: 0 0 8px; font-size: 19px">Want it every month? Ask for the Monthly Juicebox.</p></sc-if>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 20px">
+<a href="/mockups/juliansjuicebox/b/site/shop" style="background: #1f5c2c; color: #ffffff; text-decoration: none; padding: 16px 28px; border-radius: 999px; font-weight: 700">Shop my match</a>
+<button type="button" onClick="{{quizReset}}" style="min-height: 56px; padding: 0 26px; border: 2px solid #14261a; border-radius: 999px; background: transparent; color: #14261a; font: inherit; font-weight: 700; cursor: pointer">Start over</button>
+</div>
+</sc-if>
+</div>
+</section>
+
+<section id="story" style="max-width: 1360px; margin: 0 auto; padding: 0 24px 96px">
+<div style="display: flex; flex-wrap: wrap; gap: 48px; align-items: center; margin-bottom: 72px">
+<a href="/mockups/juliansjuicebox/b/site/about" aria-label="Watch Julian's Story on the About page" style="flex: 1 1 460px; min-width: 0; position: relative; display: block; border-radius: 28px; overflow: hidden; background: #14261a">
+<img src="./assets/939262e5784f820deb79886509afb4c9.png" alt="" style="width: 100%; aspect-ratio: 16 / 10; object-fit: cover; opacity: 0.8">
+<span style="position: absolute; left: 20px; bottom: 20px; display: flex; align-items: center; gap: 12px; background: #f6c744; color: #14261a; border-radius: 999px; padding: 12px 22px 12px 14px; font-weight: 700"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="#14261a"><path d="M8 5v14l11-7z"></path></svg>Watch Julian's Story</span>
+</a>
+<div style="flex: 1 1 380px">
+<h2 style="margin: 0 0 18px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(34px, 4.2vw, 60px); line-height: 1; letter-spacing: -0.02em">Meet Julian the Juiceman</h2>
+<p style="margin: 0 0 14px; font-size: 19px">Julian's own search for better health led him to juicing. That passion became Julian's Juicebox — and a mission to help others find their own renewal through fresh, cold-pressed juice.</p>
+<p style="margin: 0 0 20px; font-size: 19px">Elevate your wellness journey with raw cold pressed juice.</p>
+<a href="/mockups/juliansjuicebox/b/site/about" style="font-weight: 700">Read the full story</a>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)); gap: 16px">
+<figure style="margin: 0; background: #f6f7f4; border-radius: 22px; padding: 28px"><blockquote style="margin: 0 0 16px; font-size: 19px">I liked all of the juices except for the apple a day only because it made my stomach hurt. It’s really sweet so maybe it shouldn’t be taken as the last juice. But overall down 11 pounds, so it did work!</blockquote><figcaption style="font-weight: 700">Nicole · United States · 3 Day Fall Cleanse</figcaption></figure>
+<figure style="margin: 0; background: #f6f7f4; border-radius: 22px; padding: 28px"><blockquote style="margin: 0 0 16px; font-size: 19px">[TESTIMONIAL — Jerome's review from the current site]</blockquote><figcaption style="font-weight: 700">Jerome W.</figcaption></figure>
+<figure style="margin: 0; background: #f6f7f4; border-radius: 22px; padding: 28px"><blockquote style="margin: 0 0 16px; font-size: 19px">[TESTIMONIAL — Sharon's review from the current site]</blockquote><figcaption style="font-weight: 700">Sharon W.</figcaption></figure>
+</div>
+</section>
+
+<section id="faq" style="background: #f6f7f4; padding: 96px 24px">
+<div style="max-width: 1000px; margin: 0 auto">
+<h2 style="margin: 0 0 28px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(34px, 4.2vw, 60px); line-height: 1; letter-spacing: -0.02em">FAQs</h2>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<details open="" style="background: #ffffff; border-radius: 18px; padding: 6px 22px"><summary style="cursor: pointer; padding: 16px 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px">Where do you ship, and how long does it take?</summary><p style="margin: 0 0 18px">We ship to the 48 contiguous states. Orders take 1–3 days to process, then 1–3 days in transit. Shipments go out Monday through Wednesday.</p></details>
+<details style="background: #ffffff; border-radius: 18px; padding: 6px 22px"><summary style="cursor: pointer; padding: 16px 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px">How do the juices travel?</summary><p style="margin: 0 0 18px">Juices ship frozen in 2-inch styrofoam-lined boxes.</p></details>
+<details style="background: #ffffff; border-radius: 18px; padding: 6px 22px"><summary style="cursor: pointer; padding: 16px 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px">How long can I store them?</summary><p style="margin: 0 0 18px">Keep them frozen for up to 6 months.</p></details>
+<details style="background: #ffffff; border-radius: 18px; padding: 6px 22px"><summary style="cursor: pointer; padding: 16px 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px">How do I thaw my juice?</summary><p style="margin: 0 0 18px">Move it to the fridge 24–48 hours before drinking, or use the counter or a warm water bowl for a faster thaw.</p></details>
+<details style="background: #ffffff; border-radius: 18px; padding: 6px 22px"><summary style="cursor: pointer; padding: 16px 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px">How often should I cleanse?</summary><p style="margin: 0 0 18px">Every cleanse comes with a Juice Cleanse Guide. We suggest a 3-day cleanse every other month or a 1–2 day cleanse monthly, and fresh juice daily.</p></details>
+<details style="background: #ffffff; border-radius: 18px; padding: 6px 22px"><summary style="cursor: pointer; padding: 16px 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px">How do I choose the right product?</summary><p style="margin: 0 0 18px"><a href="#quiz">Take our quiz</a>, or use the chat button in the bottom right corner and we'll help.</p></details>
+</div>
+</div>
+</section>
+
+<section id="app" style="background: #1f5c2c; color: #ffffff; padding: 96px 24px">
+<div style="max-width: 1360px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 48px; align-items: center">
+<div style="flex: 1 1 420px">
+<h2 style="margin: 0 0 18px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(36px, 4.8vw, 72px); line-height: 0.98; letter-spacing: -0.02em">The good stuff goes to the app first.</h2>
+<p style="margin: 0; font-size: 20px">Order from your phone, check your orders, and get bulletins from Julian — news and limited boxes you won't see just by visiting the website.</p>
+</div>
+<form style="flex: 1 1 340px; display: flex; flex-direction: column; gap: 12px">
+<label for="b-email" style="font-weight: 700">Join the mailing list — we'll send your app link</label>
+<input id="b-email" type="email" placeholder="you@email.com" style="min-height: 56px; padding: 0 22px; border: 0; border-radius: 999px; font: inherit">
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<button type="button" style="flex: 1 1 140px; min-height: 56px; border: 0; background: #f6c744; color: #14261a; border-radius: 999px; font: inherit; font-weight: 700; cursor: pointer">Sign me up</button>
+<a href="/mockups/juliansjuicebox/b/app" style="flex: 1 1 140px; min-height: 56px; display: flex; align-items: center; justify-content: center; border: 2px solid #ffffff; color: #ffffff; border-radius: 999px; text-decoration: none; font-weight: 700">Install the app</a>
+</div>
+</form>
+</div>
+</section>
+
+<footer style="background: #14261a; color: #ffffff; padding: 56px 24px 40px">
+<div style="max-width: 1360px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 28px 64px; font-size: 16px">
+<p style="flex: 1 1 280px; margin: 0; color: #cddccf">© 2026, Julian's Juicebox LLC.<br>The information on this site does not replace professional medical advice.</p>
+<nav aria-label="Quick links" style="display: flex; flex-direction: column; gap: 8px"><a href="#contact" style="color: #ffffff">Contact Us</a><a href="#reviews" style="color: #ffffff">Reviews</a><a href="#business" style="color: #ffffff">Start Your Own Juice Business</a><a href="#subscriptions" style="color: #ffffff">Subscription Management</a></nav>
+<nav aria-label="Policies" style="display: flex; flex-direction: column; gap: 8px"><a href="#medical" style="color: #ffffff">Medical Disclaimer</a><a href="#refund" style="color: #ffffff">Refund Policy</a><a href="#privacy" style="color: #ffffff">Privacy Policy</a><a href="#terms" style="color: #ffffff">Terms of Service</a></nav>
+<nav aria-label="Social" style="display: flex; flex-direction: column; gap: 8px"><a href="https://facebook.com/JulianSJuiceBox" style="color: #ffffff">Facebook</a><a href="https://instagram.com/JulianTheJuiceman" style="color: #ffffff">Instagram</a><a href="https://tiktok.com/@julianthejuiceman" style="color: #ffffff">TikTok</a></nav>
+</div>
+</footer>
+<a href="/mockups/juliansjuicebox" style="position: sticky; bottom: 16px; z-index: 20; align-self: flex-start; display: inline-flex; align-items: center; min-height: 48px; margin: 0 0 16px 16px; padding: 0 20px; border-radius: 999px; background: #141a16; color: #ffffff; border: 2px solid #ffffff; font-family: system-ui, sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0; text-transform: none; text-decoration: none">← Back to overview</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":6900}}'>
+class Component extends DCLogic {
+renderVals() {
+var juices = [
+['Apple A Day','#b0391f','Granny Smith, Pink Lady & Fuji apple, ginger','$7.00'],
+['Beauty Juice','#9cbf3a','Pineapple, celery, cucumber, mint, cilantro','$7.00'],
+['Green House','#2f7d32','Celery, cucumber, Granny Smith apple, kale, lemon, ginger, parsley','$7.00'],
+['Lemonade Stand','#f2c230','Granny Smith apple, lemon','$7.00'],
+['Liver Tonic','#7a1f3d','Carrot, beet, Fuji apple, lemon, ginger','$7.00'],
+['Rise & Shine','#e2731c','Carrot, orange, lemon, ginger','$7.00'],
+['Sweet Red','#a3172c','Red grapes','$7.00'],
+['Strawberry Mylk','#f09aae','Nut mylk','$7.50']
+].map(function (r) { return { name: r[0], color: r[1], parts: r[2], price: r[3] }; });
+return Object.assign({ juices: juices }, this.quizVals());
+}
+quizVals() {
+var self = this;
+var ans = (this.state && this.state.quiz) || [];
+var qs = [
+['What are you after?', [['reset','A fresh start'],['daily','More fruits & veggies every day'],['immune','An immunity boost'],['energy','More energy']]],
+['Which sounds best?', [['fruit','Sweet & fruity'],['green','Green & veggie-forward'],['mix','A little of everything']]],
+['How do you want it?', [['once','One box to try'],['monthly','A box every month']]]
+];
+var done = ans.length >= qs.length;
+var cur = qs[done ? 0 : ans.length];
+var opts = cur[1].map(function (o) { return { label: o[1], pick: function () { self.setState({ quiz: ans.concat([o[0]]) }); } }; });
+var goal = ans[0], taste = ans[1];
+var name = 'Build Your Juicebox', why = 'Specifically for you — pick every bottle yourself.';
+if (goal === 'reset') { name = 'Cleansing Juiceboxes'; why = 'Short term results. Start with the Winter Juice Cleanse — every cleanse comes with our Juice Cleanse Guide.'; }
+else if (goal === 'immune') { name = 'Immune Boost Juicebox + Immunity Shots'; why = 'A Goal Oriented Juicebox for long term results, plus your daily boost.'; }
+else if (goal === 'energy') { name = 'Energy Juicebox'; why = 'A Goal Oriented Juicebox — long term results.'; }
+else if (taste === 'fruit') { name = 'Fruit Juicebox'; why = 'A Goal Oriented Juicebox — long term results, on the sweeter side.'; }
+else if (taste === 'green') { name = 'Veggie Juicebox'; why = 'A Goal Oriented Juicebox — long term results, heavy on the greens.'; }
+var bottles = taste === 'fruit' ? 'Apple A Day, Sweet Red and Lemonade Stand' : taste === 'green' ? 'Green House and Beauty Juice' : 'Rise & Shine, Liver Tonic and Green House';
+return { quizAsking: !done, quizDone: done, quizStep: 'Question ' + (Math.min(ans.length, qs.length - 1) + 1) + ' of ' + qs.length, quizQ: cur[0], quizOpts: opts,
+resName: name, resWhy: why, resBottles: bottles, resMonthly: ans[2] === 'monthly',
+quizReset: function () { self.setState({ quiz: [] }); } };
+}
+}
+</script>
+</body>
+</html>

@@ -51,6 +51,33 @@ const nextConfig: NextConfig = {
       { source: "/mockups/hoopsbasketballacademy/app/coach", destination: "/mockups/hoopsbasketballacademy/app/CoachApp.dc.html" },
       { source: "/mockups/hoopsbasketballacademy/app/parent", destination: "/mockups/hoopsbasketballacademy/app/ParentApp.dc.html" },
       { source: "/mockups/hoopsbasketballacademy/app/athlete", destination: "/mockups/hoopsbasketballacademy/app/AthleteApp.dc.html" },
+
+      // Julian's Juicebox — three designs (a/b/c), each with site/console/app, over the raw exports.
+      { source: "/mockups/juliansjuicebox", destination: "/mockups/juliansjuicebox/Overview.dc.html" },
+      { source: "/mockups/juliansjuicebox/a/site", destination: "/mockups/juliansjuicebox/a/site/Main.dc.html" },
+      { source: "/mockups/juliansjuicebox/a/site/shop", destination: "/mockups/juliansjuicebox/a/site/ShopA.dc.html" },
+      { source: "/mockups/juliansjuicebox/a/site/about", destination: "/mockups/juliansjuicebox/a/site/AboutA.dc.html" },
+      { source: "/mockups/juliansjuicebox/a/console", destination: "/mockups/juliansjuicebox/a/console/Admin.dc.html" },
+      { source: "/mockups/juliansjuicebox/a/app/owner", destination: "/mockups/juliansjuicebox/a/app/OwnerApp.dc.html" },
+      { source: "/mockups/juliansjuicebox/a/app", destination: "/mockups/juliansjuicebox/a/app/AppHome.dc.html" },
+      { source: "/mockups/juliansjuicebox/a/app/orders", destination: "/mockups/juliansjuicebox/a/app/AppOrders.dc.html" },
+      { source: "/mockups/juliansjuicebox/a/app/bulletins", destination: "/mockups/juliansjuicebox/a/app/AppBulletins.dc.html" },
+      { source: "/mockups/juliansjuicebox/b/site", destination: "/mockups/juliansjuicebox/b/site/ConceptB.dc.html" },
+      { source: "/mockups/juliansjuicebox/b/site/shop", destination: "/mockups/juliansjuicebox/b/site/Shop.dc.html" },
+      { source: "/mockups/juliansjuicebox/b/site/about", destination: "/mockups/juliansjuicebox/b/site/About.dc.html" },
+      { source: "/mockups/juliansjuicebox/b/console", destination: "/mockups/juliansjuicebox/b/console/AdminB.dc.html" },
+      { source: "/mockups/juliansjuicebox/b/app/owner", destination: "/mockups/juliansjuicebox/b/app/OwnerAppB.dc.html" },
+      { source: "/mockups/juliansjuicebox/b/app", destination: "/mockups/juliansjuicebox/b/app/AppHomeB.dc.html" },
+      { source: "/mockups/juliansjuicebox/b/app/orders", destination: "/mockups/juliansjuicebox/b/app/AppOrdersB.dc.html" },
+      { source: "/mockups/juliansjuicebox/b/app/bulletins", destination: "/mockups/juliansjuicebox/b/app/AppBulletinsB.dc.html" },
+      { source: "/mockups/juliansjuicebox/c/site", destination: "/mockups/juliansjuicebox/c/site/ConceptC.dc.html" },
+      { source: "/mockups/juliansjuicebox/c/site/shop", destination: "/mockups/juliansjuicebox/c/site/ShopC.dc.html" },
+      { source: "/mockups/juliansjuicebox/c/site/about", destination: "/mockups/juliansjuicebox/c/site/AboutC.dc.html" },
+      { source: "/mockups/juliansjuicebox/c/console", destination: "/mockups/juliansjuicebox/c/console/AdminC.dc.html" },
+      { source: "/mockups/juliansjuicebox/c/app/owner", destination: "/mockups/juliansjuicebox/c/app/OwnerAppC.dc.html" },
+      { source: "/mockups/juliansjuicebox/c/app", destination: "/mockups/juliansjuicebox/c/app/AppHomeC.dc.html" },
+      { source: "/mockups/juliansjuicebox/c/app/orders", destination: "/mockups/juliansjuicebox/c/app/AppOrdersC.dc.html" },
+      { source: "/mockups/juliansjuicebox/c/app/bulletins", destination: "/mockups/juliansjuicebox/c/app/AppBulletinsC.dc.html" },
     ];
   },
   async headers() {
@@ -63,6 +90,11 @@ const nextConfig: NextConfig = {
       {
         // Client preview + live proposal/checkout — keep out of search indexes.
         source: "/mockups/hoopsbasketballacademy/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }],
+      },
+      {
+        // Client preview + live proposal/checkout — keep out of search indexes.
+        source: "/mockups/juliansjuicebox/:path*",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }],
       },
     ];
