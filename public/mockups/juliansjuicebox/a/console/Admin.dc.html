@@ -210,7 +210,10 @@ a{color:#2e6b2a}a:hover{color:#163d15}
 </div>
 <div class="jj-scroll" style="flex: 1; overflow-y: auto">
 <sc-for list="{{threads}}" as="t" hint-placeholder-count="4">
-<button type="button" onClick="{{t.pick}}" aria-current="{{t.on}}" style="width: 100%; text-align: left; border: 0; border-bottom: 1px solid #eef0ea; background: {{t.bg}}; padding: 14px; display: flex; gap: 10px; cursor: pointer; font: inherit">
+<div style="width: 100%; display: flex; align-items: flex-start; gap: 6px; border-bottom: 1px solid #eef0ea; background: {{t.bg}}; padding: 14px 10px 14px 14px">
+<input type="checkbox" aria-label="Select email from {{t.from}}" style="flex: none; width: 16px; height: 16px; margin-top: 4px; cursor: pointer">
+<button type="button" onClick="{{t.toggleStar}}" aria-pressed="{{t.starred}}" aria-label="{{t.starLabel}}" style="flex: none; border: 0; background: transparent; padding: 2px; margin-top: 1px; cursor: pointer; font-size: 16px; line-height: 1; color: {{t.starColor}}">{{t.starGlyph}}</button>
+<button type="button" onClick="{{t.pick}}" aria-current="{{t.on}}" style="flex: 1; min-width: 0; text-align: left; border: 0; background: transparent; padding: 0; display: flex; gap: 10px; cursor: pointer; font: inherit">
 <span aria-hidden="true" style="flex: none; width: 38px; height: 38px; border-radius: 50%; background: {{t.avatarBg}}; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px">{{t.initials}}</span>
 <span style="flex: 1; min-width: 0">
 <span style="display: flex; justify-content: space-between; gap: 8px">
@@ -222,6 +225,7 @@ a{color:#2e6b2a}a:hover{color:#163d15}
 </span>
 <sc-if value="{{t.unread}}" hint-placeholder-val="{{false}}"><span aria-hidden="true" style="flex: none; width: 9px; height: 9px; border-radius: 50%; background: #e0901a; margin-top: 6px"></span></sc-if>
 </button>
+</div>
 </sc-for>
 </div>
 </div>
@@ -230,7 +234,7 @@ a{color:#2e6b2a}a:hover{color:#163d15}
 <span aria-hidden="true" style="flex: none; width: 44px; height: 44px; border-radius: 50%; background: {{selected.avatarBg}}; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700">{{selected.initials}}</span>
 <div style="flex: 1; min-width: 0">
 <h2 style="margin: 0; font-size: 19px">{{selected.subject}}</h2>
-<p style="margin: 4px 0 0; color: #55554f; font-size: 13px">From {{selected.from}} · {{selected.meta}}</p>
+<p style="margin: 4px 0 0; color: #55554f; font-size: 13px">{{selected.from}} <span style="color: #8a8a84">&lt;{{selected.email}}&gt;</span> · {{selected.meta}}</p>
 </div>
 <span style="flex: none; font-size: 12px; color: #8a8a84">{{selected.time}}</span>
 </div>
@@ -239,7 +243,15 @@ a{color:#2e6b2a}a:hover{color:#163d15}
 </div>
 <div style="padding: 16px 20px; border-top: 1px solid #e3e5dd; display: flex; flex-direction: column; gap: 10px">
 <label for="i-reply" style="font-weight: 600; font-size: 13px">Reply to {{selected.from}}</label>
-<textarea id="i-reply" rows="3" placeholder="Write your reply…" style="padding: 12px; border: 1px solid #a9aba2; border-radius: 10px; font: inherit; resize: vertical"></textarea>
+<div style="border: 1px solid #a9aba2; border-radius: 10px; overflow: hidden">
+<div style="display: flex; gap: 4px; padding: 6px 8px; border-bottom: 1px solid #e3e5dd; background: #f6f7f4">
+<button type="button" onClick="{{toggleBold}}" aria-pressed="{{boldOn}}" aria-label="Bold" style="min-width: 32px; min-height: 32px; border: 0; border-radius: 6px; background: {{boldBg}}; font-weight: 800; font-size: 13px; cursor: pointer">B</button>
+<button type="button" onClick="{{toggleItalic}}" aria-pressed="{{italicOn}}" aria-label="Italic" style="min-width: 32px; min-height: 32px; border: 0; border-radius: 6px; background: {{italicBg}}; font-style: italic; font-weight: 700; font-size: 13px; cursor: pointer">I</button>
+<button type="button" onClick="{{toggleAttach}}" aria-pressed="{{attachOn}}" aria-label="Attach file" style="min-width: 32px; min-height: 32px; border: 0; border-radius: 6px; background: {{attachBg}}; font-size: 14px; cursor: pointer">📎</button>
+</div>
+<textarea id="i-reply" rows="3" placeholder="Write your reply…" style="width: 100%; display: block; padding: 12px; border: 0; font: inherit; resize: vertical"></textarea>
+</div>
+<sc-if value="{{attachOn}}" hint-placeholder-val="{{false}}"><p style="margin: 0; font-size: 12px; color: #55554f">📎 order-photo.jpg attached (sample)</p></sc-if>
 <div style="display: flex; flex-wrap: wrap; gap: 8px"><button type="button" style="min-height: 44px; padding: 0 20px; border: 0; border-radius: 999px; background: #2e6b2a; color: #ffffff; font: inherit; font-weight: 600; cursor: pointer">Send reply</button><button type="button" style="min-height: 44px; padding: 0 16px; border: 1px solid #1c1c1a; border-radius: 999px; background: #ffffff; font: inherit; font-weight: 600; cursor: pointer">Insert saved answer</button><button type="button" style="min-height: 44px; padding: 0 16px; border: 1px solid #1c1c1a; border-radius: 999px; background: #ffffff; font: inherit; font-weight: 600; cursor: pointer">Open {{selected.from}}'s orders</button></div>
 </div>
 </div>
@@ -429,21 +441,30 @@ return { label: d[1], badge: d[2], on: on, bg: on ? '#f2c230' : 'transparent', f
 var pickThread = function (id) { return function () { self.setState({ inboxThread: id }); }; };
 var inboxThread = st.inboxThread || 't1';
 var avatarColors = ['#2e6b2a', '#e0901a', '#7a1f3d', '#2f7d32'];
+var starred = st.starredThreads || {};
+var toggleStar = function (id) { return function (e) { e.stopPropagation(); var s = Object.assign({}, starred); s[id] = !s[id]; self.setState({ starredThreads: s }); }; };
+var boldOn = !!st.boldOn, italicOn = !!st.italicOn, attachOn = !!st.attachOn;
 var threadRaw = [
-['t1', 'Dana R.', 'DR', '9:12 AM', true, 'Winter Cleanse — can I swap a juice?', 'Hi Julian, I can\'t do pineapple…', 'Hi Julian, I can\'t do pineapple. Could I swap Beauty Juice and Tropic Breeze for extra Green House in my Winter Cleanse box?', 'customer since 2025 · 3 orders · has the app'],
-['t2', 'Marcus T.', 'MT', '8:40 AM', true, 'Order #2141 delivery day', 'Will my box go out Monday?', 'Will my box go out Monday? I want to make sure it’s not sitting on a porch all weekend.', 'customer since 2025 · 1 order'],
-['t3', 'Website contact form', 'WC', 'Yesterday', false, 'Start Your Own Juice Business', 'I’d like to learn more about…', 'I’d like to learn more about licensing a juice program for my own studio. Do you offer any kind of partnership?', 'via juliansjuicebox.com'],
-['t4', 'Priya K.', 'PK', 'Yesterday', false, 'Thank you!', 'The 3-day reset was great…', 'The 3-day reset was great — I felt amazing by day two. Already told my sister to order one for herself.', 'customer since 2024 · 6 orders']
+['t1', 'Dana R.', 'DR', '9:12 AM', true, 'Winter Cleanse — can I swap a juice?', 'Hi Julian, I can\'t do pineapple…', 'Hi Julian, I can\'t do pineapple. Could I swap Beauty Juice and Tropic Breeze for extra Green House in my Winter Cleanse box?', 'customer since 2025 · 3 orders · has the app', 'dana@example.com'],
+['t2', 'Marcus T.', 'MT', '8:40 AM', true, 'Order #2141 delivery day', 'Will my box go out Monday?', 'Will my box go out Monday? I want to make sure it’s not sitting on a porch all weekend.', 'customer since 2025 · 1 order', 'marcus@example.com'],
+['t3', 'Website contact form', 'WC', 'Yesterday', false, 'Start Your Own Juice Business', 'I’d like to learn more about…', 'I’d like to learn more about licensing a juice program for my own studio. Do you offer any kind of partnership?', 'via juliansjuicebox.com', 'contact-form@juliansjuicebox.com'],
+['t4', 'Priya K.', 'PK', 'Yesterday', false, 'Thank you!', 'The 3-day reset was great…', 'The 3-day reset was great — I felt amazing by day two. Already told my sister to order one for herself.', 'customer since 2024 · 6 orders', 'priya@example.com']
 ];
 var threads = threadRaw.map(function (t, i) {
 var on = t[0] === inboxThread;
+var isStarred = !!starred[t[0]];
 return { id: t[0], initials: t[2], avatarBg: avatarColors[i % avatarColors.length], time: t[3], unread: t[4],
-nameWeight: t[4] ? 700 : 500, from: t[1], subject: t[5], preview: t[6], body: t[7], meta: t[8],
-on: on, bg: on ? '#eaf3e6' : '#ffffff', pick: pickThread(t[0]) };
+nameWeight: t[4] ? 700 : 500, from: t[1], subject: t[5], preview: t[6], body: t[7], meta: t[8], email: t[9],
+on: on, bg: on ? '#eaf3e6' : '#ffffff', pick: pickThread(t[0]),
+starred: isStarred, starGlyph: isStarred ? '★' : '☆', starColor: isStarred ? '#e0901a' : '#a9aba2',
+starLabel: (isStarred ? 'Unstar' : 'Star') + ' email from ' + t[1], toggleStar: toggleStar(t[0]) };
 });
 var selected = threads.filter(function (t) { return t.on; })[0] || threads[0];
 return Object.assign({ menuOpen: menuOpen, menuLabel: menuOpen ? 'Close menu' : 'Menu', navClass: 'jj-nav' + (menuOpen ? ' jj-open' : ''), extraClass: 'jj-extra' + (menuOpen ? ' jj-open' : ''), toggleMenu: function () { self.setState({ menuOpen: !menuOpen }); }, navGroups: navGroups, title: titles[view], orders: orders, recent: orders.slice(0, 4), toFill: toFill,
 threads: threads, selected: selected,
+boldOn: boldOn, italicOn: italicOn, attachOn: attachOn,
+boldBg: boldOn ? '#eaf3e6' : 'transparent', italicBg: italicOn ? '#eaf3e6' : 'transparent', attachBg: attachOn ? '#eaf3e6' : 'transparent',
+toggleBold: function () { self.setState({ boldOn: !boldOn }); }, toggleItalic: function () { self.setState({ italicOn: !italicOn }); }, toggleAttach: function () { self.setState({ attachOn: !attachOn }); },
 goBulletins: go('bulletins'), goEditor: go('editor'), goMedia: go('media'), goOrders: go('orders'), goProducts: go('products'), goProduct: go('product') }, flags);
 }
 }

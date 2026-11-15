@@ -3,7 +3,11 @@
   var ROOT = "/mockups/juliansjuicebox";
   var script = document.currentScript;
   var section = (script && script.dataset.section) || "";
-  var design = script && script.dataset.design; // "a" | "b" | "c" — absent on the overview page
+  // Read from the URL rather than a data-attribute: screens shared across all three
+  // designs (public/mockups/juliansjuicebox/_apps/*) can't bake a single design into
+  // the physical file, since the same file serves /a/, /b/ and /c/ routes.
+  var pathMatch = /\/mockups\/juliansjuicebox\/(a|b|c)\//.exec(location.pathname);
+  var design = pathMatch ? pathMatch[1] : null; // null on the overview page
 
   var SECTIONS = design
     ? [

@@ -32,8 +32,8 @@ test("every juliansjuicebox rewrite destination exists on disk", async () => {
   const rewrites = await config.rewrites();
   const juiceboxRewrites = rewrites.filter((r) => r.source.startsWith("/mockups/juliansjuicebox"));
 
-  // 25 clean routes: overview + 3 designs x (site, site/shop, site/about, console, app/owner, app, app/orders, app/bulletins)
-  assert.equal(juiceboxRewrites.length, 25, "expected one rewrite per clean route");
+  // 25 original clean routes, plus 38 new owner/customer-app screens x 3 designs = 139.
+  assert.equal(juiceboxRewrites.length, 25 + 38 * 3, "expected one rewrite per clean route");
 
   for (const rewrite of juiceboxRewrites) {
     const relative = rewrite.destination.replace(/^\/mockups\//, "");

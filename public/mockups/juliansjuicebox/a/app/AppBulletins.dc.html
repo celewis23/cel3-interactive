@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <base href="/mockups/juliansjuicebox/a/app/">
+<script src="/mockups/juliansjuicebox/_apps/app-kit.js"></script>
 <script src="/mockups/juliansjuicebox/preview-chrome.js" data-section="app" data-design="a" defer></script>
 <script src="/mockups/juliansjuicebox/phone-frame.js" data-role="customer" defer></script>
 <title>Customer PWA — Bulletins</title>
@@ -26,43 +27,43 @@ a{color:#1c1c1a}a:hover{color:#2e6b2a}
 <h1 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 40px; line-height: 1; text-transform: uppercase">Bulletins</h1>
 <p style="margin: 4px 0 0; color: #55554f">From Julian, to the app family only.</p>
 </div>
-<div style="flex: 1; overflow: hidden; padding: 0 18px; display: flex; flex-direction: column; gap: 14px">
-<article style="border: 2px solid #1c1c1a; border-radius: 14px; padding: 8px">
-<div style="background: #2e6b2a; color: #ffffff; border-radius: 6px; padding: 8px 12px; display: flex; justify-content: space-between; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase"><span>New · app first</span><span>Today</span></div>
-<img src="./assets/808cf7128d9de6af0ea164f0ed65d68c.png" alt="Winter Cleanse lineup" style="width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-top: 8px">
-<div style="padding: 12px 6px 6px">
-<h2 style="margin: 0 0 6px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 26px; line-height: 1.05; text-transform: uppercase">Winter Cleanse boxes are almost gone</h2>
-<p style="margin: 0 0 12px">App family — you hear it first. Limited production, limited boxes. Order from the app before the website list opens.</p>
-<a href="/mockups/juliansjuicebox/a/app" style="display: block; text-align: center; background: #e0901a; color: #1c1c1a; text-decoration: none; padding: 13px; border-radius: 8px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 18px; letter-spacing: 0.06em; text-transform: uppercase">Order the Winter Cleanse</a>
-</div>
-</article>
-<article style="border-top: 2px solid #1c1c1a; padding-top: 12px">
-<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: #55554f">Nov 10</div>
-<h2 style="margin: 2px 0 4px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 22px; text-transform: uppercase">Our 36th Seasonal Cleanse is HERE!</h2>
-<p style="margin: 0; color: #55554f">24 organic cold-pressed juices, 3 immunity shots, and 1 free 8oz shot, shipped to your doorstep.</p>
-</article>
-<article style="border-top: 2px solid #1c1c1a; padding-top: 12px">
-<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: #55554f">Nov 3</div>
-<h2 style="margin: 2px 0 4px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 22px; text-transform: uppercase">Strawberry Mylk is back</h2>
-<p style="margin: 0; color: #55554f">Back on the Build A Box menu while it lasts.</p>
-</article>
-<article style="border-top: 2px solid #1c1c1a; padding-top: 12px">
-<div style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: #55554f">Oct 28</div>
-<h2 style="margin: 2px 0 4px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 22px; text-transform: uppercase">Holiday shipping days</h2>
-<p style="margin: 0; color: #55554f">Shipments go out Monday through Wednesday.</p>
-</article>
+<div style="flex: 1; overflow: hidden; overflow-y: auto; padding: 0 18px 12px; display: flex; flex-direction: column; gap: 14px">
+<sc-for list="{{bulletins}}" as="b" hint-placeholder-count="4">
+<a href="{{b.href}}" style="display: block; text-decoration: none; color: inherit; border-top: 2px solid #1c1c1a; padding-top: 12px">
+<div style="display: flex; align-items: center; justify-content: space-between; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: #55554f"><span>{{b.sentAt}}</span><sc-if value="{{b.unread}}" hint-placeholder-val="{{false}}"><span style="color: #2e6b2a">New</span></sc-if></div>
+<h2 style="margin: 2px 0 4px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 22px; text-transform: uppercase">{{b.title}}</h2>
+<p style="margin: 0; color: #55554f">{{b.preview}}</p>
+</a>
+</sc-for>
 </div>
 <nav aria-label="App" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; border-top: 2px solid #1c1c1a; padding: 8px 8px 14px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; text-align: center">
 <a href="/mockups/juliansjuicebox/a/app" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none">Order</a>
 <a href="/mockups/juliansjuicebox/a/app/orders" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none">My orders</a>
-<a href="/mockups/juliansjuicebox/a/app/bulletins" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none; background: #1c1c1a; color: #ffffff; border-radius: 8px">Bulletins</a>
-<a href="/mockups/juliansjuicebox/a/app/orders" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none">Account</a>
+<a href="/mockups/juliansjuicebox/a/app/bulletins" aria-current="true" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none; background: #1c1c1a; color: #ffffff; border-radius: 8px">Bulletins</a>
+<a href="/mockups/juliansjuicebox/a/app/account" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none">Account</a>
 </nav>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
-renderVals() { return {}; }
+renderVals() {
+var design = 'a';
+var app = window.JJAppState ? window.JJAppState.load(design) : { readBulletins: {}, sentBulletins: [] };
+var read = app.readBulletins || {};
+var seed = [
+{ id: 'b-seed-1', title: 'Winter Cleanse boxes are almost gone', preview: 'App family — you hear it first. Limited production, limited boxes. Order from the app before the website list opens.', sentAt: 'Today', unreadDefault: true },
+{ id: 'b-seed-2', title: 'Our 36th Seasonal Cleanse is HERE!', preview: '24 organic cold-pressed juices, 3 immunity shots, and 1 free 8oz shot, shipped to your doorstep.', sentAt: 'Nov 10', unreadDefault: false },
+{ id: 'b-seed-3', title: 'Strawberry Mylk is back', preview: 'Back on the Build A Box menu while it lasts.', sentAt: 'Nov 3', unreadDefault: false },
+{ id: 'b-seed-4', title: 'Holiday shipping days', preview: 'Shipments go out Monday through Wednesday.', sentAt: 'Oct 28', unreadDefault: false }
+];
+var sent = (app.sentBulletins || []).slice().reverse().map(function (b) { return { id: b.id, title: b.title, preview: b.body, sentAt: b.sentAt, unreadDefault: true }; });
+var all = sent.concat(seed);
+var bulletins = all.map(function (b) {
+return { id: b.id, title: b.title, preview: b.preview, sentAt: b.sentAt, unread: b.unreadDefault && !read[b.id],
+href: '/mockups/juliansjuicebox/a/app/bulletins/detail?id=' + b.id };
+});
+return { bulletins: bulletins };
+}
 }
 </script>
 </body>

@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <base href="/mockups/juliansjuicebox/c/app/">
+<script src="/mockups/juliansjuicebox/_apps/app-kit.js"></script>
 <script src="/mockups/juliansjuicebox/preview-chrome.js" data-section="app" data-design="c" defer></script>
 <script src="/mockups/juliansjuicebox/phone-frame.js" data-role="owner" defer></script>
 <title>Owner PWA — Today</title>
@@ -27,35 +28,62 @@ a{color:#8c1c4a}a:hover{color:#5a1230}
 <span style="width: 44px; height: 44px; border-radius: 50%; background: #ffd23f; color: #17140f; display: flex; align-items: center; justify-content: center; font-weight: 700">J</span>
 </div>
 <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 16px">
-<div style="background: #3a352c; border-radius: 12px; padding: 12px"><div style="font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 24.5px; line-height: 1">6</div><div style="font-size: 13px">to fill</div></div>
-<div style="background: #3a352c; border-radius: 12px; padding: 12px"><div style="font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 24.5px; line-height: 1">4</div><div style="font-size: 13px">new emails</div></div>
-<div style="background: #3a352c; border-radius: 12px; padding: 12px"><div style="font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 24.5px; line-height: 1">18</div><div style="font-size: 13px">cleanse boxes left</div></div>
+<div style="background: #3a352c; border-radius: 12px; padding: 12px"><div style="font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 24.5px; line-height: 1">{{toFillCount}}</div><div style="font-size: 13px">to fill</div></div>
+<div style="background: #3a352c; border-radius: 12px; padding: 12px"><div style="font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 24.5px; line-height: 1">{{unreadCount}}</div><div style="font-size: 13px">new emails</div></div>
+<div style="background: #3a352c; border-radius: 12px; padding: 12px"><div style="font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 24.5px; line-height: 1">{{cleanseStock}}</div><div style="font-size: 13px">cleanse boxes left</div></div>
 </div>
 </div>
-<div style="flex: 1; padding: 16px 16px 0; display: flex; flex-direction: column; gap: 12px; overflow: hidden">
+<div style="flex: 1; padding: 16px 16px 0; display: flex; flex-direction: column; gap: 12px; overflow: hidden; overflow-y: auto">
 <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
-<button type="button" style="min-height: 52px; border: 0; border-radius: 12px; background: #8c1c4a; color: #ffffff; font: inherit; font-weight: 600">Send bulletin</button>
-<button type="button" style="min-height: 52px; border: 1px solid #17140f; border-radius: 12px; background: #ffffff; font: inherit; font-weight: 600">Upload photo / video</button>
+<a href="/mockups/juliansjuicebox/c/app/owner/more/bulletins/new" style="min-height: 52px; border: 0; border-radius: 12px; background: #8c1c4a; color: #ffffff; font-weight: 600; display: flex; align-items: center; justify-content: center; text-decoration: none">Send bulletin</a>
+<a href="/mockups/juliansjuicebox/c/app/owner/site/upload" style="min-height: 52px; border: 1px solid #17140f; border-radius: 12px; background: #ffffff; font-weight: 600; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #17140f">Upload photo / video</a>
 </div>
 <h2 style="margin: 6px 0 0; font-size: 16px">Fill next — ships Monday</h2>
-<div style="background: #ffffff; border: 2px solid #17140f; border-radius: 20px; padding: 14px; display: flex; align-items: center; gap: 12px"><div style="flex: 1"><strong>#2143 · Dana R.</strong><br><span style="color: #55504a">Winter Cleanse · Richmond, VA</span></div><button type="button" style="min-height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: #17140f; color: #ffffff; font: inherit; font-weight: 600">Pack</button></div>
-<div style="background: #ffffff; border: 2px solid #17140f; border-radius: 20px; padding: 14px; display: flex; align-items: center; gap: 12px"><div style="flex: 1"><strong>#2142 · Alicia M.</strong><br><span style="color: #55504a">Build A Box · 12 bottles · Atlanta, GA</span></div><button type="button" style="min-height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: #17140f; color: #ffffff; font: inherit; font-weight: 600">Pack</button></div>
-<div style="background: #ffffff; border: 2px solid #17140f; border-radius: 20px; padding: 14px; display: flex; align-items: center; gap: 12px"><div style="flex: 1"><strong>#2141 · Marcus T.</strong><br><span style="color: #55504a">Immune Boost box · Columbus, OH</span></div><button type="button" style="min-height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: #17140f; color: #ffffff; font: inherit; font-weight: 600">Pack</button></div>
+<sc-for list="{{toFill}}" as="o" hint-placeholder-count="3">
+<div style="background: #ffffff; border: 2px solid #17140f; border-radius: 20px; padding: 14px; display: flex; align-items: center; gap: 12px"><div style="flex: 1"><strong>{{o.id}} · {{o.who}}</strong><br><span style="color: #55504a">{{o.items}} · {{o.to}}</span></div><button type="button" onClick="{{o.pack}}" style="min-height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: #17140f; color: #ffffff; font: inherit; font-weight: 600">Pack</button></div>
+</sc-for>
+<sc-if value="{{!toFill.length}}" hint-placeholder-val="{{false}}"><p style="margin: 0; color: #55504a">Nothing to pack right now.</p></sc-if>
 <h2 style="margin: 6px 0 0; font-size: 16px">Latest email</h2>
-<div style="background: #ffffff; border: 2px solid #17140f; border-radius: 20px; padding: 14px"><strong>Dana R. — can I swap a juice?</strong><br><span style="color: #55504a">Hi Julian, I can't do pineapple. Could I swap…</span><div style="margin-top: 10px; display: flex; gap: 8px"><button type="button" style="min-height: 44px; padding: 0 16px; border: 1px solid #17140f; border-radius: 999px; background: #ffffff; font: inherit; font-weight: 600">Reply</button><button type="button" style="min-height: 44px; padding: 0 16px; border: 1px solid #17140f; border-radius: 999px; background: #ffffff; font: inherit; font-weight: 600">Open order</button></div></div>
+<div style="background: #ffffff; border: 2px solid #17140f; border-radius: 20px; padding: 14px"><strong>{{latest.from}} — {{latest.subjectShort}}</strong><br><span style="color: #55504a">{{latest.preview}}</span><div style="margin-top: 10px; display: flex; gap: 8px"><a href="{{latest.replyHref}}" style="min-height: 44px; padding: 0 16px; border: 1px solid #17140f; border-radius: 999px; background: #ffffff; font-weight: 600; display: flex; align-items: center; text-decoration: none; color: #17140f">Reply</a><a href="{{latest.orderHref}}" style="min-height: 44px; padding: 0 16px; border: 1px solid #17140f; border-radius: 999px; background: #ffffff; font-weight: 600; display: flex; align-items: center; text-decoration: none; color: #17140f">Open order</a></div></div>
 </div>
 <nav aria-label="Owner app" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); background: #ffffff; border-top: 1px solid #d5d7ce; padding: 8px 6px 14px; font-size: 12px; font-weight: 600; text-align: center">
-<a href="/mockups/juliansjuicebox/c/app/owner" style="min-height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #17140f; background: #ffd23f; border-radius: 999px">Today</a>
-<a href="/mockups/juliansjuicebox/c/console" style="min-height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #17140f">Orders</a>
-<a href="/mockups/juliansjuicebox/c/console" style="min-height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #17140f">Inbox</a>
-<a href="/mockups/juliansjuicebox/c/console" style="min-height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #17140f">Site</a>
-<a href="/mockups/juliansjuicebox/c/console" style="min-height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #17140f">More</a>
+<a href="/mockups/juliansjuicebox/c/app/owner" aria-current="true" style="min-height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #17140f; background: #ffd23f; border-radius: 999px">Today</a>
+<a href="/mockups/juliansjuicebox/c/app/owner/orders" style="min-height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #17140f">Orders</a>
+<a href="/mockups/juliansjuicebox/c/app/owner/inbox" style="min-height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #17140f">Inbox</a>
+<a href="/mockups/juliansjuicebox/c/app/owner/site" style="min-height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #17140f">Site</a>
+<a href="/mockups/juliansjuicebox/c/app/owner/more" style="min-height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #17140f">More</a>
 </nav>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
-renderVals() { return {}; }
+renderVals() {
+var self = this;
+var design = 'c';
+var app = (window.JJAppState ? window.JJAppState.load(design) : { packedOrders: {} });
+var ordersRaw = [
+['#2143','Dana R.','Winter Cleanse','Richmond, VA'],
+['#2142','Alicia M.','Build A Box · 12 bottles','Atlanta, GA'],
+['#2141','Marcus T.','Immune Boost box','Columbus, OH'],
+['#2140','Priya K.','Immunity Shots × 6','Charlotte, NC'],
+['#2139','Terrence B.','Low Sugar Cleanse','Dallas, TX'],
+['#2138','Monique S.','Build A Box · 6 bottles','Baltimore, MD']
+];
+var pack = function (id) { return function () { var p = Object.assign({}, app.packedOrders); p[id] = true; if (window.JJAppState) window.JJAppState.save(design, { packedOrders: p }); self.setState({ _t: Date.now() }); }; };
+var unpacked = ordersRaw.filter(function (r) { return !app.packedOrders[r[0]]; });
+var toFill = unpacked.slice(0, 3).map(function (r) { return { id: r[0], who: r[1], items: r[2], to: r[3], pack: pack(r[0]) }; });
+var threadRaw = [
+['t1','Dana R.','9:12 AM',true,'can I swap a juice?','Hi Julian, I can\'t do pineapple. Could I swap…'],
+['t2','Marcus T.','8:40 AM',true,'Order #2141 delivery day','Will my box go out Monday?']
+];
+var unreadCount = threadRaw.filter(function (t) { return t[3]; }).length;
+var latestRaw = threadRaw[0];
+var latest = { from: latestRaw[1], subjectShort: latestRaw[4], preview: latestRaw[5],
+replyHref: '/mockups/juliansjuicebox/c/app/owner/inbox/thread?id=' + latestRaw[0], orderHref: '/mockups/juliansjuicebox/c/app/owner/orders/detail?id=%232143' };
+var stockName = 'Winter Juice Cleanse';
+var cleanseStock = 5 + (stockName.split('').reduce(function (a, c) { return a + c.charCodeAt(0); }, 0) % 40);
+return { toFillCount: unpacked.length, unreadCount: unreadCount, cleanseStock: cleanseStock, toFill: toFill, latest: latest };
+}
 }
 </script>
 </body>

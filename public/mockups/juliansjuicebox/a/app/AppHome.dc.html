@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <base href="/mockups/juliansjuicebox/a/app/">
+<script src="/mockups/juliansjuicebox/_apps/app-kit.js"></script>
+<script src="/mockups/juliansjuicebox/cart-state.js"></script>
 <script src="/mockups/juliansjuicebox/preview-chrome.js" data-section="app" data-design="a" defer></script>
 <script src="/mockups/juliansjuicebox/phone-frame.js" data-role="customer" defer></script>
 <title>Customer PWA — Order</title>
@@ -24,46 +26,79 @@ a{color:#1c1c1a}a:hover{color:#2e6b2a}
 <div style="width: 390px; height: 844px; background: #ffffff; color: #1c1c1a; font-family: 'Barlow', sans-serif; font-size: 16px; line-height: 1.4; display: flex; flex-direction: column; overflow: hidden">
 <div style="padding: 18px 18px 12px; display: flex; align-items: center; justify-content: space-between">
 <img src="./assets/bfdb1cc27445575d8a051a44c5e91832.png" alt="Julian's Juicebox" style="height: 44px; width: auto">
-<a href="#box" style="min-height: 44px; padding: 10px 16px; border-radius: 8px; background: #1c1c1a; color: #ffffff; text-decoration: none; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: 0.06em; text-transform: uppercase">Box · 3</a>
+<a href="/mockups/juliansjuicebox/a/app/box" style="min-height: 44px; padding: 10px 16px; border-radius: 8px; background: #1c1c1a; color: #ffffff; text-decoration: none; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: 0.06em; text-transform: uppercase">Box · {{boxCount}}</a>
 </div>
-<div id="box" style="flex: 1; overflow: hidden; padding: 0 18px; display: flex; flex-direction: column; gap: 14px">
-<a href="/mockups/juliansjuicebox/a/app/bulletins" style="display: block; text-decoration: none; background: #2e6b2a; color: #ffffff; border-radius: 14px; padding: 14px 16px"><span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; color: #f2c230">New bulletin from Julian</span><br><span style="font-weight: 600">Winter Cleanse boxes are almost gone — app members order first.</span></a>
+<div style="flex: 1; overflow: hidden; overflow-y: auto; padding: 0 18px 12px; display: flex; flex-direction: column; gap: 14px">
+<a href="{{bulletin.href}}" style="display: block; text-decoration: none; background: #2e6b2a; color: #ffffff; border-radius: 14px; padding: 14px 16px"><span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; color: #f2c230">{{bulletin.tag}}</span><br><span style="font-weight: 600">{{bulletin.title}}</span></a>
 <img src="./assets/808cf7128d9de6af0ea164f0ed65d68c.png" alt="Winter Cleanse lineup" style="width: 100%; height: 150px; object-fit: cover; border-radius: 14px">
-<div style="display: flex; gap: 8px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase">
-<span style="padding: 10px 14px; border-radius: 8px; background: #1c1c1a; color: #ffffff">Build A Box</span><span style="padding: 10px 14px; border-radius: 8px; border: 2px solid #1c1c1a">Cleanses</span><span style="padding: 10px 14px; border-radius: 8px; border: 2px solid #1c1c1a">Shots</span>
+<div style="display: flex; gap: 8px; overflow-x: auto; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase">
+<sc-for list="{{cats}}" as="c" hint-placeholder-count="6">
+<button type="button" onClick="{{c.pick}}" style="min-height: 44px; padding: 10px 14px; border-radius: 8px; background: {{c.bg}}; color: {{c.fg}}; border: 2px solid #1c1c1a; font: inherit; white-space: nowrap; cursor: pointer">{{c.label}}</button>
+</sc-for>
 </div>
+<sc-for list="{{products}}" as="p" hint-placeholder-count="8">
 <div style="border: 2px solid #1c1c1a; border-radius: 14px; padding: 8px; display: flex; align-items: center; gap: 12px">
-<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 54px; line-height: 0.9; color: #234f22; width: 36px; text-align: center">7</span>
-<div style="flex: 1"><div style="background: #234f22; color: #ffffff; border-radius: 4px; padding: 3px 8px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 19px; text-transform: uppercase; display: inline-block">Green House</div><div style="font-size: 14px; color: #55554f">Celery, cucumber, apple, kale, lemon, ginger, parsley</div><div style="font-weight: 600">$7.00</div></div>
-<button type="button" aria-label="Add Green House to box" style="width: 48px; height: 48px; border: 0; border-radius: 8px; background: #e0901a; color: #1c1c1a; font-size: 26px; font-weight: 700">+</button>
+<a href="{{p.href}}" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit">
+<span aria-hidden="true" style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 36px; line-height: 0.9; color: {{p.color}}; width: 36px; text-align: center">{{p.qty}}</span>
+<span style="flex: 1; min-width: 0"><span style="background: {{p.color}}; color: #ffffff; border-radius: 4px; padding: 3px 8px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 17px; text-transform: uppercase; display: inline-block">{{p.name}}</span><div style="font-size: 13px; color: #55554f; margin-top: 2px">{{p.desc}}</div><div style="font-weight: 600">{{p.priceLabel}}</div></span>
+</a>
+<sc-if value="{{p.soldOut}}" hint-placeholder-val="{{false}}"><span style="font-size: 13px; font-weight: 700; color: #b0391f">Sold out</span></sc-if>
+<sc-if value="{{!p.soldOut}}" hint-placeholder-val="{{true}}"><button type="button" onClick="{{p.add}}" aria-label="Add {{p.name}} to box" style="width: 48px; height: 48px; flex: none; border: 0; border-radius: 8px; background: #e0901a; color: #1c1c1a; font-size: 26px; font-weight: 700; cursor: pointer">+</button></sc-if>
 </div>
-<div style="border: 2px solid #1c1c1a; border-radius: 14px; padding: 8px; display: flex; align-items: center; gap: 12px">
-<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 54px; line-height: 0.9; color: #b54e08; width: 36px; text-align: center">4</span>
-<div style="flex: 1"><div style="background: #b54e08; color: #ffffff; border-radius: 4px; padding: 3px 8px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 19px; text-transform: uppercase; display: inline-block">Rise-N-Shine</div><div style="font-size: 14px; color: #55554f">Carrot, orange, lemon, ginger</div><div style="font-weight: 600">$7.00</div></div>
-<button type="button" aria-label="Add Rise-N-Shine to box" style="width: 48px; height: 48px; border: 0; border-radius: 8px; background: #e0901a; color: #1c1c1a; font-size: 26px; font-weight: 700">+</button>
-</div>
-<div style="border: 2px solid #1c1c1a; border-radius: 14px; padding: 8px; display: flex; align-items: center; gap: 12px">
-<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 54px; line-height: 0.9; color: #7a1f3d; width: 36px; text-align: center">5</span>
-<div style="flex: 1"><div style="background: #7a1f3d; color: #ffffff; border-radius: 4px; padding: 3px 8px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 19px; text-transform: uppercase; display: inline-block">Liver Tonic</div><div style="font-size: 14px; color: #55554f">Carrot, beet, Fuji apple, lemon, ginger</div><div style="font-weight: 600">$7.00</div></div>
-<button type="button" aria-label="Add Liver Tonic to box" style="width: 48px; height: 48px; border: 0; border-radius: 8px; background: #e0901a; color: #1c1c1a; font-size: 26px; font-weight: 700">+</button>
-</div>
-<div style="border: 2px solid #1c1c1a; border-radius: 14px; padding: 8px; display: flex; align-items: center; gap: 12px">
-<span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 54px; line-height: 0.9; color: #8a6400; width: 36px; text-align: center">2</span>
-<div style="flex: 1"><div style="background: #f2c230; color: #1c1c1a; border-radius: 4px; padding: 3px 8px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 19px; text-transform: uppercase; display: inline-block">Lemonade Stand</div><div style="font-size: 14px; color: #55554f">Granny Smith apple, lemon</div><div style="font-weight: 600">$7.00</div></div>
-<button type="button" aria-label="Add Lemonade Stand to box" style="width: 48px; height: 48px; border: 0; border-radius: 8px; background: #e0901a; color: #1c1c1a; font-size: 26px; font-weight: 700">+</button>
-</div>
+</sc-for>
 </div>
 <nav aria-label="App" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; border-top: 2px solid #1c1c1a; padding: 8px 8px 14px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; text-align: center">
-<a href="/mockups/juliansjuicebox/a/app" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none; background: #1c1c1a; color: #ffffff; border-radius: 8px">Order</a>
+<a href="/mockups/juliansjuicebox/a/app" aria-current="true" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none; background: #1c1c1a; color: #ffffff; border-radius: 8px">Order</a>
 <a href="/mockups/juliansjuicebox/a/app/orders" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none">My orders</a>
 <a href="/mockups/juliansjuicebox/a/app/bulletins" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none">Bulletins</a>
-<a href="/mockups/juliansjuicebox/a/app/orders" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none">Account</a>
+<a href="/mockups/juliansjuicebox/a/app/account" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none">Account</a>
 </nav>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
-renderVals() { return {}; }
+renderVals() {
+var self = this;
+var design = 'a';
+var st = this.state || {};
+var cat = st.cat || 'juice';
+var cart = window.JuiceboxCart ? window.JuiceboxCart.load(design) : {};
+var catNames = { cleanse: 'Cleanses', goal: 'Goal', juice: 'Build A Box', mylk: 'Nut Mylks', shots: 'Shots', packs: 'Juice Packs' };
+var swatches = ['#234f22', '#b54e08', '#7a1f3d', '#8a6400', '#2f7d32', '#5a1230'];
+var raw = [
+['seasonal','cleanse','Winter Juice Cleanse','Our 36th seasonal cleanse: 24 juices, 3 immunity shots and 1 free 8oz shot.',149.99,'$149.99',1],
+['master','cleanse','Master Cleanse','A full-body reset designed to detox and restore balance.',108,'From $108.00',1],
+['immune','goal','Immune Boost Box','Tropic Breeze, Sweet Red, Apple A Day, Rise N Shine and Beauty Juice.',54,'From $54.00',1],
+['veggie','goal','Veggie Juicebox','Rise N Shine, Liver Tonic, Beauty Juice and Greenhouse.',54,'From $54.00',1],
+['green','juice','Green House','Celery, cucumber, apple, kale, lemon, ginger, parsley',7,'$7.00',1],
+['rise','juice','Rise & Shine','Carrot, orange, lemon, ginger',7,'$7.00',1],
+['livertonic','juice','Liver Tonic','Carrot, beet, Fuji apple, lemon, ginger',7,'$7.00',1],
+['lemonade','juice','Lemonade Stand','Granny Smith apple, lemon',7,'$7.00',1],
+['grape','juice','Grape Lemonade','[INGREDIENTS]',7,'$7.00',0],
+['strawberry','mylk','Strawberry Mylk','Cashews, strawberries, dates & coconut water.',7.5,'$7.50',1],
+['banana','mylk','Banana Mylk','Walnuts, bananas, dates & coconut water.',7.5,'$7.50',0],
+['shot','shots','Immunity Booster Shot','2 oz of pineapple, orange, lemon, ginger, turmeric and black pepper.',4.5,'$4.50',1],
+['shot30','shots','Immunity Booster Shots (30 Pack)','A month of your daily boost.',119.99,'$119.99',1],
+['risepack','packs','Rise N Shine Juice Pack','A full pack of Rise N Shine.',104,'From $104.00',1]
+];
+var add = function (id) { return function () { var c = Object.assign({}, cart); c[id] = (c[id] || 0) + 1; cart = c; if (window.JuiceboxCart) window.JuiceboxCart.save(design, c); self.setState({ _t: Date.now() }); }; };
+var all = raw.map(function (r, i) {
+return { id: r[0], cat: r[1], name: r[2], desc: r[3], priceLabel: r[5], soldOut: !r[6], qty: cart[r[0]] || 0,
+color: swatches[i % swatches.length], add: add(r[0]), href: '/mockups/juliansjuicebox/a/app/product?id=' + r[0] };
+});
+var products = all.filter(function (p) { return p.cat === cat; });
+var cats = Object.keys(catNames).map(function (k) {
+var on = k === cat;
+return { key: k, label: catNames[k], bg: on ? '#1c1c1a' : '#ffffff', fg: on ? '#ffffff' : '#1c1c1a', pick: function () { self.setState({ cat: k }); } };
+});
+var boxCount = 0; Object.keys(cart).forEach(function (k) { boxCount += cart[k]; });
+var app = window.JJAppState ? window.JJAppState.load(design) : { sentBulletins: [] };
+var latestSent = (app.sentBulletins || []).slice(-1)[0];
+var bulletin = latestSent
+  ? { tag: 'New from Julian', title: latestSent.title, href: '/mockups/juliansjuicebox/a/app/bulletins' }
+  : { tag: 'New bulletin from Julian', title: 'Winter Cleanse boxes are almost gone — app members order first.', href: '/mockups/juliansjuicebox/a/app/bulletins' };
+return { cats: cats, products: products, boxCount: boxCount, bulletin: bulletin };
+}
 }
 </script>
 </body>

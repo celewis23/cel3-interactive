@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <base href="/mockups/juliansjuicebox/c/app/">
+<script src="/mockups/juliansjuicebox/_apps/app-kit.js"></script>
 <script src="/mockups/juliansjuicebox/preview-chrome.js" data-section="app" data-design="c" defer></script>
 <script src="/mockups/juliansjuicebox/phone-frame.js" data-role="customer" defer></script>
 <title>Customer PWA — My orders</title>
@@ -25,16 +26,15 @@ a{color:#17140f}a:hover{color:#8c1c4a}
 <div style="padding: 22px 18px 12px">
 <h1 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 26.4px; line-height: 1; text-transform: uppercase">My orders</h1>
 </div>
-<div style="flex: 1; overflow: hidden; padding: 0 18px; display: flex; flex-direction: column; gap: 14px">
+<div style="flex: 1; overflow: hidden; overflow-y: auto; padding: 0 18px 12px; display: flex; flex-direction: column; gap: 14px">
 <div style="border: 3px solid #17140f; border-radius: 24px; padding: 8px">
 <div style="background: #7a1f3d; color: #ffffff; border-radius: 14px; padding: 8px 12px; display: flex; justify-content: space-between; font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 13.2px; text-transform: uppercase"><span>Winter Cleanse</span><span>#2143</span></div>
 <div style="padding: 12px 6px 6px">
-<p style="margin: 0 0 12px; font-weight: 600">Packed — ships Monday, frozen</p>
+<p style="margin: 0 0 12px; font-weight: 600">{{statusLine}}</p>
 <ol style="list-style: none; margin: 0 0 12px; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0; text-transform: uppercase; text-align: center">
-<li><div style="height: 8px; border-radius: 999px; background: #8c1c4a; margin-bottom: 6px"></div>Ordered</li>
-<li><div style="height: 8px; border-radius: 999px; background: #8c1c4a; margin-bottom: 6px"></div>Packed</li>
-<li style="color: #55504a"><div style="height: 8px; border-radius: 999px; background: #d5d7ce; margin-bottom: 6px"></div>Shipped</li>
-<li style="color: #55504a"><div style="height: 8px; border-radius: 999px; background: #d5d7ce; margin-bottom: 6px"></div>Delivered</li>
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+<li style="color: {{s.fg}}"><div style="height: 8px; border-radius: 999px; background: {{s.bg}}; margin-bottom: 6px"></div>{{s.label}}</li>
+</sc-for>
 </ol>
 <p style="margin: 0; font-size: 14px; color: #55504a">24 juices, 3 immunity shots and 1 free 8oz shot. Orders take 1–3 days in transit.</p>
 </div>
@@ -42,26 +42,46 @@ a{color:#17140f}a:hover{color:#8c1c4a}
 <div style="background: #fff3c4; border-radius: 22px; padding: 14px 16px">
 <div style="font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 13.2px; text-transform: uppercase">When your box lands</div>
 <p style="margin: 6px 0 0; font-size: 15px">Keep frozen for up to 6 months. Move to the fridge 24–48 hours before drinking.</p>
-<a href="#guide" style="display: inline-block; margin-top: 8px; padding: 6px 0; font-weight: 600">Open your Juice Cleanse Guide</a>
+<a href="/mockups/juliansjuicebox/c/app/guide" style="display: inline-block; margin-top: 8px; padding: 6px 0; font-weight: 600">Open your Juice Cleanse Guide</a>
 </div>
 <h2 style="margin: 4px 0 0; font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 14.5px; text-transform: uppercase">Past orders</h2>
 <div style="border-top: 2px solid #17140f">
-<div style="display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid #d5d7ce"><div style="flex: 1"><strong>Build A Box · 12 bottles</strong><br><span style="font-size: 14px; color: #55504a">#2077 · Delivered Oct 8 · $84.00</span></div><button type="button" style="min-height: 44px; padding: 0 14px; border: 2px solid #17140f; border-radius: 999px; background: #ffffff; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0; text-transform: uppercase">Reorder</button></div>
-<div style="display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid #d5d7ce"><div style="flex: 1"><strong>Immunity Shots × 6</strong><br><span style="font-size: 14px; color: #55504a">#2031 · Delivered Sep 12 · [PRICE]</span></div><button type="button" style="min-height: 44px; padding: 0 14px; border: 2px solid #17140f; border-radius: 999px; background: #ffffff; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0; text-transform: uppercase">Reorder</button></div>
-<div style="display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid #d5d7ce"><div style="flex: 1"><strong>Monthly box</strong><br><span style="font-size: 14px; color: #55504a">Subscription · next box Dec 7</span></div><button type="button" style="min-height: 44px; padding: 0 14px; border: 2px solid #17140f; border-radius: 999px; background: #ffffff; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0; text-transform: uppercase">Manage</button></div>
+<sc-for list="{{past}}" as="o" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid #d5d7ce"><a href="{{o.href}}" style="flex: 1; text-decoration: none; color: inherit"><strong>{{o.items}}</strong><br><span style="font-size: 14px; color: #55504a">{{o.meta}}</span></a><button type="button" onClick="{{o.action}}" style="min-height: 44px; padding: 0 14px; border: 2px solid #17140f; border-radius: 999px; background: #ffffff; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0; text-transform: uppercase">{{o.actionLabel}}</button></div>
+</sc-for>
 </div>
+<sc-if value="{{reordered}}" hint-placeholder-val="{{false}}"><p style="margin: 0; color: #8c1c4a; font-weight: 700">Added to your box.</p></sc-if>
 </div>
 <nav aria-label="App" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; border-top: 2px solid #17140f; padding: 8px 8px 14px; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0; text-transform: uppercase; text-align: center">
 <a href="/mockups/juliansjuicebox/c/app" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none">Order</a>
-<a href="/mockups/juliansjuicebox/c/app/orders" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none; background: #17140f; color: #ffffff; border-radius: 999px">My orders</a>
+<a href="/mockups/juliansjuicebox/c/app/orders" aria-current="true" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none; background: #17140f; color: #ffffff; border-radius: 999px">My orders</a>
 <a href="/mockups/juliansjuicebox/c/app/bulletins" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none">Bulletins</a>
-<a href="/mockups/juliansjuicebox/c/app/orders" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none">Account</a>
+<a href="/mockups/juliansjuicebox/c/app/account" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none">Account</a>
 </nav>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
-renderVals() { return {}; }
+renderVals() {
+var self = this;
+var design = 'c';
+var st = this.state || {};
+var app = window.JJAppState ? window.JJAppState.load(design) : { packedOrders: {}, placedOrders: [] };
+var packed = !!app.packedOrders['#2143'];
+var stepOn = packed ? 2 : 1;
+var steps = ['Ordered', 'Packed', 'Shipped', 'Delivered'].map(function (label, i) {
+return { label: label, bg: i < stepOn ? '#8c1c4a' : '#d5d7ce', fg: i < stepOn ? '#17140f' : '#55504a' };
+});
+var reorder = function (items) { return function () { var cart = window.JuiceboxCart ? window.JuiceboxCart.load(design) : {}; var c = Object.assign({}, cart); c.seasonal = (c.seasonal || 0) + 1; if (window.JuiceboxCart) window.JuiceboxCart.save(design, c); self.setState({ reordered: true }); }; };
+var pastRaw = [
+['#2077', 'Build A Box · 12 bottles', 'Delivered Oct 8 · $84.00'],
+['#2031', 'Immunity Shots × 6', 'Delivered Sep 12 · [PRICE]']
+];
+var past = pastRaw.map(function (r) { return { items: r[1], meta: r[0] + ' · ' + r[2], actionLabel: 'Reorder', action: reorder(r[1]), href: '/mockups/juliansjuicebox/c/app/orders/detail?id=' + encodeURIComponent(r[0]) }; });
+past.push({ items: 'Monthly box', meta: 'Subscription · next box ' + (app.subscription ? app.subscription.nextDate : 'Dec 9'), actionLabel: 'Manage', action: function () { location.href = '/mockups/juliansjuicebox/c/app/subscription'; }, href: '/mockups/juliansjuicebox/c/app/subscription' });
+(app.placedOrders || []).forEach(function (o) { past.unshift({ items: o.items, meta: o.id + ' · placed ' + o.placedAt + ' · ' + o.total, actionLabel: 'Reorder', action: reorder(o.items), href: '/mockups/juliansjuicebox/c/app/orders/detail?id=' + encodeURIComponent(o.id) }); });
+return { statusLine: packed ? 'Packed — ships Monday, frozen' : 'Ordered — packing soon', steps: steps, past: past, reordered: !!st.reordered };
+}
 }
 </script>
 </body>

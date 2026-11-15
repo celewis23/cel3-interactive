@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<base href="/mockups/juliansjuicebox/_apps/">
+<script src="/mockups/juliansjuicebox/_apps/app-kit.js"></script>
+<script src="/mockups/juliansjuicebox/preview-chrome.js" data-section="app" defer></script>
+<script src="/mockups/juliansjuicebox/phone-frame.js" data-role="owner" defer></script>
+<title>Julian's Juicebox — Inbox</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=Unbounded:wght@500;700;900&family=DM+Sans:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+img{max-width:100%;display:block}
+button,input,textarea,select{font:inherit}
+</style>
+</helmet>
+<div style="width:390px;height:844px;display:flex;flex-direction:column;overflow:hidden;font-family:{{theme.bodyFont}};background:{{theme.bg}};color:{{theme.ink}}">
+
+<div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px">
+<a href="/mockups/juliansjuicebox/{{theme.design}}/app/owner/inbox/compose" style="{{theme.btnPrimary}};text-decoration:none">Compose</a>
+<input type="search" placeholder="Search mail" aria-label="Search mail" value="{{query}}" onChange="{{onSearch}}" style="{{theme.input}}">
+<div style="display:flex;flex-direction:column;{{theme.cardFlat}};padding:0;overflow:hidden">
+<sc-for list="{{threads}}" as="t" hint-placeholder-count="4">
+<div style="display:flex;align-items:flex-start;gap:6px;border-bottom:{{theme.borderLight}};background:{{t.bg}};padding:12px 10px">
+<input type="checkbox" aria-label="Select email from {{t.from}}" style="flex:none;width:16px;height:16px;margin-top:4px;cursor:pointer">
+<button type="button" onClick="{{t.toggleStar}}" aria-pressed="{{t.starred}}" aria-label="{{t.starLabel}}" style="flex:none;border:0;background:transparent;padding:2px;margin-top:1px;cursor:pointer;font-size:16px;line-height:1;color:{{t.starColor}}">{{t.starGlyph}}</button>
+<a href="{{t.href}}" style="flex:1;min-width:0;display:flex;gap:10px;text-decoration:none;color:inherit">
+<span aria-hidden="true" style="flex:none;width:34px;height:34px;border-radius:50%;background:{{t.avatarBg}};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{t.initials}}</span>
+<span style="flex:1;min-width:0">
+<span style="display:flex;justify-content:space-between;gap:8px"><span style="font-weight:{{t.nameWeight}};font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{t.from}}</span><span style="font-size:11px;color:{{theme.muted}};flex:none">{{t.time}}</span></span>
+<span style="display:block;font-weight:{{t.nameWeight}};font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{t.subject}}</span>
+<span style="display:block;font-size:12px;color:{{theme.muted}};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{t.preview}}</span>
+</span>
+<sc-if value="{{t.unread}}" hint-placeholder-val="{{false}}"><span aria-hidden="true" style="flex:none;width:8px;height:8px;border-radius:50%;background:{{theme.cta}};margin-top:6px"></span></sc-if>
+</a>
+</div>
+</sc-for>
+</div>
+</div>
+<nav aria-label="App" style="{{theme.tabBar}};grid-template-columns:repeat(5,1fr)">
+<sc-for list="{{tabs}}" as="tb" hint-placeholder-count="5">
+<a href="{{tb.href}}" aria-current="{{tb.on}}" style="position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:10px;text-decoration:none;background:{{tb.bg}};color:{{tb.fg}}">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{tb.d}}"></path></svg>
+<span>{{tb.label}}</span>
+<sc-if value="{{tb.hasBadge}}" hint-placeholder-val="{{false}}"><span aria-hidden="true" style="position:absolute;top:2px;right:18%;min-width:14px;height:14px;border-radius:7px;background:#e0901a;color:#1c1c1a;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 3px">{{tb.badge}}</span></sc-if>
+</a>
+</sc-for>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+var self = this;
+var theme = window.JJTheme.current();
+var st = this.state || {};
+var query = (st.query || '').toLowerCase();
+var starred = st.starredThreads || {};
+var toggleStar = function (id) { return function (e) { e.stopPropagation(); var s = Object.assign({}, starred); s[id] = !s[id]; self.setState({ starredThreads: s }); }; };
+var base = '/mockups/juliansjuicebox/' + theme.design + '/app/owner/inbox/thread?id=';
+var raw = [
+['t1','Dana R.','DR','9:12 AM',true,'Winter Cleanse — can I swap a juice?','Hi Julian, I can\'t do pineapple…','Hi Julian, I can\'t do pineapple. Could I swap Beauty Juice and Tropic Breeze for extra Green House in my Winter Cleanse box?','customer since 2025 · 3 orders · has the app','dana@example.com','#2143'],
+['t2','Marcus T.','MT','8:40 AM',true,'Order #2141 delivery day','Will my box go out Monday?','Will my box go out Monday? I want to make sure it’s not sitting on a porch all weekend.','customer since 2025 · 1 order','marcus@example.com','#2141'],
+['t3','Website contact form','WC','Yesterday',false,'Start Your Own Juice Business','I’d like to learn more about…','I’d like to learn more about licensing a juice program for my own studio. Do you offer any kind of partnership?','via juliansjuicebox.com','contact-form@juliansjuicebox.com',''],
+['t4','Priya K.','PK','Yesterday',false,'Thank you!','The 3-day reset was great…','The 3-day reset was great — I felt amazing by day two. Already told my sister to order one for herself.','customer since 2024 · 6 orders','priya@example.com','']
+];
+var all = raw.map(function (t, i) {
+var isStarred = !!starred[t[0]];
+return { id: t[0], initials: t[2], avatarBg: theme.avatarColors[i % theme.avatarColors.length], time: t[3], unread: t[4],
+nameWeight: t[4] ? 700 : 500, from: t[1], subject: t[5], preview: t[6], bg: theme.surface, href: base + t[0],
+starred: isStarred, starGlyph: isStarred ? '★' : '☆', starColor: isStarred ? theme.cta : theme.muted,
+starLabel: (isStarred ? 'Unstar' : 'Star') + ' email from ' + t[1], toggleStar: toggleStar(t[0]) };
+});
+var threads = query ? all.filter(function (t) { return (t.from + ' ' + t.subject).toLowerCase().indexOf(query) !== -1; }) : all;
+var tabs = window.JJKit.ownerTabs(theme.design, 'inbox');
+return { theme: theme, threads: threads, tabs: tabs, query: st.query || '', onSearch: function (e) { self.setState({ query: e.target.value }); } };
+}
+}
+</script>
+</body>
+</html>

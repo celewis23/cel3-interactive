@@ -251,7 +251,7 @@ export default function JuiceboxProposalPage() {
               <label className={styles.field} style={{ marginTop: 10 }}>Type your name to sign
                 <input value={signerName} onChange={(e) => setSignerName(e.target.value)} required />
               </label>
-              <p style={{ fontSize: 12, color: "var(--muted)" }}>On the live version, secure card payment by Stripe opens here. Nothing is charged in this preview.</p>
+              <p style={{ fontSize: 12, color: "var(--muted)" }}>Secure card payment by Stripe opens next.</p>
 
               {error && <p className={styles.error}>{error}</p>}
             </div>

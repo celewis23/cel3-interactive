@@ -21,8 +21,8 @@
     caption.textContent = "← All designs · Julian's Juicebox preview";
     shell.appendChild(caption);
 
-    var design = document.querySelector("script[data-design]");
-    design = design && design.dataset.design;
+    var pathMatch = /\/mockups\/juliansjuicebox\/(a|b|c)\//.exec(location.pathname);
+    var design = pathMatch ? pathMatch[1] : null;
     var selectedRole = document.currentScript && document.currentScript.dataset.role;
     if (design) {
       var roles = document.createElement("nav");
