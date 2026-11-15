@@ -17,6 +17,8 @@ body{margin:0}
 *{box-sizing:border-box}
 img{max-width:100%;display:block}
 a{color:#245c22}a:hover{color:#163d15}
+.ov-btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 16px;border-radius:999px;border:1.5px solid #c9d2c4;background:#f3f6ee;color:#245c22!important;text-decoration:none!important;font-weight:600;font-size:14px;white-space:nowrap}
+.ov-btn:hover{background:#245c22;border-color:#245c22;color:#ffffff!important}
 </style>
 </helmet>
 <div style="font-family: 'Inter', sans-serif; color: #141a16; background: #ffffff; font-size: 17px; line-height: 1.55">
@@ -68,16 +70,16 @@ a{color:#245c22}a:hover{color:#163d15}
 </div>
 <a href="{{c.home}}" style="display: block; text-align: center; background: #245c22; color: #ffffff; text-decoration: none; padding: 14px 20px; border-radius: 999px; font-weight: 700">Open the website</a>
 <div>
-<h4 style="margin: 0 0 6px; font-size: 15px">The Website</h4>
-<div style="display: flex; flex-wrap: wrap; gap: 4px 18px"><a href="{{c.home}}" style="padding: 8px 0">Home</a><a href="{{c.shop}}" style="padding: 8px 0">Shop, cart &amp; checkout</a><a href="{{c.about}}" style="padding: 8px 0">About</a></div>
+<h4 style="margin: 0 0 8px; font-size: 15px">The Website</h4>
+<div style="display: flex; flex-wrap: wrap; gap: 8px"><a class="ov-btn" href="{{c.home}}">Home</a><a class="ov-btn" href="{{c.shop}}">Shop, cart &amp; checkout</a><a class="ov-btn" href="{{c.about}}">About</a></div>
 </div>
 <div>
-<h4 style="margin: 0 0 6px; font-size: 15px">Admin Console</h4>
-<div style="display: flex; flex-wrap: wrap; gap: 4px 18px"><a href="{{c.admin}}" style="padding: 8px 0">Open the console</a></div>
+<h4 style="margin: 0 0 8px; font-size: 15px">Admin Console</h4>
+<div style="display: flex; flex-wrap: wrap; gap: 8px"><a class="ov-btn" href="{{c.admin}}">Open the console</a></div>
 </div>
 <div>
-<h4 style="margin: 0 0 6px; font-size: 15px">The Apps</h4>
-<div style="display: flex; flex-wrap: wrap; gap: 4px 18px"><a href="{{c.owner}}" style="padding: 8px 0">Owner app</a><a href="{{c.order}}" style="padding: 8px 0">Customer: Order</a><a href="{{c.orders}}" style="padding: 8px 0">My orders</a><a href="{{c.bulletins}}" style="padding: 8px 0">Bulletins</a></div>
+<h4 style="margin: 0 0 8px; font-size: 15px">The Apps</h4>
+<div style="display: flex; flex-wrap: wrap; gap: 8px"><a class="ov-btn" href="{{c.owner}}">Owner app</a><a class="ov-btn" href="{{c.order}}">Customer: Order</a><a class="ov-btn" href="{{c.orders}}">My orders</a><a class="ov-btn" href="{{c.bulletins}}">Bulletins</a></div>
 </div>
 </div>
 </article>
