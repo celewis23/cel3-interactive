@@ -32,7 +32,8 @@
 .topBar {
   background: linear-gradient(180deg, var(--ink), var(--deep));
   color: #fff;
-  padding: 36px 20px 48px;
+  /* Leave room for the fixed 72px site navigation above the proposal. */
+  padding: 108px 20px 48px;
 }
 
 .topBarInner {
