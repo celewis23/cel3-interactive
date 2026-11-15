@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <base href="/mockups/juliansjuicebox/_apps/">
 <script src="/mockups/juliansjuicebox/_apps/app-kit.js"></script>
 <script src="/mockups/juliansjuicebox/preview-chrome.js" data-section="app" defer></script>
@@ -14,44 +15,29 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=Unbounded:wght@500;700;900&family=DM+Sans:wght@400;500;600;700&display=swap">
-<style>
-body{margin:0}
-*{box-sizing:border-box}
-img{max-width:100%;display:block}
-button,input,textarea,select{font:inherit}
-</style>
-</helmet>
-<div style="width:390px;height:844px;display:flex;flex-direction:column;overflow:hidden;font-family:{{theme.bodyFont}};background:{{theme.bg}};color:{{theme.ink}}">
 
-<div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px">
-<div style="{{theme.card}};display:flex;justify-content:space-between;align-items:center;gap:10px">
-<div><p style="margin:0;font-weight:700">Your site is live</p><p style="margin:2px 0 0;font-size:13px;color:{{theme.muted}}">Design {{theme.design}}</p></div>
-<a href="{{siteHref}}" style="{{theme.btnGhost}};text-decoration:none">View site</a>
-</div>
-<div style="display:flex;flex-direction:column;gap:10px">
-<sc-for list="{{pages}}" as="p" hint-placeholder-count="3">
-<a href="{{p.href}}" style="{{theme.card}};display:flex;justify-content:space-between;align-items:center;text-decoration:none;color:inherit"><span style="font-weight:700">{{p.label}}</span><span>View →</span></a>
-</sc-for>
-</div>
-<a href="{{mediaHref}}" style="{{theme.btnGhost}};text-decoration:none">Media library</a>
-<a href="{{uploadHref}}" style="{{theme.btnCta}};text-decoration:none">Upload a photo</a>
-<a href="{{consoleHref}}" style="{{theme.btnGhost}};text-decoration:none">Open full editor</a>
-</div>
-<nav aria-label="App" style="{{theme.tabBar}};grid-template-columns:repeat(5,1fr)">
-<sc-for list="{{tabs}}" as="tb" hint-placeholder-count="5">
-<a href="{{tb.href}}" aria-current="{{tb.on}}" style="position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:10px;text-decoration:none;background:{{tb.bg}};color:{{tb.fg}}">
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{tb.d}}"></path></svg>
-<span>{{tb.label}}</span>
-<sc-if value="{{tb.hasBadge}}" hint-placeholder-val="{{false}}"><span aria-hidden="true" style="position:absolute;top:2px;right:18%;min-width:14px;height:14px;border-radius:7px;background:#e0901a;color:#1c1c1a;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 3px">{{tb.badge}}</span></sc-if>
-</a>
-</sc-for>
+
+</helmet>
+<div class="jj-app-screen" data-role="{{screenRole}}">
+<header class="jj-app-header" data-role="{{screenRole}}">
+<sc-if value="{{screenHasBack}}"><a class="jj-app-back" href="{{screenBack}}" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a></sc-if>
+<div class="jj-app-heading"><p>{{screenEyebrow}}</p><h1>{{screenTitle}}</h1></div>
+<sc-if value="{{screenAction}}"><a class="jj-header-action" href="{{screenActionHref}}" aria-label="{{screenActionLabel}}">{{screenActionText}}</a></sc-if>
+</header>
+<main class="jj-app-content" aria-label="Screen content">
+<sc-if value="{{screenSummary}}"><p class="jj-screen-summary">{{screenSummary}}</p></sc-if>
+<section class="jj-site-preview"><div class="jj-site-logo">Julian’s Juicebox</div><img src="/mockups/juliansjuicebox/_apps/site-{{theme.design}}-preview.png" alt="Home page preview"><div><strong>Your site is live</strong><a class="jj-app-button" href="{{siteHref}}" style="display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border:0;font-family:{{theme.displayFont}};font-size:{{theme.buttonSize}};text-transform:{{theme.displayTransform}};font-weight:700;white-space:nowrap;cursor:pointer;border-radius:{{theme.radiusBtn}};background:{{theme.surface}};color:{{theme.ink}};border:{{theme.borderLight}};min-height:44px">View site</a></div></section><section class="jj-site-group"><h2>Pages</h2><sc-for list="{{pages}}" as="p"><a class="jj-site-row" href="{{p.href}}"><span>{{p.label}}</span><span aria-hidden="true">›</span></a></sc-for></section><section class="jj-site-group"><h2>Media &amp; editing</h2><a class="jj-site-row" href="{{mediaHref}}"><span>Media library</span><span aria-hidden="true">›</span></a><a class="jj-site-row" href="{{uploadHref}}"><span>Upload a photo</span><span aria-hidden="true">›</span></a><a class="jj-site-row" href="{{consoleHref}}"><span>Open full editor on desktop</span><span aria-hidden="true">↗</span></a></section>
+<sc-if value="{{screenEmpty}}"><div class="jj-empty-state"><span aria-hidden="true">○</span><p>Nothing to show here right now.</p><small>Try another filter or return to the list.</small></div></sc-if>
+<sc-if value="{{screenTip}}"><aside class="jj-layout-tip"><div class="jj-theme-shapes" aria-hidden="true"><i></i><i></i><i></i></div><p>{{screenTip}}</p></aside></sc-if>
+</main>
+<nav class="jj-app-tabs" data-role="{{screenRole}}" aria-label="App tabs">
+<sc-for list="{{screenTabs}}" as="tb"><a href="{{tb.href}}" aria-current="{{tb.on}}" style="background:{{tb.bg}};color:{{tb.fg}}">{{tb.label}}</a></sc-for>
 </nav>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
-class Component extends DCLogic {
-renderVals() {
+class Component extends window.JJKit.AppScreen(DCLogic) {
+screenVals() {
 var theme = window.JJTheme.current();
 var site = '/mockups/juliansjuicebox/' + theme.design + '/site';
 var pages = [['Home', site], ['Shop', site + '/shop'], ['About', site + '/about']].map(function (p) { return { label: p[0], href: p[1] }; });

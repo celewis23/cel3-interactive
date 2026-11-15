@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <base href="/mockups/juliansjuicebox/c/app/">
 <script src="/mockups/juliansjuicebox/_apps/app-kit.js"></script>
 <script src="/mockups/juliansjuicebox/preview-chrome.js" data-section="app" data-design="c" defer></script>
@@ -14,50 +15,46 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&amp;family=DM+Sans:wght@400;500;600;700&amp;display=swap">
-<style>
-body{margin:0}
-*{box-sizing:border-box}
-a{color:#8c1c4a}a:hover{color:#5a1230}
-</style>
+
+
 </helmet>
-<div style="width: 390px; height: 844px; background: #fff8dc; color: #17140f; font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.4; display: flex; flex-direction: column; overflow: hidden">
-<div style="background: #17140f; color: #ffffff; padding: 22px 20px 20px">
-<div style="display: flex; justify-content: space-between; align-items: center">
-<div><div style="color: #cfe0cf">Saturday, Nov 14</div><div style="font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 21.8px; line-height: 1.05; text-transform: uppercase">Good morning, Julian</div></div>
-<span style="width: 44px; height: 44px; border-radius: 50%; background: #ffd23f; color: #17140f; display: flex; align-items: center; justify-content: center; font-weight: 700">J</span>
+<div class="jj-app-screen" data-role="{{screenRole}}">
+<header class="jj-app-header" data-role="{{screenRole}}">
+<sc-if value="{{screenHasBack}}"><a class="jj-app-back" href="{{screenBack}}" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a></sc-if>
+<div class="jj-app-heading"><p>{{screenEyebrow}}</p><h1>{{screenTitle}}</h1></div>
+<sc-if value="{{screenAction}}"><a class="jj-header-action" href="{{screenActionHref}}" aria-label="{{screenActionLabel}}">{{screenActionText}}</a></sc-if>
+</header>
+<main class="jj-app-content" aria-label="Screen content"><sc-if value="{{screenSummary}}"><p class="jj-screen-summary">{{screenSummary}}</p></sc-if>
+<div class="jj-today-stats" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 0">
+<div style="background: {{theme.headerTile}}; border-radius:{{theme.radiusCard}}; padding: 12px"><div style="font-family:{{theme.displayFont}}; font-weight: 800; font-size: 24.5px; line-height: 1">{{toFillCount}}</div><div style="font-size: 13px">to fill</div></div>
+<div style="background: {{theme.headerTile}}; border-radius:{{theme.radiusCard}}; padding: 12px"><div style="font-family:{{theme.displayFont}}; font-weight: 800; font-size: 24.5px; line-height: 1">{{unreadCount}}</div><div style="font-size: 13px">new emails</div></div>
+<div style="background: {{theme.headerTile}}; border-radius:{{theme.radiusCard}}; padding: 12px"><div style="font-family:{{theme.displayFont}}; font-weight: 800; font-size: 24.5px; line-height: 1">{{cleanseStock}}</div><div style="font-size: 13px">cleanse boxes left</div></div>
 </div>
-<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 16px">
-<div style="background: #3a352c; border-radius: 12px; padding: 12px"><div style="font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 24.5px; line-height: 1">{{toFillCount}}</div><div style="font-size: 13px">to fill</div></div>
-<div style="background: #3a352c; border-radius: 12px; padding: 12px"><div style="font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 24.5px; line-height: 1">{{unreadCount}}</div><div style="font-size: 13px">new emails</div></div>
-<div style="background: #3a352c; border-radius: 12px; padding: 12px"><div style="font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 24.5px; line-height: 1">{{cleanseStock}}</div><div style="font-size: 13px">cleanse boxes left</div></div>
-</div>
-</div>
-<div style="flex: 1; padding: 16px 16px 0; display: flex; flex-direction: column; gap: 12px; overflow: hidden; overflow-y: auto">
-<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
-<a href="/mockups/juliansjuicebox/c/app/owner/more/bulletins/new" style="min-height: 52px; border: 0; border-radius: 12px; background: #8c1c4a; color: #ffffff; font-weight: 600; display: flex; align-items: center; justify-content: center; text-decoration: none">Send bulletin</a>
-<a href="/mockups/juliansjuicebox/c/app/owner/site/upload" style="min-height: 52px; border: 1px solid #17140f; border-radius: 12px; background: #ffffff; font-weight: 600; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #17140f">Upload photo / video</a>
+
+<div class="jj-quick-actions" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<a class="jj-app-button jj-primary" href="/mockups/juliansjuicebox/c/app/owner/more/bulletins/new" style="min-height: 52px; border: 0; border-radius:{{theme.radiusCard}}; background: {{theme.accent}}; color: {{theme.white}}; font-weight: 600; display: flex; align-items: center; justify-content: center; text-decoration: none">Send bulletin</a>
+<a class="jj-app-button" href="/mockups/juliansjuicebox/c/app/owner/site/upload" style="min-height: 52px; border: 1px solid {{theme.ink}}; border-radius:{{theme.radiusCard}}; background: {{theme.white}}; font-weight: 600; display: flex; align-items: center; justify-content: center; text-decoration: none; color: {{theme.ink}}">Upload photo / video</a>
 </div>
 <h2 style="margin: 6px 0 0; font-size: 16px">Fill next — ships Monday</h2>
 <sc-for list="{{toFill}}" as="o" hint-placeholder-count="3">
-<div style="background: #ffffff; border: 2px solid #17140f; border-radius: 20px; padding: 14px; display: flex; align-items: center; gap: 12px"><div style="flex: 1"><strong>{{o.id}} · {{o.who}}</strong><br><span style="color: #55504a">{{o.items}} · {{o.to}}</span></div><button type="button" onClick="{{o.pack}}" style="min-height: 44px; padding: 0 14px; border: 0; border-radius: 999px; background: #17140f; color: #ffffff; font: inherit; font-weight: 600">Pack</button></div>
+<div style="background: {{theme.white}}; border: 2px solid {{theme.ink}}; border-radius:{{theme.radiusCard}}; padding: 14px; display: flex; align-items: center; gap: 12px"><div style="flex: 1"><strong>{{o.id}} · {{o.who}}</strong><br><span style="color: {{theme.muted}}">{{o.items}} · {{o.to}}</span></div><button class="jj-app-button" type="button" onClick="{{o.pack}}" style="min-height: 44px; padding: 0 14px; border: 0; border-radius:{{theme.radiusPill}}; background: {{theme.ink}}; color: {{theme.white}}; font: inherit; font-weight: 600">Pack</button></div>
 </sc-for>
-<sc-if value="{{!toFill.length}}" hint-placeholder-val="{{false}}"><p style="margin: 0; color: #55504a">Nothing to pack right now.</p></sc-if>
+<sc-if value="{{!toFill.length}}" hint-placeholder-val="{{false}}"><p style="margin: 0; color: {{theme.muted}}">Nothing to pack right now.</p></sc-if>
 <h2 style="margin: 6px 0 0; font-size: 16px">Latest email</h2>
-<div style="background: #ffffff; border: 2px solid #17140f; border-radius: 20px; padding: 14px"><strong>{{latest.from}} — {{latest.subjectShort}}</strong><br><span style="color: #55504a">{{latest.preview}}</span><div style="margin-top: 10px; display: flex; gap: 8px"><a href="{{latest.replyHref}}" style="min-height: 44px; padding: 0 16px; border: 1px solid #17140f; border-radius: 999px; background: #ffffff; font-weight: 600; display: flex; align-items: center; text-decoration: none; color: #17140f">Reply</a><a href="{{latest.orderHref}}" style="min-height: 44px; padding: 0 16px; border: 1px solid #17140f; border-radius: 999px; background: #ffffff; font-weight: 600; display: flex; align-items: center; text-decoration: none; color: #17140f">Open order</a></div></div>
-</div>
-<nav aria-label="Owner app" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); background: #ffffff; border-top: 1px solid #d5d7ce; padding: 8px 6px 14px; font-size: 12px; font-weight: 600; text-align: center">
-<a href="/mockups/juliansjuicebox/c/app/owner" aria-current="true" style="min-height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #17140f; background: #ffd23f; border-radius: 999px">Today</a>
-<a href="/mockups/juliansjuicebox/c/app/owner/orders" style="min-height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #17140f">Orders</a>
-<a href="/mockups/juliansjuicebox/c/app/owner/inbox" style="min-height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #17140f">Inbox</a>
-<a href="/mockups/juliansjuicebox/c/app/owner/site" style="min-height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #17140f">Site</a>
-<a href="/mockups/juliansjuicebox/c/app/owner/more" style="min-height: 44px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #17140f">More</a>
+<div style="background: {{theme.white}}; border: 2px solid {{theme.ink}}; border-radius:{{theme.radiusCard}}; padding: 14px"><strong>{{latest.from}} — {{latest.subjectShort}}</strong><br><span style="color: {{theme.muted}}">{{latest.preview}}</span><div style="margin-top: 10px; display: flex; gap: 8px"><a href="{{latest.replyHref}}" style="min-height: 44px; padding: 0 16px; border: 1px solid {{theme.ink}}; border-radius:{{theme.radiusPill}}; background: {{theme.white}}; font-weight: 600; display: flex; align-items: center; text-decoration: none; color: {{theme.ink}}">Reply</a><a href="{{latest.orderHref}}" style="min-height: 44px; padding: 0 16px; border: 1px solid {{theme.ink}}; border-radius:{{theme.radiusPill}}; background: {{theme.white}}; font-weight: 600; display: flex; align-items: center; text-decoration: none; color: {{theme.ink}}">Open order</a></div></div>
+
+<sc-if value="{{screenEmpty}}"><div class="jj-empty-state"><span aria-hidden="true">○</span><p>Nothing to show here right now.</p><small>Try another filter or return to the list.</small></div></sc-if>
+<sc-if value="{{screenTip}}"><aside class="jj-layout-tip"><div class="jj-theme-shapes" aria-hidden="true"><i></i><i></i><i></i></div><p>{{screenTip}}</p></aside></sc-if>
+</main>
+<nav class="jj-app-tabs" data-role="{{screenRole}}" aria-label="App tabs">
+<sc-for list="{{screenTabs}}" as="tb"><a href="{{tb.href}}" aria-current="{{tb.on}}" style="background:{{tb.bg}};color:{{tb.fg}}">{{tb.label}}</a></sc-for>
 </nav>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
-class Component extends DCLogic {
-renderVals() {
+class Component extends window.JJKit.AppScreen(DCLogic) {
+screenVals() {
+var theme = window.JJTheme.current();
 var self = this;
 var design = 'c';
 var app = (window.JJAppState ? window.JJAppState.load(design) : { packedOrders: {} });

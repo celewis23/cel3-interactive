@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <base href="/mockups/juliansjuicebox/_apps/">
 <script src="/mockups/juliansjuicebox/_apps/app-kit.js"></script>
 <script src="/mockups/juliansjuicebox/cart-state.js"></script>
@@ -15,44 +16,46 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=Unbounded:wght@500;700;900&family=DM+Sans:wght@400;500;600;700&display=swap">
-<style>
-body{margin:0}
-*{box-sizing:border-box}
-img{max-width:100%;display:block}
-button,input,textarea,select{font:inherit}
-</style>
+
+
 </helmet>
-<div style="width:390px;height:844px;display:flex;flex-direction:column;overflow:hidden;font-family:{{theme.bodyFont}};background:{{theme.bg}};color:{{theme.ink}}">
-<header style="{{theme.headerBar}}">
-<a href="{{back}}" aria-label="Back" style="{{theme.backBtn}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
-<h1 style="margin:0;font-size:19px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;{{theme.head}}">Order detail</h1>
+<div class="jj-app-screen" data-role="{{screenRole}}">
+<header class="jj-app-header" data-role="{{screenRole}}">
+<sc-if value="{{screenHasBack}}"><a class="jj-app-back" href="{{screenBack}}" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a></sc-if>
+<div class="jj-app-heading"><p>{{screenEyebrow}}</p><h1>{{screenTitle}}</h1></div>
+<sc-if value="{{screenAction}}"><a class="jj-header-action" href="{{screenActionHref}}" aria-label="{{screenActionLabel}}">{{screenActionText}}</a></sc-if>
 </header>
-<div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px">
-<div style="{{theme.card}}">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h2 style="margin:0;font-size:21px;{{theme.head}}">{{order.items}}</h2><span>{{order.id}}</span></div>
+<main class="jj-app-content" aria-label="Screen content"><sc-if value="{{screenSummary}}"><p class="jj-screen-summary">{{screenSummary}}</p></sc-if>
+
+<div style="background:{{theme.surface}};border:{{theme.border}};border-radius:{{theme.radiusCard}};padding:18px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h2 style="margin:0;font-size:21px;font-family:{{theme.displayFont}};font-weight:{{theme.displayWeight}};text-transform:{{theme.displayTransform}};letter-spacing:{{theme.displayTracking}};line-height:1">{{order.items}}</h2><span>{{order.id}}</span></div>
 <p style="margin:0 0 10px;color:{{theme.muted}}">{{order.total}}</p>
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:12px;font-weight:700;text-align:center;text-transform:uppercase">
 <sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
-<div><div style="height:8px;border-radius:4px;background:{{s.bg}};margin-bottom:6px"></div>{{s.label}}</div>
+<div><div style="height:8px;border-radius:{{theme.radiusSmall}};background:{{s.bg}};margin-bottom:6px"></div>{{s.label}}</div>
 </sc-for>
 </div>
 </div>
-<button type="button" onClick="{{reorder}}" style="{{theme.btnPrimary}}">{{reorderLabel}}</button>
-</div>
+<button class="jj-app-button jj-primary" type="button" onClick="{{reorder}}" style="display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border:0;font-family:{{theme.displayFont}};font-size:{{theme.buttonSize}};text-transform:{{theme.displayTransform}};font-weight:700;white-space:nowrap;cursor:pointer;border-radius:{{theme.radiusBtn}};background:{{theme.accent}};color:{{theme.white}}">{{reorderLabel}}</button>
 
+<sc-if value="{{screenEmpty}}"><div class="jj-empty-state"><span aria-hidden="true">○</span><p>Nothing to show here right now.</p><small>Try another filter or return to the list.</small></div></sc-if>
+<sc-if value="{{screenTip}}"><aside class="jj-layout-tip"><div class="jj-theme-shapes" aria-hidden="true"><i></i><i></i><i></i></div><p>{{screenTip}}</p></aside></sc-if>
+</main>
+<nav class="jj-app-tabs" data-role="{{screenRole}}" aria-label="App tabs">
+<sc-for list="{{screenTabs}}" as="tb"><a href="{{tb.href}}" aria-current="{{tb.on}}" style="background:{{tb.bg}};color:{{tb.fg}}">{{tb.label}}</a></sc-for>
+</nav>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
-class Component extends DCLogic {
-renderVals() {
+class Component extends window.JJKit.AppScreen(DCLogic) {
+screenVals() {
 var self = this;
 var theme = window.JJTheme.current();
 var st = this.state || {};
 var app = window.JJAppState.load(theme.design);
 var id = (new URLSearchParams(location.search)).get('id') || '#2143';
 var placed = (app.placedOrders || []).filter(function (o) { return o.id === id; })[0];
-var seed = { id: '#2143', items: 'Winter Cleanse', total: '[PRICE]', packedKey: '#2143' };
+var seed = { id: '#2143', items: 'Winter Cleanse', total: '$149.99', packedKey: '#2143' };
 var order = placed || seed;
 var packed = !!app.packedOrders[order.packedKey || order.id];
 var stepOn = packed ? 2 : 1;

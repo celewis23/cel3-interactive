@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <base href="/mockups/juliansjuicebox/_apps/">
 <script src="/mockups/juliansjuicebox/_apps/app-kit.js"></script>
 <script src="/mockups/juliansjuicebox/preview-chrome.js" data-section="app" defer></script>
@@ -14,48 +15,30 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=Unbounded:wght@500;700;900&family=DM+Sans:wght@400;500;600;700&display=swap">
-<style>
-body{margin:0}
-*{box-sizing:border-box}
-img{max-width:100%;display:block}
-button,input,textarea,select{font:inherit}
-</style>
-</helmet>
-<div style="width:390px;height:844px;display:flex;flex-direction:column;overflow:hidden;font-family:{{theme.bodyFont}};background:{{theme.bg}};color:{{theme.ink}}">
 
-<div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px">
-<div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:2px">
-<sc-for list="{{filters}}" as="f" hint-placeholder-count="4"><button type="button" onClick="{{f.pick}}" style="min-height:40px;padding:0 14px;border-radius:999px;border:{{theme.borderLight}};background:{{f.bg}};color:{{f.fg}};white-space:nowrap;font-weight:700;font-size:13px;cursor:pointer">{{f.label}}</button></sc-for>
-</div>
-<input type="search" placeholder="Search orders or customers" aria-label="Search orders" value="{{query}}" onChange="{{onSearch}}" style="{{theme.input}}">
-<div style="display:flex;flex-direction:column;gap:10px">
-<sc-for list="{{orders}}" as="o" hint-placeholder-count="6">
-<div style="{{theme.card}};padding:14px;display:flex;flex-direction:column;gap:8px">
-<div style="display:flex;justify-content:space-between;gap:8px"><strong>{{o.id}} · {{o.who}}</strong><span style="font-size:13px;color:{{theme.muted}}">{{o.total}}</span></div>
-<div style="font-size:13px;color:{{theme.muted}}">{{o.items}} · {{o.to}}</div>
-<div style="display:flex;gap:8px;align-items:center">
-<span style="padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700;background:{{o.statusBg}};color:{{o.statusFg}}">{{o.status}}</span>
-<a href="{{o.href}}" style="margin-left:auto;font-weight:700;font-size:13px">View →</a>
-</div>
-</div>
-</sc-for>
-</div>
-</div>
-<nav aria-label="App" style="{{theme.tabBar}};grid-template-columns:repeat(5,1fr)">
-<sc-for list="{{tabs}}" as="tb" hint-placeholder-count="5">
-<a href="{{tb.href}}" aria-current="{{tb.on}}" style="position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:10px;text-decoration:none;background:{{tb.bg}};color:{{tb.fg}}">
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{tb.d}}"></path></svg>
-<span>{{tb.label}}</span>
-<sc-if value="{{tb.hasBadge}}" hint-placeholder-val="{{false}}"><span aria-hidden="true" style="position:absolute;top:2px;right:18%;min-width:14px;height:14px;border-radius:7px;background:#e0901a;color:#1c1c1a;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 3px">{{tb.badge}}</span></sc-if>
-</a>
-</sc-for>
+
+</helmet>
+<div class="jj-app-screen" data-role="{{screenRole}}">
+<header class="jj-app-header" data-role="{{screenRole}}">
+<sc-if value="{{screenHasBack}}"><a class="jj-app-back" href="{{screenBack}}" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a></sc-if>
+<div class="jj-app-heading"><p>{{screenEyebrow}}</p><h1>{{screenTitle}}</h1></div>
+<sc-if value="{{screenAction}}"><a class="jj-header-action" href="{{screenActionHref}}" aria-label="{{screenActionLabel}}">{{screenActionText}}</a></sc-if>
+</header>
+<main class="jj-app-content" aria-label="Screen content">
+<sc-if value="{{screenSummary}}"><p class="jj-screen-summary">{{screenSummary}}</p></sc-if>
+<div class="jj-chips"><sc-for list="{{filters}}" as="f"><button class="jj-app-button" type="button" onClick="{{f.pick}}" style="display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border:0;font-family:{{theme.displayFont}};font-size:{{theme.buttonSize}};text-transform:{{theme.displayTransform}};font-weight:700;white-space:nowrap;cursor:pointer;border-radius:{{theme.radiusBtn}};background:{{theme.surface}};color:{{theme.ink}};border:{{theme.borderLight}};background:{{f.bg}};color:{{f.fg}}">{{f.label}}</button></sc-for></div><input type="search" placeholder="Search orders or customers" aria-label="Search orders" value="{{query}}" onChange="{{onSearch}}" style="min-height:46px;padding:0 14px;border:{{theme.borderLight}};border-radius:{{theme.radiusSmall}};font:inherit;width:100%">
+<sc-for list="{{orders}}" as="o"><a class="jj-order-link" href="{{o.href}}"><span class="jj-order-line"><strong>{{o.id}} · {{o.who}}</strong><strong>{{o.total}}</strong></span><span class="jj-order-meta">{{o.items}} · {{o.to}}</span><span class="jj-order-line"><span class="jj-status-badge" style="background:{{o.statusBg}};color:{{o.statusFg}}">{{o.status}}</span><span aria-hidden="true">›</span></span></a></sc-for>
+<sc-if value="{{screenEmpty}}"><div class="jj-empty-state"><span aria-hidden="true">○</span><p>Nothing to show here right now.</p><small>Try another filter or return to the list.</small></div></sc-if>
+<sc-if value="{{screenTip}}"><aside class="jj-layout-tip"><div class="jj-theme-shapes" aria-hidden="true"><i></i><i></i><i></i></div><p>{{screenTip}}</p></aside></sc-if>
+</main>
+<nav class="jj-app-tabs" data-role="{{screenRole}}" aria-label="App tabs">
+<sc-for list="{{screenTabs}}" as="tb"><a href="{{tb.href}}" aria-current="{{tb.on}}" style="background:{{tb.bg}};color:{{tb.fg}}">{{tb.label}}</a></sc-for>
 </nav>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
-class Component extends DCLogic {
-renderVals() {
+class Component extends window.JJKit.AppScreen(DCLogic) {
+screenVals() {
 var self = this;
 var theme = window.JJTheme.current();
 var st = this.state || {};
@@ -63,11 +46,11 @@ var filter = st.filter || 'all';
 var query = (st.query || '').toLowerCase();
 var app = window.JJAppState.load(theme.design);
 var raw = [
-['#2143','Dana R.','Winter Cleanse','Richmond, VA','[PRICE]','dana@example.com'],
+['#2143','Dana R.','Winter Cleanse','Richmond, VA','$149.99','dana@example.com'],
 ['#2142','Alicia M.','Build A Box · 12 bottles','Atlanta, GA','$84.00','alicia@example.com'],
-['#2141','Marcus T.','Immune Boost box','Columbus, OH','[PRICE]','marcus@example.com'],
-['#2140','Priya K.','Immunity Shots × 6','Charlotte, NC','[PRICE]','priya@example.com'],
-['#2139','Terrence B.','Low Sugar Cleanse','Dallas, TX','[PRICE]','terrence@example.com'],
+['#2141','Marcus T.','Immune Boost box','Columbus, OH','$54.00','marcus@example.com'],
+['#2140','Priya K.','Immunity Shots × 6','Charlotte, NC','$27.00','priya@example.com'],
+['#2139','Terrence B.','Low Sugar Cleanse','Dallas, TX','$108.00','terrence@example.com'],
 ['#2138','Monique S.','Build A Box · 6 bottles','Baltimore, MD','$42.00','monique@example.com']
 ];
 var all = raw.map(function (r) {
@@ -85,7 +68,7 @@ return true;
 });
 var filters = [['all','All'],['tofill','To fill'],['packed','Packed'],['shipped','Shipped']].map(function (f) {
 var on = f[0] === filter;
-return { label: f[1], bg: on ? theme.ink : theme.surface, fg: on ? '#ffffff' : theme.ink, pick: function () { self.setState({ filter: f[0] }); } };
+return { label: f[1], bg: on ? theme.ink : theme.surface, fg: on ? theme.white : theme.ink, pick: function () { self.setState({ filter: f[0] }); } };
 });
 var tabs = window.JJKit.ownerTabs(theme.design, 'orders');
 return { theme: theme, orders: filtered, filters: filters, tabs: tabs,

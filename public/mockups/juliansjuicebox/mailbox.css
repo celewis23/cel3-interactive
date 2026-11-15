@@ -1,0 +1,100 @@
+.jj-mail { --mail-accent: #2e6b2a; --mail-tint: #eaf3e6; --mail-radius: 14px; display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 20px; min-height: 580px; font-family: inherit; }
+.jj-mail.concept-b { --mail-accent: #1f5c2c; --mail-tint: #e6efe5; --mail-radius: 22px; }
+.jj-mail.concept-c { --mail-accent: #8c1c4a; --mail-tint: #f8e6ee; --mail-radius: 20px; }
+.jj-mail * { box-sizing: border-box; }
+.jj-mail button, .jj-mail input, .jj-mail textarea { font: inherit; }
+.jj-mail button { cursor: pointer; }
+.jj-mail :where(button, input, textarea):focus-visible { outline: 3px solid var(--mail-accent); outline-offset: 2px; }
+.jj-mail button:disabled { cursor: default; opacity: .5; }
+.jj-mail-sidebar { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
+.jj-mail-compose-btn { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 56px; border: 0; border-radius: 16px; background: var(--mail-accent); color: white; font-weight: 700 !important; margin-bottom: 14px; }
+.jj-mail-compose-btn span { font-size: 24px; }
+.jj-mail-folder { display: flex; align-items: center; gap: 12px; min-height: 44px; text-align: left; border: 0; border-radius: 0 24px 24px 0; padding: 0 14px; background: transparent; color: #353b35; }
+.jj-mail-folder.active { background: var(--mail-tint); color: var(--mail-accent); font-weight: 700; }
+.jj-mail-folder:hover { background: var(--mail-tint); }
+.jj-mail-folder .folder-count { margin-left: auto; font-size: 12px; }
+.jj-mail-local { font-size: 12px; color: #596258; padding: 12px 14px; line-height: 1.5; }
+.jj-mail-workspace { min-width: 0; border: 1px solid #dce1d8; border-radius: var(--mail-radius); background: white; overflow: hidden; }
+.jj-mail-search { padding: 14px 18px; background: #f8faf6; border-bottom: 1px solid #e4e8e0; }
+.jj-mail-search label { display: flex; align-items: center; gap: 12px; padding: 0 14px; min-height: 48px; border-radius: 12px; background: #edf1e9; color: #596258; }
+.jj-mail-search input { min-width: 0; width: 100%; border: 0; background: transparent; color: #222; outline-offset: 5px; }
+.jj-mail-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 14px; border-bottom: 1px solid #e4e8e0; min-height: 58px; }
+.jj-mail-toolbar button, .jj-mail-icon { min-width: 40px; min-height: 40px; border: 0; border-radius: 8px; background: transparent; color: #50584f; }
+.jj-mail-toolbar button { padding: 0 10px; font-size: 13px; }
+.jj-mail-toolbar button:hover, .jj-mail-icon:hover { background: #eaf0e6; }
+.jj-mail-check { min-width: 40px; min-height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.jj-mail-check input { width: 17px; height: 17px; accent-color: var(--mail-accent); cursor: pointer; }
+.jj-mail-range { margin-left: auto; color: #657062; font-size: 12px; padding: 0 8px; }
+.jj-mail-category { display: flex; align-items: center; gap: 12px; padding: 18px 22px; border-bottom: 3px solid var(--mail-accent); color: var(--mail-accent); font-weight: 700; font-size: 14px; }
+.jj-mail-category small { font-weight: 400; color: #657062; margin-left: auto; }
+.jj-mail-row { display: flex; align-items: center; gap: 0; padding: 0 12px; min-height: 58px; border-bottom: 1px solid #e4e8e0; background: #f5f7f2; }
+.jj-mail-row.unread { background: white; }
+.jj-mail-row.checked { background: var(--mail-tint); }
+.jj-mail-row:hover { position: relative; box-shadow: inset 0 -1px #b3bdb0, 0 1px 5px #00180018; }
+.jj-mail-row .star { font-size: 22px; color: #737d70; }
+.jj-mail-row .starred { color: #9a6600; }
+.jj-mail-open { flex: 1; min-width: 0; display: grid; grid-template-columns: 130px minmax(0, 1fr) 70px; align-items: center; gap: 16px; min-height: 58px; border: 0; padding: 10px 8px; background: transparent; text-align: left; color: #30372e; }
+.jj-mail-sender { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+.jj-mail-summary { display: flex; gap: 7px; min-width: 0; overflow: hidden; font-size: 14px; white-space: nowrap; }
+.jj-mail-subject { overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; max-width: 70%; }
+.jj-mail-preview { color: #626b5e; overflow: hidden; text-overflow: ellipsis; }
+.jj-mail-time { text-align: right; font-size: 11px; white-space: nowrap; }
+.jj-mail-row.unread .jj-mail-sender, .jj-mail-row.unread .jj-mail-subject, .jj-mail-row.unread .jj-mail-time { font-weight: 700; color: #192016; }
+.jj-mail-empty { padding: 60px 24px; text-align: center; color: #657062; line-height: 1.6; }
+.jj-mail-notice { padding: 12px 18px; color: #294326; background: #edf5e9; border-bottom: 1px solid #dce7d6; font-size: 13px; }
+.jj-mail-reading { padding: 26px 28px; }
+.jj-mail-reading h2 { margin: 0 0 24px; font-size: 24px; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
+.jj-mail-message-head { display: flex; align-items: flex-start; gap: 12px; }
+.jj-mail-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--mail-accent); color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; font-weight: 700; }
+.jj-mail-message-head > div { min-width: 0; flex: 1; font-size: 14px; }
+.jj-mail-message-head small { color: #667061; overflow-wrap: anywhere; }
+.jj-mail-message-head time { color: #667061; font-size: 12px; white-space: nowrap; }
+.jj-mail-body { margin: 24px 0 32px 52px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.75; font-size: 15px; min-height: 90px; }
+.jj-mail-sent-reply { border-top: 1px solid #e4e8e0; padding-top: 22px; margin-top: 22px; }
+.jj-mail-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: 52px; }
+.jj-mail-btn { min-height: 44px; padding: 0 18px; border: 1px solid #bac5b5; border-radius: 999px; background: white; color: #30372e; font-weight: 600 !important; }
+.jj-mail-btn.primary { background: var(--mail-accent); border-color: var(--mail-accent); color: white; }
+.jj-mail-reply { margin: 24px 0 0 52px; border: 1px solid #c7d0c2; border-radius: 14px; padding: 16px; }
+.jj-mail-reply label { display: block; font-size: 13px; color: #596258; margin-bottom: 12px; }
+.jj-mail-reply textarea { width: 100%; min-height: 140px; border: 0; padding: 8px 0; resize: vertical; color: #222; background: white; }
+.jj-mail-reply-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.jj-mail-reply-tools [aria-pressed="true"] { background: var(--mail-tint); color: var(--mail-accent); }
+.jj-mail-attachment { color: #596258; font-size: 13px; padding: 8px 0; }
+.jj-mail-compose { position: fixed; bottom: 0; right: 28px; z-index: 1000001; width: min(520px, calc(100vw - 32px)); max-height: calc(100dvh - 28px); display: flex; flex-direction: column; border: 1px solid #c7d0c2; border-radius: 12px 12px 0 0; background: white; box-shadow: 0 8px 40px #0003; overflow-y: auto; }
+.jj-mail-compose-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: var(--mail-tint); font-size: 14px; }
+.jj-mail-compose form { padding: 0 16px 18px; display: flex; flex-direction: column; }
+.jj-mail-compose label { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #e4e8e0; font-size: 13px; }
+.jj-mail-compose input { flex: 1; min-width: 0; min-height: 36px; border: 0; background: white; color: #222; }
+.jj-mail-compose textarea { width: 100%; min-height: 220px; margin: 14px 0; resize: vertical; border: 0; color: #222; background: white; }
+.jj-mail-draft-row { width: 100%; padding: 20px; text-align: left; border: 0; border-bottom: 1px solid #e4e8e0; background: white; color: #30372e; }
+@media (max-width: 1150px) {
+  .jj-mail { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .jj-mail-sidebar { flex-direction: row; flex-wrap: wrap; align-items: center; }
+  .jj-mail-compose-btn { margin: 0 8px 0 0; padding: 0 20px; }
+  .jj-mail-folder { border-radius: 999px; padding: 0 12px; gap: 8px; }
+  .jj-mail-local { width: 100%; padding: 4px 0; margin: 0; }
+}
+@media (max-width: 600px) {
+  .jj-mail { min-height: 0; }
+  .jj-mail-folder { font-size: 13px !important; }
+  .jj-mail-search { padding: 12px; }
+  .jj-mail input, .jj-mail textarea { font-size: 16px; }
+  .jj-mail-toolbar { padding: 6px; gap: 0; }
+  .jj-mail-toolbar button, .jj-mail-icon, .jj-mail-check { min-height: 44px; min-width: 36px; }
+  .jj-mail-range { width: 100%; margin: 0; padding: 6px 10px; }
+  .jj-mail-row { padding: 0 4px; }
+  .jj-mail-open { grid-template-columns: minmax(0, 1fr) 58px; gap: 3px 8px; padding: 12px 4px; }
+  .jj-mail-summary { grid-column: 1 / -1; grid-row: 2; flex-wrap: wrap; white-space: normal; gap: 2px; }
+  .jj-mail-subject { max-width: 100%; flex-shrink: 1; }
+  .jj-mail-preview { width: 100%; white-space: nowrap; }
+  .jj-mail-category { padding: 14px; }
+  .jj-mail-category small { display: none; }
+  .jj-mail-reading { padding: 20px 14px; }
+  .jj-mail-reading h2 { font-size: 21px; }
+  .jj-mail-message-head { flex-wrap: wrap; }
+  .jj-mail-message-head time { margin-left: 52px; }
+  .jj-mail-body, .jj-mail-actions, .jj-mail-reply { margin-left: 0; }
+  .jj-mail-reply { padding: 12px; }
+  .jj-mail-compose { inset: 0; width: 100%; max-height: 100dvh; border-radius: 0; }
+  .jj-mail-compose textarea { min-height: 150px; }
+}
