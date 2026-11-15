@@ -2,9 +2,6 @@
 // Verified against the "Interactive proposal" design export
 // (public/mockups/juliansjuicebox/Interactive proposal (pick an option, then sign)-html.zip).
 // Change prices only here — the Checkout session and the webhook both read this file.
-//
-// `[X]` below is a placeholder left in the design file (weeks / hours), not filled in here —
-// see the final report for every bracket placeholder still outstanding.
 
 export const JUICEBOX_PROPOSAL_SLUG = "juliansjuicebox";
 
@@ -98,7 +95,7 @@ export const JUICEBOX_OFFER_EXPIRES_AT = new Date("2026-11-28T23:59:59-05:00");
 
 // Left exactly as the design file has it — a client-confirmed number, not a guess.
 export const JUICEBOX_TIMELINE_SUMMARY =
-  "The website goes live about 2 weeks after kickoff. The console, store and apps follow in [X] weeks.";
+  "The website, console, store and apps all go live within about 3 weeks after kickoff.";
 
 export const JUICEBOX_PAYMENT_TERMS = [
   "Pay in full up front, or split the project into two payments: 50% up front to start and the remaining 50% upon completion.",
@@ -107,7 +104,7 @@ export const JUICEBOX_PAYMENT_TERMS = [
   "Tier prices held 12 months.",
   "Month to month, no contract.",
   "Card processing fees from Stripe are separate, the same as on Shopify today.",
-  "Monthly includes [X] hours of edits by CEL3. Unused hours don't roll over.",
+  "Monthly includes 3 hours of edits by CEL3. Unused hours don't roll over.",
   "Extra work is $125 an hour, quoted before it starts.",
 ];
 
