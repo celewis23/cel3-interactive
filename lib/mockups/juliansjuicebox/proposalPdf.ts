@@ -55,7 +55,7 @@ function buildLines(input: JuiceboxProposalPdfInput): PdfLine[] {
 
   lines.push(
     { text: "Pricing", size: 14, bold: true, gap: 18 },
-    { text: `Due today (paid in full): ${money(input.dueTodayCents)}` },
+    { text: `Project total: ${money(input.dueTodayCents)}` },
     { text: `Monthly, starting at launch: ${money(input.monthlyCents)}/month`, gap: 18 },
     { text: "Payment terms", size: 14, bold: true },
   );

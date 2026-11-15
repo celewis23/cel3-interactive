@@ -126,7 +126,7 @@ export default function JuiceboxProposalPage() {
                     </div>
                     <p className={styles.cardTagline}>{s.tagline}</p>
                     <div className={styles.cardPrice}>
-                      <div><b>{money(s.dueTodayCents)}</b><span>due today</span></div>
+                      <div><b>{money(s.dueTodayCents)}</b><span>project total</span></div>
                       <div><b>{money(s.monthlyCents)}</b><span>/month at launch</span></div>
                     </div>
 
@@ -147,7 +147,7 @@ export default function JuiceboxProposalPage() {
               <h2 className={styles.sectionTitle}>Your options at a glance</h2>
               <table className={styles.table}>
                 <thead>
-                  <tr><th>Selection</th><th>Due today</th><th>Monthly at launch</th></tr>
+                  <tr><th>Selection</th><th>Project total</th><th>Monthly at launch</th></tr>
                 </thead>
                 <tbody>
                   {SELECTION_ORDER.map((id) => {
@@ -187,7 +187,7 @@ export default function JuiceboxProposalPage() {
               <div style={{ fontSize: 11, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase" }}>Your selection</div>
               <div className={`${styles.d}`} style={{ fontSize: 18, marginTop: 4 }}>{selection.name}</div>
             </div>
-            <div className={styles.summaryRow}><span>Due today</span><b className={styles.m}>{money(quote.dueTodayCents)}</b></div>
+            <div className={styles.summaryRow}><span>Project total</span><b className={styles.m}>{money(quote.dueTodayCents)}</b></div>
             <div className={styles.summaryRow}><span>Monthly at launch</span><b className={styles.m}>{money(quote.monthlyCents)}</b></div>
             <button type="button" className={`${styles.btn} ${styles.gold}`} onClick={() => setStep("accept")}>
               Continue to sign &amp; pay
@@ -232,7 +232,7 @@ export default function JuiceboxProposalPage() {
               </div>
 
               <h3 style={{ fontSize: 14, marginTop: 20 }}>Summary</h3>
-              <p style={{ fontSize: 14 }}>{selection.name} &mdash; {money(quote.dueTodayCents)} due today, {money(quote.monthlyCents)}/month starting at launch.</p>
+              <p style={{ fontSize: 14 }}>{selection.name} &mdash; {money(quote.dueTodayCents)} project total, {money(quote.monthlyCents)}/month starting at launch.</p>
 
               <div className={styles.terms}>
                 <strong>Terms</strong>
@@ -245,13 +245,13 @@ export default function JuiceboxProposalPage() {
 
               <label className={styles.agreeRow}>
                 <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
-                <span>I agree to the proposal terms: full payment up front, monthly billing from launch, month to month with no contract.</span>
+                <span>I agree to the proposal terms: payment in full up front or an arranged 50% up front and 50% upon completion, monthly billing from launch, month to month with no contract.</span>
               </label>
 
               <label className={styles.field} style={{ marginTop: 10 }}>Type your name to sign
                 <input value={signerName} onChange={(e) => setSignerName(e.target.value)} required />
               </label>
-              <p style={{ fontSize: 12, color: "var(--muted)" }}>Secure card payment by Stripe opens next.</p>
+              <p style={{ fontSize: 12, color: "var(--muted)" }}>Secure card payment by Stripe opens next and collects the full project price. Prefer two payments? Go back to selection and use Ask a question to arrange 50% up front and 50% upon completion before paying.</p>
 
               {error && <p className={styles.error}>{error}</p>}
             </div>
@@ -259,7 +259,7 @@ export default function JuiceboxProposalPage() {
 
           <aside className={styles.summaryPanel}>
             <div className={`${styles.d}`} style={{ fontSize: 18 }}>{selection.name}</div>
-            <div className={styles.summaryRow}><span>Due today</span><b className={styles.m}>{money(quote.dueTodayCents)}</b></div>
+            <div className={styles.summaryRow}><span>Project total</span><b className={styles.m}>{money(quote.dueTodayCents)}</b></div>
             <div className={styles.summaryRow}><span>Monthly at launch</span><b className={styles.m}>{money(quote.monthlyCents)}</b></div>
             <button type="button" className={`${styles.btn} ${styles.gold}`} disabled={submitting} onClick={handlePay}>
               {submitting ? "Starting checkout…" : `Sign and pay ${money(quote.dueTodayCents)}`}

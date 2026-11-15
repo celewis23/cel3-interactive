@@ -101,7 +101,8 @@ export const JUICEBOX_TIMELINE_SUMMARY =
   "The website goes live about 2 weeks after kickoff. The console, store and apps follow in [X] weeks.";
 
 export const JUICEBOX_PAYMENT_TERMS = [
-  "Full payment up front to start.",
+  "Pay in full up front, or split the project into two payments: 50% up front to start and the remaining 50% upon completion.",
+  "To split your payment, use Ask a question to arrange the two payments before signing and paying online. Online checkout collects the full project price.",
   "Monthly billing starts at launch.",
   "Tier prices held 12 months.",
   "Month to month, no contract.",
