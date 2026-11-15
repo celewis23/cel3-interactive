@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <base href="/mockups/juliansjuicebox/c/app/">
 <script src="/mockups/juliansjuicebox/_apps/app-kit.js"></script>
 <script src="/mockups/juliansjuicebox/preview-chrome.js" data-section="app" data-design="c" defer></script>
@@ -14,48 +15,46 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&amp;family=DM+Sans:wght@400;500;600;700&amp;display=swap">
-<style>
-body{margin:0}
-*{box-sizing:border-box}
-img{display:block}
-a{color:#17140f}a:hover{color:#8c1c4a}
-</style>
+
+
 </helmet>
-<div style="width: 390px; height: 844px; background: #ffffff; color: #17140f; font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.4; display: flex; flex-direction: column; overflow: hidden">
-<div style="padding: 22px 18px 12px">
-<h1 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 26.4px; line-height: 1; text-transform: uppercase">Bulletins</h1>
-<p style="margin: 4px 0 0; color: #55504a">From Julian, to the app family only.</p>
-</div>
-<div style="flex: 1; overflow: hidden; overflow-y: auto; padding: 0 18px 12px; display: flex; flex-direction: column; gap: 14px">
-<a href="{{featured.href}}" style="border: 3px solid #17140f; border-radius: 24px; padding: 8px; display: block; text-decoration: none; color: inherit">
-<div style="background: #8c1c4a; color: #ffffff; border-radius: 14px; padding: 8px 12px; display: flex; justify-content: space-between; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0; text-transform: uppercase"><span>{{featured.tag}}</span><span>{{featured.sentAt}}</span></div>
-<img src="./assets/808cf7128d9de6af0ea164f0ed65d68c.png" alt="Winter Cleanse lineup" style="width: 100%; height: 160px; object-fit: cover; border-radius: 999px; margin-top: 8px">
+<div class="jj-app-screen" data-role="{{screenRole}}">
+<header class="jj-app-header" data-role="{{screenRole}}">
+<sc-if value="{{screenHasBack}}"><a class="jj-app-back" href="{{screenBack}}" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a></sc-if>
+<div class="jj-app-heading"><p>{{screenEyebrow}}</p><h1>{{screenTitle}}</h1></div>
+<sc-if value="{{screenAction}}"><a class="jj-header-action" href="{{screenActionHref}}" aria-label="{{screenActionLabel}}">{{screenActionText}}</a></sc-if>
+</header>
+<main class="jj-app-content" aria-label="Screen content"><sc-if value="{{screenSummary}}"><p class="jj-screen-summary">{{screenSummary}}</p></sc-if>
+
+<a href="{{featured.href}}" style="border: 3px solid {{theme.ink}}; border-radius:{{theme.radiusCard}}; padding: 8px; display: block; text-decoration: none; color: inherit">
+<div style="background: {{theme.accent}}; color: {{theme.white}}; border-radius:{{theme.radiusCard}}; padding: 8px 12px; display: flex; justify-content: space-between; font-family:{{theme.displayFont}}; font-weight: 700; font-size: 11px; letter-spacing: 0; text-transform: uppercase"><span>{{featured.tag}}</span><span>{{featured.sentAt}}</span></div>
+<img src="./assets/808cf7128d9de6af0ea164f0ed65d68c.png" alt="Winter Cleanse lineup" style="width: 100%; height: 160px; object-fit: cover; border-radius:{{theme.radiusPill}}; margin-top: 8px">
 <div style="padding: 12px 6px 6px">
-<h2 style="margin: 0 0 6px; font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 17.2px; line-height: 1.05; text-transform: uppercase">{{featured.title}}</h2>
-<p style="margin: 0 0 12px; color: #17140f">{{featured.preview}}</p>
-<span style="display: block; text-align: center; background: #ffd23f; color: #17140f; padding: 13px; border-radius: 999px; font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 11.9px; letter-spacing: 0; text-transform: uppercase">Read more</span>
+<h2 style="margin: 0 0 6px; font-family:{{theme.displayFont}}; font-weight: 800; font-size: 17.2px; line-height: 1.05; text-transform: uppercase">{{featured.title}}</h2>
+<p style="margin: 0 0 12px; color: {{theme.ink}}">{{featured.preview}}</p>
+<span style="display: block; text-align: center; background: {{theme.gold}}; color: {{theme.ink}}; padding: 13px; border-radius:{{theme.radiusPill}}; font-family:{{theme.displayFont}}; font-weight: 800; font-size: 11.9px; letter-spacing: 0; text-transform: uppercase">Read more</span>
 </div>
 </a>
 <sc-for list="{{rest}}" as="b" hint-placeholder-count="3">
-<a href="{{b.href}}" style="display: block; text-decoration: none; color: inherit; border-top: 2px solid #17140f; padding-top: 12px">
-<div style="font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0; text-transform: uppercase; color: #55504a">{{b.sentAt}}</div>
-<h2 style="margin: 2px 0 4px; font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 14.5px; text-transform: uppercase">{{b.title}}</h2>
-<p style="margin: 0; color: #55504a">{{b.preview}}</p>
+<a href="{{b.href}}" style="display: block; text-decoration: none; color: inherit; border-top: 2px solid {{theme.ink}}; padding-top: 12px">
+<div style="font-family:{{theme.displayFont}}; font-weight: 700; font-size: 11px; letter-spacing: 0; text-transform: uppercase; color: {{theme.muted}}">{{b.sentAt}}</div>
+<h2 style="margin: 2px 0 4px; font-family:{{theme.displayFont}}; font-weight: 800; font-size: 14.5px; text-transform: uppercase">{{b.title}}</h2>
+<p style="margin: 0; color: {{theme.muted}}">{{b.preview}}</p>
 </a>
 </sc-for>
-</div>
-<nav aria-label="App" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; border-top: 2px solid #17140f; padding: 8px 8px 14px; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0; text-transform: uppercase; text-align: center">
-<a href="/mockups/juliansjuicebox/c/app" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none">Order</a>
-<a href="/mockups/juliansjuicebox/c/app/orders" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none">My orders</a>
-<a href="/mockups/juliansjuicebox/c/app/bulletins" aria-current="true" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none; background: #17140f; color: #ffffff; border-radius: 999px">Bulletins</a>
-<a href="/mockups/juliansjuicebox/c/app/account" style="min-height: 46px; display: flex; align-items: center; justify-content: center; text-decoration: none">Account</a>
+
+<sc-if value="{{screenEmpty}}"><div class="jj-empty-state"><span aria-hidden="true">○</span><p>Nothing to show here right now.</p><small>Try another filter or return to the list.</small></div></sc-if>
+<sc-if value="{{screenTip}}"><aside class="jj-layout-tip"><div class="jj-theme-shapes" aria-hidden="true"><i></i><i></i><i></i></div><p>{{screenTip}}</p></aside></sc-if>
+</main>
+<nav class="jj-app-tabs" data-role="{{screenRole}}" aria-label="App tabs">
+<sc-for list="{{screenTabs}}" as="tb"><a href="{{tb.href}}" aria-current="{{tb.on}}" style="background:{{tb.bg}};color:{{tb.fg}}">{{tb.label}}</a></sc-for>
 </nav>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
-class Component extends DCLogic {
-renderVals() {
+class Component extends window.JJKit.AppScreen(DCLogic) {
+screenVals() {
+var theme = window.JJTheme.current();
 var design = 'c';
 var app = window.JJAppState ? window.JJAppState.load(design) : { readBulletins: {}, sentBulletins: [] };
 var seed = [

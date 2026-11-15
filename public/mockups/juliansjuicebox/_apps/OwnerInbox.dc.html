@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <base href="/mockups/juliansjuicebox/_apps/">
 <script src="/mockups/juliansjuicebox/_apps/app-kit.js"></script>
 <script src="/mockups/juliansjuicebox/preview-chrome.js" data-section="app" defer></script>
@@ -14,51 +15,30 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=Unbounded:wght@500;700;900&family=DM+Sans:wght@400;500;600;700&display=swap">
-<style>
-body{margin:0}
-*{box-sizing:border-box}
-img{max-width:100%;display:block}
-button,input,textarea,select{font:inherit}
-</style>
-</helmet>
-<div style="width:390px;height:844px;display:flex;flex-direction:column;overflow:hidden;font-family:{{theme.bodyFont}};background:{{theme.bg}};color:{{theme.ink}}">
 
-<div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px">
-<a href="/mockups/juliansjuicebox/{{theme.design}}/app/owner/inbox/compose" style="{{theme.btnPrimary}};text-decoration:none">Compose</a>
-<input type="search" placeholder="Search mail" aria-label="Search mail" value="{{query}}" onChange="{{onSearch}}" style="{{theme.input}}">
-<div style="display:flex;flex-direction:column;{{theme.cardFlat}};padding:0;overflow:hidden">
-<sc-for list="{{threads}}" as="t" hint-placeholder-count="4">
-<div style="display:flex;align-items:flex-start;gap:6px;border-bottom:{{theme.borderLight}};background:{{t.bg}};padding:12px 10px">
-<input type="checkbox" aria-label="Select email from {{t.from}}" style="flex:none;width:16px;height:16px;margin-top:4px;cursor:pointer">
-<button type="button" onClick="{{t.toggleStar}}" aria-pressed="{{t.starred}}" aria-label="{{t.starLabel}}" style="flex:none;border:0;background:transparent;padding:2px;margin-top:1px;cursor:pointer;font-size:16px;line-height:1;color:{{t.starColor}}">{{t.starGlyph}}</button>
-<a href="{{t.href}}" style="flex:1;min-width:0;display:flex;gap:10px;text-decoration:none;color:inherit">
-<span aria-hidden="true" style="flex:none;width:34px;height:34px;border-radius:50%;background:{{t.avatarBg}};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{t.initials}}</span>
-<span style="flex:1;min-width:0">
-<span style="display:flex;justify-content:space-between;gap:8px"><span style="font-weight:{{t.nameWeight}};font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{t.from}}</span><span style="font-size:11px;color:{{theme.muted}};flex:none">{{t.time}}</span></span>
-<span style="display:block;font-weight:{{t.nameWeight}};font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{t.subject}}</span>
-<span style="display:block;font-size:12px;color:{{theme.muted}};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{t.preview}}</span>
-</span>
-<sc-if value="{{t.unread}}" hint-placeholder-val="{{false}}"><span aria-hidden="true" style="flex:none;width:8px;height:8px;border-radius:50%;background:{{theme.cta}};margin-top:6px"></span></sc-if>
-</a>
-</div>
-</sc-for>
-</div>
-</div>
-<nav aria-label="App" style="{{theme.tabBar}};grid-template-columns:repeat(5,1fr)">
-<sc-for list="{{tabs}}" as="tb" hint-placeholder-count="5">
-<a href="{{tb.href}}" aria-current="{{tb.on}}" style="position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:10px;text-decoration:none;background:{{tb.bg}};color:{{tb.fg}}">
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{tb.d}}"></path></svg>
-<span>{{tb.label}}</span>
-<sc-if value="{{tb.hasBadge}}" hint-placeholder-val="{{false}}"><span aria-hidden="true" style="position:absolute;top:2px;right:18%;min-width:14px;height:14px;border-radius:7px;background:#e0901a;color:#1c1c1a;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 3px">{{tb.badge}}</span></sc-if>
-</a>
-</sc-for>
+
+</helmet>
+<div class="jj-app-screen" data-role="{{screenRole}}">
+<header class="jj-app-header" data-role="{{screenRole}}">
+<sc-if value="{{screenHasBack}}"><a class="jj-app-back" href="{{screenBack}}" aria-label="Back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a></sc-if>
+<div class="jj-app-heading"><p>{{screenEyebrow}}</p><h1>{{screenTitle}}</h1></div>
+<sc-if value="{{screenAction}}"><a class="jj-header-action" href="{{screenActionHref}}" aria-label="{{screenActionLabel}}">{{screenActionText}}</a></sc-if>
+</header>
+<main class="jj-app-content" aria-label="Screen content">
+<sc-if value="{{screenSummary}}"><p class="jj-screen-summary">{{screenSummary}}</p></sc-if>
+<input type="search" placeholder="Search mail" aria-label="Search mail" value="{{query}}" onChange="{{onSearch}}" style="min-height:46px;padding:0 14px;border:{{theme.borderLight}};border-radius:{{theme.radiusSmall}};font:inherit;width:100%">
+<div class="jj-app-inbox" style="background:{{theme.surface}};border:{{theme.border}};border-radius:{{theme.radiusCard}};padding:18px"><sc-for list="{{threads}}" as="t"><a href="{{t.href}}"><span class="jj-avatar" style="background:{{t.avatarBg}}">{{t.initials}}</span><span style="flex:1;min-width:0"><span style="display:flex;justify-content:space-between;gap:8px"><strong style="font-weight:{{t.nameWeight}}">{{t.from}}</strong><span style="font-size:11px;color:{{theme.muted}}">{{t.time}}</span></span><span style="display:block;font-weight:{{t.nameWeight}};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{t.subject}}</span><span style="display:block;font-size:13px;color:{{theme.muted}};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{t.preview}}</span></span><sc-if value="{{t.unread}}"><span aria-label="Unread" style="width:8px;height:8px;flex:none;border-radius:{{theme.radiusPill}};background:{{theme.cta}};margin-top:8px"></span></sc-if></a></sc-for></div>
+<sc-if value="{{screenEmpty}}"><div class="jj-empty-state"><span aria-hidden="true">○</span><p>Nothing to show here right now.</p><small>Try another filter or return to the list.</small></div></sc-if>
+<sc-if value="{{screenTip}}"><aside class="jj-layout-tip"><div class="jj-theme-shapes" aria-hidden="true"><i></i><i></i><i></i></div><p>{{screenTip}}</p></aside></sc-if>
+</main>
+<nav class="jj-app-tabs" data-role="{{screenRole}}" aria-label="App tabs">
+<sc-for list="{{screenTabs}}" as="tb"><a href="{{tb.href}}" aria-current="{{tb.on}}" style="background:{{tb.bg}};color:{{tb.fg}}">{{tb.label}}</a></sc-for>
 </nav>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
-class Component extends DCLogic {
-renderVals() {
+class Component extends window.JJKit.AppScreen(DCLogic) {
+screenVals() {
 var self = this;
 var theme = window.JJTheme.current();
 var st = this.state || {};

@@ -1,0 +1,93 @@
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: var(--jj-ink); }
+x-dc { display: none; }
+*, *::before, *::after { box-sizing: border-box; }
+body { font-family: var(--jj-body); color: var(--jj-ink); }
+.jj-app-screen { width: 390px; height: 844px; display: flex; flex-direction: column; overflow: hidden; background: var(--jj-bg); color: var(--jj-ink); font: 15px/1.45 var(--jj-body); }
+.jj-app-screen img { display: block; max-width: 100%; }
+.jj-app-screen :where(button, input, select, textarea) { font: inherit; }
+.jj-app-screen :where(a, button, label, input, select, textarea) { -webkit-tap-highlight-color: transparent; }
+.jj-app-screen a { color: inherit; text-decoration: none; }
+.jj-app-screen :where(button, a, input, textarea, select):focus-visible { outline: 3px solid var(--jj-accent); outline-offset: 3px; }
+.jj-app-screen :where(div, span, p, label, form, section) { min-width: 0; }
+.jj-app-screen :where(button, a) { min-height: 44px !important; }
+.jj-app-screen button { cursor: pointer; flex-shrink: 0; }
+.jj-app-content .jj-app-button { min-height: 44px !important; font-family: var(--jj-display) !important; font-size: var(--jj-button-size) !important; font-weight: 700; text-transform: var(--jj-display-case); border-radius: var(--jj-button-radius) !important; white-space: nowrap; }
+.jj-app-content .jj-primary { min-height: 48px !important; }
+.jj-quick-actions { display: flex !important; flex-wrap: wrap; gap: 8px; }
+.jj-quick-actions > a { flex: 1 1 150px; min-width: max-content; }
+.jj-app-header { height: 108px; flex: 0 0 108px; display: flex; align-items: center; gap: 12px; padding: 24px 24px 16px; background: var(--jj-ink); color: var(--jj-white); }
+.jj-app-header[data-role="customer"] { background: var(--jj-bg); color: var(--jj-ink); border-bottom: var(--jj-light-border); }
+.jj-app-heading { flex: 1; min-width: 0; }
+.jj-app-heading p { font-size: 12px; margin: 0 0 6px; opacity: .8; }
+.jj-app-heading h1 { margin: 0; font-family: var(--jj-display); font-size: var(--jj-display-size); font-weight: var(--jj-display-weight); text-transform: var(--jj-display-case); line-height: 1.12; overflow-wrap: anywhere; }
+.jj-app-back, .jj-header-action { min-width: 44px; height: 44px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--jj-button-radius); background: var(--jj-gold); color: var(--jj-ink) !important; }
+.jj-header-action { padding: 0 12px; font-weight: 700; white-space: nowrap; }
+.jj-app-header[data-role="customer"] .jj-app-back { background: var(--jj-tint); }
+.jj-app-content { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; padding: 16px 16px 24px; display: flex; flex-direction: column; gap: 12px; scrollbar-width: thin; scrollbar-color: transparent transparent; }
+.jj-app-content > * { flex-shrink: 0; max-width: 100%; }
+.jj-app-content :where(p, strong, h2, h3, h4) { overflow-wrap: anywhere; }
+.jj-app-content :where(input, textarea, select) { max-width: 100%; color: var(--jj-ink); background: var(--jj-surface); }
+.jj-app-content input:not([type="checkbox"]):not([type="radio"]), .jj-app-content select { min-height: 46px; }
+.jj-app-content textarea { resize: vertical; min-height: 100px; }
+.jj-app-content :where(button, a)[style*="justify-content:center"], .jj-app-content :where(button, a)[style*="justify-content: center"] { white-space: nowrap; padding-left: 14px; padding-right: 14px; border-radius: var(--jj-button-radius) !important; }
+.jj-app-content a:not([style]):not([class]), .jj-overview-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 14px; border: var(--jj-card-border); border-radius: var(--jj-card-radius); background: var(--jj-surface); font-weight: 600; }
+.jj-app-content h2, .jj-app-content h3 { font-family: var(--jj-display); font-weight: var(--jj-display-weight); text-transform: var(--jj-display-case); }
+.jj-screen-summary { margin: 0; color: var(--jj-muted); font-size: 12px; }
+.jj-today-stats { color: var(--jj-white); }
+.jj-empty-state { padding: 28px 16px; text-align: center; border: var(--jj-card-border); border-radius: var(--jj-card-radius); background: var(--jj-surface); color: var(--jj-muted); }
+.jj-empty-state > span { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; font-size: 48px; border-radius: var(--jj-card-radius); background: var(--jj-tint); color: var(--jj-accent); }
+.jj-empty-state p { color: var(--jj-ink); font-weight: 700; }
+.jj-layout-tip { padding: 20px 16px; background: var(--jj-page-soft); border-radius: var(--jj-card-radius); color: var(--jj-muted); }
+.jj-layout-tip p { margin: 12px 0 0; font-size: 13px; line-height: 1.6; }
+.jj-theme-shapes { display: flex; align-items: center; gap: 8px; }
+.jj-theme-shapes i { display: block; width: 28px; height: 28px; background: var(--jj-accent); border: var(--jj-card-border); border-radius: var(--jj-button-radius); }
+.jj-theme-shapes i:nth-child(2) { width: 56px; background: var(--jj-gold); }
+.jj-theme-shapes i:nth-child(3) { background: var(--jj-cta); }
+.jj-app-tabs { flex: 0 0 80px; height: 80px; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; align-items: start; padding: 8px 10px 24px; border-top: var(--jj-light-border); background: var(--jj-white); font-size: 12px; font-weight: 600; text-align: center; }
+.jj-app-tabs a { display: flex; align-items: center; justify-content: center; height: 46px; border-radius: var(--jj-button-radius); line-height: 1.15; }
+.jj-app-tabs[data-role="customer"] { font-family: var(--jj-display); font-size: var(--jj-tab-size); text-transform: var(--jj-display-case); font-weight: 700; border-top: 2px solid var(--jj-ink); }
+.jj-status-badge { display: inline-flex; align-items: center; justify-content: center; min-height: 28px; padding: 5px 10px !important; border-radius: var(--jj-button-radius) !important; font-weight: 700; font-size: 12px; white-space: nowrap; }
+.jj-app-content::-webkit-scrollbar { width: 4px; height: 0; }
+.jj-app-content::-webkit-scrollbar-track, .jj-app-content::-webkit-scrollbar-corner { background: transparent; }
+.jj-app-content::-webkit-scrollbar-thumb { background: transparent; border-radius: 999px; transition: background-color 160ms; }
+.jj-app-content::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+.jj-app-content.is-scrolling { scrollbar-color: var(--jj-scroll-thumb) transparent; }
+.jj-app-content.is-scrolling::-webkit-scrollbar-thumb { background: var(--jj-scroll-thumb); }
+.jj-chips { display: flex; flex-wrap: nowrap; overflow-x: auto !important; overflow-y: hidden !important; max-width: 100%; min-height: 48px; padding-bottom: 0 !important; scrollbar-width: none; touch-action: pan-x; overscroll-behavior-x: contain; }
+.jj-chips > * { flex-shrink: 0; }
+.jj-chips::-webkit-scrollbar { display: none; }
+.jj-app-content input[type="checkbox"], .jj-app-content input[type="radio"] { appearance: none; width: 24px; height: 24px; flex-shrink: 0; border: 2px solid var(--jj-ink); border-radius: var(--jj-small-radius); background: var(--jj-surface); }
+.jj-app-content input[type="checkbox"]:checked, .jj-app-content input[type="radio"]:checked { background: var(--jj-accent); box-shadow: inset 0 0 0 4px var(--jj-surface); }
+.jj-app-content label:has(input[type="checkbox"]), .jj-app-content label:has(input[type="radio"]) { min-height: 44px; align-items: center; }
+.jj-app-inbox { padding: 0 !important; }
+.jj-app-inbox a { display: flex; gap: 12px; align-items: flex-start; min-height: 90px; padding: 16px; border-bottom: var(--jj-light-border); color: var(--jj-ink); }
+.jj-app-inbox a:last-child { border-bottom: 0; }
+.jj-avatar { flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%; background: var(--jj-accent); color: var(--jj-white); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
+.jj-order-link { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: var(--jj-card-border); border-radius: var(--jj-card-radius); background: var(--jj-surface); }
+.jj-order-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.jj-order-meta { color: var(--jj-muted); font-size: 13px; }
+.jj-site-preview { position: relative; overflow: hidden; border: var(--jj-card-border); border-radius: var(--jj-card-radius); background: var(--jj-page-soft); }
+.jj-site-preview img { width: 100%; height: 136px; object-fit: cover; }
+.jj-site-preview > div { display: flex; align-items: center; justify-content: space-between; padding: 14px; gap: 8px; }
+.jj-site-logo { padding: 12px 16px; background: var(--jj-ink); color: var(--jj-white); font-family: var(--jj-display); font-weight: 800; }
+.jj-site-group { display: flex; flex-direction: column; gap: 12px; }
+.jj-site-group h2 { font-size: 16px; margin: 4px 0 0; }
+.jj-site-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px; min-height: 56px; background: var(--jj-surface); border: var(--jj-card-border); border-radius: var(--jj-card-radius); font-weight: 600; }
+#juicebox-chrome { display: none !important; }
+.juicebox-phone-shell { height: 100dvh; width: 100%; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; overflow: hidden; background: var(--jj-ink); font-family: var(--jj-body); }
+.juicebox-role-switcher { height: 44px; flex: 0 0 44px; display: flex; align-items: center; gap: 8px; }
+.juicebox-role-switcher a { min-height: 44px; min-width: 100px; padding: 0 20px; display: flex; align-items: center; justify-content: center; border-radius: var(--jj-button-radius); color: var(--jj-white); border: 1px solid var(--jj-muted); text-decoration: none; font-size: 14px; font-weight: 700; }
+.juicebox-role-switcher a[aria-current="page"] { background: var(--jj-gold); color: var(--jj-ink); border-color: var(--jj-gold); }
+.juicebox-phone-frame { position: relative; width: calc(390px * var(--phone-scale)); height: calc(844px * var(--phone-scale)); flex: none; overflow: hidden; border-radius: calc(32px * var(--phone-scale)); background: var(--jj-bg); box-shadow: 0 0 0 7px var(--jj-ink), 0 0 0 9px var(--jj-muted); }
+.juicebox-screen-plane { width: 390px; height: 844px; transform: scale(var(--phone-scale)); transform-origin: top left; overflow: hidden; border-radius: 32px; }
+.juicebox-screen-plane > #dc-root, #dc-root > .sc-host { width: 100%; height: 100%; }
+.juicebox-phone-caption { min-height: 44px; flex: 0 0 44px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--jj-white); text-decoration: none; }
+@media (max-width: 480px) {
+  .juicebox-phone-shell { padding: 0; gap: 0; display: block; }
+  .juicebox-phone-frame, .juicebox-screen-plane { width: 100%; height: 100dvh; transform: none; border-radius: 0; box-shadow: none; }
+  .juicebox-role-switcher, .juicebox-phone-caption { display: none; }
+  .jj-app-screen { width: 100%; height: 100dvh; }
+  .jj-app-header { height: calc(108px + env(safe-area-inset-top)); flex-basis: calc(108px + env(safe-area-inset-top)); padding-top: calc(24px + env(safe-area-inset-top)); }
+  .jj-app-tabs { height: calc(80px + env(safe-area-inset-bottom)); flex-basis: calc(80px + env(safe-area-inset-bottom)); padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }

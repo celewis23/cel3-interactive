@@ -2,11 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <base href="/mockups/juliansjuicebox/a/console/">
 <script src="/mockups/juliansjuicebox/preview-chrome.js" data-section="console" data-design="a" defer></script>
 <title>Julian's Juicebox — Owner admin console</title>
 <script src="./vendor/react.js"></script>
 <script src="./vendor/react-dom.js"></script>
+<script src="/mockups/juliansjuicebox/mailbox.js"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -37,6 +39,7 @@ a{color:#2e6b2a}a:hover{color:#163d15}
 .jj-scroll::-webkit-scrollbar-thumb{background:#2e6b2aB3;border-radius:999px}
 .jj-scroll::-webkit-scrollbar-thumb:hover{background:#2e6b2a}
 </style>
+<link rel="stylesheet" href="/mockups/juliansjuicebox/mailbox.css">
 </helmet>
 <div class="jj-shell" style="font-family: 'Barlow', sans-serif; color: #1c1c1a; background: #f3f6ee; font-size: 15px; line-height: 1.45; min-height: 1500px; display: flex; flex-wrap: wrap; align-items: stretch">
 
@@ -202,60 +205,59 @@ a{color:#2e6b2a}a:hover{color:#163d15}
 </sc-if>
 
 <sc-if value="{{isInbox}}" hint-placeholder-val="{{false}}">
-<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch; min-height: 600px">
-<div class="jj-inbox-list" style="flex: 1 1 300px; max-width: 360px; background: #ffffff; border: 2px solid #1c1c1a; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; max-height: 640px">
-<div style="padding: 14px; border-bottom: 1px solid #e3e5dd; display: flex; flex-direction: column; gap: 10px">
-<button type="button" style="width: 100%; min-height: 46px; border: 0; border-radius: 8px; background: #2e6b2a; color: #ffffff; font: inherit; font-weight: 600; cursor: pointer">Compose</button>
-<input type="search" placeholder="Search mail" aria-label="Search mail" style="width: 100%; min-height: 40px; padding: 0 14px; border: 1px solid #c9d2c4; border-radius: 999px; font: inherit; background: #f6f7f4">
+<section class="jj-mail concept-a" aria-label="Email inbox">
+<aside class="jj-mail-sidebar" aria-label="Mail folders">
+<button class="jj-mail-compose-btn" type="button" onClick="{{mailOpenCompose}}"><span aria-hidden="true">✎</span>Compose</button>
+<sc-for list="{{mailFolders}}" as="f"><button type="button" class="{{f.cls}}" onClick="{{f.pick}}" aria-current="{{f.active}}"><span aria-hidden="true">{{f.icon}}</span>{{f.label}}<span class="folder-count">{{f.count}}</span></button></sc-for>
+<p class="jj-mail-local">Sample mailbox<br>No real emails are sent.</p>
+</aside>
+<div class="jj-mail-workspace">
+<div class="jj-mail-search"><label><span aria-hidden="true">⌕</span><input type="search" aria-label="Search mail" placeholder="Search mail" value="{{mailQuery}}" onInput="{{mailSearch}}"></label></div>
+<sc-if value="{{mailNotice}}"><div class="jj-mail-notice" role="status">{{mailNotice}}</div></sc-if>
+<sc-if value="{{mailList}}">
+<div class="jj-mail-toolbar" role="toolbar" aria-label="Mail actions">
+<label class="jj-mail-check"><input type="checkbox" aria-label="Select all emails" checked="{{mailAllChecked}}" onChange="{{mailSelectAll}}"></label>
+<button type="button" onClick="{{mailRefresh}}" aria-label="Refresh mail" title="Refresh mail">↻</button>
+<button type="button" onClick="{{mailArchive}}">Archive</button><button type="button" onClick="{{mailTrash}}">Delete</button><button type="button" onClick="{{mailMarkUnread}}">Mark unread</button><button type="button" onClick="{{mailRestore}}">Move to Inbox</button>
+<span class="jj-mail-range">{{mailRange}}</span>
 </div>
-<div class="jj-scroll" style="flex: 1; overflow-y: auto">
-<sc-for list="{{threads}}" as="t" hint-placeholder-count="4">
-<div style="width: 100%; display: flex; align-items: flex-start; gap: 6px; border-bottom: 1px solid #eef0ea; background: {{t.bg}}; padding: 14px 10px 14px 14px">
-<input type="checkbox" aria-label="Select email from {{t.from}}" style="flex: none; width: 16px; height: 16px; margin-top: 4px; cursor: pointer">
-<button type="button" onClick="{{t.toggleStar}}" aria-pressed="{{t.starred}}" aria-label="{{t.starLabel}}" style="flex: none; border: 0; background: transparent; padding: 2px; margin-top: 1px; cursor: pointer; font-size: 16px; line-height: 1; color: {{t.starColor}}">{{t.starGlyph}}</button>
-<button type="button" onClick="{{t.pick}}" aria-current="{{t.on}}" style="flex: 1; min-width: 0; text-align: left; border: 0; background: transparent; padding: 0; display: flex; gap: 10px; cursor: pointer; font: inherit">
-<span aria-hidden="true" style="flex: none; width: 38px; height: 38px; border-radius: 50%; background: {{t.avatarBg}}; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px">{{t.initials}}</span>
-<span style="flex: 1; min-width: 0">
-<span style="display: flex; justify-content: space-between; gap: 8px">
-<span style="font-weight: {{t.nameWeight}}; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1c1c1a">{{t.from}}</span>
-<span style="font-size: 11px; color: #8a8a84; flex: none">{{t.time}}</span>
-</span>
-<span style="display: block; font-weight: {{t.nameWeight}}; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; color: #1c1c1a">{{t.subject}}</span>
-<span style="display: block; font-size: 13px; color: #70756c; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px">{{t.preview}}</span>
-</span>
-<sc-if value="{{t.unread}}" hint-placeholder-val="{{false}}"><span aria-hidden="true" style="flex: none; width: 9px; height: 9px; border-radius: 50%; background: #e0901a; margin-top: 6px"></span></sc-if>
-</button>
+<div class="jj-mail-category">{{mailFolderName}}<small>Customer mail &amp; website inquiries</small></div>
+<sc-for list="{{mailRows}}" as="t">
+<div class="{{t.cls}}">
+<label class="jj-mail-check"><input type="checkbox" aria-label="Select email from {{t.from}}" checked="{{t.checked}}" onChange="{{t.check}}"></label>
+<button type="button" class="{{t.starCls}}" onClick="{{t.toggleStar}}" aria-label="{{t.starLabel}}" aria-pressed="{{t.starred}}">{{t.star}}</button>
+<button type="button" class="jj-mail-open" onClick="{{t.pick}}" aria-label="Open email: {{t.subject}}"><span class="jj-mail-sender">{{t.from}}</span><span class="jj-mail-summary"><span class="jj-mail-subject">{{t.subject}}</span><span class="jj-mail-preview"> — {{t.preview}}</span></span><time class="jj-mail-time">{{t.time}}</time></button>
 </div>
 </sc-for>
+<sc-if value="{{mailEmpty}}"><div class="jj-mail-empty">No emails here.<br>Try another folder or search.</div></sc-if>
+<sc-if value="{{mailDrafts}}">
+<sc-if value="{{mailHasDraft}}"><button class="jj-mail-draft-row" type="button" onClick="{{mailOpenCompose}}"><strong>Draft · {{mailDraft.subject}}</strong><br>To: {{mailDraft.to}}<br>{{mailDraft.body}}</button></sc-if>
+<sc-if value="{{mailNoDraft}}"><div class="jj-mail-empty">No drafts. Start a new email with Compose.</div></sc-if>
+</sc-if>
+</sc-if>
+<sc-if value="{{mailReading}}">
+<div class="jj-mail-toolbar" role="toolbar" aria-label="Email actions"><button type="button" onClick="{{mailBack}}" aria-label="Back to mail list">← Back</button><button type="button" onClick="{{mailArchive}}">Archive</button><button type="button" onClick="{{mailTrash}}">Delete</button><button type="button" onClick="{{mailMarkUnread}}">Mark unread</button><button type="button" onClick="{{mailRestore}}">Move to Inbox</button></div>
+<article class="jj-mail-reading">
+<h2>{{mailSelected.subject}}</h2>
+<div class="jj-mail-message-head"><span class="jj-mail-avatar" aria-hidden="true">{{mailSelected.initials}}</span><div><strong>{{mailSelected.from}}</strong> <small>&lt;{{mailSelected.senderEmail}}&gt;</small><br><small>{{mailSelected.delivery}} · {{mailSelected.meta}}</small></div><time>{{mailSelected.time}}</time></div>
+<p class="jj-mail-body">{{mailSelected.body}}</p>
+<sc-for list="{{mailThreadReplies}}" as="r"><section class="jj-mail-sent-reply"><div class="jj-mail-message-head"><span class="jj-mail-avatar" aria-hidden="true">J</span><div><strong>Julian</strong><br><small>to {{r.email}}</small></div><time>{{r.time}}</time></div><p class="jj-mail-body" style="{{r.textStyle}}">{{r.body}}</p><sc-if value="{{r.attached}}"><p class="jj-mail-attachment">Attachment: order-photo.jpg (sample)</p></sc-if></section></sc-for>
+<sc-if value="{{mailNotReplying}}"><div class="jj-mail-actions"><button class="jj-mail-btn" type="button" onClick="{{mailStartReply}}">↩ Reply</button><button class="jj-mail-btn" type="button" onClick="{{mailGoOrders}}">Open customer's orders</button></div></sc-if>
+<sc-if value="{{mailReplying}}">
+<section class="jj-mail-reply" aria-label="Reply email"><label for="mail-reply">To: {{mailSelected.from}} &lt;{{mailSelected.email}}&gt;</label><textarea id="mail-reply" aria-label="Write your reply" placeholder="Write your reply…" rows="5" value="{{mailReply}}" onInput="{{mailSetReply}}" style="{{mailReplyStyle}}"></textarea>
+<sc-if value="{{mailAttached}}"><p class="jj-mail-attachment">Attachment: order-photo.jpg (sample)</p></sc-if>
+<div class="jj-mail-reply-tools"><button class="jj-mail-btn primary" type="button" onClick="{{mailSendReply}}">Send reply</button><button class="jj-mail-icon" type="button" aria-label="Bold" aria-pressed="{{mailBold}}" onClick="{{mailToggleBold}}"><b>B</b></button><button class="jj-mail-icon" type="button" aria-label="Italic" aria-pressed="{{mailItalic}}" onClick="{{mailToggleItalic}}"><i>I</i></button><button class="jj-mail-icon" type="button" aria-label="Attach sample file" aria-pressed="{{mailAttached}}" onClick="{{mailToggleAttach}}">📎</button><button class="jj-mail-btn" type="button" onClick="{{mailSavedAnswer}}">Insert saved answer</button><button class="jj-mail-icon" type="button" onClick="{{mailDiscardReply}}" aria-label="Discard reply">✕</button></div>
+</section>
+</sc-if>
+</article>
+</sc-if>
 </div>
-</div>
-<div style="flex: 2 1 420px; min-width: 0; background: #ffffff; border: 2px solid #1c1c1a; border-radius: 14px; display: flex; flex-direction: column; max-height: 640px">
-<div style="padding: 20px; border-bottom: 1px solid #e3e5dd; display: flex; gap: 12px; align-items: flex-start">
-<span aria-hidden="true" style="flex: none; width: 44px; height: 44px; border-radius: 50%; background: {{selected.avatarBg}}; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700">{{selected.initials}}</span>
-<div style="flex: 1; min-width: 0">
-<h2 style="margin: 0; font-size: 19px">{{selected.subject}}</h2>
-<p style="margin: 4px 0 0; color: #55554f; font-size: 13px">{{selected.from}} <span style="color: #8a8a84">&lt;{{selected.email}}&gt;</span> · {{selected.meta}}</p>
-</div>
-<span style="flex: none; font-size: 12px; color: #8a8a84">{{selected.time}}</span>
-</div>
-<div class="jj-scroll" style="padding: 20px; flex: 1; overflow-y: auto">
-<p style="margin: 0; line-height: 1.6">{{selected.body}}</p>
-</div>
-<div style="padding: 16px 20px; border-top: 1px solid #e3e5dd; display: flex; flex-direction: column; gap: 10px">
-<label for="i-reply" style="font-weight: 600; font-size: 13px">Reply to {{selected.from}}</label>
-<div style="border: 1px solid #a9aba2; border-radius: 10px; overflow: hidden">
-<div style="display: flex; gap: 4px; padding: 6px 8px; border-bottom: 1px solid #e3e5dd; background: #f6f7f4">
-<button type="button" onClick="{{toggleBold}}" aria-pressed="{{boldOn}}" aria-label="Bold" style="min-width: 32px; min-height: 32px; border: 0; border-radius: 6px; background: {{boldBg}}; font-weight: 800; font-size: 13px; cursor: pointer">B</button>
-<button type="button" onClick="{{toggleItalic}}" aria-pressed="{{italicOn}}" aria-label="Italic" style="min-width: 32px; min-height: 32px; border: 0; border-radius: 6px; background: {{italicBg}}; font-style: italic; font-weight: 700; font-size: 13px; cursor: pointer">I</button>
-<button type="button" onClick="{{toggleAttach}}" aria-pressed="{{attachOn}}" aria-label="Attach file" style="min-width: 32px; min-height: 32px; border: 0; border-radius: 6px; background: {{attachBg}}; font-size: 14px; cursor: pointer">📎</button>
-</div>
-<textarea id="i-reply" rows="3" placeholder="Write your reply…" style="width: 100%; display: block; padding: 12px; border: 0; font: inherit; resize: vertical"></textarea>
-</div>
-<sc-if value="{{attachOn}}" hint-placeholder-val="{{false}}"><p style="margin: 0; font-size: 12px; color: #55554f">📎 order-photo.jpg attached (sample)</p></sc-if>
-<div style="display: flex; flex-wrap: wrap; gap: 8px"><button type="button" style="min-height: 44px; padding: 0 20px; border: 0; border-radius: 999px; background: #2e6b2a; color: #ffffff; font: inherit; font-weight: 600; cursor: pointer">Send reply</button><button type="button" style="min-height: 44px; padding: 0 16px; border: 1px solid #1c1c1a; border-radius: 999px; background: #ffffff; font: inherit; font-weight: 600; cursor: pointer">Insert saved answer</button><button type="button" style="min-height: 44px; padding: 0 16px; border: 1px solid #1c1c1a; border-radius: 999px; background: #ffffff; font: inherit; font-weight: 600; cursor: pointer">Open {{selected.from}}'s orders</button></div>
-</div>
-</div>
-</div>
+<sc-if value="{{mailCompose}}">
+<section class="jj-mail-compose" role="region" aria-label="Compose email" onKeyDown="{{mailComposeKey}}"><div class="jj-mail-compose-head"><strong>New message</strong><button class="jj-mail-icon" type="button" onClick="{{mailCloseCompose}}" aria-label="Close and save draft">✕</button></div>
+<sc-if value="{{mailNotice}}"><div class="jj-mail-notice" role="status">{{mailNotice}}</div></sc-if>
+<form onSubmit="{{mailSendCompose}}"><label>To<input type="email" aria-label="Recipient email" required="" value="{{mailDraft.to}}" onInput="{{mailSetTo}}" placeholder="customer@example.com"></label><label>Subject<input aria-label="Email subject" required="" value="{{mailDraft.subject}}" onInput="{{mailSetSubject}}"></label><textarea aria-label="Email message" placeholder="Write your email…" required="" value="{{mailDraft.body}}" onInput="{{mailSetBody}}"></textarea><div class="jj-mail-reply-tools"><button class="jj-mail-btn primary" type="submit">Send</button><button class="jj-mail-btn" type="button" onClick="{{mailDiscardCompose}}">Discard draft</button></div><p class="jj-mail-local">Preview only · nothing is emailed.</p></form></section>
+</sc-if>
+</section>
 </sc-if>
 
 <sc-if value="{{isBulletins}}" hint-placeholder-val="{{false}}">
@@ -405,11 +407,11 @@ var packed = st.packed || {};
 var go = function (v) { return function () { self.setState({ view: v, menuOpen: false }); }; };
 var menuOpen = !!st.menuOpen;
 var raw = [
-['#2143','Dana R.','Winter Cleanse','Richmond, VA','[PRICE]'],
+['#2143','Dana R.','Winter Cleanse','Richmond, VA','$149.99'],
 ['#2142','Alicia M.','Build A Box · 12 bottles','Atlanta, GA','$84.00'],
-['#2141','Marcus T.','Immune Boost box','Columbus, OH','[PRICE]'],
-['#2140','Priya K.','Immunity Shots × 6','Charlotte, NC','[PRICE]'],
-['#2139','Terrence B.','Low Sugar Cleanse','Dallas, TX','[PRICE]'],
+['#2141','Marcus T.','Immune Boost box','Columbus, OH','$54.00'],
+['#2140','Priya K.','Immunity Shots × 6','Charlotte, NC','$27.00'],
+['#2139','Terrence B.','Low Sugar Cleanse','Dallas, TX','$108.00'],
 ['#2138','Monique S.','Build A Box · 6 bottles','Baltimore, MD','$42.00']
 ];
 var orders = raw.map(function (r) {
@@ -438,34 +440,16 @@ var on = d[0] === view || parent[view] === d[0];
 return { label: d[1], badge: d[2], on: on, bg: on ? '#f2c230' : 'transparent', fg: on ? '#1c1c1a' : '#ffffff', pick: go(d[0]) };
 }) };
 });
-var pickThread = function (id) { return function () { self.setState({ inboxThread: id }); }; };
-var inboxThread = st.inboxThread || 't1';
-var avatarColors = ['#2e6b2a', '#e0901a', '#7a1f3d', '#2f7d32'];
-var starred = st.starredThreads || {};
-var toggleStar = function (id) { return function (e) { e.stopPropagation(); var s = Object.assign({}, starred); s[id] = !s[id]; self.setState({ starredThreads: s }); }; };
-var boldOn = !!st.boldOn, italicOn = !!st.italicOn, attachOn = !!st.attachOn;
 var threadRaw = [
 ['t1', 'Dana R.', 'DR', '9:12 AM', true, 'Winter Cleanse — can I swap a juice?', 'Hi Julian, I can\'t do pineapple…', 'Hi Julian, I can\'t do pineapple. Could I swap Beauty Juice and Tropic Breeze for extra Green House in my Winter Cleanse box?', 'customer since 2025 · 3 orders · has the app', 'dana@example.com'],
 ['t2', 'Marcus T.', 'MT', '8:40 AM', true, 'Order #2141 delivery day', 'Will my box go out Monday?', 'Will my box go out Monday? I want to make sure it’s not sitting on a porch all weekend.', 'customer since 2025 · 1 order', 'marcus@example.com'],
 ['t3', 'Website contact form', 'WC', 'Yesterday', false, 'Start Your Own Juice Business', 'I’d like to learn more about…', 'I’d like to learn more about licensing a juice program for my own studio. Do you offer any kind of partnership?', 'via juliansjuicebox.com', 'contact-form@juliansjuicebox.com'],
 ['t4', 'Priya K.', 'PK', 'Yesterday', false, 'Thank you!', 'The 3-day reset was great…', 'The 3-day reset was great — I felt amazing by day two. Already told my sister to order one for herself.', 'customer since 2024 · 6 orders', 'priya@example.com']
 ];
-var threads = threadRaw.map(function (t, i) {
-var on = t[0] === inboxThread;
-var isStarred = !!starred[t[0]];
-return { id: t[0], initials: t[2], avatarBg: avatarColors[i % avatarColors.length], time: t[3], unread: t[4],
-nameWeight: t[4] ? 700 : 500, from: t[1], subject: t[5], preview: t[6], body: t[7], meta: t[8], email: t[9],
-on: on, bg: on ? '#eaf3e6' : '#ffffff', pick: pickThread(t[0]),
-starred: isStarred, starGlyph: isStarred ? '★' : '☆', starColor: isStarred ? '#e0901a' : '#a9aba2',
-starLabel: (isStarred ? 'Unstar' : 'Star') + ' email from ' + t[1], toggleStar: toggleStar(t[0]) };
-});
-var selected = threads.filter(function (t) { return t.on; })[0] || threads[0];
+var mail = window.JuiceboxMail.render(st, function (values) { self.setState(values); }, threadRaw, go('orders'));
+navGroups.forEach(function (group) { group.items.forEach(function (item) { if (item.label === 'Inbox') item.badge = String(mail.mailUnread || ''); }); });
 return Object.assign({ menuOpen: menuOpen, menuLabel: menuOpen ? 'Close menu' : 'Menu', navClass: 'jj-nav' + (menuOpen ? ' jj-open' : ''), extraClass: 'jj-extra' + (menuOpen ? ' jj-open' : ''), toggleMenu: function () { self.setState({ menuOpen: !menuOpen }); }, navGroups: navGroups, title: titles[view], orders: orders, recent: orders.slice(0, 4), toFill: toFill,
-threads: threads, selected: selected,
-boldOn: boldOn, italicOn: italicOn, attachOn: attachOn,
-boldBg: boldOn ? '#eaf3e6' : 'transparent', italicBg: italicOn ? '#eaf3e6' : 'transparent', attachBg: attachOn ? '#eaf3e6' : 'transparent',
-toggleBold: function () { self.setState({ boldOn: !boldOn }); }, toggleItalic: function () { self.setState({ italicOn: !italicOn }); }, toggleAttach: function () { self.setState({ attachOn: !attachOn }); },
-goBulletins: go('bulletins'), goEditor: go('editor'), goMedia: go('media'), goOrders: go('orders'), goProducts: go('products'), goProduct: go('product') }, flags);
+goBulletins: go('bulletins'), goEditor: go('editor'), goMedia: go('media'), goOrders: go('orders'), goProducts: go('products'), goProduct: go('product') }, flags, mail);
 }
 }
 </script>
