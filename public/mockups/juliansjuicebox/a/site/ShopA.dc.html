@@ -19,6 +19,10 @@ body{margin:0}
 *{box-sizing:border-box}
 img{max-width:100%;display:block}
 a{color:#2e6b2a}a:hover{color:#163d15}
+@keyframes jj-fade{from{opacity:0}to{opacity:1}}
+#cart{scrollbar-width:thin;scrollbar-color:#2e6b2aB3 transparent}
+#cart::-webkit-scrollbar{width:8px}
+#cart::-webkit-scrollbar-thumb{background:#2e6b2aB3;border-radius:999px}
 </style>
 </helmet>
 <div style="font-family: 'Barlow', sans-serif; color: #1c1c1a; background: #ffffff; font-size: 17px; line-height: 1.5; min-height: 900px">
@@ -29,10 +33,10 @@ a{color:#2e6b2a}a:hover{color:#163d15}
 <a href="/mockups/juliansjuicebox/a/site" style="color: #1c1c1a; text-decoration: none; padding: 12px 0">Home</a>
 <a href="/mockups/juliansjuicebox/a/site/shop" style="color: #2e6b2a; text-decoration: underline; text-underline-offset: 6px; padding: 12px 0">Shop</a>
 <a href="/mockups/juliansjuicebox/a/site/about" style="color: #1c1c1a; text-decoration: none; padding: 12px 0">About</a>
-<a href="/mockups/juliansjuicebox/a/site" style="color: #1c1c1a; text-decoration: none; padding: 12px 0">Take Our Quiz</a>
-<a href="/mockups/juliansjuicebox/a/site" style="color: #1c1c1a; text-decoration: none; padding: 12px 0">FAQs</a>
+<a href="/mockups/juliansjuicebox/a/site#quiz" style="color: #1c1c1a; text-decoration: none; padding: 12px 0">Take Our Quiz</a>
+<a href="/mockups/juliansjuicebox/a/site#faq" style="color: #1c1c1a; text-decoration: none; padding: 12px 0">FAQs</a>
 </nav>
-<button type="button" onClick="{{goCart}}" style="min-height: 48px; padding: 0 22px; border: 0; border-radius: 8px; background: #2e6b2a; color: #ffffff; font: inherit; font-family: 'Barlow Condensed', sans-serif; font-size: 19px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; cursor: pointer">Cart · {{cartCount}}</button>
+<button type="button" onClick="{{toggleCart}}" aria-expanded="{{cartOpen}}" style="min-height: 48px; padding: 0 22px; border: 0; border-radius: 8px; background: #2e6b2a; color: #ffffff; font: inherit; font-family: 'Barlow Condensed', sans-serif; font-size: 19px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; cursor: pointer">Cart · {{cartCount}}</button>
 </header>
 
 <sc-if value="{{isShop}}" hint-placeholder-val="{{true}}">
@@ -44,8 +48,7 @@ a{color:#2e6b2a}a:hover{color:#163d15}
 <button type="button" onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="min-height: 46px; padding: 0 18px; border-radius: 8px; border: 2px solid #1c1c1a; background: {{c.bg}}; color: {{c.fg}}; font: inherit; font-family: 'Barlow Condensed', sans-serif; font-size: 19px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; font-size: 15px; cursor: pointer">{{c.label}}</button>
 </sc-for>
 </div>
-<div style="display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start">
-<div style="flex: 999 1 560px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 16px">
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 16px">
 <sc-for list="{{products}}" as="p" hint-placeholder-count="8">
 <article style="background: #ffffff; border: 2px solid #1c1c1a; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 12px">
 <sc-if value="{{p.hasImg}}" hint-placeholder-val="{{false}}"><img src="{{p.img}}" alt="" style="width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 14px"></sc-if>
@@ -63,8 +66,13 @@ a{color:#2e6b2a}a:hover{color:#163d15}
 </article>
 </sc-for>
 </div>
-<aside id="cart" aria-label="Your cart" style="flex: 1 1 320px; max-width: 100%; background: #f3f6ee; border-radius: 16px; padding: 22px">
-<h2 style="margin: 0 0 14px; font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; font-weight: 800; font-size: 31.4px">Your cart</h2>
+</div>
+<sc-if value="{{cartOpen}}" hint-placeholder-val="{{false}}"><div onClick="{{toggleCart}}" aria-hidden="true" style="position: fixed; inset: 0; background: rgba(28,28,26,.45); z-index: 60; animation: jj-fade .2s ease"></div></sc-if>
+<aside id="cart" aria-label="Your cart" style="position: fixed; top: 0; right: 0; height: 100vh; width: min(400px, 100vw); max-width: 100%; background: #f3f6ee; padding: 22px; box-shadow: -12px 0 32px rgba(0,0,0,.2); z-index: 61; overflow-y: auto; transform: {{cartTransform}}; transition: transform .32s cubic-bezier(.4,0,.2,1)">
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px">
+<h2 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; font-weight: 800; font-size: 31.4px">Your cart</h2>
+<button type="button" onClick="{{toggleCart}}" aria-label="Close cart" style="width: 40px; height: 40px; border: 2px solid #1c1c1a; border-radius: 50%; background: #ffffff; font-size: 20px; line-height: 1; cursor: pointer">&times;</button>
+</div>
 <sc-if value="{{isEmpty}}" hint-placeholder-val="{{true}}"><p style="margin: 0">Nothing in here yet. Add a juice, a cleanse or a shot and it shows up here.</p></sc-if>
 <sc-if value="{{hasItems}}" hint-placeholder-val="{{false}}">
 <ul style="list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 10px">
@@ -73,12 +81,10 @@ a{color:#2e6b2a}a:hover{color:#163d15}
 </sc-for>
 </ul>
 <div style="display: flex; justify-content: space-between; border-top: 2px solid #1c1c1a; padding-top: 12px; margin-bottom: 16px; font-weight: 700; font-size: 19px"><span>Subtotal</span><span>{{subtotal}}</span></div>
-<button type="button" onClick="{{goCart}}" style="width: 100%; min-height: 54px; border: 0; border-radius: 8px; background: #2e6b2a; color: #ffffff; font: inherit; font-family: 'Barlow Condensed', sans-serif; font-size: 19px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; cursor: pointer">View cart &amp; check out</button>
+<button type="button" onClick="{{goCheckout}}" style="width: 100%; min-height: 54px; border: 0; border-radius: 8px; background: #2e6b2a; color: #ffffff; font: inherit; font-family: 'Barlow Condensed', sans-serif; font-size: 19px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; cursor: pointer">View cart &amp; check out</button>
 </sc-if>
 <p style="margin: 16px 0 0; font-size: 15px; color: #55554f">Juices ship frozen in 2-inch styrofoam-lined boxes and keep in the freezer for up to 6 months.</p>
 </aside>
-</div>
-</div>
 </sc-if>
 
 <sc-if value="{{inCheckout}}" hint-placeholder-val="{{false}}">
@@ -212,6 +218,7 @@ var st = this.state || {};
 var view = st.view || 'shop';
 var cat = st.cat || 'all';
 var cart = st.cart !== undefined ? st.cart : (window.JuiceboxCart ? window.JuiceboxCart.load('a') : {});
+var cartOpen = !!st.cartOpen;
 var set = function (o) { return function () { self.setState(o); }; };
 var money = function (n) { return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); };
 var catNames = { cleanse: 'Cleansing Juiceboxes', goal: 'Goal Oriented Juiceboxes', juice: 'Build A Box', mylk: 'Nut Mylks', shots: 'Immunity Shots', packs: 'Juice Packs' };
@@ -276,7 +283,8 @@ var nextLabels = { cart: 'Continue to details', info: 'Continue to payment', pay
 var backLabels = { cart: 'Keep shopping', info: 'Back to cart', pay: 'Back to details' };
 return { products: products, cats: cats, lines: lines, cartCount: count, subtotal: money(sub), isEmpty: !lines.length, hasItems: !!lines.length, steps: steps,
 isShop: view === 'shop', isCart: view === 'cart', isInfo: view === 'info', isPay: view === 'pay', isDone: view === 'done', inCheckout: idx >= 0 && idx < 3,
-goCart: set({ view: 'cart' }), goShop: set({ view: 'shop' }),
+cartOpen: cartOpen, toggleCart: set({ cartOpen: !cartOpen }), cartTransform: cartOpen ? 'translateX(0)' : 'translateX(105%)',
+goCheckout: set({ view: 'cart', cartOpen: false }), goShop: set({ view: 'shop' }),
 next: set({ view: order[Math.min(idx + 1, 3)] }), nextLabel: nextLabels[view] || '',
 back: set({ view: idx <= 0 ? 'shop' : order[idx - 1] }), backLabel: backLabels[view] || '',
 startOver: set({ view: 'shop', cart: {} }) };

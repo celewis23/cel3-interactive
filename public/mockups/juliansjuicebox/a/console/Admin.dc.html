@@ -20,11 +20,27 @@ img{max-width:100%;display:block}
 a{color:#2e6b2a}a:hover{color:#163d15}
 .jj-menu-btn{display:none}
 @media (max-width:760px){.jj-menu-btn{display:flex}.jj-nav{display:none !important}.jj-nav.jj-open{display:flex !important}.jj-extra{display:none !important}.jj-extra.jj-open{display:block !important}}
+@media (min-width:761px){.jj-shell{height:100vh;min-height:0!important;overflow:hidden}.jj-sidebar{height:100%;overflow-y:auto}.jj-main{height:100%;overflow-y:auto}}
+.jj-sidebar{scrollbar-width:thin;scrollbar-color:#2e6b2aB3 transparent}
+.jj-sidebar::-webkit-scrollbar{width:10px}
+.jj-sidebar::-webkit-scrollbar-track{background:transparent}
+.jj-sidebar::-webkit-scrollbar-thumb{background:#2e6b2aB3;border-radius:999px;border:2px solid #1c1c1a}
+.jj-sidebar::-webkit-scrollbar-thumb:hover{background:#2e6b2a}
+.jj-main{scrollbar-width:thin;scrollbar-color:#2e6b2aB3 transparent}
+.jj-main::-webkit-scrollbar{width:10px}
+.jj-main::-webkit-scrollbar-track{background:transparent}
+.jj-main::-webkit-scrollbar-thumb{background:#2e6b2aB3;border-radius:999px;border:2px solid #f3f6ee}
+.jj-main::-webkit-scrollbar-thumb:hover{background:#2e6b2a}
+.jj-scroll{scrollbar-width:thin;scrollbar-color:#2e6b2aB3 transparent}
+.jj-scroll::-webkit-scrollbar{width:8px}
+.jj-scroll::-webkit-scrollbar-track{background:transparent}
+.jj-scroll::-webkit-scrollbar-thumb{background:#2e6b2aB3;border-radius:999px}
+.jj-scroll::-webkit-scrollbar-thumb:hover{background:#2e6b2a}
 </style>
 </helmet>
-<div style="font-family: 'Barlow', sans-serif; color: #1c1c1a; background: #f3f6ee; font-size: 15px; line-height: 1.45; min-height: 1500px; display: flex; flex-wrap: wrap; align-items: stretch">
+<div class="jj-shell" style="font-family: 'Barlow', sans-serif; color: #1c1c1a; background: #f3f6ee; font-size: 15px; line-height: 1.45; min-height: 1500px; display: flex; flex-wrap: wrap; align-items: stretch">
 
-<aside style="flex: 1 1 230px; max-width: 100%; background: #1c1c1a; color: #ffffff; padding: 20px 14px; display: flex; flex-direction: column; gap: 18px">
+<aside class="jj-sidebar" style="flex: 1 1 230px; max-width: 100%; background: #1c1c1a; color: #ffffff; padding: 20px 14px; display: flex; flex-direction: column; gap: 18px">
 <div style="background: #ffffff; border-radius: 12px; padding: 10px 14px"><img src="./assets/bfdb1cc27445575d8a051a44c5e91832.png" alt="Julian's Juicebox" style="height: 40px; width: auto"></div>
 <button type="button" class="jj-menu-btn" onClick="{{toggleMenu}}" aria-expanded="{{menuOpen}}" style="min-height: 48px; align-items: center; justify-content: center; border: 1px solid #6b6b66; border-radius: 10px; background: transparent; color: #ffffff; font: inherit; font-weight: 700; cursor: pointer">{{menuLabel}}</button>
 <nav aria-label="Admin sections" class="{{navClass}}" style="display: flex; flex-direction: column; gap: 14px">
@@ -45,7 +61,7 @@ a{color:#2e6b2a}a:hover{color:#163d15}
 </div>
 </aside>
 
-<main style="flex: 999 1 560px; min-width: 0; padding: 24px clamp(16px, 3vw, 36px) 40px">
+<main class="jj-main" style="flex: 999 1 560px; min-width: 0; padding: 24px clamp(16px, 3vw, 36px) 40px">
 <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 24px">
 <h1 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 40px; line-height: 1; text-transform: uppercase">{{title}}</h1>
 <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
@@ -186,21 +202,46 @@ a{color:#2e6b2a}a:hover{color:#163d15}
 </sc-if>
 
 <sc-if value="{{isInbox}}" hint-placeholder-val="{{false}}">
-<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
-<div style="flex: 1 1 280px; background: #ffffff; border: 2px solid #1c1c1a; border-radius: 14px; padding: 8px">
-<button type="button" style="width: 100%; min-height: 46px; margin-bottom: 6px; border: 0; border-radius: 8px; background: #2e6b2a; color: #ffffff; font: inherit; font-weight: 600; cursor: pointer">Compose</button>
-<div style="padding: 12px; border-radius: 8px; background: #eaf3e6"><strong>Dana R.</strong> · 9:12 AM<br><strong>Winter Cleanse — can I swap a juice?</strong><br><span style="color: #55554f">Hi Julian, I can't do pineapple…</span></div>
-<div style="padding: 12px; border-top: 1px solid #e3e5dd"><strong>Marcus T.</strong> · 8:40 AM<br><strong>Order #2141 delivery day</strong><br><span style="color: #55554f">Will my box go out Monday?</span></div>
-<div style="padding: 12px; border-top: 1px solid #e3e5dd"><strong>Website contact form</strong> · Yesterday<br><strong>Start Your Own Juice Business</strong><br><span style="color: #55554f">I'd like to learn more about…</span></div>
-<div style="padding: 12px; border-top: 1px solid #e3e5dd; color: #55554f">Priya K. · Yesterday<br>Thank you!<br>The 3-day reset was great…</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch; min-height: 600px">
+<div class="jj-inbox-list" style="flex: 1 1 300px; max-width: 360px; background: #ffffff; border: 2px solid #1c1c1a; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; max-height: 640px">
+<div style="padding: 14px; border-bottom: 1px solid #e3e5dd; display: flex; flex-direction: column; gap: 10px">
+<button type="button" style="width: 100%; min-height: 46px; border: 0; border-radius: 8px; background: #2e6b2a; color: #ffffff; font: inherit; font-weight: 600; cursor: pointer">Compose</button>
+<input type="search" placeholder="Search mail" aria-label="Search mail" style="width: 100%; min-height: 40px; padding: 0 14px; border: 1px solid #c9d2c4; border-radius: 999px; font: inherit; background: #f6f7f4">
 </div>
-<div style="flex: 2 1 400px; min-width: 0; background: #ffffff; border: 2px solid #1c1c1a; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
-<h2 style="margin: 0; font-size: 20px">Winter Cleanse — can I swap a juice?</h2>
-<p style="margin: 0; color: #55554f">From Dana R. · customer since 2025 · 3 orders · has the app</p>
-<p style="margin: 0">Hi Julian, I can't do pineapple. Could I swap Beauty Juice and Tropic Breeze for extra Green House in my Winter Cleanse box?</p>
-<label for="i-reply" style="font-weight: 600">Reply</label>
-<textarea id="i-reply" rows="5" placeholder="Write your reply…" style="padding: 12px; border: 1px solid #a9aba2; border-radius: 8px; font: inherit"></textarea>
-<div style="display: flex; flex-wrap: wrap; gap: 8px"><button type="button" style="min-height: 46px; padding: 0 20px; border: 0; border-radius: 8px; background: #2e6b2a; color: #ffffff; font: inherit; font-weight: 600; cursor: pointer">Send reply</button><button type="button" style="min-height: 46px; padding: 0 16px; border: 1px solid #1c1c1a; border-radius: 8px; background: #ffffff; font: inherit; font-weight: 600; cursor: pointer">Insert saved answer</button><button type="button" style="min-height: 46px; padding: 0 16px; border: 1px solid #1c1c1a; border-radius: 8px; background: #ffffff; font: inherit; font-weight: 600; cursor: pointer">Open Dana's orders</button></div>
+<div class="jj-scroll" style="flex: 1; overflow-y: auto">
+<sc-for list="{{threads}}" as="t" hint-placeholder-count="4">
+<button type="button" onClick="{{t.pick}}" aria-current="{{t.on}}" style="width: 100%; text-align: left; border: 0; border-bottom: 1px solid #eef0ea; background: {{t.bg}}; padding: 14px; display: flex; gap: 10px; cursor: pointer; font: inherit">
+<span aria-hidden="true" style="flex: none; width: 38px; height: 38px; border-radius: 50%; background: {{t.avatarBg}}; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px">{{t.initials}}</span>
+<span style="flex: 1; min-width: 0">
+<span style="display: flex; justify-content: space-between; gap: 8px">
+<span style="font-weight: {{t.nameWeight}}; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1c1c1a">{{t.from}}</span>
+<span style="font-size: 11px; color: #8a8a84; flex: none">{{t.time}}</span>
+</span>
+<span style="display: block; font-weight: {{t.nameWeight}}; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; color: #1c1c1a">{{t.subject}}</span>
+<span style="display: block; font-size: 13px; color: #70756c; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px">{{t.preview}}</span>
+</span>
+<sc-if value="{{t.unread}}" hint-placeholder-val="{{false}}"><span aria-hidden="true" style="flex: none; width: 9px; height: 9px; border-radius: 50%; background: #e0901a; margin-top: 6px"></span></sc-if>
+</button>
+</sc-for>
+</div>
+</div>
+<div style="flex: 2 1 420px; min-width: 0; background: #ffffff; border: 2px solid #1c1c1a; border-radius: 14px; display: flex; flex-direction: column; max-height: 640px">
+<div style="padding: 20px; border-bottom: 1px solid #e3e5dd; display: flex; gap: 12px; align-items: flex-start">
+<span aria-hidden="true" style="flex: none; width: 44px; height: 44px; border-radius: 50%; background: {{selected.avatarBg}}; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700">{{selected.initials}}</span>
+<div style="flex: 1; min-width: 0">
+<h2 style="margin: 0; font-size: 19px">{{selected.subject}}</h2>
+<p style="margin: 4px 0 0; color: #55554f; font-size: 13px">From {{selected.from}} · {{selected.meta}}</p>
+</div>
+<span style="flex: none; font-size: 12px; color: #8a8a84">{{selected.time}}</span>
+</div>
+<div class="jj-scroll" style="padding: 20px; flex: 1; overflow-y: auto">
+<p style="margin: 0; line-height: 1.6">{{selected.body}}</p>
+</div>
+<div style="padding: 16px 20px; border-top: 1px solid #e3e5dd; display: flex; flex-direction: column; gap: 10px">
+<label for="i-reply" style="font-weight: 600; font-size: 13px">Reply to {{selected.from}}</label>
+<textarea id="i-reply" rows="3" placeholder="Write your reply…" style="padding: 12px; border: 1px solid #a9aba2; border-radius: 10px; font: inherit; resize: vertical"></textarea>
+<div style="display: flex; flex-wrap: wrap; gap: 8px"><button type="button" style="min-height: 44px; padding: 0 20px; border: 0; border-radius: 999px; background: #2e6b2a; color: #ffffff; font: inherit; font-weight: 600; cursor: pointer">Send reply</button><button type="button" style="min-height: 44px; padding: 0 16px; border: 1px solid #1c1c1a; border-radius: 999px; background: #ffffff; font: inherit; font-weight: 600; cursor: pointer">Insert saved answer</button><button type="button" style="min-height: 44px; padding: 0 16px; border: 1px solid #1c1c1a; border-radius: 999px; background: #ffffff; font: inherit; font-weight: 600; cursor: pointer">Open {{selected.from}}'s orders</button></div>
+</div>
 </div>
 </div>
 </sc-if>
@@ -385,7 +426,24 @@ var on = d[0] === view || parent[view] === d[0];
 return { label: d[1], badge: d[2], on: on, bg: on ? '#f2c230' : 'transparent', fg: on ? '#1c1c1a' : '#ffffff', pick: go(d[0]) };
 }) };
 });
+var pickThread = function (id) { return function () { self.setState({ inboxThread: id }); }; };
+var inboxThread = st.inboxThread || 't1';
+var avatarColors = ['#2e6b2a', '#e0901a', '#7a1f3d', '#2f7d32'];
+var threadRaw = [
+['t1', 'Dana R.', 'DR', '9:12 AM', true, 'Winter Cleanse — can I swap a juice?', 'Hi Julian, I can\'t do pineapple…', 'Hi Julian, I can\'t do pineapple. Could I swap Beauty Juice and Tropic Breeze for extra Green House in my Winter Cleanse box?', 'customer since 2025 · 3 orders · has the app'],
+['t2', 'Marcus T.', 'MT', '8:40 AM', true, 'Order #2141 delivery day', 'Will my box go out Monday?', 'Will my box go out Monday? I want to make sure it’s not sitting on a porch all weekend.', 'customer since 2025 · 1 order'],
+['t3', 'Website contact form', 'WC', 'Yesterday', false, 'Start Your Own Juice Business', 'I’d like to learn more about…', 'I’d like to learn more about licensing a juice program for my own studio. Do you offer any kind of partnership?', 'via juliansjuicebox.com'],
+['t4', 'Priya K.', 'PK', 'Yesterday', false, 'Thank you!', 'The 3-day reset was great…', 'The 3-day reset was great — I felt amazing by day two. Already told my sister to order one for herself.', 'customer since 2024 · 6 orders']
+];
+var threads = threadRaw.map(function (t, i) {
+var on = t[0] === inboxThread;
+return { id: t[0], initials: t[2], avatarBg: avatarColors[i % avatarColors.length], time: t[3], unread: t[4],
+nameWeight: t[4] ? 700 : 500, from: t[1], subject: t[5], preview: t[6], body: t[7], meta: t[8],
+on: on, bg: on ? '#eaf3e6' : '#ffffff', pick: pickThread(t[0]) };
+});
+var selected = threads.filter(function (t) { return t.on; })[0] || threads[0];
 return Object.assign({ menuOpen: menuOpen, menuLabel: menuOpen ? 'Close menu' : 'Menu', navClass: 'jj-nav' + (menuOpen ? ' jj-open' : ''), extraClass: 'jj-extra' + (menuOpen ? ' jj-open' : ''), toggleMenu: function () { self.setState({ menuOpen: !menuOpen }); }, navGroups: navGroups, title: titles[view], orders: orders, recent: orders.slice(0, 4), toFill: toFill,
+threads: threads, selected: selected,
 goBulletins: go('bulletins'), goEditor: go('editor'), goMedia: go('media'), goOrders: go('orders'), goProducts: go('products'), goProduct: go('product') }, flags);
 }
 }
