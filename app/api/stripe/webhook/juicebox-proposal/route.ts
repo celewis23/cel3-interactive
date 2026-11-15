@@ -4,11 +4,11 @@ import { fulfillJuiceboxProposalCheckout } from "@/lib/mockups/juliansjuicebox/f
 
 export const runtime = "nodejs";
 
-// Its own endpoint + signing secret (STRIPE_WEBHOOK_SECRET_JUICEBOX), separate from the
-// existing /api/stripe/webhook and /api/stripe/webhook/hoops-proposal so none of the three
-// can break each other.
+// Its own endpoint + signing secret (STRIPE_WEBHOOK_SECRET_JULIANSJUICEBOX), separate from
+// the existing /api/stripe/webhook and /api/stripe/webhook/hoops-proposal so none of the
+// three can break each other.
 export async function POST(request: Request) {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET_JUICEBOX;
+  const secret = process.env.STRIPE_WEBHOOK_SECRET_JULIANSJUICEBOX;
   if (!secret) return NextResponse.json({ error: "Webhook is not configured" }, { status: 503 });
   const signature = request.headers.get("stripe-signature");
   if (!signature) return NextResponse.json({ error: "Missing signature" }, { status: 400 });
