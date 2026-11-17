@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { AnnualSettings } from "@/lib/billing/annualStatementService";
+import type { MeterwiseAnnualCosts } from "@/lib/meterwise/client";
 import { money, totalsByCurrency, type ClientStatement } from "@/lib/billing/annualStatements";
 
 type Project = { id: string; name: string };
 type Client = { id: string; name: string; email: string };
-type HostingPreview = { year: number; warnings: string[]; breakdown: { client: string; provider: string; currency: string; amountCents: number }[] };
+type HostingPreview = { year: number; warnings: string[]; costs: MeterwiseAnnualCosts; breakdown: { client: string; provider: string; currency: string; amountCents: number }[] };
 type Delivery = { _id: string; recipientKey: string; sentAt?: string; startedAt?: string; status?: string };
 
 export default function AnnualStatementsPage() {
@@ -128,9 +129,13 @@ export default function AnnualStatementsPage() {
         <ul className="space-y-2">{preview.lines.map(line => <li key={line.id} className="break-words border-t border-white/10 pt-2">{line.date} · {line.description} · {money(line.amountCents, line.currency)}</li>)}</ul>
       </div>}
       {hosting && <div className="space-y-2"><h3 className="font-semibold">Confirmed hosting payments</h3>
+        {hosting.year === new Date().getFullYear() && <p className="rounded-lg border border-sky-400/30 p-3 text-sky-200">{hosting.year} is still in progress. This is a year-to-date preview; annual email delivery becomes available after the year ends.</p>}
         <a className="text-sky-300" href={`/api/admin/annual-statements?action=hosting&year=${hosting.year}&download=pdf`}>Download hosting PDF</a>
+        {!hosting.breakdown.length && <p>No confirmed provider payments have been recorded for {hosting.year}. Record paid invoices below to populate this section. Meterwise usage costs are shown separately and do not confirm an invoice was paid.</p>}
         {hosting.breakdown.map((row, index) => <p key={index}>{row.client} · {row.provider} · {money(row.amountCents, row.currency)}</p>)}
-        <h3 className="font-semibold text-amber-200">Reconciliation notes</h3><ul className="list-inside list-disc space-y-2 text-amber-100/80">{hosting.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul>
+        <h3 className="pt-3 font-semibold">Meterwise recorded costs — payment not verified</h3>
+        {hosting.costs.rows.length ? <div className="max-h-80 space-y-2 overflow-y-auto">{hosting.costs.rows.map((row, index) => <div key={index} className="rounded-lg border border-white/10 p-3"><p>{row.projectName ?? "Unallocated"} · {row.provider}</p><p>{new Intl.NumberFormat("en-US", { style: "currency", currency: row.currency }).format(row.amount)} · {row.costType} · {row.confidence}</p></div>)}</div> : <p>No Meterwise cost snapshots are available for this year. This does not mean your hosting was free.</p>}
+        <details className="rounded-lg border border-amber-300/20 p-3"><summary className="cursor-pointer font-semibold text-amber-200">Reconciliation notes ({hosting.warnings.length})</summary><p className="my-3">Assign projects to a client or CEL3 / internal under Automatic delivery above, then save settings. Provider connection issues must be resolved in Meterwise. These notes identify incomplete records; they are not a preview failure.</p><ul className="list-inside list-disc space-y-2 break-words text-amber-100/80">{hosting.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></details>
         <p>Send to saved hosting statement email: {settings?.ownerEmail}. Save any email changes before sending.</p>
         <button className={buttonClass} disabled={busy || year >= new Date().getFullYear() || !!deliveries.find(row => row.recipientKey === "owner-hosting")?.sentAt} onClick={() => sendOne("owner-hosting")}>Send my hosting statement</button>
       </div>}
