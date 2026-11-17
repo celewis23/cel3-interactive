@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { verifySessionToken, COOKIE_NAME } from "@/lib/admin/auth";
+import { getStoredTokens } from "@/lib/gmail/client";
 import { getThread } from "@/lib/gmail/api";
 import { sanityServer } from "@/lib/sanityServer";
 import ThreadClient from "@/components/admin/email/ThreadClient";
@@ -24,6 +25,8 @@ export default async function ThreadPage({ params }: Props) {
   if (!session || session.step !== "full") {
     redirect("/admin/login");
   }
+
+  const tokens = await getStoredTokens();
 
   // Fetch thread and link in parallel
   let thread;
@@ -103,7 +106,7 @@ export default async function ThreadPage({ params }: Props) {
       </div>
 
       {/* Thread client */}
-      <ThreadClient thread={thread} link={link} />
+      <ThreadClient thread={thread} link={link} email={tokens?.email ?? ""} />
     </div>
   );
 }

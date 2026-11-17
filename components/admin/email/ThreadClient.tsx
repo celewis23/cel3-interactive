@@ -3,6 +3,7 @@ import AttachmentChip from "./AttachmentPreview";
 import EmailBody from "./EmailBody";
 import ComposeAttachments from "./ComposeAttachments";
 import { sendComposerMessage, attachedFilesFrom, type AttachedFile } from "./compose-files";
+import { replyRecipients } from "@/lib/gmail/reply-recipients";
 import { hasMessageContent } from "@/lib/gmail/mime";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -31,6 +32,7 @@ interface SearchResult {
 }
 
 interface Props {
+  email: string;
   thread: GmailThreadDetail;
   link: GmailThreadLink | null;
 }
@@ -41,7 +43,7 @@ function MessageCard({
   onForward,
 }: {
   message: GmailMessageParsed;
-  onReply: (message: GmailMessageParsed) => void;
+  onReply: (message: GmailMessageParsed, all?: boolean) => void;
   onForward: (message: GmailMessageParsed) => void;
 }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -127,6 +129,13 @@ function MessageCard({
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
               </svg>
               Reply
+            </button>
+            <button
+              type="button"
+              onClick={() => onReply(message, true)}
+              className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-black px-3 py-1.5 text-xs text-white/60 transition-colors hover:border-white/20 hover:text-white"
+            >
+              Reply all
             </button>
             <button
               type="button"
@@ -521,7 +530,7 @@ function LinkPanel({
 
 // ─── Main ThreadClient ─────────────────────────────────────────────────────
 
-export default function ThreadClient({ thread, link }: Props) {
+export default function ThreadClient({ thread, link, email }: Props) {
   const [composeMode, setComposeMode] = useState<"reply" | "forward" | null>(null);
   const [composeTargetId, setComposeTargetId] = useState<string | null>(null);
   const [toEmails, setToEmails] = useState<string[]>([]);
@@ -610,16 +619,16 @@ export default function ThreadClient({ thread, link }: Props) {
     setSendError("");
   }
 
-  function openReply(message: GmailMessageParsed) {
+  function openReply(message: GmailMessageParsed, all = false) {
     setComposeFiles([]);
     setImagesLoading(false);
-    const replyTo = extractEmail(message.headers.from ?? "");
+    const recipients = replyRecipients(message.headers, email, all);
     setComposeMode("reply");
     setComposeTargetId(message.id);
-    setToEmails(replyTo ? [replyTo] : []);
-    setCcEmails([]);
+    setToEmails(recipients.to);
+    setCcEmails(recipients.cc);
     setBccEmails([]);
-    setShowCc(false);
+    setShowCc(recipients.cc.length > 0);
     setShowBcc(false);
     setComposeSubject(message.headers.subject ?? "");
     setComposeBody(signature ? `<p><br></p><p><br></p>${signature}` : "");

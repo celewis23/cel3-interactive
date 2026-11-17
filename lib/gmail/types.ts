@@ -1,5 +1,6 @@
 export type GmailMessageHeader = {
   from: string;
+  replyTo?: string;
   to: string;
   cc: string;
   subject: string;

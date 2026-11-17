@@ -121,6 +121,7 @@ function parseMessage(msg: gmail_v1.Schema$Message): GmailMessageParsed {
     internalDate: parseInt(msg.internalDate ?? "0", 10),
     headers: {
       from: getHeader(headers, "From"),
+      replyTo: getHeader(headers, "Reply-To"),
       to: getHeader(headers, "To"),
       cc: getHeader(headers, "Cc"),
       subject: getHeader(headers, "Subject"),

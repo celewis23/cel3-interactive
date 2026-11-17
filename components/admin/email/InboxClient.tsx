@@ -3,6 +3,7 @@ import AttachmentChip from "./AttachmentPreview";
 import EmailBody from "./EmailBody";
 import ComposeAttachments from "./ComposeAttachments";
 import { sendComposerMessage, attachedFilesFrom, type AttachedFile } from "./compose-files";
+import { replyRecipients } from "@/lib/gmail/reply-recipients";
 import { hasMessageContent } from "@/lib/gmail/mime";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -173,7 +174,7 @@ function MessageCard({
 }: {
   message: GmailMessageParsed;
   defaultOpen: boolean;
-  onReply: (message: GmailMessageParsed) => void;
+  onReply: (message: GmailMessageParsed, all?: boolean) => void;
   onForward: (message: GmailMessageParsed) => void;
 }) {
   const [collapsed, setCollapsed] = useState(!defaultOpen);
@@ -234,6 +235,13 @@ function MessageCard({
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
               </svg>
               Reply
+            </button>
+            <button
+              type="button"
+              onClick={() => onReply(message, true)}
+              className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-black px-3 py-1.5 text-xs text-white/60 transition-colors hover:border-white/20 hover:text-white"
+            >
+              Reply all
             </button>
             <button
               type="button"
@@ -432,8 +440,9 @@ function ReplyForwardPanel({
 // ─── EmailView ────────────────────────────────────────────────────────────────
 
 function EmailView({
-  threadId, data, loading, onBack, onRead, onPrevious, onNext, canGoPrevious, canGoNext,
+  threadId, data, loading, onBack, onRead, onPrevious, onNext, canGoPrevious, canGoNext, email,
 }: {
+  email: string;
   threadId: string;
   data: { thread: GmailThreadDetail; link: GmailThreadLink | null } | null;
   loading: boolean;
@@ -520,16 +529,16 @@ function EmailView({
     setSendError("");
   }
 
-  function openReply(message: GmailMessageParsed) {
+  function openReply(message: GmailMessageParsed, all = false) {
     setComposeFiles([]);
     setImagesLoading(false);
-    const replyTo = extractEmail(message.headers.from ?? "");
+    const recipients = replyRecipients(message.headers, email, all);
     setComposeMode("reply");
     setComposeTargetId(message.id);
-    setToEmails(replyTo ? [replyTo] : []);
-    setCcEmails([]);
+    setToEmails(recipients.to);
+    setCcEmails(recipients.cc);
     setBccEmails([]);
-    setShowCc(false);
+    setShowCc(recipients.cc.length > 0);
     setShowBcc(false);
     setComposeSubject(message.headers.subject ?? "");
     setComposeBody(signature ? `<p><br></p><p><br></p>${signature}` : "");
@@ -623,6 +632,11 @@ function EmailView({
               <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
             </svg>
           </button>
+          {lastMessage && (
+            <button type="button" onClick={() => openReply(lastMessage, true)} className="rounded-xl border border-white/10 bg-black px-3 py-1.5 text-xs text-white/70 hover:text-white">
+              Reply all
+            </button>
+          )}
           {lastMessage && (
             <button
               onClick={() => openReply(lastMessage)}
@@ -1702,6 +1716,7 @@ export default function InboxClient({ email, connectedNotice }: Props) {
         <div className={`flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden bg-[#06080d] ${rightPanelClass}`}>
           {selectedId ? (
             <EmailView
+              email={email}
               threadId={selectedId}
               data={threadData}
               loading={loadingThread}
