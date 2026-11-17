@@ -109,25 +109,28 @@ export async function listLeadIntelligenceProviderConfigs() {
   })).sort((a, b) => a.priority - b.priority);
 }
 
+function queryLimit(limit: number) {
+  if (!Number.isSafeInteger(limit) || limit < 1 || limit > 1000) throw new Error("Lead query limit must be an integer between 1 and 1000");
+  return limit;
+}
+
 export async function listLeadIntelligenceSearches(limit = 20) {
   return sanityServer.fetch<LeadIntelligenceSearch[]>(
-    `*[_type == "leadIntelligenceSearch"] | order(_createdAt desc)[0...$limit] ${SEARCH_FIELDS}`,
-    { limit }
+    `*[_type == "leadIntelligenceSearch"] | order(_createdAt desc)[0...${queryLimit(limit)}] ${SEARCH_FIELDS}`
   );
 }
 
 export async function listLeadIntelligenceRuns(limit = 20) {
   return sanityServer.fetch<LeadIntelligenceSearchRun[]>(
-    `*[_type == "leadIntelligenceSearchRun"] | order(_createdAt desc)[0...$limit] ${RUN_FIELDS}`,
-    { limit }
+    `*[_type == "leadIntelligenceSearchRun"] | order(_createdAt desc)[0...${queryLimit(limit)}] ${RUN_FIELDS}`
   );
 }
 
 export async function listLeadIntelligenceResults(runId?: string, limit = 100) {
   const filter = runId ? `&& runId == $runId` : "";
   return sanityServer.fetch<LeadIntelligenceSearchResult[]>(
-    `*[_type == "leadIntelligenceSearchResult" ${filter}] | order(score.leadScore desc)[0...$limit] ${RESULT_FIELDS}`,
-    runId ? { runId, limit } : { limit }
+    `*[_type == "leadIntelligenceSearchResult" ${filter}] | order(score.leadScore desc)[0...${queryLimit(limit)}] ${RESULT_FIELDS}`,
+    runId ? { runId } : {}
   );
 }
 
