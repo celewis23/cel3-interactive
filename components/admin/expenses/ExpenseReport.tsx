@@ -22,17 +22,26 @@ interface Props {
 export default function ExpenseReport({ categories }: Props) {
   const [data,    setData]    = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const catMap = Object.fromEntries(categories.map((c) => [c._id, c]));
 
   useEffect(() => {
-    fetch("/api/admin/expenses/report")
-      .then((r) => r.ok ? r.json() : null)
-      .then((d) => { if (d) setData(d); })
-      .finally(() => setLoading(false));
+    const controller = new AbortController();
+    fetch("/api/admin/expenses/report", { signal: controller.signal, cache: "no-store" })
+      .then(async r => {
+        if (!r.ok) throw new Error("Could not load report. Please try again.");
+        const d = await r.json();
+        if (!d?.period || !Array.isArray(d.categoryBreakdown) || d.categoryBreakdown.some((row: { totalCents?: number } | null) => !row || !Number.isFinite(row.totalCents))) throw new Error("The report returned invalid data. Please try again.");
+        setData(d);
+      })
+      .catch(err => { if (!controller.signal.aborted) setError(err.message); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
   }, []);
 
   if (loading) return <div className="py-12 text-center text-white/25 text-sm">Loading report…</div>;
+  if (error) return <div role="alert" className="py-12 text-center text-amber-300 text-sm">{error}</div>;
   if (!data)   return <div className="py-12 text-center text-white/25 text-sm">Could not load report</div>;
 
   const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -42,12 +51,12 @@ export default function ExpenseReport({ categories }: Props) {
   const topCats = [...data.categoryBreakdown]
     .sort((a, b) => b.totalCents - a.totalCents)
     .slice(0, 10);
-  const maxCatCents = topCats[0]?.totalCents ?? 1;
+  const maxCatCents = Math.max(topCats[0]?.totalCents ?? 0, 1);
 
   return (
     <div className="space-y-6">
       {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {[
           { label: mLabel,            value: data.monthTotalCents,   sub: "This month"   },
           { label: qLabel,            value: data.quarterTotalCents, sub: "This quarter" },
@@ -70,7 +79,7 @@ export default function ExpenseReport({ categories }: Props) {
           <div className="p-5 space-y-3">
             {topCats.map((row) => {
               const cat = catMap[row.categoryId];
-              const pct = Math.round((row.totalCents / maxCatCents) * 100);
+              const pct = Math.max(0, Math.min(100, Math.round((row.totalCents / maxCatCents) * 100)));
               return (
                 <div key={row.categoryId}>
                   <div className="flex items-center justify-between mb-1">
