@@ -81,16 +81,19 @@ export default async function BillingPage() {
 
   return (
     <div>
-      <Link href="/admin/billing/statements" className="mb-6 block rounded-2xl border border-white/10 p-5 hover:border-sky-400/50">
-        <h2 className="font-semibold text-white">Annual statements</h2>
-        <p className="mt-1 text-sm text-white/50">Manage automatic delivery, review payment and hosting statements, and send statements individually.</p>
-      </Link>
       {/* Header */}
-      <div className="mb-8 flex items-start justify-between gap-4">
+      <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-white">Billing</h1>
           <p className="text-sm text-white/40 mt-1">Stripe billing management</p>
         </div>
+        <div className="flex flex-wrap gap-2">
+        <Link href="/admin/billing/statements" className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10">
+          <svg aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Zm0 0v6h6M8 12h8M8 16h8" />
+          </svg>
+          Annual Statements
+        </Link>
         <Link
           href="/admin/billing/invoices/new"
           className="flex items-center gap-2 bg-sky-500 hover:bg-sky-400 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors"
@@ -100,6 +103,7 @@ export default async function BillingPage() {
           </svg>
           New Invoice
         </Link>
+        </div>
       </div>
 
       {/* Balance cards */}
