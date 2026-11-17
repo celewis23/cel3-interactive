@@ -17,6 +17,10 @@ export default function AdminSettingsPage() {
       <AdminPasswordSettings />
 
       <div className="grid gap-4 md:grid-cols-2">
+        <Link href="/admin/billing/statements" className="bg-white/3 border border-white/8 rounded-2xl p-5 hover:border-white/15 transition-colors">
+          <h2 className="text-sm font-semibold text-white">Annual statements</h2>
+          <p className="text-sm text-white/50 mt-2">January 15 client payment statements, hosting costs, and Meterwise reconciliation.</p>
+        </Link>
         <Link
           href="/admin/content"
           className="bg-white/3 border border-white/8 rounded-2xl p-5 hover:border-white/15 transition-colors"

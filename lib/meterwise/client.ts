@@ -125,3 +125,15 @@ export function listSyncLogs(params?: Record<string, string>) {
 export function listProviderAccounts() {
   return meterwiseFetch<MeterwiseProviderAccount[]>("/provider-accounts");
 }
+
+export interface MeterwiseAnnualCosts {
+  year: number;
+  rows: { projectId: string | null; projectName: string | null; provider: string; currency: string; costType: string; confidence: string; amount: number }[];
+  warnings: string[];
+}
+export function getAnnualCosts(year: number) {
+  return meterwiseFetch<MeterwiseAnnualCosts>(`/reports/annual-costs?year=${year}`).catch(error => {
+    if (error instanceof MeterwiseApiError && error.status === 404) return { year, rows: [], warnings: ["Deploy Meterwise's annual-costs reporting endpoint to include recorded provider costs. Confirmed payment records below are still available."] };
+    throw error;
+  });
+}

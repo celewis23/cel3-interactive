@@ -177,7 +177,7 @@ export default function AdminNotificationManager({ aboveComposer = false }: { ab
         }
         persistSeenKeys(seenKeysRef.current);
 
-        if (permission !== "granted") return;
+        if (permission !== "granted" || pushEnabled) return;
 
         for (const item of newItems.slice(0, 4)) {
           await showDesktopNotification(item, registrationRef.current);
@@ -197,7 +197,7 @@ export default function AdminNotificationManager({ aboveComposer = false }: { ab
       cancelled = true;
       window.clearInterval(id);
     };
-  }, [permission]);
+  }, [permission, pushEnabled]);
 
   async function requestPermission() {
     if (!supportsBrowserNotifications()) return;
@@ -272,6 +272,10 @@ export default function AdminNotificationManager({ aboveComposer = false }: { ab
 }
 
 async function showDesktopNotification(item: NotificationItem, registration: ServiceWorkerRegistration | null) {
+  if (registration?.active) {
+    registration.active.postMessage({ type: "ADMIN_NOTIFICATION", payload: { ...item, tag: item.key } });
+    return;
+  }
   const title = item.title;
   const options: NotificationOptions = {
     body: item.body,

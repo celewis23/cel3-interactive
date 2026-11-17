@@ -110,7 +110,7 @@ async function handleNotificationCheck(req: NextRequest) {
         {
           title: subject,
           body: fromLine,
-          href: "/admin/email",
+          href: detail.data.threadId ? `/admin/email/thread/${encodeURIComponent(detail.data.threadId)}` : "/admin/email",
           tag: `email:${msg.id}`,
         },
         { module: "email", action: "view" }

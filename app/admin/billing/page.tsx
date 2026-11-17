@@ -81,6 +81,10 @@ export default async function BillingPage() {
 
   return (
     <div>
+      <Link href="/admin/billing/statements" className="mb-6 block rounded-2xl border border-white/10 p-5 hover:border-sky-400/50">
+        <h2 className="font-semibold text-white">Annual statements</h2>
+        <p className="mt-1 text-sm text-white/50">Manage automatic delivery, review payment and hosting statements, and send statements individually.</p>
+      </Link>
       {/* Header */}
       <div className="mb-8 flex items-start justify-between gap-4">
         <div>

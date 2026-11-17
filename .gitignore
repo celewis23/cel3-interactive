@@ -53,3 +53,5 @@ client-packages/
 
 # Local screenshot review output (regenerated during visual QA)
 artifacts/juliansjuicebox-app-layout/
+artifacts/admin-notifications/
+artifacts/annual-statements/

@@ -1,0 +1,48 @@
+// Companion endpoint for Meterwise: src/app/api/v1/reports/annual-costs/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { requireAuth, requireScope } from "@/lib/api-auth";
+import { prisma } from "@/lib/prisma";
+
+export async function GET(req: NextRequest) {
+  try {
+    const ctx = await requireAuth(req);
+    requireScope(ctx, "read");
+    const year = Number(req.nextUrl.searchParams.get("year"));
+    if (!Number.isInteger(year) || year < 2020 || year > new Date().getUTCFullYear()) return NextResponse.json({ error: "Invalid year" }, { status: 400 });
+    // January 1 in America/New_York is UTC-5 in both boundary years.
+    const start = new Date(`${year}-01-01T05:00:00Z`);
+    const end = new Date(`${year + 1}-01-01T05:00:00Z`);
+    const [groups, projects, accounts, crossingPeriods] = await Promise.all([
+      prisma.costSnapshot.groupBy({
+        by: ["projectId", "providerAccountId", "currency", "costType", "confidence"],
+        where: { workspaceId: ctx.workspaceId, periodStart: { gte: start, lt: end } },
+        _sum: { amount: true },
+      }),
+      prisma.project.findMany({ where: { workspaceId: ctx.workspaceId }, select: { id: true, name: true } }),
+      prisma.providerAccount.findMany({ where: { workspaceId: ctx.workspaceId }, select: { id: true, provider: { select: { key: true } } } }),
+      prisma.costSnapshot.count({ where: { workspaceId: ctx.workspaceId, OR: [
+        { periodStart: { lt: start }, periodEnd: { gt: start } },
+        { periodStart: { lt: end }, periodEnd: { gt: end } },
+      ] } }),
+    ]);
+    const projectMap = new Map(projects.map(project => [project.id, project.name]));
+    const accountMap = new Map(accounts.map(account => [account.id, account.provider.key]));
+    return NextResponse.json({ data: {
+      year,
+      rows: groups.map(group => ({
+        projectId: group.projectId, projectName: group.projectId ? projectMap.get(group.projectId) ?? null : null,
+        provider: accountMap.get(group.providerAccountId) ?? "unknown", currency: group.currency,
+        costType: group.costType, confidence: group.confidence, amount: group._sum.amount ?? 0,
+      })),
+      warnings: [
+        ...(groups.length === 0 ? [`No Meterwise cost snapshots recorded for ${year}; this does not establish zero hosting spend.`] : []),
+        "Recorded service-period costs are not payment-date evidence. Billed usage does not establish that an invoice was paid.",
+        "Snapshot totals exclude platform subscription allocations and do not infer shared-client allocations.",
+        ...(crossingPeriods ? [`${crossingPeriods} source periods cross a year boundary; reconcile them to invoices rather than prorating automatically.`] : []),
+      ],
+    } });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Report failed";
+    return NextResponse.json({ error: message }, { status: message === "Unauthorized" ? 401 : message.startsWith("Forbidden") ? 403 : 500 });
+  }
+}

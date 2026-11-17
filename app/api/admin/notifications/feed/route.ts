@@ -50,14 +50,18 @@ export async function GET(req: NextRequest) {
   }
 
   const notifications: NotificationItem[] = [];
+  const requestedKind = req.nextUrl.searchParams.get("kind");
+  const categoryView = !!requestedKind;
+  let categoryFailed = false;
 
   const jobs: Promise<void>[] = [];
 
   if (canAccess(isOwner, permissions, "email", "view")) {
     jobs.push((async () => {
+      if (requestedKind && requestedKind !== "email") return;
       try {
-        const result = await listThreads({ labelIds: ["INBOX"], maxResults: 10 });
-        for (const thread of result.threads.filter((item) => !item.isRead).slice(0, 6)) {
+        const result = await listThreads({ labelIds: ["INBOX"], q: "is:unread", maxResults: categoryView ? 50 : 10 });
+        for (const thread of result.threads.filter((item) => !item.isRead).slice(0, categoryView ? 50 : 6)) {
           notifications.push({
             key: `email:${thread.id}:${thread.date}:${thread.messageCount}`,
             kind: "email",
@@ -69,12 +73,14 @@ export async function GET(req: NextRequest) {
         }
       } catch (err) {
         console.error("NOTIFICATIONS_FEED_EMAIL_ERR:", err);
+        if (requestedKind === "email") categoryFailed = true;
       }
     })());
   }
 
   if (canAccess(isOwner, permissions, "forms", "view")) {
     jobs.push((async () => {
+      if (requestedKind && requestedKind !== "form_submission") return;
       try {
         const submissions = await sanityServer.fetch<Array<{
           _id: string;
@@ -82,7 +88,7 @@ export async function GET(req: NextRequest) {
           formId: string;
           formTitle: string | null;
         }>>(
-          `*[_type == "cel3FormSubmission"] | order(submittedAt desc)[0...8]{
+          `*[_type == "cel3FormSubmission"] | order(submittedAt desc)[0...${categoryView ? 50 : 8}]{
             _id,
             submittedAt,
             formId,
@@ -103,12 +109,14 @@ export async function GET(req: NextRequest) {
         }
       } catch (err) {
         console.error("NOTIFICATIONS_FEED_FORMS_ERR:", err);
+        if (requestedKind === "form_submission") categoryFailed = true;
       }
     })());
   }
 
   if (canAccess(isOwner, permissions, "leads", "view")) {
     jobs.push((async () => {
+      if (requestedKind && requestedKind !== "lead") return;
       try {
         const leads = await sanityServer.fetch<Array<{
           _id: string;
@@ -117,7 +125,7 @@ export async function GET(req: NextRequest) {
           company: string | null;
           stage: string | null;
         }>>(
-          `*[_type == "pipelineContact"] | order(_createdAt desc)[0...8]{
+          `*[_type == "pipelineContact"] | order(_createdAt desc)[0...${categoryView ? 50 : 8}]{
             _id, _createdAt, name, company, stage
           }`
         );
@@ -138,15 +146,17 @@ export async function GET(req: NextRequest) {
         }
       } catch (err) {
         console.error("NOTIFICATIONS_FEED_LEADS_ERR:", err);
+        if (requestedKind === "lead") categoryFailed = true;
       }
     })());
   }
 
   if (canAccess(isOwner, permissions, "clients", "view")) {
     jobs.push((async () => {
+      if (requestedKind && requestedKind !== "message") return;
       try {
         const actorId = isOwner ? "admin:owner" : `admin:${staffId}`;
-        const messages = await listUnreadMessageNotifications(actorId, 8);
+        const messages = await listUnreadMessageNotifications(actorId, categoryView ? 50 : 8);
 
         for (const message of messages) {
           notifications.push({
@@ -160,10 +170,12 @@ export async function GET(req: NextRequest) {
         }
       } catch (err) {
         console.error("NOTIFICATIONS_FEED_MESSAGES_ERR:", err);
+        if (requestedKind === "message") categoryFailed = true;
       }
     })());
 
     jobs.push((async () => {
+      if (requestedKind && requestedKind !== "client_request") return;
       try {
         const requests = await sanityServer.fetch<Array<{
           _id: string;
@@ -172,7 +184,7 @@ export async function GET(req: NextRequest) {
           createdAt: string;
           updatedAt: string;
         }>>(
-          `*[_type == "clientPortalTicket"] | order(createdAt desc)[0...8]{
+          `*[_type == "clientPortalTicket"] | order(createdAt desc)[0...${categoryView ? 50 : 8}]{
             _id, title, clientEmail, createdAt, updatedAt
           }`
         );
@@ -189,11 +201,13 @@ export async function GET(req: NextRequest) {
         }
       } catch (err) {
         console.error("NOTIFICATIONS_FEED_CLIENT_REQUESTS_ERR:", err);
+        if (requestedKind === "client_request") categoryFailed = true;
       }
     })());
   }
 
   jobs.push((async () => {
+    if (requestedKind && requestedKind !== "booking") return;
     try {
       const bookings = await sanityServer.fetch<Array<{
         _id: string;
@@ -202,7 +216,7 @@ export async function GET(req: NextRequest) {
         startsAtUtc: string;
         status: string;
       }>>(
-        `*[_type == "assessmentBooking" && status == "CONFIRMED"] | order(_createdAt desc)[0...8]{
+        `*[_type == "assessmentBooking" && status == "CONFIRMED"] | order(_createdAt desc)[0...${categoryView ? 50 : 8}]{
           _id, _createdAt, customerName, startsAtUtc, status
         }`
       );
@@ -219,11 +233,13 @@ export async function GET(req: NextRequest) {
       }
     } catch (err) {
       console.error("NOTIFICATIONS_FEED_BOOKINGS_ERR:", err);
+        if (requestedKind === "booking") categoryFailed = true;
     }
   })());
 
   if (canAccess(isOwner, permissions, "announcements", "view")) {
     jobs.push((async () => {
+      if (requestedKind && requestedKind !== "announcement") return;
       try {
         const now = new Date().toISOString();
         const filter = isOwner
@@ -237,7 +253,7 @@ export async function GET(req: NextRequest) {
           priority: "normal" | "urgent";
           createdAt: string;
         }>>(
-          `*[${filter}] | order(select(priority == "urgent" => 0, 1) asc, createdAt desc)[0...8]{
+          `*[${filter}] | order(select(priority == "urgent" => 0, 1) asc, createdAt desc)[0...${categoryView ? 50 : 8}]{
             _id, title, body, priority, createdAt
           }`,
           { now, staffId }
@@ -256,15 +272,18 @@ export async function GET(req: NextRequest) {
         }
       } catch (err) {
         console.error("NOTIFICATIONS_FEED_ANNOUNCEMENTS_ERR:", err);
+        if (requestedKind === "announcement") categoryFailed = true;
       }
     })());
   }
 
   await Promise.all(jobs);
 
+  if (categoryFailed) return NextResponse.json({ error: "Could not load this notification category" }, { status: 503 });
+
   notifications.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
   return NextResponse.json({
-    notifications: notifications.slice(0, 30),
+    notifications: (requestedKind ? notifications.filter(item => item.kind === requestedKind) : notifications).slice(0, categoryView ? 50 : 30),
   });
 }

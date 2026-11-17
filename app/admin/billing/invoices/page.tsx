@@ -7,6 +7,8 @@ import { listInvoices } from "@/lib/stripe/billing";
 import type { BillingInvoice } from "@/lib/stripe/billing";
 import { syncStripeInvoiceToSanity } from "@/lib/stripe/sync";
 import Stripe from "stripe";
+import { invoiceReceiptStatuses } from "@/lib/billing/receiptStatus";
+import ReceiptStatus from "@/components/admin/billing/ReceiptStatus";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -60,6 +62,7 @@ export default async function InvoicesPage({
     limit: 50,
   });
   await Promise.all(invoices.map((invoice) => syncStripeInvoiceToSanity(invoice)));
+  const receipts = await invoiceReceiptStatuses(invoices.filter(invoice => invoice.status === "paid").map(invoice => invoice.id));
 
   return (
     <div>
@@ -141,6 +144,7 @@ export default async function InvoicesPage({
                     {inv.customerName ?? inv.customerEmail ?? inv.customerId}
                     {inv.description ? ` · ${inv.description}` : ""}
                   </div>
+                  {inv.status === "paid" && <ReceiptStatus receipt={receipts[inv.id]} />}
                   {inv.dueDate && (
                     <div className="text-xs text-white/25 mt-0.5">
                       Due {DateTime.fromSeconds(inv.dueDate).toFormat("LLL d, yyyy")}

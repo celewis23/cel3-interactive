@@ -7,6 +7,8 @@ import { getInvoice } from "@/lib/stripe/billing";
 import { syncStripeInvoiceToSanity } from "@/lib/stripe/sync";
 import InvoiceActions from "./InvoiceActions";
 import InvoiceManagementPanel from "./InvoiceManagementPanel";
+import { invoiceReceiptStatuses } from "@/lib/billing/receiptStatus";
+import ReceiptStatus from "@/components/admin/billing/ReceiptStatus";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -65,6 +67,7 @@ export default async function InvoicePage({
     );
   }
 
+  const receipts = invoice.status === "paid" ? await invoiceReceiptStatuses([invoice.id]) : {};
   return (
     <div className="max-w-3xl">
       {/* Back link */}
@@ -99,6 +102,7 @@ export default async function InvoicePage({
         </div>
         <InvoiceActions invoiceId={invoice.id} status={invoice.status} />
       </div>
+      {invoice.status === "paid" && <div className="mb-6 rounded-xl border border-white/10 p-4"><ReceiptStatus receipt={receipts[invoice.id]} /></div>}
 
       <InvoiceManagementPanel invoice={invoice} />
 
