@@ -1,0 +1,35 @@
+plugins { id 'com.android.application' }
+
+def signing = new Properties()
+def signingFile = rootProject.file('signing.properties')
+if (signingFile.exists()) signingFile.withInputStream { signing.load(it) }
+def backoffice = providers.gradleProperty('backofficeUrl').getOrElse('https://cel3interactive.com')
+if (!(backoffice ==~ /https:\/\/[a-zA-Z0-9.-]+(:[0-9]+)?/)) throw new GradleException('backofficeUrl must be an HTTPS origin without a trailing slash')
+
+android {
+    namespace 'com.cel3.meterwise'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'com.cel3.meterwise'
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName '1.0.0'
+        buildConfigField 'String', 'BACKOFFICE_URL', '"' + backoffice + '"'
+    }
+    buildFeatures { buildConfig true }
+    signingConfigs {
+        release {
+            if (signingFile.exists()) {
+                storeFile rootProject.file(signing['storeFile'])
+                storePassword signing['storePassword']
+                keyAlias signing['keyAlias']
+                keyPassword signing['keyPassword']
+            }
+        }
+    }
+    buildTypes { release { signingConfig signingConfigs.release } }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}
+
+dependencies { implementation 'androidx.work:work-runtime:2.9.1' }

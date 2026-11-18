@@ -45,6 +45,15 @@ next-env.d.ts
 
 .claude/
 
+# Android local tooling, build state, and private signing material
+/.android-tools/
+android/.gradle/
+android/**/build/
+android/local.properties
+android/signing.properties
+android/*.jks
+android/*.keystore
+
 # local data repair backups
 repair-backups/
 

@@ -14,6 +14,11 @@ const PUBLIC_API_PATHS = [
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  function authRedirect(destination: string) {
+    const url = new URL(destination, req.url);
+    if (pathname === "/admin/meterwise/android/connect") url.searchParams.set("next", pathname + req.nextUrl.search);
+    return NextResponse.redirect(url);
+  }
 
   // Only protect /admin routes
   if (!pathname.startsWith("/admin") && !pathname.startsWith("/api/admin/")) {
@@ -38,7 +43,7 @@ export function proxy(req: NextRequest) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    return NextResponse.redirect(new URL("/admin/login", req.url));
+    return authRedirect("/admin/login");
   }
 
   // Middleware runs on Edge — do basic structure check only
@@ -48,7 +53,7 @@ export function proxy(req: NextRequest) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const res = NextResponse.redirect(new URL("/admin/login", req.url));
+    const res = authRedirect("/admin/login");
     res.cookies.delete(COOKIE_NAME);
     return res;
   }
@@ -61,7 +66,7 @@ export function proxy(req: NextRequest) {
       if (pathname.startsWith("/api/")) {
         return NextResponse.json({ error: "Session expired" }, { status: 401 });
       }
-      const res = NextResponse.redirect(new URL("/admin/login", req.url));
+      const res = authRedirect("/admin/login");
       res.cookies.delete(COOKIE_NAME);
       return res;
     }
@@ -71,13 +76,13 @@ export function proxy(req: NextRequest) {
       if (pathname.startsWith("/api/")) {
         return NextResponse.json({ error: "PIN required" }, { status: 401 });
       }
-      return NextResponse.redirect(new URL("/admin/pin", req.url));
+      return authRedirect("/admin/pin");
     }
   } catch {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    return NextResponse.redirect(new URL("/admin/login", req.url));
+    return authRedirect("/admin/login");
   }
 
   return NextResponse.next();

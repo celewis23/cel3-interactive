@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { loginDestination } from "@/lib/admin/loginDestination";
 
 export default function AdminPinPage() {
   const router = useRouter();
@@ -53,7 +54,7 @@ export default function AdminPinPage() {
         setTimeout(() => inputRefs[0].current?.focus(), 50);
         return;
       }
-      router.push("/admin");
+      router.push(loginDestination(window.location.search));
     } catch {
       setError("Something went wrong. Try again.");
       setPin(["", "", "", ""]);

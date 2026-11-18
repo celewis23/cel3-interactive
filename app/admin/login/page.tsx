@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { loginDestination } from "@/lib/admin/loginDestination";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -25,11 +26,12 @@ export default function AdminLoginPage() {
         return;
       }
       const data = await res.json();
+      const destination = loginDestination(window.location.search);
       // Staff members get a full session immediately (no PIN step)
       if (data.staffLogin) {
-        router.push("/admin");
+        router.push(destination);
       } else {
-        router.push("/admin/pin");
+        router.push(destination === "/admin" ? "/admin/pin" : `/admin/pin?next=${encodeURIComponent(destination)}`);
       }
     } catch {
       setError("Something went wrong. Try again.");

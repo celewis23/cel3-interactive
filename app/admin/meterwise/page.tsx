@@ -139,9 +139,14 @@ export default function MeterwiseDashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
         <h1 className="text-2xl font-semibold text-white">Meterwise</h1>
         <p className="mt-1 text-sm text-white/40">Live from your connected Meterwise workspace.</p>
+        </div>
+        <Link href="/admin/meterwise/android" className="rounded-xl border border-sky-400/25 bg-sky-400/10 px-4 py-2.5 text-sm font-medium text-sky-300 hover:bg-sky-400/20">
+          Get Android widget
+        </Link>
       </div>
 
       {state.kind === "loading" && (

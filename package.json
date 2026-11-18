@@ -20,7 +20,9 @@
     "test:email": "node --test scripts/email-media.test.mjs scripts/email-reply-recipients.test.mjs",
     "test:notifications": "node --test scripts/admin-notifications.test.mjs scripts/admin-notification-feed.test.mjs",
     "test:annual-statements": "node --test scripts/annual-statements.test.mjs",
-    "test:admin-auth": "node --test scripts/admin-password.test.mjs"
+    "test:admin-auth": "node --test scripts/admin-password.test.mjs",
+    "test:meterwise": "node --test scripts/meterwise-widget.test.mjs",
+    "build:meterwise-android": "node scripts/build-meterwise-android.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
