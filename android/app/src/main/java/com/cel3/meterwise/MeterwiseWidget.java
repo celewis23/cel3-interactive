@@ -50,7 +50,9 @@ public class MeterwiseWidget extends AppWidgetProvider {
         int height = options.getInt(landscape ? AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT : AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 110);
         RemoteViews views = new RemoteViews(c.getPackageName(), height < 210 ? R.layout.widget_meterwise_compact : R.layout.widget_meterwise);
         views.setOnClickPendingIntent(R.id.widget_root, PendingIntent.getActivity(c, 0,
-            new Intent(c, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
+            new Intent(c, OpenBackofficeActivity.class), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
+        views.setOnClickPendingIntent(R.id.update_app, PendingIntent.getActivity(c, 2,
+            new Intent(c, UpdateActivity.class), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
         views.setOnClickPendingIntent(R.id.refresh, PendingIntent.getBroadcast(c, 1,
             new Intent(c, MeterwiseWidget.class).setAction("com.cel3.meterwise.REFRESH"), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
         views.setViewVisibility(R.id.details, height >= 390 ? View.VISIBLE : View.GONE);
@@ -59,16 +61,24 @@ public class MeterwiseWidget extends AppWidgetProvider {
             if (saved != null && Vault.token(c) != null) {
                 JSONObject data = new JSONObject(saved);
                 views.setTextViewText(R.id.spend, money(data.optDouble("mtdCost")));
-                views.setTextViewText(R.id.projection, "Month-to-date · Projected " + money(data.optDouble("projectedMonthlyCost")));
-                views.setTextViewText(R.id.stats, "Providers " + data.optInt("connectedProviders") + "     Projects " + data.optInt("activeProjects")
-                    + "\nDaily avg " + money(data.optDouble("averageDailySpend")) + "     Sync issues " + data.optInt("recentSyncIssues"));
-                views.setTextColor(R.id.stats, data.optInt("recentSyncIssues") > 0 ? 0xFFFBBF24 : 0xFFFFFFFF);
+                views.setTextViewText(R.id.projection, "Projected\n" + money(data.optDouble("projectedMonthlyCost")));
+                views.setTextViewText(R.id.provider_count, String.valueOf(data.optInt("connectedProviders")));
+                views.setTextViewText(R.id.project_count, String.valueOf(data.optInt("activeProjects")));
+                views.setTextViewText(R.id.daily_spend, money(data.optDouble("averageDailySpend")));
+                views.setTextViewText(R.id.sync_issues, String.valueOf(data.optInt("recentSyncIssues")));
+                views.setTextColor(R.id.sync_issues, data.optInt("recentSyncIssues") > 0 ? 0xFFF5B99B : 0xFF8DE6D8);
                 views.setTextViewText(R.id.providers, providers(data, 3));
                 views.setTextViewText(R.id.activity, activity(data, 4, false));
                 String message = Vault.message(c);
-                views.setTextViewText(R.id.updated, (message.isEmpty() ? "Updated " + relative(data.optString("updatedAt")) : message + " · Saved " + relative(data.optString("updatedAt"))));
+                String age = relative(data.optString("updatedAt"));
+                views.setTextViewText(R.id.updated, message.isEmpty() ? "Updated " + age : message.equals("Refreshing…") ? message : "Refresh failed · Saved " + age);
             } else {
-                views.setTextViewText(R.id.updated, Vault.token(c) == null ? "Tap to sign in to Meterwise" : "Waiting for first refresh · Tap to open");
+                if (Vault.token(c) == null) {
+                    views.setTextViewText(R.id.refresh, "Connect");
+                    views.setOnClickPendingIntent(R.id.refresh, PendingIntent.getActivity(c, 3,
+                        new Intent(c, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
+                }
+                views.setTextViewText(R.id.updated, Vault.token(c) == null ? "Connect to show live figures" : "Waiting for first refresh");
                 views.setViewVisibility(R.id.details, View.GONE);
             }
         } catch (Exception ignored) { views.setTextViewText(R.id.updated, "Tap to open Meterwise and refresh"); }
@@ -80,7 +90,14 @@ public class MeterwiseWidget extends AppWidgetProvider {
     @Override public void onAppWidgetOptionsChanged(Context c, AppWidgetManager manager, int id, Bundle options) { render(c, manager, id); }
     @Override public void onReceive(Context c, Intent intent) {
         super.onReceive(c, intent);
-        if ("com.cel3.meterwise.REFRESH".equals(intent.getAction())) { RefreshWorker.refresh(c); }
+        if ("com.cel3.meterwise.REFRESH".equals(intent.getAction())) {
+            if (Vault.token(c) != null) Vault.message(c, "Refreshing…");
+            renderAll(c); RefreshWorker.refresh(c);
+        }
+        if (Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
+            renderAll(c);
+            if (Vault.token(c) != null) { RefreshWorker.schedule(c); RefreshWorker.refresh(c); }
+        }
     }
     @Override public void onDisabled(Context c) { RefreshWorker.cancel(c); }
 }

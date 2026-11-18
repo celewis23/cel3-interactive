@@ -31,7 +31,7 @@ if (!existsSync(signingFile)) {
 const bundledGradle = path.join(localTools, 'gradle-8.9/bin', process.platform === 'win32' ? 'gradle.bat' : 'gradle');
 const wrapper = path.join(android, process.platform === 'win32' ? 'gradlew.bat' : 'gradlew');
 const gradle = existsSync(bundledGradle) ? bundledGradle : existsSync(wrapper) ? wrapper : 'gradle';
-const args = ['--no-daemon', 'assembleRelease', 'lintRelease'];
+const args = ['--no-daemon', 'assembleRelease', 'lintRelease', 'testReleaseUnitTest'];
 if (process.env.METERWISE_BACKOFFICE_URL) {
   if (!/^https:\/\/[a-zA-Z0-9.-]+(?::[0-9]+)?$/.test(process.env.METERWISE_BACKOFFICE_URL)) throw new Error('METERWISE_BACKOFFICE_URL must be an HTTPS origin without a trailing slash');
   args.push(`-PbackofficeUrl=${process.env.METERWISE_BACKOFFICE_URL}`);
@@ -43,4 +43,11 @@ mkdirSync(path.dirname(target), { recursive: true });
 copyFileSync(apk, target);
 const sha256 = createHash('sha256').update(readFileSync(target)).digest('hex');
 writeFileSync(`${target}.sha256`, `${sha256}  meterwise.apk\n`);
+const buildConfig = readFileSync(path.join(android, 'app/build.gradle'), 'utf8');
+const versionCode = Number(buildConfig.match(/versionCode\s+(\d+)/)?.[1]);
+const versionName = buildConfig.match(/versionName\s+'([^']+)'/)?.[1];
+if (!versionCode || !versionName) throw new Error('Cannot determine Android release version');
+writeFileSync(path.join(root, 'public/downloads/meterwise-release.json'), JSON.stringify({
+  versionCode, versionName, sha256, size: readFileSync(target).length,
+}, null, 2) + '\n');
 console.log(`Published local APK: public/downloads/meterwise.apk\nSHA-256: ${sha256}`);

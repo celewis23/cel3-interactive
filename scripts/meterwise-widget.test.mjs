@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import ts from 'typescript';
 const require = createRequire(import.meta.url);
 function load(file, deps = {}) {
-  const { outputText } = ts.transpileModule(readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } });
+  const { outputText } = ts.transpileModule(readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } });
   const module = { exports: {} };
   runInThisContext(`(function(require,module,exports){${outputText}\n})`, { filename: file })(name => Object.hasOwn(deps, name) ? deps[name] : require(name), module, module.exports);
   return module.exports;
@@ -175,6 +175,32 @@ test('proxy preserves pairing through missing, expired, and PIN-only browser ses
     const location = new URL(response.headers.get('location'));
     assert.equal(location.pathname, destination);
     assert.equal(location.searchParams.get('next'), new URL(url).pathname + new URL(url).search);
+  }
+});
+test('backoffice install manifest is public and scoped separately from the client portal', async () => {
+  const { NextRequest } = require('next/server');
+  const { proxy } = load('proxy.ts');
+  const response = proxy(new NextRequest('https://example.com/admin/manifest.webmanifest'));
+  assert.equal(response.headers.get('location'), null);
+  const manifest = await load('app/admin/manifest.webmanifest/route.ts').GET().json();
+  assert.equal(manifest.scope, '/admin');
+  assert.ok(manifest.start_url.startsWith(manifest.scope));
+  assert.equal(manifest.start_url, '/admin');
+  assert.equal(manifest.display, 'standalone');
+  assert.ok(manifest.shortcuts.some(shortcut => shortcut.url === '/admin/meterwise'));
+  assert.equal(load('app/manifest.ts').default().scope, '/portal/');
+});
+test('software release feed is uncached and missing artifacts return a safe 404', async () => {
+  const release = { versionCode: 3, versionName: '1.1.0', size: 100, sha256: 'a'.repeat(64) };
+  for (const available of [true, false]) {
+    const route = load('app/api/meterwise/android-release/route.ts', {
+      'fs/promises': { readFile: async () => { if (!available) throw new Error('private server path'); return JSON.stringify(release); } },
+    });
+    const response = await route.GET();
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+    assert.equal(response.status, available ? 200 : 404);
+    if (available) assert.deepEqual(await response.json(), release);
+    else assert.doesNotMatch(await response.text(), /private server path/);
   }
 });
 test('mobile routes require bearer authentication, sanitize upstream errors, and revoke on logout', async () => {

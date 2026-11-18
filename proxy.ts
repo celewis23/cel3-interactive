@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 const COOKIE_NAME = "cel3_admin_session";
 
 // Public admin routes that don't require auth
-const PUBLIC_ADMIN_PATHS = ["/admin/login", "/admin/pin"];
+const PUBLIC_ADMIN_PATHS = ["/admin/login", "/admin/pin", "/admin/manifest.webmanifest"];
 // API routes that handle their own auth
 const PUBLIC_API_PATHS = [
   "/api/admin/auth/login",

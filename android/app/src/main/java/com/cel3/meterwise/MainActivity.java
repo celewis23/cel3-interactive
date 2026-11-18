@@ -84,7 +84,8 @@ public class MainActivity extends Activity {
             else toast("Long-press your home screen, choose Widgets, then Meterwise.");
         });
         text("Resize the widget taller to see provider costs and sync activity. Background updates run about every 30 minutes when Android allows.", 13, 0xFF9DAAB6);
-        button("Open backoffice in browser", v -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.BACKOFFICE_URL + "/admin/meterwise"))));
+        button("Open Meterwise in backoffice", v -> startActivity(BackofficeLauncher.intent(this)));
+        button("Check for widget software updates", v -> startActivity(new Intent(this, UpdateActivity.class)));
         button(loggingOut ? "Logging out…" : "Log out of this device", v -> {
             if (!loggingOut) new AlertDialog.Builder(this).setMessage("Disconnect this device and clear its saved Meterwise information?")
                 .setPositiveButton("Log out", (dialog, which) -> logout()).setNegativeButton("Cancel", null).show();
