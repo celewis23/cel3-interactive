@@ -33,7 +33,7 @@ export default async function MeterwiseAndroidPage() {
           <li>Open the downloaded APK. If Android asks, allow your browser to install this app, then confirm installation.</li>
           <li>Open Meterwise and tap <strong className="text-white">Connect to backoffice</strong>. Your phone browser uses your current sign-in automatically. If needed, sign in and complete your PIN, then return to the app.</li>
           <li>Tap <strong className="text-white">Add home-screen widget</strong>. You can also long-press your home screen and choose <strong className="text-white">Widgets → Meterwise</strong>.</li>
-          <li>Drag the widget edges to resize it. A taller widget shows provider costs and recent sync activity.</li>
+          <li>Drag the widget edges to resize it down to 4×2. A taller widget shows provider costs and recent sync activity.</li>
         </ol>
         {available ? (
           <a href="/api/admin/meterwise/android-download" className="mt-6 inline-block rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-black hover:bg-sky-300">Download Android app (.apk)</a>

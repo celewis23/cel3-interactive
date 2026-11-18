@@ -45,15 +45,14 @@ public class MeterwiseWidget extends AppWidgetProvider {
         for (int id : manager.getAppWidgetIds(new ComponentName(c, MeterwiseWidget.class))) render(c, manager, id);
     }
     private static void render(Context c, AppWidgetManager manager, int id) {
-        RemoteViews views = new RemoteViews(c.getPackageName(), R.layout.widget_meterwise);
+        Bundle options = manager.getAppWidgetOptions(id);
+        boolean landscape = c.getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+        int height = options.getInt(landscape ? AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT : AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 110);
+        RemoteViews views = new RemoteViews(c.getPackageName(), height < 210 ? R.layout.widget_meterwise_compact : R.layout.widget_meterwise);
         views.setOnClickPendingIntent(R.id.widget_root, PendingIntent.getActivity(c, 0,
             new Intent(c, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
         views.setOnClickPendingIntent(R.id.refresh, PendingIntent.getBroadcast(c, 1,
             new Intent(c, MeterwiseWidget.class).setAction("com.cel3.meterwise.REFRESH"), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
-        Bundle options = manager.getAppWidgetOptions(id);
-        // Use the currently displayed orientation's available height.
-        boolean landscape = c.getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE;
-        int height = options.getInt(landscape ? AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT : AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 180);
         views.setViewVisibility(R.id.details, height >= 390 ? View.VISIBLE : View.GONE);
         String saved = Vault.snapshot(c);
         try {

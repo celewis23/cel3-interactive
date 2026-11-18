@@ -4,7 +4,7 @@ Native Android app and resizable home-screen widget (Android 8.0+). The app open
 
 Device sessions have no time-based expiry. Each data request checks password fingerprints, active staff status, and current Meterwise role access. Changing an owner password (including the configured fallback password), staff password, owner PIN, or server session secret invalidates affected devices. Logout in the Android app revokes that device on the server and clears its cache. Browser logout affects the browser session independently. Offline logout waits for connectivity to ensure server revocation succeeds.
 
-The widget shows month-to-date cost, projection, connected provider accounts, active projects with positive month-to-date costs, daily average, and the number of issue-bearing syncs among the most recent eight. Expanded widgets show the top three provider costs and four recent syncs; the app shows all providers and eight syncs with account, record, and error counts. Calculations match the backoffice dashboard.
+The widget defaults to 4×2 and can resize vertically and horizontally (exact cell dimensions depend on the launcher). A dedicated compact layout keeps month-to-date cost, projection, connected provider accounts, active projects with positive month-to-date costs, daily average, and the number of issue-bearing syncs among the most recent eight visible at two rows. Expanded widgets show the top three provider costs and four recent syncs; the app shows all providers and eight syncs with account, record, and error counts. Calculations match the backoffice dashboard.
 
 ## Build and publish
 
