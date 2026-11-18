@@ -12,6 +12,37 @@ function load(file, deps = {}) {
   runInThisContext(`(function(require,module,exports){${outputText}\n})`, { filename: file })(name => Object.hasOwn(deps, name) ? deps[name] : require(name), module, module.exports);
   return module.exports;
 }
+
+test('console APK download requires login and returns an installable attachment', async () => {
+  const { NextRequest } = require('next/server');
+  let authenticated = false, reads = 0;
+  const binary = Buffer.from('signed-apk-fixture');
+  const route = load('app/api/admin/android-download/route.ts', {
+    '@/lib/admin/permissions': { requireAuth: () => authenticated },
+    'fs/promises': { readFile: async () => { reads++; return binary; } },
+  });
+  const request = new NextRequest('https://example.com/api/admin/android-download');
+  assert.equal((await route.GET(request)).status, 401);
+  assert.equal(reads, 0);
+  authenticated = true;
+  const response = await route.GET(request);
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'application/vnd.android.package-archive');
+  assert.equal(response.headers.get('content-disposition'), 'attachment; filename="cel3-backoffice.apk"');
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+  assert.deepEqual(Buffer.from(await response.arrayBuffer()), binary);
+});
+
+test('console download handles a missing package without exposing server paths', async () => {
+  const { NextRequest } = require('next/server');
+  const route = load('app/api/admin/android-download/route.ts', {
+    '@/lib/admin/permissions': { requireAuth: () => true },
+    'fs/promises': { readFile: async () => { throw new Error('ENOENT private/server/path'); } },
+  });
+  const response = await route.GET(new NextRequest('https://example.com/api/admin/android-download'));
+  assert.equal(response.status, 404);
+  assert.doesNotMatch(await response.text(), /private\/server/);
+});
 process.env.ADMIN_SESSION_SECRET = 'test-device-secret';
 process.env.ADMIN_USERNAME = 'owner';
 process.env.ADMIN_PASSWORD = 'original-password';

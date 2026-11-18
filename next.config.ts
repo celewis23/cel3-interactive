@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
     root: process.cwd(),
   },
   outputFileTracingIncludes: {
+    "/admin/android": ["./public/downloads/meterwise.apk", "./public/downloads/meterwise-release.json"],
+    "/api/admin/android-download": ["./public/downloads/meterwise.apk"],
     "/api/meterwise/android-release": ["./public/downloads/meterwise-release.json"],
     "/admin/meterwise/android": ["./public/downloads/meterwise.apk"],
     "/api/admin/meterwise/android-download": ["./public/downloads/meterwise.apk"],

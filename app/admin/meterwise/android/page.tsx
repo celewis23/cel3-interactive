@@ -12,7 +12,8 @@ export default async function MeterwiseAndroidPage() {
       <div>
         <p className="text-xs font-medium uppercase tracking-widest text-sky-400">Meterwise for Android</p>
         <h1 className="mt-2 text-3xl font-semibold text-white">Your spending, on your home screen.</h1>
-        <p className="mt-3 text-sm leading-6 text-white/60">Keep spending and sync activity in view with a resizable Android widget. Your app and widget share one sign-in. If you’re already signed into backoffice in your phone browser, connect without entering your credentials again.</p>
+        <p className="mt-3 text-sm leading-6 text-white/60">Keep spending and sync activity in view with a resizable Android widget, included in the CEL3 Backoffice console APK. Sign in inside the Android console and your widget connects automatically.</p>
+        <Link href="/admin/android" className="mt-4 inline-block text-sm font-medium text-teal-200 underline">Download the full Android console →</Link>
       </div>
       <div className="relative isolate overflow-hidden rounded-3xl border border-teal-200/20 bg-linear-to-r from-[#10172c] via-[#192542] to-[#254556] p-5 shadow-xl sm:p-6">
         <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-16 -z-10 size-80 rounded-full border border-teal-200/20 bg-teal-300/5 p-10"><div className="size-full rounded-full border border-teal-200/20 p-8"><div className="size-full rounded-full border border-orange-200/25" /></div></div>
@@ -31,8 +32,8 @@ export default async function MeterwiseAndroidPage() {
         <ol className="mt-4 list-decimal space-y-3 pl-5 text-sm leading-6 text-white/65">
           <li>Open this page on your phone and download the Meterwise app below. Requires Android 8.0 or newer.</li>
           <li>Open the downloaded APK. If Android asks, allow your browser to install this app, then confirm installation.</li>
-          <li>Open Meterwise and tap <strong className="text-white">Connect to backoffice</strong>. Your phone browser uses your current sign-in automatically. If needed, sign in and complete your PIN, then return to the app.</li>
-          <li>Tap <strong className="text-white">Add home-screen widget</strong>. You can also long-press your home screen and choose <strong className="text-white">Widgets → Meterwise</strong>.</li>
+          <li>Open <strong className="text-white">CEL3 Backoffice</strong> and sign in with your credentials and PIN. Your widget connects to that account without a separate login.</li>
+          <li>Tap <strong className="text-white">Widget → Add home-screen widget</strong> in the console. You can also long-press your home screen and choose <strong className="text-white">Widgets → Meterwise</strong>.</li>
           <li>Drag the widget edges to resize it down to 4×2. A taller widget shows provider costs and recent sync activity.</li>
         </ol>
         {available ? (
@@ -41,7 +42,7 @@ export default async function MeterwiseAndroidPage() {
         <p className="mt-4 text-xs leading-5 text-white/40">Updates run about every 30 minutes when Android allows, with a manual refresh button for the latest figures. If you are offline, the widget keeps the last saved information and shows its age. Logging out in the app clears this device; changing your password disconnects it on its next check.</p>
         <p className="mt-2 text-xs leading-5 text-white/40">There is no separate widget login. The app and all its widgets share this device connection.</p>
         <p className="mt-3 text-sm leading-6 text-white/65"><strong className="text-teal-200">Refresh</strong> updates figures directly on the widget. <strong className="text-orange-200">Update</strong> checks for new widget software, downloads it, and opens Android’s installation confirmation. Install this release once to get that control; future releases can be installed from the widget.</p>
-        <p className="mt-3 text-sm leading-6 text-white/65">Tap the widget to open Meterwise in your installed backoffice web app. If Android opens a browser instead, open <Link href="/admin" className="text-teal-200 underline">Backoffice</Link> in Chrome and use <strong className="text-white">Install app</strong> with the updated backoffice manifest. A home-screen bookmark does not register an Android app link handler.</p>
+        <p className="mt-3 text-sm leading-6 text-white/65">Tap the widget to open Meterwise directly inside the Android console, without Chrome’s toolbar. The Android console keeps its own sign-in storage; your Chrome PWA remains available separately.</p>
       </div>
     </div>
   );

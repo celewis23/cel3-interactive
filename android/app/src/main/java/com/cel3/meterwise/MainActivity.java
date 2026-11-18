@@ -8,11 +8,13 @@ import android.net.Uri;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
+import android.webkit.CookieManager;
 import org.json.*;
 
 public class MainActivity extends Activity {
     private LinearLayout content;
     private boolean connecting = false, foreground = false, loggingOut = false;
+    private boolean redirecting;
     private String displayed = "";
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable watch = new Runnable() {
@@ -27,6 +29,9 @@ public class MainActivity extends Activity {
     };
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        if (getIntent().getData() == null && !getIntent().getBooleanExtra("widgetSettings", false)) {
+            redirecting = true; startActivity(new Intent(this, ConsoleActivity.class)); finish(); return;
+        }
         getWindow().setStatusBarColor(Color.rgb(10, 15, 20));
         getWindow().setNavigationBarColor(Color.rgb(10, 15, 20));
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
@@ -35,7 +40,7 @@ public class MainActivity extends Activity {
         handleConnection(getIntent());
     }
     @Override protected void onResume() {
-        super.onResume(); foreground = true; handler.post(watch);
+        super.onResume(); if (redirecting) return; foreground = true; handler.post(watch);
         if (Vault.token(this) != null) RefreshWorker.refresh(this);
     }
     @Override protected void onPause() { foreground = false; handler.removeCallbacks(watch); super.onPause(); }
@@ -55,7 +60,7 @@ public class MainActivity extends Activity {
         text("CEL3 / METERWISE", 13, 0xFF38BDF8);
         if (Vault.token(this) == null) {
             text("Your spending, at a glance.", 30, Color.WHITE);
-            text("Connect using your phone browser’s backoffice sign-in. If you’re already signed in, there’s no password to enter. Your app and widget share this connection.", 16, 0xFF9DAAB6);
+            text("Sign in inside the CEL3 Backoffice console to connect this widget automatically. There is no separate widget login.", 16, 0xFF9DAAB6);
             if (!Vault.message(this).isEmpty()) text(Vault.message(this), 14, 0xFFFBBF24);
             button(connecting ? "Connecting…" : "Connect to backoffice", v -> { if (!connecting) signIn(); });
             return;
@@ -93,12 +98,8 @@ public class MainActivity extends Activity {
     }
     private void toast(String message) { Toast.makeText(this, message, Toast.LENGTH_LONG).show(); }
     private void signIn() {
-        try {
-            byte[] bytes = new byte[32]; new java.security.SecureRandom().nextBytes(bytes);
-            String verifier = hex(bytes); Vault.pending(this, verifier);
-            String challenge = hex(java.security.MessageDigest.getInstance("SHA-256").digest(verifier.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.BACKOFFICE_URL + "/admin/meterwise/android/connect?challenge=" + challenge)));
-        } catch (Exception error) { toast("Could not open your browser. Please try again."); }
+        startActivity(new Intent(this, ConsoleActivity.class).putExtra("path", "/admin/meterwise"));
+        toast("Sign in to the console to connect your widget automatically.");
     }
     private static String hex(byte[] bytes) {
         StringBuilder result = new StringBuilder(); for (byte b : bytes) result.append(String.format(java.util.Locale.ROOT, "%02x", b & 255)); return result.toString();
@@ -134,7 +135,7 @@ public class MainActivity extends Activity {
                 if (result.status != 200 && result.status != 401) throw new Exception("Logout failed");
                 synchronized (Vault.class) { if (token.equals(Vault.token(this))) Vault.clear(this); }
                 RefreshWorker.cancel(this); MeterwiseWidget.renderAll(this);
-                runOnUiThread(() -> { loggingOut = false; dashboard(); });
+                runOnUiThread(() -> { loggingOut = false; CookieManager.getInstance().removeAllCookies(done -> dashboard()); });
             } catch (Exception error) {
                 runOnUiThread(() -> { loggingOut = false; dashboard(); toast("Could not log out. Connect to the internet and try again."); });
             }

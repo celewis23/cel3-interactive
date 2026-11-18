@@ -28,7 +28,7 @@ public class UpdateActivity extends Activity {
         super.onCreate(state);
         LinearLayout panel = new LinearLayout(this); panel.setOrientation(LinearLayout.VERTICAL);
         panel.setGravity(Gravity.CENTER); panel.setPadding(48, 64, 48, 64); panel.setBackgroundColor(0xFF10172C);
-        TextView title = new TextView(this); title.setText("Meterwise updates"); title.setTextSize(26); title.setTextColor(0xFF8DE6D8); panel.addView(title);
+        TextView title = new TextView(this); title.setText("Backoffice updates"); title.setTextSize(26); title.setTextColor(0xFF8DE6D8); panel.addView(title);
         status = new TextView(this); status.setTextColor(0xFFE1ECF8); status.setTextSize(16); status.setGravity(Gravity.CENTER); status.setPadding(0,32,0,32); panel.addView(status);
         action = new Button(this); action.setText("Check again"); action.setOnClickListener(v -> { if (ready != null) install(); else check(); }); panel.addView(action);
         Button close = new Button(this); close.setText("Close"); close.setOnClickListener(v -> finish()); panel.addView(close);
@@ -57,7 +57,7 @@ public class UpdateActivity extends Activity {
                 long version = release.getLong("versionCode"), size = release.getLong("size"); String expected = release.getString("sha256");
                 UpdatePolicy.validate(version, size, expected);
                 if (version <= BuildConfig.VERSION_CODE) {
-                    runOnUiThread(() -> { status.setText("You’re up to date.\nMeterwise " + BuildConfig.VERSION_NAME); action.setEnabled(true); }); return;
+                    runOnUiThread(() -> { status.setText("You’re up to date.\nCEL3 Backoffice " + BuildConfig.VERSION_NAME); action.setEnabled(true); }); return;
                 }
                 runOnUiThread(() -> status.setText("Downloading the widget update…\nAndroid will ask you to confirm installation."));
                 File directory = new File(getCacheDir(), "updates"); if (!directory.isDirectory() && !directory.mkdirs()) throw new IOException("Cannot prepare update storage");

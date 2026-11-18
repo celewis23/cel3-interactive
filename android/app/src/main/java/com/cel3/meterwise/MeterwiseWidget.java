@@ -76,7 +76,7 @@ public class MeterwiseWidget extends AppWidgetProvider {
                 if (Vault.token(c) == null) {
                     views.setTextViewText(R.id.refresh, "Connect");
                     views.setOnClickPendingIntent(R.id.refresh, PendingIntent.getActivity(c, 3,
-                        new Intent(c, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
+                        new Intent(c, ConsoleActivity.class).putExtra("path", "/admin/meterwise"), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
                 }
                 views.setTextViewText(R.id.updated, Vault.token(c) == null ? "Connect to show live figures" : "Waiting for first refresh");
                 views.setViewVisibility(R.id.details, View.GONE);

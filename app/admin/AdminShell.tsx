@@ -1047,6 +1047,10 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                       </svg>
                       <span>Settings</span>
                     </Link>
+                    <Link href="/admin/android" className={accountRowClass}>
+                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4" /></svg>
+                      <span>Download Android console</span>
+                    </Link>
                     <Link href="/admin/privacy" className={accountRowClass}>
                       <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 9h10.5A2.25 2.25 0 0019.5 17.25v-4.5A2.25 2.25 0 0017.25 10.5H6.75A2.25 2.25 0 004.5 12.75v4.5A2.25 2.25 0 006.75 19.5Z" />
@@ -1080,6 +1084,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             {currentNavItem?.label ?? "Backoffice"}
           </span>
           <div className="flex items-center gap-2">
+            <Link href="/admin/android" className="rounded-lg border border-sky-400/25 px-2 py-1.5 text-[11px] font-medium text-sky-400">Android app</Link>
             <button
               type="button"
               onClick={() => setTheme((prev) => prev === "dark" ? "light" : "dark")}
