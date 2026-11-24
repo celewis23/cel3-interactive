@@ -73,3 +73,11 @@ test("line item names identify what was bought", () => {
   assert.match(quoteHoopsSelection("tier1", false).lineItemName, /Tier 1/);
   assert.match(quoteHoopsSelection("special-offer", false).lineItemName, /Special offer/);
 });
+
+test("code-only handoff: $1,200 upfront, no monthly plan or add-on", () => {
+  const quote = quoteHoopsSelection("code-handoff", false);
+  assert.equal(quote.dueTodayCents, 120_000);
+  assert.equal(quote.monthlyCents, 0);
+  assert.equal(quote.addOn, false);
+  assert.throws(() => quoteHoopsSelection("code-handoff", true), HoopsPricingError);
+});

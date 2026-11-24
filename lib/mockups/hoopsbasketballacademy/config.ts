@@ -4,7 +4,7 @@
 
 export const HOOPS_PROPOSAL_SLUG = "hoopsbasketballacademy";
 
-export type HoopsSelectionId = "special-offer" | "tier1" | "tier2" | "tier3";
+export type HoopsSelectionId = "special-offer" | "tier1" | "tier2" | "tier3" | "code-handoff";
 
 export type HoopsSelection = {
   id: HoopsSelectionId;
@@ -22,6 +22,23 @@ export type HoopsSelection = {
 };
 
 export const HOOPS_SELECTIONS: Record<HoopsSelectionId, HoopsSelection> = {
+  "code-handoff": {
+    id: "code-handoff",
+    name: "Code-only handoff",
+    tagline: "Project source code for your own team or another provider to manage.",
+    dueTodayCents: 120_000,
+    monthlyCents: 0,
+    lineItemName: "Code-only handoff",
+    addOnAllowed: false,
+    addOnIncluded: false,
+    addOnPriceCents: 0,
+    includes: [
+      "Project source code handoff",
+      "Your team or another provider manages the project, deployment, hosting, maintenance and ongoing support",
+      "CEL3 Interactive is available for additional work at $125/hour",
+      "No monthly managed service plan",
+    ],
+  },
   "special-offer": {
     id: "special-offer",
     name: "Special offer — Complete Platform",
@@ -98,11 +115,11 @@ export const HOOPS_ADD_ON = {
   description: "Edit your own website without calling us — headline, text, buttons, photos and colors, previewed on desktop, tablet and phone.",
 };
 
-export const HOOPS_CODE_HANDOFF = {
-  name: "Code-only handoff",
-  description: "Receive the project source code for handoff to your own team or another provider. Someone else manages the project, including deployment, hosting, maintenance and ongoing support.",
-  pricing: "Handoff scope and price quoted separately. CEL3 Interactive is available for additional work at $125/hour.",
-};
+export const HOOPS_HANDOFF_TERMS = [
+  "The $1,200 code-only handoff is paid in full upfront.",
+  "Your team or another provider manages the project, deployment, hosting, maintenance and ongoing support. No monthly managed service plan is included.",
+  "CEL3 Interactive is available for additional work at $125/hour, quoted before work begins.",
+];
 
 /** 11:59pm America/New_York on the date the proposal names. */
 export const HOOPS_OFFER_EXPIRES_AT = new Date("2026-11-15T23:59:59-05:00");
@@ -129,6 +146,7 @@ export const HOOPS_NOT_INCLUDED = [
 ];
 
 export const HOOPS_ONBOARDING_CHECKLIST: Record<HoopsSelectionId, string[]> = {
+  "code-handoff": ["Contact details for the person or team receiving the source code and managing the project"],
   "special-offer": fullChecklist(),
   tier1: [
     "Photos of the gym and players (shot list provided), logo files, and any brand colors beyond Duke blue and white",

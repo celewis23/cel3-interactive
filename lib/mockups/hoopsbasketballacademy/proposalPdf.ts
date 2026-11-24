@@ -2,7 +2,7 @@
 // lib/platformBuilder/proposalPdf.ts, adapted for the accepted Hoops proposal:
 // selection, pricing, terms and the signature block the client agreed to.
 
-import { HOOPS_NOT_INCLUDED, HOOPS_OVERAGE_RATE_NOTE, HOOPS_PAYMENT_TERMS, HOOPS_SELECTIONS, HOOPS_ADD_ON, type HoopsSelectionId } from "./config";
+import { HOOPS_HANDOFF_TERMS, HOOPS_NOT_INCLUDED, HOOPS_OVERAGE_RATE_NOTE, HOOPS_PAYMENT_TERMS, HOOPS_SELECTIONS, HOOPS_ADD_ON, type HoopsSelectionId } from "./config";
 
 const PAGE_WIDTH = 612;
 const PAGE_HEIGHT = 792;
@@ -61,8 +61,8 @@ function buildLines(input: HoopsProposalPdfInput): PdfLine[] {
     { text: `Monthly, starting at launch: ${money(input.monthlyCents)}/month`, gap: 18 },
     { text: "Payment terms", size: 14, bold: true },
   );
-  for (const term of HOOPS_PAYMENT_TERMS) lines.push(...paragraph(term));
-  lines.push(...paragraph(HOOPS_OVERAGE_RATE_NOTE));
+  for (const term of (input.selectionId === "code-handoff" ? HOOPS_HANDOFF_TERMS : HOOPS_PAYMENT_TERMS)) lines.push(...paragraph(term));
+  if (input.selectionId !== "code-handoff") lines.push(...paragraph(HOOPS_OVERAGE_RATE_NOTE));
 
   lines.push({ text: "Not included", size: 14, bold: true, gap: 18 });
   for (const item of HOOPS_NOT_INCLUDED) lines.push({ text: `• ${item}` });

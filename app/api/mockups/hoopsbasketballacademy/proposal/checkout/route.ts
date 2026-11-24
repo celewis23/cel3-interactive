@@ -47,7 +47,7 @@ async function handleActivityPOST(req: NextRequest) {
           unit_amount: quote.dueTodayCents,
           product_data: {
             name: quote.lineItemName,
-            description: `Due today, paid in full. $${(quote.monthlyCents / 100).toFixed(2)}/month begins the month the platform launches.`,
+            description: quote.monthlyCents === 0 ? "Code-only handoff, paid in full. No monthly managed service plan. Additional work available at $125/hour." : `Due today, paid in full. $${(quote.monthlyCents / 100).toFixed(2)}/month begins the month the platform launches.`,
           },
         },
       }],

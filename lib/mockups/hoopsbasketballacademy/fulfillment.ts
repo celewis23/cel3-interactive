@@ -149,7 +149,7 @@ async function runFulfillment(session: Stripe.Checkout.Session): Promise<void> {
     priceHash: acceptance.priceHash,
     dueTodayCents: quote.dueTodayCents,
     pendingMonthlyAmountCents: quote.monthlyCents,
-    pendingSubscriptionStatus: "starts-at-launch",
+    pendingSubscriptionStatus: quote.monthlyCents > 0 ? "starts-at-launch" : null,
     stripePaymentMethodId: paymentMethodId,
     stripePaymentIntentId: typeof full.payment_intent === "string" ? full.payment_intent : paymentIntent?.id ?? null,
     stripeChargeId: charge?.id ?? null,
@@ -214,7 +214,7 @@ async function runFulfillment(session: Stripe.Checkout.Session): Promise<void> {
     to: acceptance.email,
     subject: "Your Hoops Basketball Academy proposal is confirmed",
     htmlBody: `<p>Hi ${escapeHtml(acceptance.contactName.split(" ")[0] || acceptance.contactName)},</p>
-      <p>Thanks for signing! You're confirmed for <strong>${escapeHtml(selection.name)}</strong> — ${amount} paid today, ${monthly}/month starting the month your platform launches.</p>
+      <p>Thanks for signing! You're confirmed for <strong>${escapeHtml(selection.name)}</strong> — ${amount} paid today, ${quote.monthlyCents === 0 ? "no monthly managed service plan" : `${monthly}/month starting the month your platform launches`}.</p>
       <p>Your signed proposal is attached. We'll be in touch shortly to schedule your kickoff call.</p>
       <p>CEL3 Interactive</p>`,
     attachments: [{ filename: `Hoops-Basketball-Academy-Proposal-${contractNumber}.pdf`, mimeType: "application/pdf", data: pdf }],

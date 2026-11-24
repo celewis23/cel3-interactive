@@ -40,7 +40,7 @@ const base = {
   priceHash: "abc123",
 };
 
-for (const selectionId of ["special-offer", "tier1", "tier2", "tier3"]) {
+for (const selectionId of ["special-offer", "tier1", "tier2", "tier3", "code-handoff"]) {
   test(`generates a well-formed PDF for ${selectionId}`, () => {
     const pdf = generateHoopsProposalPdf({
       ...base, selectionId, addOn: selectionId === "special-offer",

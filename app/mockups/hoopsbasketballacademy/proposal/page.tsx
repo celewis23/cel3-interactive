@@ -5,7 +5,7 @@ import styles from "./proposal.module.css";
 import {
   HOOPS_SELECTIONS,
   HOOPS_ADD_ON,
-  HOOPS_CODE_HANDOFF,
+  HOOPS_HANDOFF_TERMS,
   HOOPS_OFFER_EXPIRES_AT,
   HOOPS_PAYMENT_TERMS,
   HOOPS_NOT_INCLUDED,
@@ -16,7 +16,7 @@ import {
 import { quoteHoopsSelection } from "@/lib/mockups/hoopsbasketballacademy/pricing";
 
 const OVERVIEW_URL = "/mockups/hoopsbasketballacademy";
-const SELECTION_ORDER: HoopsSelectionId[] = ["special-offer", "tier1", "tier2", "tier3"];
+const SELECTION_ORDER: HoopsSelectionId[] = ["special-offer", "tier1", "tier2", "tier3", "code-handoff"];
 
 function money(cents: number): string {
   return `$${(cents / 100).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
@@ -32,7 +32,7 @@ export default function HoopsProposalPage() {
   const [selectionId, setSelectionId] = useState<HoopsSelectionId>("special-offer");
   const [addOnRequested, setAddOnRequested] = useState(false);
   const [step, setStep] = useState<"select" | "accept">("select");
-  const [ask, setAsk] = useState<null | "question" | "call" | "handoff">(null);
+  const [ask, setAsk] = useState<null | "question" | "call">(null);
 
   const [businessName, setBusinessName] = useState("");
   const [contactName, setContactName] = useState("");
@@ -46,6 +46,7 @@ export default function HoopsProposalPage() {
   const [error, setError] = useState<string | null>(null);
 
   const selection = HOOPS_SELECTIONS[selectionId];
+  const paymentTerms = selectionId === "code-handoff" ? HOOPS_HANDOFF_TERMS : HOOPS_PAYMENT_TERMS;
   const quote = useMemo(() => quoteHoopsSelection(selectionId, addOnRequested), [selectionId, addOnRequested]);
   const offerDaysLeft = daysUntil(HOOPS_OFFER_EXPIRES_AT);
 
@@ -136,7 +137,7 @@ export default function HoopsProposalPage() {
                     <p className={styles.cardTagline}>{s.tagline}</p>
                     <div className={styles.cardPrice}>
                       <div><b>{money(s.dueTodayCents)}</b><span>due today</span></div>
-                      <div><b>{money(s.monthlyCents)}</b><span>/month at launch</span></div>
+                      <div><b>{money(s.monthlyCents)}</b><span>{s.monthlyCents === 0 ? "no monthly plan" : "/month at launch"}</span></div>
                     </div>
 
                     {s.addOnAllowed && (
@@ -188,19 +189,12 @@ export default function HoopsProposalPage() {
             </div>
 
             <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>{HOOPS_CODE_HANDOFF.name}</h2>
-              <p className={styles.cardTagline}>{HOOPS_CODE_HANDOFF.description}</p>
-              <p className={styles.cardTagline}>{HOOPS_CODE_HANDOFF.pricing}</p>
-              <button type="button" className={`${styles.btn} ${styles.ghost}`} onClick={() => setAsk("handoff")}>Request a code-only handoff quote</button>
-            </div>
-
-            <div className={styles.section}>
               <h2 className={styles.sectionTitle}>Timeline &amp; payment</h2>
-              <p style={{ fontSize: 14, color: "var(--muted)" }}>{HOOPS_TIMELINE.summary}</p>
+              <p style={{ fontSize: 14, color: "var(--muted)" }}>{selectionId === "code-handoff" ? "Source code handoff timing is agreed at kickoff with your designated project manager." : HOOPS_TIMELINE.summary}</p>
               <ul style={{ fontSize: 14, lineHeight: 1.7, color: "var(--muted)" }}>
-                {HOOPS_PAYMENT_TERMS.map((t) => <li key={t}>{t}</li>)}
+                {paymentTerms.map((t) => <li key={t}>{t}</li>)}
               </ul>
-              <p style={{ fontSize: 13, color: "var(--muted)" }}>{HOOPS_OVERAGE_RATE_NOTE}</p>
+              {selectionId !== "code-handoff" && <p style={{ fontSize: 13, color: "var(--muted)" }}>{HOOPS_OVERAGE_RATE_NOTE}</p>}
               <h3 style={{ fontSize: 14, marginTop: 16 }}>Not included</h3>
               <ul style={{ fontSize: 14, color: "var(--muted)" }}>
                 {HOOPS_NOT_INCLUDED.map((t) => <li key={t}>{t}</li>)}
@@ -268,10 +262,10 @@ export default function HoopsProposalPage() {
               <div className={styles.terms}>
                 <strong>Terms</strong>
                 <ul>
-                  {HOOPS_PAYMENT_TERMS.map((t) => <li key={t}>{t}</li>)}
-                  <li>{HOOPS_OVERAGE_RATE_NOTE}</li>
+                  {paymentTerms.map((t) => <li key={t}>{t}</li>)}
+                  {selectionId !== "code-handoff" && <li>{HOOPS_OVERAGE_RATE_NOTE}</li>}
                   <li>Not included: {HOOPS_NOT_INCLUDED.join(", ")}.</li>
-                  <li>Change requests beyond the included monthly hours are quoted and billed separately before work begins.</li>
+                  {selectionId !== "code-handoff" && <li>Change requests beyond the included monthly hours are quoted and billed separately before work begins.</li>}
                 </ul>
               </div>
 
@@ -305,7 +299,7 @@ export default function HoopsProposalPage() {
   );
 }
 
-function AskModal({ kind, onClose }: { kind: "question" | "call" | "handoff"; onClose: () => void }) {
+function AskModal({ kind, onClose }: { kind: "question" | "call"; onClose: () => void }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -322,7 +316,7 @@ function AskModal({ kind, onClose }: { kind: "question" | "call" | "handoff"; on
       const res = await fetch("/api/mockups/hoopsbasketballacademy/proposal/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind: kind === "handoff" ? "question" : kind, name, email, message: kind === "handoff" ? `Code-only handoff quote request. ${message}` : message, preferredTime }),
+        body: JSON.stringify({ kind, name, email, message, preferredTime }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not send your message.");
@@ -345,7 +339,7 @@ function AskModal({ kind, onClose }: { kind: "question" | "call" | "handoff"; on
           </>
         ) : (
           <>
-            <h3 className={styles.d}>{kind === "call" ? "Request a call" : kind === "handoff" ? "Request a code-only handoff quote" : "Ask a question"}</h3>
+            <h3 className={styles.d}>{kind === "call" ? "Request a call" : "Ask a question"}</h3>
             <label className={styles.field}>Name<input value={name} onChange={(e) => setName(e.target.value)} /></label>
             <label className={styles.field}>Email<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
             {kind === "call" && (
