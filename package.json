@@ -12,6 +12,7 @@
     "test:activity": "node --test scripts/activity-log.test.mjs scripts/audit-retention.test.mjs",
     "test:mockups": "node --test scripts/mockup-choice.test.mjs scripts/mockup-directory.test.mjs scripts/ej-piano-device-view.test.mjs scripts/ej-piano-audio.test.mjs scripts/hoops-proposal-pricing.test.mjs scripts/hoops-proposal-pdf.test.mjs scripts/hoops-apps.test.mjs",
     "test:mockups:juliansjuicebox": "node --test scripts/juliansjuicebox-proposal-pricing.test.mjs scripts/juliansjuicebox-proposal-pdf.test.mjs scripts/juliansjuicebox-routes.test.mjs scripts/juliansjuicebox-mail.test.mjs scripts/juliansjuicebox-app-layout.test.mjs",
+    "test:mockups:awomansmindset": "node --test scripts/awomansmindset-proposal-pricing.test.mjs scripts/awomansmindset-proposal-pdf.test.mjs",
     "check:activity": "node scripts/instrument-activity.mjs --check",
     "seed:griotos-case-study": "node scripts/seed-griotos-case-study.mjs",
     "seed:biobox-case-study": "node scripts/seed-biobox-case-study.mjs",
