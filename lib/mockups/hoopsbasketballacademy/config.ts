@@ -1,6 +1,5 @@
 // Single source of truth for the Hoops Basketball Academy proposal: copy, pricing and terms.
-// Numbers here are verified against the downloaded proposal PDF
-// (public/mockups/hoopsbasketballacademy/Proposal — Hoops Basketball Academy Website & Platform.pdf).
+// Current pricing supersedes the original downloaded proposal PDF.
 // Change prices only here — the Checkout session and the webhook both read this file.
 
 export const HOOPS_PROPOSAL_SLUG = "hoopsbasketballacademy";
@@ -27,7 +26,7 @@ export const HOOPS_SELECTIONS: Record<HoopsSelectionId, HoopsSelection> = {
     id: "special-offer",
     name: "Special offer — Complete Platform",
     tagline: "Everything in Tier 3, plus the visual site editor, included free.",
-    dueTodayCents: 200_000,
+    dueTodayCents: 180_000,
     monthlyCents: 12_500,
     lineItemName: "Special offer — Complete Platform build (editor included)",
     addOnAllowed: false,
@@ -97,6 +96,12 @@ export const HOOPS_ADD_ON = {
   name: "Visual site editor",
   priceCents: 50_000,
   description: "Edit your own website without calling us — headline, text, buttons, photos and colors, previewed on desktop, tablet and phone.",
+};
+
+export const HOOPS_CODE_HANDOFF = {
+  name: "Code-only handoff",
+  description: "Receive the project source code for handoff to your own team or another provider. Someone else manages the project, including deployment, hosting, maintenance and ongoing support.",
+  pricing: "Handoff scope and price quoted separately. CEL3 Interactive is available for additional work at $125/hour.",
 };
 
 /** 11:59pm America/New_York on the date the proposal names. */

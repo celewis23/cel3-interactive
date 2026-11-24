@@ -5,6 +5,7 @@ import styles from "./proposal.module.css";
 import {
   HOOPS_SELECTIONS,
   HOOPS_ADD_ON,
+  HOOPS_CODE_HANDOFF,
   HOOPS_OFFER_EXPIRES_AT,
   HOOPS_PAYMENT_TERMS,
   HOOPS_NOT_INCLUDED,
@@ -31,7 +32,7 @@ export default function HoopsProposalPage() {
   const [selectionId, setSelectionId] = useState<HoopsSelectionId>("special-offer");
   const [addOnRequested, setAddOnRequested] = useState(false);
   const [step, setStep] = useState<"select" | "accept">("select");
-  const [ask, setAsk] = useState<null | "question" | "call">(null);
+  const [ask, setAsk] = useState<null | "question" | "call" | "handoff">(null);
 
   const [businessName, setBusinessName] = useState("");
   const [contactName, setContactName] = useState("");
@@ -187,6 +188,13 @@ export default function HoopsProposalPage() {
             </div>
 
             <div className={styles.section}>
+              <h2 className={styles.sectionTitle}>{HOOPS_CODE_HANDOFF.name}</h2>
+              <p className={styles.cardTagline}>{HOOPS_CODE_HANDOFF.description}</p>
+              <p className={styles.cardTagline}>{HOOPS_CODE_HANDOFF.pricing}</p>
+              <button type="button" className={`${styles.btn} ${styles.ghost}`} onClick={() => setAsk("handoff")}>Request a code-only handoff quote</button>
+            </div>
+
+            <div className={styles.section}>
               <h2 className={styles.sectionTitle}>Timeline &amp; payment</h2>
               <p style={{ fontSize: 14, color: "var(--muted)" }}>{HOOPS_TIMELINE.summary}</p>
               <ul style={{ fontSize: 14, lineHeight: 1.7, color: "var(--muted)" }}>
@@ -297,7 +305,7 @@ export default function HoopsProposalPage() {
   );
 }
 
-function AskModal({ kind, onClose }: { kind: "question" | "call"; onClose: () => void }) {
+function AskModal({ kind, onClose }: { kind: "question" | "call" | "handoff"; onClose: () => void }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -314,7 +322,7 @@ function AskModal({ kind, onClose }: { kind: "question" | "call"; onClose: () =>
       const res = await fetch("/api/mockups/hoopsbasketballacademy/proposal/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind, name, email, message, preferredTime }),
+        body: JSON.stringify({ kind: kind === "handoff" ? "question" : kind, name, email, message: kind === "handoff" ? `Code-only handoff quote request. ${message}` : message, preferredTime }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not send your message.");
@@ -337,7 +345,7 @@ function AskModal({ kind, onClose }: { kind: "question" | "call"; onClose: () =>
           </>
         ) : (
           <>
-            <h3 className={styles.d}>{kind === "call" ? "Request a call" : "Ask a question"}</h3>
+            <h3 className={styles.d}>{kind === "call" ? "Request a call" : kind === "handoff" ? "Request a code-only handoff quote" : "Ask a question"}</h3>
             <label className={styles.field}>Name<input value={name} onChange={(e) => setName(e.target.value)} /></label>
             <label className={styles.field}>Email<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
             {kind === "call" && (

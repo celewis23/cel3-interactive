@@ -31,14 +31,14 @@ const { quoteHoopsSelection, HoopsPricingError } = loadModule(
   { "./config": config },
 );
 
-test("special offer: $2,000 due today, $125/month, editor included, add-on not chargeable", () => {
+test("special offer: $1,800 due today, $125/month, editor included, add-on not chargeable", () => {
   const quote = quoteHoopsSelection("special-offer", false);
-  assert.equal(quote.dueTodayCents, 200_000);
+  assert.equal(quote.dueTodayCents, 180_000);
   assert.equal(quote.monthlyCents, 12_500);
   assert.equal(quote.addOn, true);
 
   const withAddOnRequested = quoteHoopsSelection("special-offer", true);
-  assert.equal(withAddOnRequested.dueTodayCents, 200_000, "requesting the add-on again must not double-charge it");
+  assert.equal(withAddOnRequested.dueTodayCents, 180_000, "requesting the add-on again must not double-charge it");
 });
 
 test("tier 1: $1,500 due today, $80/month, no add-on available", () => {
