@@ -57,6 +57,13 @@ const nextConfig: NextConfig = {
       { source: "/mockups/hoopsbasketballacademy/app/parent", destination: "/mockups/hoopsbasketballacademy/app/ParentApp.dc.html" },
       { source: "/mockups/hoopsbasketballacademy/app/athlete", destination: "/mockups/hoopsbasketballacademy/app/AthleteApp.dc.html" },
 
+      // A Woman's Mindset — two concepts (editorial / noir), each with a site + Studio console.
+      { source: "/mockups/awomansmindset", destination: "/mockups/awomansmindset/index.html" },
+      { source: "/mockups/awomansmindset/editorial", destination: "/mockups/awomansmindset/editorial/Main.dc.html" },
+      { source: "/mockups/awomansmindset/editorial/studio", destination: "/mockups/awomansmindset/editorial/studio/Admin.dc.html" },
+      { source: "/mockups/awomansmindset/noir", destination: "/mockups/awomansmindset/noir/Noir.dc.html" },
+      { source: "/mockups/awomansmindset/noir/studio", destination: "/mockups/awomansmindset/noir/studio/AdminNoir.dc.html" },
+
       // Julian's Juicebox — three designs (a/b/c), each with site/console/app, over the raw exports.
       { source: "/mockups/juliansjuicebox", destination: "/mockups/juliansjuicebox/Overview.dc.html" },
       { source: "/mockups/juliansjuicebox/a/site", destination: "/mockups/juliansjuicebox/a/site/Main.dc.html" },
@@ -147,6 +154,11 @@ const nextConfig: NextConfig = {
       {
         // Client preview + live proposal/checkout — keep out of search indexes.
         source: "/mockups/juliansjuicebox/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }],
+      },
+      {
+        // Client preview + live proposal/checkout — keep out of search indexes.
+        source: "/mockups/awomansmindset/:path*",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }],
       },
     ];

@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Studio Noir — Ada Thompson admin console</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+<script src="/mockups/awomansmindset/preview-chrome.js" data-section="console" defer></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&amp;family=Archivo:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B0909;font-family:'Archivo',system-ui,sans-serif;color:#F2EEEA;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#F0545F;text-decoration:none}a:hover{color:#F2EEEA}
+button{font-family:'Archivo',system-ui,sans-serif}
+input,textarea,select{font-family:'Archivo',system-ui,sans-serif;font-size:15px;color:#F2EEEA}
+input:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid #F0545F;outline-offset:2px}
+.ad-nav{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:0 14px;border:0;border-radius:3px;background:transparent;color:#B8B0A9;font-size:14px;font-weight:600;cursor:pointer;text-align:left}
+.ad-nav:hover{background:rgba(255,255,255,.07);color:#FFFFFF}
+.ad-nav.on{background:#7A0F1F;color:#FFFFFF}
+.ad-pill{min-height:38px;padding:0 16px;border-radius:999px;border:1px solid #3A3130;background:#141010;color:#E8E2DC;font-size:13px;font-weight:600;cursor:pointer}
+.ad-pill.on{background:#C1121F;border-color:#C1121F;color:#FFFFFF}
+.ad-sec{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:8px 12px;border:1px solid transparent;border-radius:3px;background:transparent;cursor:pointer;text-align:left;color:#F2EEEA}
+.ad-sec:hover{background:#1E1817}
+.ad-sec.on{background:#1E1817;border-color:#3A3130}
+.ad-msg{display:flex;flex-direction:column;gap:4px;width:100%;padding:14px 16px;border:0;border-bottom:1px solid #2A2322;background:#141010;cursor:pointer;text-align:left;color:#F2EEEA}
+.ad-msg:hover{background:#1E1817}
+.ad-msg.on{background:#2A1215;box-shadow:inset 3px 0 0 #7A0F1F}
+.fw-b{font-weight:700}.fw-n{font-weight:500}
+.ad-tr{cursor:pointer}
+.ad-tr:hover td{background:#1E1817}
+.ad-tr.on td{background:#2A1215}
+.ad-card-on{border-color:#7A0F1F!important;box-shadow:inset 3px 0 0 #7A0F1F}
+.ad-btn{min-height:44px;padding:0 20px;border-radius:2px;border:1px solid #C1121F;background:#C1121F;color:#FFFFFF;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.ad-btn:hover{background:#9A0E1A;border-color:#9A0E1A}
+.ad-btn2{min-height:44px;padding:0 18px;border-radius:2px;border:1px solid #3A3130;background:transparent;color:#F2EEEA;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.ad-btn2:hover{border-color:#F2EEEA}
+.st{display:inline-block;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.st-Draft{background:#262222;color:#CFC7C0}
+.st-Sent{background:#2E2410;color:#E8B65A}
+.st-Signed{background:#10261B;color:#7FD1A3}
+.st-Paid{background:#3A0D14;color:#F28A93}
+.ad-field{display:flex;flex-direction:column;gap:8px}
+.ad-field label{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#9C938D}
+.ad-input{width:100%;min-height:46px;padding:10px 14px;border:1px solid #3A3130;border-radius:3px;background:#141010}
+.ad-media:hover .ad-media-cap{opacity:1}
+.ad-media-cap{opacity:.92;transition:opacity .3s}
+.nr-banner{background-color:#141010;background-image:linear-gradient(90deg,rgba(11,9,9,.96) 0%,rgba(11,9,9,.7) 55%,rgba(11,9,9,.35) 100%),url(/mockups/awomansmindset/assets/bar.jpg);background-size:cover;background-position:center 28%;background-blend-mode:normal,luminosity}
+main img,aside img{filter:grayscale(1) contrast(1.08);transition:filter .8s}
+.ad-media:hover img,.ad-sec.on img{filter:none}
+.ad-h1{letter-spacing:-.01em}
+.ad-field label,.ad-pill,.ad-tab{font-family:'JetBrains Mono',monospace}
+.ad-nav.on{background:#C1121F!important}
+.ad-msg.on{box-shadow:inset 3px 0 0 #C1121F!important}
+.ad-card-on{border-color:#C1121F!important;box-shadow:inset 3px 0 0 #C1121F!important}
+::placeholder{color:#8F8680}
+.ad-mob{display:none!important}
+.ad-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:56px;border:0;background:transparent;color:#8F8680;font-size:11px;font-weight:700;cursor:pointer;position:relative}
+.ad-tab.on{color:#FFFFFF}
+.ad-tab.on::before{content:"";position:absolute;top:0;left:28%;right:28%;height:3px;border-radius:0 0 3px 3px;background:#C1121F}
+@media (max-width: 860px){
+.ad-side,.ad-desk{display:none!important}
+.ad-mob{display:flex!important}
+.ad-main{padding:0 16px 110px!important}
+.ad-topbar{margin-bottom:18px!important}
+.ad-h1{font-size:28px!important}
+.ad-banner{padding:24px 22px!important}
+.ad-banner p:first-child{font-size:28px!important}
+.ad-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+.ad-kpis > div{padding:16px!important}
+.ad-kpis p+p{font-size:32px!important}
+.ad-two{grid-template-columns:minmax(0,1fr)!important}
+.ad-hscroll{flex-wrap:nowrap!important;overflow-x:auto;padding-bottom:4px;margin-right:-16px;padding-right:16px}
+.ad-hscroll > *{flex:none}
+.ad-secscroll{flex-direction:row!important;overflow-x:auto;gap:8px!important;padding-bottom:4px}
+.ad-secscroll .ad-sec{flex:none;width:auto!important;min-width:170px;border-color:#2A2322}
+.ad-seclist{padding:10px!important}
+.ad-preview{min-height:240px!important}
+.ad-mgrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+.ad-folders{flex-direction:row!important;flex-wrap:nowrap!important;overflow-x:auto;flex-basis:100%!important;gap:8px!important}
+.ad-folders .ad-pill{flex:none;min-height:44px!important;gap:10px}
+.ad-inbox.reading .ad-folders,.ad-inbox.reading .ad-list{display:none!important}
+.ad-inbox.listing .ad-reader{display:none!important}
+.ad-reader{padding:20px!important}
+.ad-compose{inset:0!important;width:100%!important;border-radius:0!important;display:flex;flex-direction:column}
+.ad-compose textarea{flex:1}
+.ad-detail{padding:20px!important}
+}
+</style>
+</helmet>
+
+<div style="width: 100%; min-height: 100vh; display: flex; flex-wrap: wrap; background: #0B0909">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="ad-side" style="flex: 1 1 248px; max-width: 100%; background: #000000; color: #B8B0A9; padding: 26px 18px; display: flex; flex-direction: column; gap: 26px">
+    <div style="display: flex; align-items: center; gap: 12px; padding: 0 6px">
+      <span aria-hidden="true" style="width: 42px; height: 42px; border-radius: 50%; background: #C1121F; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 16px; color: #FFFFFF; flex: none">AT</span>
+      <span style="display: flex; flex-direction: column; line-height: 1.1">
+        <span style="font-family: 'Cormorant Garamond', serif; font-size: 20px; color: #FFFFFF">Studio</span>
+        <span style="font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #8F8680">A Woman’s Mindset</span>
+      </span>
+    </div>
+
+    <nav class="ad-side-nav" aria-label="Studio" style="display: flex; flex-direction: column; gap: 4px">
+      <button type="button" class="ad-nav {{nav.dash}}" onClick="{{goDash}}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>
+        Dashboard
+      </button>
+      <button type="button" class="ad-nav {{nav.content}}" onClick="{{goContent}}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path><path d="M13 7l4 4"></path></svg>
+        Site content
+      </button>
+      <button type="button" class="ad-nav {{nav.media}}" onClick="{{goMedia}}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><path d="M21 16l-5-5-9 9"></path></svg>
+        Photos &amp; video
+      </button>
+      <button type="button" class="ad-nav {{nav.inbox}}" onClick="{{goInbox}}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></svg>
+        <span style="flex: 1">Inbox</span>
+        <span style="min-width: 24px; height: 22px; padding: 0 7px; border-radius: 999px; background: #C1121F; color: #F2EEEA; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center">{{unread}}</span>
+      </button>
+      <button type="button" class="ad-nav {{nav.contracts}}" onClick="{{goContracts}}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6M8 13h8M8 17h5"></path></svg>
+        Contracts
+      </button>
+    </nav>
+
+    <div class="ad-side-foot" style="margin-top: auto; display: flex; flex-direction: column; gap: 14px">
+      <div style="background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); border-radius: 3px; padding: 16px">
+        <p style="margin: 0; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #8F8680">Live site</p>
+        <p style="margin: 6px 0 0; font-size: 14px; color: #FFFFFF; display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: #6FCF97"></span>awomansmindset.com</p>
+        <a href="/mockups/awomansmindset/noir" style="display: inline-block; margin-top: 10px; font-size: 13px; font-weight: 700; color: #F26D76">View site →</a>
+      </div>
+      <a href="/mockups/awomansmindset" style="font-size: 13px; color: #8F8680; padding: 0 6px">← Back to start</a>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="ad-main" style="flex: 999 1 560px; min-width: 0; padding: 30px 40px 60px">
+
+    <!-- mobile app bar -->
+    <div class="ad-mob" style="position: sticky; top: 0; z-index: 40; margin: 0 -16px 16px; padding: 12px 16px; background: #000000; color: #FFFFFF; align-items: center; justify-content: space-between; gap: 12px">
+      <span style="display: flex; align-items: center; gap: 10px">
+        <span aria-hidden="true" style="width: 34px; height: 34px; border-radius: 50%; background: #C1121F; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; color: #FFFFFF">AT</span>
+        <span style="font-family: 'Cormorant Garamond', serif; font-size: 20px">Studio</span>
+      </span>
+      <span style="display: flex; align-items: center; gap: 8px">
+        <button type="button" onClick="{{openCompose}}" aria-label="New email" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); background: transparent; color: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg>
+        </button>
+        <img src="/mockups/awomansmindset/assets/portrait.jpg" alt="Ada Thompson" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; object-position: 50% 25%; border: 2px solid #F26D76">
+      </span>
+    </div>
+
+    <!-- top bar -->
+    <div class="ad-topbar" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 28px">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <h1 class="ad-h1" style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 34px; color: #F2EEEA">{{viewTitle}}</h1>
+        <span style="padding: 5px 10px; border-radius: 999px; background: #2E2410; color: #E8B65A; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase">Sample data</span>
+      </div>
+      <div class="ad-desk" style="display: flex; align-items: center; gap: 12px">
+        <button type="button" class="ad-btn2" onClick="{{openCompose}}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+          New email
+        </button>
+        <img src="/mockups/awomansmindset/assets/portrait.jpg" alt="Ada Thompson" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; object-position: 50% 25%; border: 2px solid #FFFFFF; box-shadow: 0 2px 6px rgba(61,10,19,.2)">
+      </div>
+    </div>
+
+    <sc-if value="{{toast}}" hint-placeholder-val="{{ false }}">
+      <div role="status" style="margin-bottom: 20px; padding: 14px 18px; border-radius: 3px; background: #10261B; color: #7FD1A3; font-size: 14px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 12px">
+        <span>{{toast}}</span>
+        <button type="button" onClick="{{clearToast}}" aria-label="Dismiss" style="border: 0; background: transparent; color: #7FD1A3; font-size: 20px; cursor: pointer; min-width: 44px; min-height: 36px">×</button>
+      </div>
+    </sc-if>
+
+    <!-- ========== DASHBOARD ========== -->
+    <sc-if value="{{isDash}}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; flex-direction: column; gap: 22px">
+        <div class="ad-banner nr-banner" style="color: #F2EEEA; border-radius: 4px; border-left: 4px solid #C1121F; padding: 30px 32px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px">
+          <div>
+            <p style="margin: 0; font-family: 'Cormorant Garamond', serif; font-size: 34px">Buongiorno, <span style="font-style: italic; color: #F26D76">Ada.</span></p>
+            <p style="margin: 8px 0 0; font-size: 15px; color: #D8D0C9">You have {{unread}} new brand emails and 2 contracts waiting on you.</p>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px">
+            <button type="button" class="ad-btn2" onClick="{{goContent}}">Edit homepage</button>
+            <button type="button" class="ad-btn2" onClick="{{goContracts}}">New contract</button>
+          </div>
+        </div>
+
+        <div class="ad-kpis" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px">
+          <div style="background: #141010; border: 1px solid #2A2322; border-radius: 4px; padding: 22px"><p style="margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #9C938D">Unread emails</p><p style="margin: 10px 0 0; font-family: 'Cormorant Garamond', serif; font-size: 44px; color: #F2EEEA">{{unread}}</p></div>
+          <div style="background: #141010; border: 1px solid #2A2322; border-radius: 4px; padding: 22px"><p style="margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #9C938D">Awaiting signature</p><p style="margin: 10px 0 0; font-family: 'Cormorant Garamond', serif; font-size: 44px; color: #F2EEEA">2</p></div>
+          <div style="background: #141010; border: 1px solid #2A2322; border-radius: 4px; padding: 22px"><p style="margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #9C938D">Deliverables this week</p><p style="margin: 10px 0 0; font-family: 'Cormorant Garamond', serif; font-size: 44px; color: #F2EEEA">3</p></div>
+          <div style="background: #141010; border: 1px solid #2A2322; border-radius: 4px; padding: 22px"><p style="margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #9C938D">Outstanding invoices</p><p style="margin: 10px 0 0; font-family: 'Cormorant Garamond', serif; font-size: 44px; color: #F2EEEA">€1,450</p></div>
+        </div>
+
+        <div class="ad-two" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px">
+          <div style="background: #141010; border: 1px solid #2A2322; border-radius: 4px; padding: 24px">
+            <h2 style="margin: 0 0 14px; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 22px; color: #F2EEEA">Needs your attention</h2>
+            <button type="button" onClick="{{goInbox}}" style="width: 100%; display: flex; align-items: center; gap: 14px; padding: 14px 0; border: 0; border-bottom: 1px solid #2A2322; background: transparent; cursor: pointer; text-align: left; color: #F2EEEA"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #F0545F; flex: none"></span><span style="flex: 1; font-size: 15px">Lumen Curl Co. sent a brief for 3 UGC videos</span><span style="font-size: 13px; color: #F0545F; font-weight: 700">Reply</span></button>
+            <button type="button" onClick="{{goContracts}}" style="width: 100%; display: flex; align-items: center; gap: 14px; padding: 14px 0; border: 0; border-bottom: 1px solid #2A2322; background: transparent; cursor: pointer; text-align: left; color: #F2EEEA"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #C08A1E; flex: none"></span><span style="flex: 1; font-size: 15px">Maison Verde contract is out for signature</span><span style="font-size: 13px; color: #F0545F; font-weight: 700">Review</span></button>
+            <button type="button" onClick="{{goContracts}}" style="width: 100%; display: flex; align-items: center; gap: 14px; padding: 14px 0; border: 0; background: transparent; cursor: pointer; text-align: left; color: #F2EEEA"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #2E7D57; flex: none"></span><span style="flex: 1; font-size: 15px">Bloom Active signed — invoice ready to send</span><span style="font-size: 13px; color: #F0545F; font-weight: 700">Invoice</span></button>
+          </div>
+          <div style="background: #141010; border: 1px solid #2A2322; border-radius: 4px; padding: 24px">
+            <h2 style="margin: 0 0 14px; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 22px; color: #F2EEEA">Upcoming deliverables</h2>
+            <div style="display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid #2A2322"><span style="width: 52px; text-align: center; flex: none"><span style="display: block; font-size: 11px; font-weight: 700; letter-spacing: .12em; color: #F0545F">NOV</span><span style="display: block; font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #F2EEEA">19</span></span><span style="flex: 1"><span style="display: block; font-size: 15px; font-weight: 600">Reel — knitwear try-on</span><span style="display: block; font-size: 13px; color: #9C938D">Maison Verde · 1 of 2</span></span></div>
+            <div style="display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid #2A2322"><span style="width: 52px; text-align: center; flex: none"><span style="display: block; font-size: 11px; font-weight: 700; letter-spacing: .12em; color: #F0545F">NOV</span><span style="display: block; font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #F2EEEA">21</span></span><span style="flex: 1"><span style="display: block; font-size: 15px; font-weight: 600">5 product photos</span><span style="display: block; font-size: 13px; color: #9C938D">Bloom Active</span></span></div>
+            <div style="display: flex; align-items: center; gap: 14px; padding: 12px 0"><span style="width: 52px; text-align: center; flex: none"><span style="display: block; font-size: 11px; font-weight: 700; letter-spacing: .12em; color: #F0545F">NOV</span><span style="display: block; font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #F2EEEA">22</span></span><span style="flex: 1"><span style="display: block; font-size: 15px; font-weight: 600">Wash-day routine video (DE)</span><span style="display: block; font-size: 13px; color: #9C938D">Lumen Curl Co. · pending contract</span></span></div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ========== SITE CONTENT ========== -->
+    <sc-if value="{{isContent}}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+        <div class="ad-seclist" style="flex: 1 1 240px; min-width: 0; background: #141010; border: 1px solid #2A2322; border-radius: 4px; padding: 12px">
+          <p style="margin: 6px 8px 10px; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #9C938D">Homepage sections</p>
+          <div class="ad-secscroll" style="display: flex; flex-direction: column; gap: 2px">
+          <sc-for list="{{sections}}" as="s" hint-placeholder-count="6">
+            <button type="button" class="ad-sec {{s.cls}}" onClick="{{s.pick}}">
+              <img src="{{s.img}}" alt="" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex: none">
+              <span style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+                <span style="font-size: 15px; font-weight: 700">{{s.name}}</span>
+                <span style="font-size: 12px; color: #9C938D">{{s.status}}</span>
+              </span>
+            </button>
+          </sc-for>
+          </div>
+        </div>
+
+        <div style="flex: 999 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+          <div style="background: #141010; border: 1px solid #2A2322; border-radius: 4px; padding: 26px; display: flex; flex-direction: column; gap: 20px">
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+              <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 26px; color: #F2EEEA">{{cur.name}}</h2>
+              <div style="display: flex; gap: 10px">
+                <button type="button" class="ad-btn2" onClick="{{saveDraft}}">Save draft</button>
+                <button type="button" class="ad-btn" onClick="{{publish}}">Publish</button>
+              </div>
+            </div>
+            <div class="ad-field">
+              <label for="ad-headline">Headline</label>
+              <input id="ad-headline" class="ad-input" type="text" value="{{cur.headline}}" onInput="{{onHeadline}}">
+            </div>
+            <div class="ad-field">
+              <label for="ad-sub">Supporting text</label>
+              <textarea id="ad-sub" class="ad-input" rows="3" value="{{cur.sub}}" onInput="{{onSub}}" style="resize: vertical; line-height: 1.6"></textarea>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: center">
+              <img src="{{cur.img}}" alt="Current background image for this section" style="width: 120px; height: 90px; border-radius: 3px; object-fit: cover; flex: none">
+              <div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 10px">
+                <span style="font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #9C938D">Background image or video</span>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px">
+                  <button type="button" class="ad-btn2" onClick="{{goMedia}}">Choose from library</button>
+                  <button type="button" class="ad-btn2">Upload new</button>
+                </div>
+              </div>
+            </div>
+            <sc-if value="{{cur.isShop}}" hint-placeholder-val="{{ false }}">
+              <div style="border-top: 1px solid #2A2322; padding-top: 18px; display: flex; flex-direction: column; gap: 10px">
+                <span style="font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #9C938D">Shop links</span>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center"><input aria-label="Link 1 label" class="ad-input" style="flex: 1 1 180px" value="Handpicked favorites"><input aria-label="Link 1 URL" class="ad-input" style="flex: 2 1 240px" value="shopmy.us/shop/awomansmindset"></div>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center"><input aria-label="Link 2 label" class="ad-input" style="flex: 1 1 180px" value="Curly girl essentials"><input aria-label="Link 2 URL" class="ad-input" style="flex: 2 1 240px" value="a.co/d/0elijb2m"></div>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center"><input aria-label="Link 3 label" class="ad-input" style="flex: 1 1 180px" value="The storefront"><input aria-label="Link 3 URL" class="ad-input" style="flex: 2 1 240px" value="store.awin.com/awomansmindset"></div>
+                <button type="button" class="ad-btn2" style="align-self: flex-start">+ Add link</button>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="background: #141010; border: 1px solid #2A2322; border-radius: 4px; padding: 16px">
+            <p style="margin: 4px 6px 12px; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #9C938D">Live preview</p>
+            <div class="ad-preview" style="position: relative; border-radius: 3px; overflow: hidden; min-height: 300px; display: flex; align-items: flex-end; background: #0B0909">
+              <img src="{{cur.img}}" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 25%; filter: grayscale(1) contrast(1.1)">
+              <div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(11,9,9,.92), rgba(11,9,9,.2))"></div>
+              <div style="position: relative; padding: 28px; color: #F2EEEA">
+                <p style="margin: 0; font-family: 'Cormorant Garamond', serif; font-size: clamp(30px, 4vw, 52px); line-height: 1; white-space: pre-line">{{cur.headline}}</p>
+                <p style="margin: 14px 0 0; max-width: 520px; font-size: 15px; line-height: 1.6; color: #E8E2DC">{{cur.sub}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ========== MEDIA ========== -->
+    <sc-if value="{{isMedia}}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 18px">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+          <p style="margin: 0; font-size: 15px; color: #CFC7C0">{{mediaCount}} photos · Reels and videos appear here once uploaded.</p>
+          <button type="button" class="ad-btn">Upload photos or video</button>
+        </div>
+        <div class="ad-mgrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px">
+          <button type="button" style="aspect-ratio: 4 / 5; border: 2px dashed #3A3130; border-radius: 3px; background: #141010; color: #F0545F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: pointer; font-size: 14px; font-weight: 700">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M12 16V4M6 10l6-6 6 6M4 20h16"></path></svg>
+            Drop files here
+          </button>
+          <sc-for list="{{media}}" as="m" hint-placeholder-count="7">
+            <figure class="ad-media" style="margin: 0; position: relative; aspect-ratio: 4 / 5; border-radius: 3px; overflow: hidden; background: #000000">
+              <img src="{{m.src}}" alt="{{m.alt}}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover">
+              <figcaption class="ad-media-cap" style="position: absolute; left: 0; right: 0; bottom: 0; padding: 30px 12px 12px; background: linear-gradient(to top, rgba(42,9,16,.9), rgba(42,9,16,0)); color: #FFFFFF; display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 13px; font-weight: 700">{{m.name}}</span>
+                <span style="font-size: 12px; color: #FFFFFF">{{m.used}}</span>
+              </figcaption>
+            </figure>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ========== INBOX ========== -->
+    <sc-if value="{{isInbox}}" hint-placeholder-val="{{ false }}">
+      <div class="ad-inbox {{inboxMode}}" style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+        <div class="ad-folders" style="flex: 1 1 180px; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+          <button type="button" class="ad-btn ad-desk" onClick="{{openCompose}}" style="justify-content: center; margin-bottom: 8px">Compose</button>
+          <sc-for list="{{folders}}" as="fo" hint-placeholder-count="5">
+            <button type="button" class="ad-pill {{fo.cls}}" onClick="{{fo.pick}}" style="display: flex; justify-content: space-between; align-items: center; border-radius: 3px; min-height: 42px; text-align: left">
+              <span>{{fo.name}}</span><span style="font-size: 12px; opacity: .8">{{fo.count}}</span>
+            </button>
+          </sc-for>
+          <p class="ad-desk" style="margin: 12px 4px 0; font-size: 12px; line-height: 1.5; color: #9C938D">Connected: adathompson.collabs@gmail.com</p>
+        </div>
+
+        <div class="ad-list" style="flex: 2 1 280px; min-width: 0; background: #141010; border: 1px solid #2A2322; border-radius: 4px; overflow: hidden">
+          <div style="padding: 12px"><input aria-label="Search mail" class="ad-input" type="search" placeholder="Search mail"></div>
+          <sc-for list="{{messages}}" as="msg" hint-placeholder-count="5">
+            <button type="button" class="ad-msg {{msg.cls}}" onClick="{{msg.pick}}">
+              <span style="display: flex; justify-content: space-between; gap: 10px; width: 100%">
+                <span class="{{msg.wcls}}" style="font-size: 14px">{{msg.from}}</span>
+                <span style="font-size: 12px; color: #9C938D; flex: none">{{msg.time}}</span>
+              </span>
+              <span class="{{msg.wcls}}" style="font-size: 14px">{{msg.subject}}</span>
+              <span style="font-size: 13px; color: #9C938D; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%">{{msg.preview}}</span>
+            </button>
+          </sc-for>
+        </div>
+
+        <div class="ad-reader" style="flex: 3 1 380px; min-width: 0; background: #141010; border: 1px solid #2A2322; border-radius: 4px; padding: 26px; display: flex; flex-direction: column; gap: 18px">
+          <button type="button" class="ad-mob" onClick="{{backToList}}" style="align-self: flex-start; align-items: center; gap: 8px; min-height: 44px; padding: 0 4px; border: 0; background: transparent; color: #F0545F; font-size: 14px; font-weight: 700; cursor: pointer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+            All messages
+          </button>
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: flex-start">
+            <div>
+              <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 24px; color: #F2EEEA">{{curMsg.subject}}</h2>
+              <p style="margin: 8px 0 0; font-size: 14px; color: #9C938D"><strong style="color: #F2EEEA">{{curMsg.from}}</strong> &lt;{{curMsg.email}}&gt; · {{curMsg.time}}</p>
+            </div>
+            <span style="padding: 5px 10px; border-radius: 999px; background: #3A0D14; color: #F28A93; font-size: 12px; font-weight: 700">{{curMsg.tag}}</span>
+          </div>
+          <p style="margin: 0; font-size: 15px; line-height: 1.75; color: #E8E2DC; white-space: pre-line">{{curMsg.body}}</p>
+          <sc-if value="{{curMsg.attach}}" hint-placeholder-val="{{ true }}">
+            <span style="align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid #3A3130; border-radius: 3px; font-size: 14px; color: #F2EEEA">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path></svg>
+              {{curMsg.attach}}
+            </span>
+          </sc-if>
+          <div style="border-top: 1px solid #2A2322; padding-top: 18px; display: flex; flex-direction: column; gap: 12px">
+            <label for="ad-reply" style="font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #9C938D">Reply</label>
+            <textarea id="ad-reply" class="ad-input" rows="4" placeholder="Write your reply…" value="{{reply}}" onInput="{{onReply}}" style="resize: vertical; line-height: 1.6"></textarea>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px">
+              <button type="button" class="ad-btn" onClick="{{sendReply}}">Send reply</button>
+              <button type="button" class="ad-btn2" onClick="{{toContract}}">Turn into contract</button>
+              <button type="button" class="ad-btn2">Send media kit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ========== CONTRACTS ========== -->
+    <sc-if value="{{isContracts}}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 18px">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+          <div class="ad-hscroll" role="tablist" aria-label="Filter contracts" style="display: flex; flex-wrap: wrap; gap: 8px">
+            <sc-for list="{{cFilters}}" as="cf" hint-placeholder-count="5">
+              <button type="button" role="tab" class="ad-pill {{cf.cls}}" onClick="{{cf.pick}}">{{cf.name}}</button>
+            </sc-for>
+          </div>
+          <div style="display: flex; gap: 10px">
+            <button type="button" class="ad-btn2">Upload PDF</button>
+            <button type="button" class="ad-btn">+ New contract</button>
+          </div>
+        </div>
+
+        <div class="ad-mob" style="flex-direction: column; gap: 10px">
+          <sc-for list="{{contracts}}" as="c" hint-placeholder-count="4">
+            <button type="button" onClick="{{c.pick}}" class="{{c.cardCls}}" style="width: 100%; text-align: left; background: #141010; border: 1px solid #2A2322; border-radius: 4px; padding: 16px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; color: #F2EEEA">
+              <span style="display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%">
+                <span style="font-size: 16px; font-weight: 700">{{c.brand}}</span>
+                <span class="st st-{{c.status}}">{{c.status}}</span>
+              </span>
+              <span style="font-size: 14px; color: #CFC7C0">{{c.campaign}} · {{c.deliv}}</span>
+              <span style="display: flex; justify-content: space-between; width: 100%; font-size: 14px"><span style="font-weight: 700">{{c.fee}}</span><span style="color: #9C938D">Due {{c.due}}</span></span>
+            </button>
+          </sc-for>
+        </div>
+
+        <div class="ad-desk" style="background: #141010; border: 1px solid #2A2322; border-radius: 4px; overflow-x: auto">
+          <table style="width: 100%; min-width: 760px; border-collapse: collapse; font-size: 14px">
+            <thead>
+              <tr style="text-align: left; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: #9C938D">
+                <th scope="col" style="padding: 16px 18px; border-bottom: 1px solid #2A2322">Brand</th>
+                <th scope="col" style="padding: 16px 18px; border-bottom: 1px solid #2A2322">Campaign</th>
+                <th scope="col" style="padding: 16px 18px; border-bottom: 1px solid #2A2322">Deliverables</th>
+                <th scope="col" style="padding: 16px 18px; border-bottom: 1px solid #2A2322">Fee</th>
+                <th scope="col" style="padding: 16px 18px; border-bottom: 1px solid #2A2322">Due</th>
+                <th scope="col" style="padding: 16px 18px; border-bottom: 1px solid #2A2322">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{contracts}}" as="c" hint-placeholder-count="5">
+                <tr class="ad-tr {{c.cls}}" onClick="{{c.pick}}">
+                  <td style="padding: 16px 18px; border-bottom: 1px solid #221B1A; font-weight: 700">{{c.brand}}</td>
+                  <td style="padding: 16px 18px; border-bottom: 1px solid #221B1A">{{c.campaign}}</td>
+                  <td style="padding: 16px 18px; border-bottom: 1px solid #221B1A; color: #CFC7C0">{{c.deliv}}</td>
+                  <td style="padding: 16px 18px; border-bottom: 1px solid #221B1A">{{c.fee}}</td>
+                  <td style="padding: 16px 18px; border-bottom: 1px solid #221B1A">{{c.due}}</td>
+                  <td style="padding: 16px 18px; border-bottom: 1px solid #221B1A"><span class="st st-{{c.status}}">{{c.status}}</span></td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ad-detail" style="background: #141010; border: 1px solid #2A2322; border-radius: 4px; padding: 26px; display: flex; flex-wrap: wrap; gap: 30px">
+          <div style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+            <p style="margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #9C938D">Contract details</p>
+            <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 28px; color: #F2EEEA">{{curC.brand}} — <span style="font-style: italic; color: #F0545F">{{curC.campaign}}</span></h2>
+            <p style="margin: 0; font-size: 15px; line-height: 1.7; color: #CFC7C0">{{curC.terms}}</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px">
+              <button type="button" class="ad-btn" onClick="{{sendSign}}">Send for e-signature</button>
+              <button type="button" class="ad-btn2">Download PDF</button>
+              <button type="button" class="ad-btn2" onClick="{{markPaid}}">Mark as paid</button>
+            </div>
+          </div>
+          <div style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+            <p style="margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #9C938D">Deliverables</p>
+            <sc-for list="{{curC.items}}" as="it" hint-placeholder-count="3">
+              <label style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 14px; border: 1px solid #2A2322; border-radius: 3px; font-size: 14px; cursor: pointer">
+                <input type="checkbox" style="width: 18px; height: 18px; accent-color: #C1121F">
+                {{it}}
+              </label>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </main>
+
+  <!-- ========== MOBILE TAB BAR ========== -->
+  <nav class="ad-mob" aria-label="Studio sections" style="position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: #000000; padding: 4px 6px 10px; box-shadow: 0 -10px 30px rgba(42,9,16,.25)">
+    <button type="button" class="ad-tab {{nav.dash}}" onClick="{{goDash}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect></svg>Home</button>
+    <button type="button" class="ad-tab {{nav.content}}" onClick="{{goContent}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path><path d="M13 7l4 4"></path></svg>Site</button>
+    <button type="button" class="ad-tab {{nav.media}}" onClick="{{goMedia}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><path d="M21 16l-5-5-9 9"></path></svg>Media</button>
+    <button type="button" class="ad-tab {{nav.inbox}}" onClick="{{goInbox}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></svg>Inbox<span aria-label="{{unread}} unread" style="position: absolute; top: 6px; left: calc(50% + 6px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: #C1121F; color: #F2EEEA; font-size: 10px; display: flex; align-items: center; justify-content: center">{{unread}}</span></button>
+    <button type="button" class="ad-tab {{nav.contracts}}" onClick="{{goContracts}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6M8 13h8M8 17h5"></path></svg>Contracts</button>
+  </nav>
+
+  <!-- ========== COMPOSE OVERLAY ========== -->
+  <sc-if value="{{composeOpen}}" hint-placeholder-val="{{ false }}">
+    <div class="ad-compose" style="position: fixed; right: 24px; bottom: 24px; width: min(520px, calc(100% - 32px)); background: #141010; border-radius: 4px; box-shadow: 0 30px 80px rgba(42,9,16,.35); overflow: hidden; z-index: 80">
+      <div style="background: #000000; color: #FFFFFF; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center">
+        <span style="font-weight: 700">New email</span>
+        <button type="button" onClick="{{closeCompose}}" aria-label="Close" style="border: 0; background: transparent; color: #FFFFFF; font-size: 22px; cursor: pointer; min-width: 44px; min-height: 36px">×</button>
+      </div>
+      <div style="padding: 18px; display: flex; flex-direction: column; gap: 12px; flex: 1">
+        <input aria-label="To" class="ad-input" type="email" placeholder="To">
+        <input aria-label="Subject" class="ad-input" type="text" placeholder="Subject">
+        <textarea aria-label="Message" class="ad-input" rows="6" placeholder="Write your message…" style="resize: vertical; line-height: 1.6"></textarea>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between">
+          <button type="button" class="ad-btn2">Attach media kit</button>
+          <button type="button" class="ad-btn" onClick="{{sendCompose}}">Send</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { view: 'dash', sec: 'hero', edits: {}, msg: 'm1', folder: 'Inbox', read: {}, reply: '', composeOpen: false, cf: 'All', con: 'c1', paid: {}, sent: {}, toast: '', mread: false };
+  }
+  renderVals() {
+    var self = this, S = this.state;
+    var B = {
+      portrait: '/mockups/awomansmindset/assets/portrait.jpg', bar: '/mockups/awomansmindset/assets/bar.jpg',
+      lips: '/mockups/awomansmindset/assets/lips.jpg', lilies: '/mockups/awomansmindset/assets/lilies.jpg',
+      figs: '/mockups/awomansmindset/assets/figs.jpg', bag: '/mockups/awomansmindset/assets/bag.jpg', knit: '/mockups/awomansmindset/assets/knit.jpg'
+    };
+    function go(v) { return function () { self.setState({ view: v, toast: '', mread: false }); }; }
+
+    var titles = { dash: 'Dashboard', content: 'Site content', media: 'Photos & video', inbox: 'Inbox', contracts: 'Contracts' };
+    var nav = {}; ['dash', 'content', 'media', 'inbox', 'contracts'].forEach(function (k) { nav[k] = S.view === k ? 'on' : ''; });
+
+    /* ---- site content ---- */
+    var base = [
+      { id: 'hero', name: 'Hero', img: B.portrait, headline: 'A Woman’s Mindset', sub: 'Curvy & curly confidence for the women still hiding — photographed, filmed and lived out loud.' },
+      { id: 'story', name: 'The story', img: B.bar, headline: 'Every curve. Every curl. Every frame.', sub: 'I’m Ada — Italian, 44, living in Germany. I create content for fashion, beauty, wellness and lifestyle brands.' },
+      { id: 'reel', name: 'Showreel', img: B.lips, headline: 'Work in motion.', sub: 'Cinematic · Powerful · Graceful' },
+      { id: 'numbers', name: 'The numbers', img: B.lilies, headline: 'The numbers don’t lie.', sub: '4M views in the last 30 days · 920K on one Reel · 41K followers' },
+      { id: 'shop', name: 'Shop', img: B.bag, headline: 'What I’m wearing.', sub: 'The curl care, the cuts that fit, the little luxuries.' },
+      { id: 'collab', name: 'Collaborate', img: B.knit, headline: 'Ready to create magic?', sub: 'UGC video · Photography · Instagram collabs · EN · DE · IT' }
+    ];
+    var sections = base.map(function (s) {
+      var e = S.edits[s.id];
+      return { name: s.name, img: s.img, cls: S.sec === s.id ? 'on' : '', status: e ? (e.published ? 'Published just now' : 'Unsaved changes') : 'Live', pick: function () { self.setState({ sec: s.id }); } };
+    });
+    var b = base.filter(function (s) { return s.id === S.sec; })[0];
+    var e = S.edits[S.sec] || {};
+    var cur = { name: b.name, img: b.img, headline: e.headline != null ? e.headline : b.headline, sub: e.sub != null ? e.sub : b.sub, isShop: b.id === 'shop' };
+    function setEdit(field) {
+      return function (ev) {
+        var ed = Object.assign({}, S.edits); var c = Object.assign({}, ed[S.sec] || {});
+        c[field] = ev.target.value; c.published = false; ed[S.sec] = c;
+        self.setState({ edits: ed });
+      };
+    }
+
+    /* ---- media ---- */
+    var media = [
+      { src: B.portrait, alt: 'Golden hour portrait', name: 'portrait-golden-hour.jpg', used: 'Hero' },
+      { src: B.bar, alt: 'Lace corset at the bar', name: 'bar-after-dark.jpg', used: 'The story' },
+      { src: B.lips, alt: 'Red lips and strawberry', name: 'gloss-strawberry.jpg', used: 'Showreel' },
+      { src: B.lilies, alt: 'Cream gown with lilies', name: 'lilies-silk.jpg', used: 'The numbers' },
+      { src: B.figs, alt: 'Figs and e.l.f. still life', name: 'elf-still-life.jpg', used: 'Portfolio' },
+      { src: B.bag, alt: 'Croc handbag and heels', name: 'wine-details.jpg', used: 'Shop' },
+      { src: B.knit, alt: 'Knit cardigan on sofa', name: 'soft-power.jpg', used: 'Collaborate' }
+    ];
+
+    /* ---- inbox ---- */
+    var all = [
+      { id: 'm1', folder: 'Inbox', from: 'Lumen Curl Co.', email: 'partners@lumencurl.example', time: '9:42', tag: 'Collab', unread: true, subject: 'Paid UGC — curl cream launch (3 videos)', preview: 'Hi Ada, we loved your wash-day Reel and would like…', body: 'Hi Ada,\n\nWe loved your wash-day Reel and would like to work with you on the launch of our new defining cream. We’re looking for 3 short UGC videos (one in German), plus usage rights for paid social for 3 months.\n\nCould you send your rates and availability for early December? The brief is attached.\n\nWarmly,\nJana — Partnerships', attach: 'LumenCurl_Brief_Dec.pdf' },
+      { id: 'm2', folder: 'Inbox', from: 'Ritmo Talent', email: 'sofia@ritmotalent.example', time: '8:15', tag: 'Agency', unread: true, subject: 'Italian-language campaign — rates?', preview: 'Ciao Ada! A beauty client of ours is looking for an Italian…', body: 'Ciao Ada!\n\nA beauty client of ours is looking for an Italian-speaking creator 40+ with natural curls for a spring campaign. Would you be open to a call this week?\n\nSofia', attach: '' },
+      { id: 'm3', folder: 'Inbox', from: 'Maison Verde', email: 'collabs@maisonverde.example', time: 'Yesterday', tag: 'Contract', unread: true, subject: 'Contract for autumn knitwear collab', preview: 'Please find the contract attached for signature…', body: 'Hello Ada,\n\nThank you for confirming! Please find the contract attached for two Reels and four stories featuring the autumn knitwear edit. Once signed we’ll ship your pieces.\n\nBest,\nLéa', attach: 'MaisonVerde_Agreement.pdf' },
+      { id: 'm4', folder: 'Inbox', from: 'Bloom Active', email: 'hello@bloomactive.example', time: 'Mon', tag: 'Signed', unread: false, subject: 'Signed — next steps', preview: 'Great news, the agreement is signed on our side…', body: 'Great news — the agreement is signed on our side. Product photos are due on the 21st. Please send your invoice to accounts@bloomactive.example.\n\nThanks!', attach: '' },
+      { id: 'm5', folder: 'Sent', from: 'You', email: 'adathompson.collabs@gmail.com', time: 'Mon', tag: 'Sent', unread: false, subject: 'Re: Media kit request', preview: 'Hi! Attached is my media kit with recent results…', body: 'Hi!\n\nAttached is my media kit with recent results and rates. Happy to tailor a package.\n\nAda', attach: 'Ada_Thompson_MediaKit.pdf' }
+    ];
+    var folderNames = ['Inbox', 'Collabs', 'Sent', 'Drafts', 'Archive'];
+    var inFolder = all.filter(function (m) { return S.folder === 'Collabs' ? m.tag === 'Collab' || m.tag === 'Agency' : m.folder === S.folder; });
+    var unread = all.filter(function (m) { return m.unread && !S.read[m.id]; }).length;
+    var folders = folderNames.map(function (n) {
+      var cnt = n === 'Inbox' ? unread : (n === 'Sent' ? 1 : (n === 'Collabs' ? 2 : ''));
+      return { name: n, count: cnt === 0 ? '' : cnt, cls: S.folder === n ? 'on' : '', pick: function () { self.setState({ folder: n }); } };
+    });
+    var messages = inFolder.map(function (m) {
+      var isUnread = m.unread && !S.read[m.id];
+      return { from: m.from, time: m.time, subject: m.subject, preview: m.preview, wcls: isUnread ? 'fw-b' : 'fw-n', cls: S.msg === m.id ? 'on' : '',
+        pick: function () { var r = Object.assign({}, S.read); r[m.id] = true; self.setState({ msg: m.id, read: r, reply: '', mread: true }); } };
+    });
+    var curMsg = all.filter(function (m) { return m.id === S.msg; })[0] || all[0];
+
+    /* ---- contracts ---- */
+    var cons = [
+      { id: 'c1', brand: 'Maison Verde', campaign: 'Autumn knitwear', deliv: '2 Reels · 4 stories', fee: '€1,200', due: 'Nov 28', status: 'Sent', terms: 'Organic posting on @awomansmindset. Brand may repost for 30 days. 50% on signature, 50% on delivery. Pieces gifted.', items: ['Reel 1 — try-on', 'Reel 2 — styling 3 ways', '4 stories with link'] },
+      { id: 'c2', brand: 'Bloom Active', campaign: 'Winter studio wear', deliv: '5 photos', fee: '€650', due: 'Nov 21', status: 'Signed', terms: 'Five edited product photos for website and social. 12-month usage. Net 14 payment.', items: ['Shoot 5 looks', 'Edit & deliver photos', 'Send invoice'] },
+      { id: 'c3', brand: 'Lumen Curl Co.', campaign: 'Defining cream launch', deliv: '3 UGC videos (EN/DE)', fee: '€1,450', due: 'Dec 5', status: 'Draft', terms: 'Three 30–45s UGC videos, one in German. Paid social usage for 3 months. Raw footage included.', items: ['Wash-day routine (DE)', 'Before & after', 'Second-day refresh'] },
+      { id: 'c4', brand: 'Calzitaly', campaign: 'Hosiery edit', deliv: '1 Reel', fee: '€400', due: 'Oct 30', status: 'Paid', terms: 'One Reel with link in bio for 7 days.', items: ['Reel delivered', 'Link in bio 7 days'] }
+    ];
+    cons.forEach(function (c) { if (S.paid[c.id]) c.status = 'Paid'; else if (S.sent[c.id]) c.status = 'Sent'; });
+    var cFilters = ['All', 'Draft', 'Sent', 'Signed', 'Paid'].map(function (n) { return { name: n, cls: S.cf === n ? 'on' : '', pick: function () { self.setState({ cf: n }); } }; });
+    var shownC = cons.filter(function (c) { return S.cf === 'All' || c.status === S.cf; }).map(function (c) {
+      return Object.assign({}, c, { cardCls: S.con === c.id ? 'ad-card-on' : '', cls: S.con === c.id ? 'on' : '', pick: function () { self.setState({ con: c.id }); } });
+    });
+    var curC = cons.filter(function (c) { return c.id === S.con; })[0];
+
+    return {
+      viewTitle: titles[S.view], nav: nav, unread: unread,
+      isDash: S.view === 'dash', isContent: S.view === 'content', isMedia: S.view === 'media', isInbox: S.view === 'inbox', isContracts: S.view === 'contracts',
+      goDash: go('dash'), goContent: go('content'), goMedia: go('media'), goInbox: go('inbox'), goContracts: go('contracts'),
+      toast: S.toast, clearToast: function () { self.setState({ toast: '' }); },
+      sections: sections, cur: cur, onHeadline: setEdit('headline'), onSub: setEdit('sub'),
+      saveDraft: function () { self.setState({ toast: 'Draft saved. Only you can see it.' }); },
+      publish: function () { var ed = Object.assign({}, S.edits); ed[S.sec] = Object.assign({}, ed[S.sec] || {}, { published: true }); self.setState({ edits: ed, toast: cur.name + ' is live on your site.' }); },
+      media: media, mediaCount: media.length,
+      inboxMode: S.mread ? 'reading' : 'listing', backToList: function () { self.setState({ mread: false }); },
+      folders: folders, messages: messages, curMsg: curMsg, reply: S.reply,
+      onReply: function (ev) { self.setState({ reply: ev.target.value }); },
+      sendReply: function () { self.setState({ reply: '', toast: 'Reply sent to ' + curMsg.from + '.' }); },
+      toContract: function () { self.setState({ view: 'contracts', cf: 'All', con: 'c3', toast: 'Draft contract created from ' + curMsg.from + '’s email.' }); },
+      composeOpen: S.composeOpen,
+      openCompose: function () { self.setState({ composeOpen: true }); },
+      closeCompose: function () { self.setState({ composeOpen: false }); },
+      sendCompose: function () { self.setState({ composeOpen: false, toast: 'Email sent.' }); },
+      cFilters: cFilters, contracts: shownC, curC: curC,
+      sendSign: function () { var s = Object.assign({}, S.sent); s[curC.id] = true; self.setState({ sent: s, toast: 'Sent to ' + curC.brand + ' for e-signature.' }); },
+      markPaid: function () { var p = Object.assign({}, S.paid); p[curC.id] = true; self.setState({ paid: p, toast: curC.brand + ' marked as paid.' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

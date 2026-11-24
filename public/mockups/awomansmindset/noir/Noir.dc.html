@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ada Thompson — Noir Concept</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+<script src="/mockups/awomansmindset/preview-chrome.js" data-section="site" defer></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&amp;family=Archivo+Narrow:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B0909;color:#F2EEEA;font-family:'Archivo Narrow',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#F2EEEA;text-decoration:none}a:hover{color:#FFFFFF}
+.nr-bw{filter:grayscale(1) contrast(1.1) brightness(.92)}
+.nr-dev{filter:grayscale(1) contrast(1.1);transition:filter 1.2s ease, transform 1.4s cubic-bezier(.2,.7,.2,1)}
+.nr-tile:hover .nr-dev{filter:grayscale(0) contrast(1);transform:scale(1.04)}
+.nr-tile:hover .nr-num{color:#E63946}
+.nr-kb{animation:nr-kb 26s ease-in-out infinite alternate}
+@keyframes nr-kb{from{transform:scale(1.02) translate(0,0)}to{transform:scale(1.14) translate(-2%,-2%)}}
+.nr-marq{display:flex;gap:64px;white-space:nowrap;animation:nr-scroll 40s linear infinite}
+@keyframes nr-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.nr-play:hover{background:#C1121F;border-color:#C1121F}
+.nr-shoprow:hover{padding-left:18px!important;color:#FFFFFF}
+.nr-shoprow:hover .nr-arrow{color:#E63946;transform:translateX(6px)}
+.nr-arrow{transition:transform .3s,color .3s}
+.nr-btn-red:hover{background:#9A0E1A!important}
+.nr-btn-line:hover{background:#F2EEEA;color:#0B0909!important}
+.t-a{grid-column:span 5;grid-row:span 2}
+.t-b{grid-column:span 4}
+.t-c{grid-column:span 3;grid-row:span 2}
+.t-d{grid-column:span 4}
+.t-e{grid-column:span 3}
+.t-f{grid-column:span 5}
+.t-g{grid-column:span 4}
+.p-20{object-position:50% 20%}.p-30{object-position:40% 30%}.p-40{object-position:50% 40%}.p-50{object-position:50% 50%}.p-60{object-position:50% 60%}
+.nr-mob{display:none!important}
+@media (max-width: 760px){
+.nr-wrap{padding-left:20px!important;padding-right:20px!important}
+.nr-sec{padding-top:80px!important;padding-bottom:80px!important}
+.nr-desk{display:none!important}
+.nr-mob{display:flex!important}
+.nr-hero{min-height:720px!important}
+.nr-vert{display:none!important}
+.nr-full{min-height:640px!important}
+.nr-sheet{grid-auto-flow:dense;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:220px!important;gap:6px!important}
+.t-a,.t-c{grid-column:span 1;grid-row:span 2}
+.t-b,.t-d,.t-e,.t-f,.t-g{grid-column:span 1;grid-row:span 1}
+.t-f{grid-column:span 2}
+.nr-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:40px 16px!important}
+.nr-stats p:first-child{font-size:64px!important}
+.nr-shoptitle{font-size:28px!important}
+.nr-shoprow{padding:22px 0!important}
+.nr-marq{font-size:26px!important;gap:36px!important}
+.nr-foot{flex-direction:column!important;align-items:flex-start!important}
+}
+@media (prefers-reduced-motion: reduce){.nr-kb,.nr-marq{animation:none}}
+</style>
+</helmet>
+
+<div style="position: relative; width: 100%; min-height: 100vh; background: #0B0909; overflow: hidden">
+
+  <!-- ===== HEADER (over hero) ===== -->
+  <header style="position: absolute; top: 0; left: 0; right: 0; z-index: 50">
+    <div class="nr-wrap" style="max-width: 1440px; margin: 0 auto; padding: 26px 48px; display: flex; align-items: center; justify-content: space-between; gap: 20px">
+      <a href="#top" style="display: flex; align-items: baseline; gap: 12px">
+        <span style="font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 400; letter-spacing: .02em">Ada Thompson</span>
+        <span style="width: 8px; height: 8px; border-radius: 50%; background: #C1121F; display: inline-block"></span>
+      </a>
+      <nav class="nr-desk" aria-label="Main" style="display: flex; align-items: center; gap: 36px; font-size: 13px; letter-spacing: .26em; text-transform: uppercase">
+        <a href="#story">Story</a>
+        <a href="#sheet">Portfolio</a>
+        <a href="#reel">Reel</a>
+        <a href="#shop">Shop</a>
+        <a href="#collab" class="nr-btn-red" style="background: #C1121F; padding: 14px 24px; color: #FFFFFF">Collaborate</a>
+      </nav>
+      <button type="button" class="nr-mob" aria-label="Open menu" aria-expanded="{{menuExpanded}}" onClick="{{toggleMenu}}" style="width: 48px; height: 48px; border: 1px solid rgba(242,238,234,.6); background: rgba(11,9,9,.35); color: #F2EEEA; align-items: center; justify-content: center; cursor: pointer; padding: 0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"></path></svg>
+      </button>
+    </div>
+    <sc-if value="{{menuOpen}}" hint-placeholder-val="{{ false }}">
+      <nav class="nr-mob" aria-label="Mobile" style="position: absolute; top: 100%; left: 12px; right: 12px; flex-direction: column; padding: 10px 24px 28px; background: #7A0F1F; box-shadow: 0 30px 60px rgba(0,0,0,.6)">
+        <a href="#story" onClick="{{closeMenu}}" style="font-family: 'Cormorant Garamond', serif; font-size: 34px; padding: 12px 0; border-bottom: 1px solid rgba(242,238,234,.2)">Story</a>
+        <a href="#sheet" onClick="{{closeMenu}}" style="font-family: 'Cormorant Garamond', serif; font-size: 34px; padding: 12px 0; border-bottom: 1px solid rgba(242,238,234,.2)">Portfolio</a>
+        <a href="#reel" onClick="{{closeMenu}}" style="font-family: 'Cormorant Garamond', serif; font-size: 34px; padding: 12px 0; border-bottom: 1px solid rgba(242,238,234,.2)">Reel</a>
+        <a href="#shop" onClick="{{closeMenu}}" style="font-family: 'Cormorant Garamond', serif; font-size: 34px; padding: 12px 0; border-bottom: 1px solid rgba(242,238,234,.2)">Shop <span style="font-style: italic">my picks</span></a>
+        <a href="#collab" onClick="{{closeMenu}}" style="margin-top: 22px; background: #F2EEEA; color: #7A0F1F; padding: 17px 24px; text-align: center; font-size: 13px; font-weight: 600; letter-spacing: .24em; text-transform: uppercase">Collaborate</a>
+      </nav>
+    </sc-if>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section id="top" class="nr-hero" style="position: relative; min-height: 940px; display: flex; align-items: flex-end; overflow: hidden">
+    <img class="nr-bw nr-kb" src="/mockups/awomansmindset/assets/portrait.jpg" alt="Black and white portrait of Ada Thompson with curly hair" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 25%">
+    <div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(11,9,9,.95) 0%, rgba(11,9,9,.35) 45%, rgba(11,9,9,.25) 70%, rgba(11,9,9,.6) 100%)"></div>
+    <p class="nr-vert" style="position: absolute; right: 48px; top: 50%; margin: 0; transform: translateY(-50%) rotate(90deg); transform-origin: right center; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .4em; text-transform: uppercase; color: rgba(242,238,234,.7)">Frame 01 / Portrait / Golden hour</p>
+    <div class="nr-wrap" style="position: relative; width: 100%; max-width: 1440px; margin: 0 auto; padding: 0 48px 80px">
+      <p style="margin: 0 0 18px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: #E63946">● UGC Creator — Germany — Worldwide</p>
+      <h1 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(88px, 15vw, 240px); line-height: .82; letter-spacing: -.035em">A Woman’s<br><span style="font-style: italic; color: #C1121F">Mindset</span></h1>
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 28px; margin-top: 40px; border-top: 1px solid rgba(242,238,234,.3); padding-top: 26px">
+        <p style="margin: 0; max-width: 460px; font-size: 20px; line-height: 1.5; color: #E8E2DC">Curvy &amp; curly confidence for the women still hiding — photographed, filmed and lived out loud.</p>
+        <a href="#sheet" style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; display: flex; align-items: center; gap: 12px">View the work <span aria-hidden="true" style="color: #E63946">↓</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STORY: full-bleed ===== -->
+  <section id="story" class="nr-full" style="position: relative; min-height: 900px; display: flex; align-items: center; overflow: hidden">
+    <img class="nr-bw" src="/mockups/awomansmindset/assets/bar.jpg" alt="Ada in a lace corset top looking over her shoulder in a cocktail bar, black and white" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 30% 30%">
+    <div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(to left, rgba(11,9,9,.94) 0%, rgba(11,9,9,.8) 42%, rgba(11,9,9,.1) 75%)"></div>
+    <div class="nr-wrap nr-sec" style="position: relative; width: 100%; max-width: 1440px; margin: 0 auto; padding: 120px 48px; display: flex; justify-content: flex-end">
+      <div style="max-width: 560px">
+        <p style="margin: 0 0 22px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: #E63946">02 — The story</p>
+        <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(52px, 6vw, 92px); line-height: .95; letter-spacing: -.02em">Every curve.<br>Every curl.<br><span style="font-style: italic; color: #C1121F">Every frame.</span></h2>
+        <p style="margin: 34px 0 0; font-size: 19px; line-height: 1.7; color: #E8E2DC">I’m Ada — Italian, 44, living in Germany. I create content for fashion, beauty, wellness and lifestyle brands, made for the curvy midsize, curly-haired and 40+ women who rarely see themselves on screen.</p>
+        <p style="margin: 20px 0 0; font-size: 19px; line-height: 1.7; color: #E8E2DC">Natural, personal, trustworthy — never over-polished. In English, Deutsch and Italiano.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BRAND BAND ===== -->
+  <section aria-label="Brands Ada has worked with" style="background: #7A0F1F; padding: 30px 0; overflow: hidden">
+    <div class="nr-marq" style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 38px; color: #F2EEEA">
+      <span>Cosrx K-Beauty</span><span aria-hidden="true">—</span><span>e.l.f. Cosmetics</span><span aria-hidden="true">—</span><span>MyProtein Europe</span><span aria-hidden="true">—</span><span>Helloice</span><span aria-hidden="true">—</span><span>Calzitaly</span><span aria-hidden="true">—</span><span>B&amp;Q</span><span aria-hidden="true">—</span>
+      <span>Cosrx K-Beauty</span><span aria-hidden="true">—</span><span>e.l.f. Cosmetics</span><span aria-hidden="true">—</span><span>MyProtein Europe</span><span aria-hidden="true">—</span><span>Helloice</span><span aria-hidden="true">—</span><span>Calzitaly</span><span aria-hidden="true">—</span><span>B&amp;Q</span><span aria-hidden="true">—</span>
+    </div>
+  </section>
+
+  <!-- ===== CONTACT SHEET ===== -->
+  <section id="sheet" style="background: #0B0909">
+    <div class="nr-wrap nr-sec" style="max-width: 1440px; margin: 0 auto; padding: 130px 48px">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 50px">
+        <div>
+          <p style="margin: 0 0 18px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: #E63946">03 — Portfolio</p>
+          <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(52px, 6vw, 96px); line-height: .92; letter-spacing: -.02em">The contact <span style="font-style: italic; color: #C1121F">sheet.</span></h2>
+        </div>
+        <p style="margin: 0; max-width: 300px; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.8; letter-spacing: .08em; color: #B8B0A9">Hover a frame to develop it in color.</p>
+      </div>
+
+      <div class="nr-sheet" style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-rows: 300px; gap: 10px">
+        <sc-for list="{{frames}}" as="f" hint-placeholder-count="7">
+          <figure class="nr-tile {{f.span}}" style="margin: 0; position: relative; overflow: hidden; background: #1A1515">
+            <img class="nr-dev {{f.pos}}" src="{{f.src}}" alt="{{f.alt}}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover">
+            <figcaption style="position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 16px 14px; background: linear-gradient(to top, rgba(11,9,9,.85), rgba(11,9,9,0)); display: flex; justify-content: space-between; align-items: baseline; gap: 10px">
+              <span style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 22px">{{f.title}}</span>
+              <span class="nr-num" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .14em; color: #D8D0C9; transition: color .6s">{{f.num}}</span>
+            </figcaption>
+          </figure>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== REEL: the one color frame ===== -->
+  <section id="reel" class="nr-full" style="position: relative; min-height: 880px; display: flex; align-items: center; justify-content: center; overflow: hidden; text-align: center">
+    <img class="nr-kb" src="/mockups/awomansmindset/assets/lips.jpg" alt="Glossy red lips biting a strawberry, in full color" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover">
+    <div aria-hidden="true" style="position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(11,9,9,.35) 0%, rgba(11,9,9,.82) 75%)"></div>
+    <div class="nr-wrap nr-sec" style="position: relative; max-width: 1000px; padding: 120px 48px; display: flex; flex-direction: column; align-items: center">
+      <p style="margin: 0 0 22px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: #F2EEEA">04 — Showreel</p>
+      <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(60px, 8.5vw, 140px); line-height: .88; letter-spacing: -.03em">Work in<br><span style="font-style: italic">motion.</span></h2>
+      <button type="button" class="nr-play" aria-label="Play showreel" style="margin-top: 44px; width: 104px; height: 104px; border-radius: 50%; border: 1px solid #F2EEEA; background: rgba(11,9,9,.3); color: #F2EEEA; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background .3s, border-color .3s">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"></path></svg>
+      </button>
+      <p style="margin: 34px 0 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .4em; text-transform: uppercase; color: #E8E2DC">Cinematic · Powerful · Graceful</p>
+    </div>
+  </section>
+
+  <!-- ===== NUMBERS over lilies ===== -->
+  <section class="nr-full" style="position: relative; min-height: 860px; display: flex; align-items: center; overflow: hidden">
+    <img class="nr-bw" src="/mockups/awomansmindset/assets/lilies.jpg" alt="Ada in a draped gown holding lilies, black and white" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%">
+    <div aria-hidden="true" style="position: absolute; inset: 0; background: rgba(11,9,9,.72)"></div>
+    <div class="nr-wrap nr-sec" style="position: relative; width: 100%; max-width: 1440px; margin: 0 auto; padding: 120px 48px">
+      <p style="margin: 0 0 22px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: #E63946">05 — The numbers don’t lie</p>
+      <div class="nr-stats" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 30px; margin-top: 40px">
+        <div style="border-top: 1px solid rgba(242,238,234,.35); padding-top: 22px"><p style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(64px, 8vw, 128px); line-height: .9">4M</p><p style="margin: 14px 0 0; font-size: 16px; line-height: 1.5; color: #E8E2DC">views in the last 30 days</p></div>
+        <div style="border-top: 1px solid rgba(242,238,234,.35); padding-top: 22px"><p style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(64px, 8vw, 128px); line-height: .9">920<span style="color: #C1121F">K</span></p><p style="margin: 14px 0 0; font-size: 16px; line-height: 1.5; color: #E8E2DC">views on one top Reel</p></div>
+        <div style="border-top: 1px solid rgba(242,238,234,.35); padding-top: 22px"><p style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(64px, 8vw, 128px); line-height: .9">41<span style="color: #C1121F">K</span></p><p style="margin: 14px 0 0; font-size: 16px; line-height: 1.5; color: #E8E2DC">Instagram followers</p></div>
+        <div style="border-top: 1px solid rgba(242,238,234,.35); padding-top: 22px"><p style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(64px, 8vw, 128px); line-height: .9">25<span style="color: #C1121F">K</span></p><p style="margin: 14px 0 0; font-size: 16px; line-height: 1.5; color: #E8E2DC">new followers in under two months</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SHOP over handbag ===== -->
+  <section id="shop" style="position: relative; overflow: hidden">
+    <img class="nr-bw" src="/mockups/awomansmindset/assets/bag.jpg" alt="Croc-embossed handbag and pointed heels, black and white" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%">
+    <div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(to right, rgba(11,9,9,.95) 0%, rgba(11,9,9,.85) 55%, rgba(122,15,31,.55) 100%)"></div>
+    <div class="nr-wrap nr-sec" style="position: relative; max-width: 1440px; margin: 0 auto; padding: 130px 48px; display: flex; flex-wrap: wrap; gap: 60px">
+      <div style="flex: 1 1 360px; min-width: 0">
+        <p style="margin: 0 0 22px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: #E63946">06 — Shop</p>
+        <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(52px, 6vw, 92px); line-height: .92; letter-spacing: -.02em">What I’m<br><span style="font-style: italic; color: #C1121F">wearing.</span></h2>
+        <p style="margin: 26px 0 0; max-width: 360px; font-size: 17px; line-height: 1.7; color: #E8E2DC">The curl care, the cuts that fit, the little luxuries. Some links are affiliate links.</p>
+      </div>
+      <div style="flex: 1 1 600px; min-width: 0; border-top: 1px solid rgba(242,238,234,.3)">
+        <a class="nr-shoprow" href="https://shopmy.us/shop/awomansmindset?tab=latest" style="display: flex; align-items: center; gap: 20px; padding: 26px 0; border-bottom: 1px solid rgba(242,238,234,.3); transition: padding .3s">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #B8B0A9; width: 34px">01</span>
+          <span class="nr-shoptitle" style="flex: 1; font-family: 'Cormorant Garamond', serif; font-size: 40px; line-height: 1">Handpicked <span style="font-style: italic">favorites</span></span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .2em; color: #B8B0A9" class="nr-desk">SHOPMY</span>
+          <span class="nr-arrow" aria-hidden="true" style="font-size: 24px">→</span>
+        </a>
+        <a class="nr-shoprow" href="https://a.co/d/0elijb2m" style="display: flex; align-items: center; gap: 20px; padding: 26px 0; border-bottom: 1px solid rgba(242,238,234,.3); transition: padding .3s">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #B8B0A9; width: 34px">02</span>
+          <span class="nr-shoptitle" style="flex: 1; font-family: 'Cormorant Garamond', serif; font-size: 40px; line-height: 1">Curly girl <span style="font-style: italic">essentials</span></span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .2em; color: #B8B0A9" class="nr-desk">AMAZON</span>
+          <span class="nr-arrow" aria-hidden="true" style="font-size: 24px">→</span>
+        </a>
+        <a class="nr-shoprow" href="https://a.co/d/0elijb2m" style="display: flex; align-items: center; gap: 20px; padding: 26px 0; border-bottom: 1px solid rgba(242,238,234,.3); transition: padding .3s">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #B8B0A9; width: 34px">03</span>
+          <span class="nr-shoptitle" style="flex: 1; font-family: 'Cormorant Garamond', serif; font-size: 40px; line-height: 1">Amazon <span style="font-style: italic">must-haves</span></span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .2em; color: #B8B0A9" class="nr-desk">AMAZON</span>
+          <span class="nr-arrow" aria-hidden="true" style="font-size: 24px">→</span>
+        </a>
+        <a class="nr-shoprow" href="https://store.awin.com/awomansmindset" style="display: flex; align-items: center; gap: 20px; padding: 26px 0; border-bottom: 1px solid rgba(242,238,234,.3); transition: padding .3s">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #B8B0A9; width: 34px">04</span>
+          <span class="nr-shoptitle" style="flex: 1; font-family: 'Cormorant Garamond', serif; font-size: 40px; line-height: 1">The <span style="font-style: italic">storefront</span></span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .2em; color: #B8B0A9" class="nr-desk">AWIN</span>
+          <span class="nr-arrow" aria-hidden="true" style="font-size: 24px">→</span>
+        </a>
+        <a class="nr-shoprow" href="https://a.co/d/0elijb2m" style="display: flex; align-items: center; gap: 20px; padding: 26px 0; border-bottom: 1px solid rgba(242,238,234,.3); transition: padding .3s">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #B8B0A9; width: 34px">05</span>
+          <span class="nr-shoptitle" style="flex: 1; font-family: 'Cormorant Garamond', serif; font-size: 40px; line-height: 1">For <span style="font-style: italic">him</span></span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .2em; color: #B8B0A9" class="nr-desk">AMAZON</span>
+          <span class="nr-arrow" aria-hidden="true" style="font-size: 24px">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== COLLAB over knit ===== -->
+  <section id="collab" class="nr-full" style="position: relative; min-height: 940px; display: flex; align-items: center; overflow: hidden">
+    <img class="nr-bw" src="/mockups/awomansmindset/assets/knit.jpg" alt="Ada seated in a knit cardigan and fishnets, black and white" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 25%">
+    <div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(to right, rgba(11,9,9,.92) 0%, rgba(11,9,9,.7) 50%, rgba(11,9,9,.2) 100%)"></div>
+    <div class="nr-wrap nr-sec" style="position: relative; width: 100%; max-width: 1440px; margin: 0 auto; padding: 120px 48px">
+      <div style="max-width: 680px">
+        <p style="margin: 0 0 22px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: #E63946">07 — Collaborate</p>
+        <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(60px, 8vw, 132px); line-height: .88; letter-spacing: -.03em">Ready to<br>create <span style="font-style: italic; color: #C1121F">magic?</span></h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px; margin-top: 44px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #E8E2DC">
+          <span style="border-top: 1px solid #C1121F; padding-top: 12px">UGC video</span>
+          <span style="border-top: 1px solid #C1121F; padding-top: 12px">Photography</span>
+          <span style="border-top: 1px solid #C1121F; padding-top: 12px">Instagram collabs</span>
+          <span style="border-top: 1px solid #C1121F; padding-top: 12px">EN · DE · IT</span>
+        </div>
+        <a href="mailto:adathompson.collabs@gmail.com" style="display: inline-block; margin-top: 50px; font-family: 'Cormorant Garamond', serif; font-size: clamp(24px, 3vw, 40px); border-bottom: 1px solid #C1121F; padding-bottom: 6px; overflow-wrap: anywhere">adathompson.collabs@gmail.com</a>
+        <div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 40px">
+          <a href="mailto:adathompson.collabs@gmail.com?subject=Collaboration" class="nr-btn-red" style="background: #C1121F; color: #FFFFFF; padding: 18px 30px; font-size: 13px; font-weight: 600; letter-spacing: .24em; text-transform: uppercase">Start a collab</a>
+          <a href="https://www.instagram.com/awomansmindset" class="nr-btn-line" style="border: 1px solid #F2EEEA; color: #F2EEEA; padding: 18px 30px; font-size: 13px; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; transition: background .3s, color .3s">@awomansmindset</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer style="background: #0B0909; border-top: 4px solid #7A0F1F">
+    <div class="nr-wrap nr-foot" style="max-width: 1440px; margin: 0 auto; padding: 40px 48px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 22px">
+      <span style="font-family: 'Cormorant Garamond', serif; font-size: 24px">Ada Thompson <span style="font-style: italic; color: #C1121F">— a woman’s mindset</span></span>
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: #B8B0A9">© 2026 · Germany · Available worldwide</span>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":7000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { menuOpen: false };
+  }
+  renderVals() {
+    var self = this;
+    return {
+      menuOpen: this.state.menuOpen,
+      menuExpanded: this.state.menuOpen ? 'true' : 'false',
+      toggleMenu: function () { self.setState({ menuOpen: !self.state.menuOpen }); },
+      closeMenu: function () { self.setState({ menuOpen: false }); },
+      frames: [
+        { span: 't-a', src: '/mockups/awomansmindset/assets/lilies.jpg', alt: 'Ada in a cream gown with pink lilies', title: 'Lilies & silk', num: '№ 01', pos: 'p-20' },
+        { span: 't-b', src: '/mockups/awomansmindset/assets/figs.jpg', alt: 'Figs, red spritz and an e.l.f. lip product on satin', title: 'Still life', num: '№ 02', pos: 'p-60' },
+        { span: 't-c', src: '/mockups/awomansmindset/assets/bar.jpg', alt: 'Ada in a lace corset top at a bar', title: 'After dark', num: '№ 03', pos: 'p-30' },
+        { span: 't-d', src: '/mockups/awomansmindset/assets/lips.jpg', alt: 'Red lips biting a strawberry', title: 'Gloss', num: '№ 04', pos: 'p-40' },
+        { span: 't-e', src: '/mockups/awomansmindset/assets/bag.jpg', alt: 'Croc handbag and pointed heels', title: 'Details', num: '№ 05', pos: 'p-50' },
+        { span: 't-f', src: '/mockups/awomansmindset/assets/knit.jpg', alt: 'Ada in a knit cardigan on a sofa', title: 'Soft power', num: '№ 06', pos: 'p-20' },
+        { span: 't-g', src: '/mockups/awomansmindset/assets/portrait.jpg', alt: 'Ada portrait in golden hour light', title: 'Golden hour', num: '№ 07', pos: 'p-20' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

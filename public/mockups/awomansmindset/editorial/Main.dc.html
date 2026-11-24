@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>A Woman's Mindset — Ada Thompson</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+<script src="/mockups/awomansmindset/preview-chrome.js" data-section="site" defer></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..600&amp;family=Instrument+Serif:ital@0;1&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FBF4EE;font-family:'Manrope',system-ui,sans-serif;color:#2A0910;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#7A1426;text-decoration:none}a:hover{color:#4A0B16}
+.awm-marquee{display:flex;gap:56px;white-space:nowrap;animation:awm-scroll 38s linear infinite}
+@keyframes awm-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.awm-card img{transition:transform .9s cubic-bezier(.2,.7,.2,1)}
+.awm-card:hover img{transform:scale(1.05)}
+.awm-shop:hover{background:#5A0F1C;color:#FBF4EE}
+.awm-shop:hover .awm-shop-arrow{transform:translateX(6px)}
+.awm-shop-arrow{transition:transform .3s}
+.awm-btn-cream:hover{background:#FFFFFF;color:#4A0B16}
+.awm-btn-wine:hover{background:#3D0A13;color:#FBF4EE}
+.awm-mob{display:none!important}
+@media (max-width: 760px){
+.awm-wrap{padding-left:22px!important;padding-right:22px!important}
+.awm-sec{padding-top:72px!important;padding-bottom:72px!important}
+.awm-desk{display:none!important}
+.awm-mob{display:flex!important}
+.awm-hero{padding-top:36px!important;padding-bottom:64px!important;gap:44px!important}
+.awm-heroquote{right:0!important;max-width:170px!important;padding:12px 14px!important}
+.awm-heroquote p:first-child{font-size:19px!important}
+.awm-seal{width:78px!important;height:78px!important}
+.awm-seal span{font-size:26px!important}
+.awm-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:26px 18px!important;padding-top:28px!important;padding-bottom:28px!important}
+.awm-stats p:first-child{font-size:36px!important}
+.awm-stats p+p{font-size:10px!important;letter-spacing:.2em!important}
+.awm-marq{font-size:22px!important;gap:32px!important}
+.awm-about{gap:90px!important}
+.awm-gallery{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin-top:36px!important}
+.awm-gallery figcaption{padding:40px 12px 12px!important;flex-direction:column!important;align-items:flex-start!important;gap:6px!important}
+.awm-gallery figcaption span:first-child{font-size:18px!important}
+.awm-gallery figcaption span+span{font-size:9px!important}
+.awm-tabs button{padding:0 16px!important}
+.awm-hl > div{padding:28px 24px!important}
+.awm-hl > div:not(:last-child) p:first-child{font-size:48px!important}
+.awm-shoprow{padding:22px 4px!important;gap:14px!important}
+.awm-shoptitle{font-size:22px!important}
+.awm-shoprow:hover{padding-left:12px!important}
+.awm-band{padding:26px 22px!important}
+.awm-band p{font-size:24px!important}
+.awm-cta{padding-top:88px!important;padding-bottom:88px!important}
+.awm-foot{flex-direction:column!important;align-items:flex-start!important}
+}
+@media (prefers-reduced-motion: reduce){.awm-marquee{animation:none}}
+</style>
+</helmet>
+
+<div style="width: 100%; min-height: 100vh; background: #FBF4EE; overflow: hidden">
+
+  <!-- ============ NAV ============ -->
+  <header style="background: #5A0F1C; color: #FBF4EE; position: relative; z-index: 50">
+    <div class="awm-wrap" style="max-width: 1320px; margin: 0 auto; padding: 22px 40px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px">
+      <a href="#top" style="display: flex; align-items: center; gap: 14px; color: #FBF4EE">
+        <span style="width: 46px; height: 46px; border-radius: 48% 52% 45% 55% / 52% 46% 54% 48%; background: radial-gradient(circle at 35% 30%, #9C2A3E, #5E0E1D 60%, #3A0711); box-shadow: inset 0 0 0 4px rgba(0,0,0,.18), inset 0 0 0 7px rgba(255,255,255,.06), 0 4px 10px rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; font-family: 'Bodoni Moda', serif; font-style: italic; font-size: 18px; color: #F1C6CF">A</span>
+        <span style="display: flex; flex-direction: column; line-height: 1">
+          <span style="font-family: 'Bodoni Moda', serif; font-size: 22px; letter-spacing: .01em">A Woman’s <span style="font-family: 'Instrument Serif', serif; font-style: italic; color: #EDB2BF">Mindset</span></span>
+          <span style="font-size: 10px; letter-spacing: .32em; text-transform: uppercase; color: #E9CDB0; margin-top: 6px">by Ada Thompson</span>
+        </span>
+      </a>
+      <nav class="awm-desk" aria-label="Main" style="display: flex; flex-wrap: wrap; align-items: center; gap: 30px; font-size: 13px; letter-spacing: .14em; text-transform: uppercase">
+        <a href="#about" style="color: #FBF4EE">About</a>
+        <a href="#work" style="color: #FBF4EE">Work</a>
+        <a href="#shop" style="color: #FBF4EE">Shop my picks</a>
+        <a href="#brands" style="color: #FBF4EE">For brands</a>
+        <a href="mailto:adathompson.collabs@gmail.com" class="awm-btn-cream" style="background: #FBF4EE; color: #5A0F1C; padding: 13px 22px; border-radius: 999px; font-weight: 700; letter-spacing: .12em">Work with me</a>
+      </nav>
+      <button type="button" class="awm-mob" aria-label="Open menu" aria-expanded="{{menuExpanded}}" onClick="{{toggleMenu}}" style="width: 48px; height: 48px; border-radius: 999px; border: 1px solid rgba(251,244,238,.45); background: transparent; color: #FBF4EE; align-items: center; justify-content: center; cursor: pointer; padding: 0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"></path></svg>
+      </button>
+    </div>
+    <sc-if value="{{menuOpen}}" hint-placeholder-val="{{ false }}">
+      <nav class="awm-mob" aria-label="Mobile" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 60; flex-direction: column; padding: 8px 22px 30px; background: #FBF4EE; border-top: 3px solid #EDB2BF; box-shadow: 0 24px 40px rgba(42,9,16,.45)">
+        <a href="#about" onClick="{{closeMenu}}" style="color: #5A0F1C; font-family: 'Bodoni Moda', serif; font-size: 30px; padding: 14px 0; border-bottom: 1px solid #E6D2CB">About</a>
+        <a href="#work" onClick="{{closeMenu}}" style="color: #5A0F1C; font-family: 'Bodoni Moda', serif; font-size: 30px; padding: 14px 0; border-bottom: 1px solid #E6D2CB">Work</a>
+        <a href="#shop" onClick="{{closeMenu}}" style="color: #5A0F1C; font-family: 'Bodoni Moda', serif; font-size: 30px; padding: 14px 0; border-bottom: 1px solid #E6D2CB">Shop my <span style="font-family: 'Instrument Serif', serif; font-style: italic; color: #B4475C">picks</span></a>
+        <a href="#brands" onClick="{{closeMenu}}" style="color: #5A0F1C; font-family: 'Bodoni Moda', serif; font-size: 30px; padding: 14px 0; border-bottom: 1px solid #E6D2CB">For brands</a>
+        <a href="mailto:adathompson.collabs@gmail.com" class="awm-btn-wine" style="margin-top: 22px; background: #5A0F1C; color: #FBF4EE; padding: 17px 26px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; text-align: center">Work with me</a>
+      </nav>
+    </sc-if>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section id="top" style="background: #5A0F1C; color: #FBF4EE; position: relative">
+    <div class="awm-wrap awm-hero" style="max-width: 1320px; margin: 0 auto; padding: 72px 40px 120px; display: flex; flex-wrap: wrap; align-items: center; gap: 64px">
+      <div style="flex: 1 1 520px; min-width: 0">
+        <p style="margin: 0 0 28px; font-size: 12px; letter-spacing: .34em; text-transform: uppercase; color: #E9CDB0">UGC Creator · Influencer · Germany → Worldwide</p>
+        <h1 style="margin: 0; font-family: 'Bodoni Moda', serif; font-weight: 500; font-size: clamp(56px, 7.4vw, 112px); line-height: .92; letter-spacing: -.02em">Curvy.<br>Curly.<br>Forty-four<span style="color: #EDB2BF">.</span><br><span style="font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: #EDB2BF; letter-spacing: -.01em">Unhidden.</span></h1>
+        <p style="margin: 36px 0 0; max-width: 470px; font-size: 18px; line-height: 1.65; color: #F3E3DA">Confidence for the women still hiding — and honest, beautifully made content for the brands who want to reach them.</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 40px">
+          <a href="#brands" class="awm-btn-cream" style="background: #FBF4EE; color: #5A0F1C; padding: 18px 30px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase">Collaborate with Ada</a>
+          <a href="#shop" style="border: 1px solid rgba(251,244,238,.5); color: #FBF4EE; padding: 18px 30px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase">Shop my picks</a>
+        </div>
+      </div>
+
+      <div style="flex: 1 1 440px; min-width: 0; display: flex; justify-content: center">
+        <div style="position: relative; width: 100%; max-width: 460px; padding: 30px 10px 40px">
+          <div style="position: absolute; inset: 10px 0 20px 18px; background: #EFE1C6; transform: rotate(-4deg); border-radius: 4px; box-shadow: 0 30px 60px rgba(0,0,0,.35)"></div>
+          <div style="position: relative; transform: rotate(2.2deg); border-radius: 14px; overflow: hidden; box-shadow: 0 24px 50px rgba(0,0,0,.4)">
+            <img src="/mockups/awomansmindset/assets/portrait.jpg" alt="Ada Thompson, smiling, curly hair lit by golden hour sun" style="display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 20%">
+          </div>
+          <div class="awm-seal" style="position: absolute; top: 4px; left: -6px; width: 104px; height: 104px; border-radius: 48% 52% 45% 55% / 52% 46% 54% 48%; background: radial-gradient(circle at 35% 30%, #A23045, #6A1222 55%, #3A0711); box-shadow: inset 0 0 0 8px rgba(0,0,0,.16), inset 0 0 0 13px rgba(255,255,255,.05), 0 10px 22px rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; transform: rotate(-12deg)">
+            <span style="font-family: 'Bodoni Moda', serif; font-style: italic; font-size: 36px; color: #F1C6CF; text-shadow: 0 1px 0 rgba(0,0,0,.35)">AT</span>
+          </div>
+          <div class="awm-heroquote" style="position: absolute; right: -14px; bottom: 6px; background: #FBF4EE; color: #5A0F1C; padding: 16px 20px; border-radius: 4px; transform: rotate(-3deg); box-shadow: 0 14px 30px rgba(0,0,0,.35); max-width: 210px">
+            <p style="margin: 0; font-family: 'Instrument Serif', serif; font-style: italic; font-size: 24px; line-height: 1.05">“Natural, personal, trustworthy.”</p>
+            <p style="margin: 8px 0 0; font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #7A1426">EN · DE · IT</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- stat strip -->
+    <div style="border-top: 1px solid rgba(251,244,238,.18)">
+      <div class="awm-wrap awm-stats" style="max-width: 1320px; margin: 0 auto; padding: 34px 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 28px">
+        <div><p style="margin: 0; font-family: 'Bodoni Moda', serif; font-size: 48px; line-height: 1">3.8M<span style="color: #EDB2BF">+</span></p><p style="margin: 10px 0 0; font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #E9CDB0">Views generated</p></div>
+        <div><p style="margin: 0; font-family: 'Bodoni Moda', serif; font-size: 48px; line-height: 1">41K<span style="color: #EDB2BF">+</span></p><p style="margin: 10px 0 0; font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #E9CDB0">Instagram community</p></div>
+        <div><p style="margin: 0; font-family: 'Bodoni Moda', serif; font-size: 48px; line-height: 1">50<span style="color: #EDB2BF">+</span></p><p style="margin: 10px 0 0; font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #E9CDB0">Videos &amp; photos</p></div>
+        <div><p style="margin: 0; font-family: 'Bodoni Moda', serif; font-size: 48px; line-height: 1">3<span style="color: #EDB2BF">+</span></p><p style="margin: 10px 0 0; font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #E9CDB0">Years creating</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BRAND MARQUEE ============ -->
+  <section aria-label="Brands Ada has worked with" style="background: #3D0A13; color: #EDB2BF; padding: 26px 0; overflow: hidden">
+    <div class="awm-marquee awm-marq" style="font-family: 'Bodoni Moda', serif; font-style: italic; font-size: 30px">
+      <span>Cosrx K-Beauty</span><span style="color: #C9A46A">✦</span><span>e.l.f. Cosmetics</span><span style="color: #C9A46A">✦</span><span>MyProtein Europe</span><span style="color: #C9A46A">✦</span><span>Helloice</span><span style="color: #C9A46A">✦</span><span>Calzitaly</span><span style="color: #C9A46A">✦</span><span>B&amp;Q</span><span style="color: #C9A46A">✦</span>
+      <span>Cosrx K-Beauty</span><span style="color: #C9A46A">✦</span><span>e.l.f. Cosmetics</span><span style="color: #C9A46A">✦</span><span>MyProtein Europe</span><span style="color: #C9A46A">✦</span><span>Helloice</span><span style="color: #C9A46A">✦</span><span>Calzitaly</span><span style="color: #C9A46A">✦</span><span>B&amp;Q</span><span style="color: #C9A46A">✦</span>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT / MANIFESTO ============ -->
+  <section id="about" style="background: #FBF4EE">
+    <div class="awm-wrap awm-sec awm-about" style="max-width: 1320px; margin: 0 auto; padding: 130px 40px; display: flex; flex-wrap: wrap; gap: 80px; align-items: center">
+      <div style="flex: 1 1 420px; min-width: 0; position: relative">
+        <img src="/mockups/awomansmindset/assets/lilies.jpg" alt="Ada in a cream draped gown holding pink lilies" style="display: block; width: 78%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 220px 220px 6px 6px">
+        <img src="/mockups/awomansmindset/assets/knit.jpg" alt="Ada in an oatmeal knit, seated on a cream sofa" style="position: absolute; right: 0; bottom: -50px; width: 44%; aspect-ratio: 3 / 4; object-fit: cover; border: 10px solid #FBF4EE; border-radius: 6px; box-shadow: 0 20px 40px rgba(61,10,19,.18)">
+      </div>
+      <div style="flex: 1 1 480px; min-width: 0">
+        <p style="margin: 0 0 22px; font-size: 12px; letter-spacing: .34em; text-transform: uppercase; color: #9A2B40">The mindset</p>
+        <h2 style="margin: 0; font-family: 'Bodoni Moda', serif; font-weight: 500; font-size: clamp(44px, 5vw, 72px); line-height: 1; letter-spacing: -.015em; color: #3D0A13">Ciao, I’m Ada<span style="font-family: 'Instrument Serif', serif; font-style: italic; color: #B4475C">.</span></h2>
+        <p style="margin: 30px 0 0; font-family: 'Instrument Serif', serif; font-style: italic; font-size: 30px; line-height: 1.25; color: #7A1426">I spent years dressing to disappear. Now I make the content I needed to see — curves, curls and forty-plus, front and center.</p>
+        <p style="margin: 28px 0 0; font-size: 17px; line-height: 1.75; color: #4D2A30">I’m a 44-year-old Italian UGC creator and Instagram influencer living in Germany. I create authentic, relatable content for fashion, beauty, wellness and lifestyle brands — with a focus on curvy midsize, curly-haired and 40+ representation. It feels natural, personal and trustworthy, never overly polished or scripted.</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 34px">
+          <span style="border: 1px solid #D9B9B3; color: #5A0F1C; padding: 10px 18px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase">Curvy midsize</span>
+          <span style="border: 1px solid #D9B9B3; color: #5A0F1C; padding: 10px 18px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase">Curly hair</span>
+          <span style="border: 1px solid #D9B9B3; color: #5A0F1C; padding: 10px 18px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase">40+ women</span>
+          <span style="background: #5A0F1C; color: #FBF4EE; padding: 10px 18px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase">English · Deutsch · Italiano</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WORK IN MOTION (filterable) ============ -->
+  <section id="work" style="background: #F4E6DE">
+    <div class="awm-wrap awm-sec" style="max-width: 1320px; margin: 0 auto; padding: 120px 40px">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 30px">
+        <div>
+          <p style="margin: 0 0 18px; font-size: 12px; letter-spacing: .34em; text-transform: uppercase; color: #9A2B40">Portfolio</p>
+          <h2 style="margin: 0; font-family: 'Bodoni Moda', serif; font-weight: 500; font-size: clamp(44px, 5.4vw, 80px); line-height: .95; letter-spacing: -.015em; color: #3D0A13">Work in <span style="font-family: 'Instrument Serif', serif; font-style: italic; color: #B4475C">motion.</span></h2>
+          <p style="margin: 18px 0 0; font-size: 13px; letter-spacing: .3em; text-transform: uppercase; color: #6E4148">Cinematic · Powerful · Graceful</p>
+        </div>
+        <div class="awm-tabs" role="tablist" aria-label="Filter work" style="display: flex; flex-wrap: wrap; gap: 8px">
+          <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+            <sc-if value="{{t.isOn}}" hint-placeholder-val="{{ false }}">
+              <button type="button" role="tab" aria-selected="true" onClick="{{t.pick}}" style="min-height: 44px; padding: 0 22px; border-radius: 999px; border: 1px solid #5A0F1C; background: #5A0F1C; color: #FBF4EE; font-family: Manrope, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; cursor: pointer">{{t.label}}</button>
+            </sc-if>
+            <sc-if value="{{t.isOff}}" hint-placeholder-val="{{ true }}">
+              <button type="button" role="tab" aria-selected="false" onClick="{{t.pick}}" style="min-height: 44px; padding: 0 22px; border-radius: 999px; border: 1px solid #C9A9A0; background: transparent; color: #5A0F1C; font-family: Manrope, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; cursor: pointer">{{t.label}}</button>
+            </sc-if>
+          </sc-for>
+        </div>
+      </div>
+
+      <div class="awm-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 22px; margin-top: 56px">
+        <sc-for list="{{shown}}" as="p" hint-placeholder-count="6">
+          <figure class="awm-card" style="margin: 0; position: relative; border-radius: 6px; overflow: hidden; background: #3D0A13">
+            <img src="{{p.src}}" alt="{{p.alt}}" style="display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover">
+            <figcaption style="position: absolute; left: 0; right: 0; bottom: 0; padding: 60px 22px 20px; background: linear-gradient(to top, rgba(42,6,13,.85), rgba(42,6,13,0)); color: #FBF4EE; display: flex; justify-content: space-between; align-items: flex-end; gap: 12px">
+              <span style="font-family: 'Instrument Serif', serif; font-style: italic; font-size: 26px; line-height: 1">{{p.title}}</span>
+              <span style="font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #F1C6CF">{{p.cat}}</span>
+            </figcaption>
+          </figure>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CREATOR HIGHLIGHTS ============ -->
+  <section style="background: #5A0F1C; color: #FBF4EE">
+    <div class="awm-wrap awm-sec" style="max-width: 1320px; margin: 0 auto; padding: 120px 40px; display: flex; flex-wrap: wrap; gap: 70px; align-items: center">
+      <div style="flex: 1 1 420px; min-width: 0">
+        <p style="margin: 0 0 18px; font-size: 12px; letter-spacing: .34em; text-transform: uppercase; color: #E9CDB0">Creator highlights</p>
+        <h2 style="margin: 0; font-family: 'Bodoni Moda', serif; font-weight: 500; font-size: clamp(44px, 5vw, 76px); line-height: .98; letter-spacing: -.015em">The numbers<br><span style="font-family: 'Instrument Serif', serif; font-style: italic; color: #EDB2BF">don’t lie.</span></h2>
+        <p style="margin: 26px 0 0; max-width: 420px; font-size: 17px; line-height: 1.7; color: #F3E3DA">Women who rarely see themselves on screen stop scrolling for Ada. That attention is what brands get.</p>
+      </div>
+      <div class="awm-hl" style="flex: 1 1 560px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2px; background: rgba(251,244,238,.16); border: 1px solid rgba(251,244,238,.16)">
+        <div style="background: #5A0F1C; padding: 38px 34px"><p style="margin: 0; font-family: 'Bodoni Moda', serif; font-size: 64px; line-height: 1">4M</p><p style="margin: 14px 0 0; font-size: 15px; line-height: 1.5; color: #F3E3DA">overall views in the last 30 days</p></div>
+        <div style="background: #5A0F1C; padding: 38px 34px"><p style="margin: 0; font-family: 'Bodoni Moda', serif; font-size: 64px; line-height: 1">920K</p><p style="margin: 14px 0 0; font-size: 15px; line-height: 1.5; color: #F3E3DA">views on a single top-performing Reel</p></div>
+        <div style="background: #5A0F1C; padding: 38px 34px"><p style="margin: 0; font-family: 'Bodoni Moda', serif; font-size: 64px; line-height: 1">25K</p><p style="margin: 14px 0 0; font-size: 15px; line-height: 1.5; color: #F3E3DA">new followers in under two months</p></div>
+        <div style="background: #3D0A13; padding: 38px 34px; display: flex; flex-direction: column; justify-content: space-between; gap: 20px">
+          <p style="margin: 0; font-family: 'Instrument Serif', serif; font-style: italic; font-size: 32px; line-height: 1.1; color: #EDB2BF">Based in Germany. Available worldwide.</p>
+          <a href="https://www.instagram.com/awomansmindset" style="color: #FBF4EE; font-size: 12px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; border-bottom: 1px solid #EDB2BF; align-self: flex-start; padding-bottom: 6px">@awomansmindset →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SHOP MY PICKS ============ -->
+  <section id="shop" style="background: #FBF4EE">
+    <div class="awm-wrap awm-sec" style="max-width: 1320px; margin: 0 auto; padding: 130px 40px">
+      <div style="display: flex; flex-wrap: wrap; gap: 60px; align-items: flex-start">
+        <div style="flex: 1 1 380px; min-width: 0; position: relative">
+          <p style="margin: 0 0 18px; font-size: 12px; letter-spacing: .34em; text-transform: uppercase; color: #9A2B40">Shop the mindset</p>
+          <h2 style="margin: 0; font-family: 'Bodoni Moda', serif; font-weight: 500; font-size: clamp(44px, 5vw, 72px); line-height: .98; letter-spacing: -.015em; color: #3D0A13">Things I actually<br><span style="font-family: 'Instrument Serif', serif; font-style: italic; color: #B4475C">love &amp; use.</span></h2>
+          <p style="margin: 24px 0 0; max-width: 380px; font-size: 16px; line-height: 1.7; color: #4D2A30">Curl products that survive German humidity, pieces cut for real curves, and the little luxuries in between.</p>
+          <img src="/mockups/awomansmindset/assets/bag.jpg" alt="Burgundy croc-embossed handbag above pointed burgundy heels" style="display: block; margin-top: 40px; width: 100%; max-width: 380px; aspect-ratio: 4 / 3; object-fit: cover; object-position: 50% 30%; border-radius: 6px">
+        </div>
+        <div style="flex: 1 1 600px; min-width: 0; display: flex; flex-direction: column; border-top: 1px solid #DCC4BC">
+          <a class="awm-shop awm-shoprow" href="https://shopmy.us/shop/awomansmindset?tab=latest" style="display: flex; align-items: center; gap: 24px; padding: 28px 24px; border-bottom: 1px solid #DCC4BC; color: #3D0A13; transition: background .3s, color .3s">
+            <span style="font-family: 'Bodoni Moda', serif; font-size: 15px; color: #B4475C; width: 30px">01</span>
+            <span style="flex: 1; display: flex; flex-direction: column; gap: 6px"><span class="awm-shoptitle" style="font-family: 'Bodoni Moda', serif; font-size: 30px; line-height: 1.05">Handpicked Recommendations</span><span style="font-size: 11px; letter-spacing: .24em; text-transform: uppercase; opacity: .75">ShopMy · Latest favorites</span></span>
+            <span class="awm-shop-arrow" aria-hidden="true" style="font-size: 26px">→</span>
+          </a>
+          <a class="awm-shop awm-shoprow" href="https://a.co/d/0elijb2m" style="display: flex; align-items: center; gap: 24px; padding: 28px 24px; border-bottom: 1px solid #DCC4BC; color: #3D0A13; transition: background .3s, color .3s">
+            <span style="font-family: 'Bodoni Moda', serif; font-size: 15px; color: #B4475C; width: 30px">02</span>
+            <span style="flex: 1; display: flex; flex-direction: column; gap: 6px"><span class="awm-shoptitle" style="font-family: 'Bodoni Moda', serif; font-size: 30px; line-height: 1.05">Curly Girl <span style="font-family: 'Instrument Serif', serif; font-style: italic">Essentials</span></span><span style="font-size: 11px; letter-spacing: .24em; text-transform: uppercase; opacity: .75">Amazon · Wash day to second-day curls</span></span>
+            <span class="awm-shop-arrow" aria-hidden="true" style="font-size: 26px">→</span>
+          </a>
+          <a class="awm-shop awm-shoprow" href="https://a.co/d/0elijb2m" style="display: flex; align-items: center; gap: 24px; padding: 28px 24px; border-bottom: 1px solid #DCC4BC; color: #3D0A13; transition: background .3s, color .3s">
+            <span style="font-family: 'Bodoni Moda', serif; font-size: 15px; color: #B4475C; width: 30px">03</span>
+            <span style="flex: 1; display: flex; flex-direction: column; gap: 6px"><span class="awm-shoptitle" style="font-family: 'Bodoni Moda', serif; font-size: 30px; line-height: 1.05">Amazon Must-Haves</span><span style="font-size: 11px; letter-spacing: .24em; text-transform: uppercase; opacity: .75">My top picks, all in one place</span></span>
+            <span class="awm-shop-arrow" aria-hidden="true" style="font-size: 26px">→</span>
+          </a>
+          <a class="awm-shop awm-shoprow" href="https://store.awin.com/awomansmindset" style="display: flex; align-items: center; gap: 24px; padding: 28px 24px; border-bottom: 1px solid #DCC4BC; color: #3D0A13; transition: background .3s, color .3s">
+            <span style="font-family: 'Bodoni Moda', serif; font-size: 15px; color: #B4475C; width: 30px">04</span>
+            <span style="flex: 1; display: flex; flex-direction: column; gap: 6px"><span class="awm-shoptitle" style="font-family: 'Bodoni Moda', serif; font-size: 30px; line-height: 1.05">The Storefront</span><span style="font-size: 11px; letter-spacing: .24em; text-transform: uppercase; opacity: .75">AWIN · Fashion &amp; beauty edits</span></span>
+            <span class="awm-shop-arrow" aria-hidden="true" style="font-size: 26px">→</span>
+          </a>
+          <a class="awm-shop awm-shoprow" href="https://a.co/d/0elijb2m" style="display: flex; align-items: center; gap: 24px; padding: 28px 24px; border-bottom: 1px solid #DCC4BC; color: #3D0A13; transition: background .3s, color .3s">
+            <span style="font-family: 'Bodoni Moda', serif; font-size: 15px; color: #B4475C; width: 30px">05</span>
+            <span style="flex: 1; display: flex; flex-direction: column; gap: 6px"><span class="awm-shoptitle" style="font-family: 'Bodoni Moda', serif; font-size: 30px; line-height: 1.05">For <span style="font-family: 'Instrument Serif', serif; font-style: italic">Him</span></span><span style="font-size: 11px; letter-spacing: .24em; text-transform: uppercase; opacity: .75">Top picks for men</span></span>
+            <span class="awm-shop-arrow" aria-hidden="true" style="font-size: 26px">→</span>
+          </a>
+          <p style="margin: 18px 0 0; font-size: 12px; line-height: 1.6; color: #6E4148">Some links are affiliate links — they support my work at no extra cost to you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOR BRANDS ============ -->
+  <section id="brands" style="background: #F4E6DE">
+    <div class="awm-wrap awm-sec" style="max-width: 1320px; margin: 0 auto; padding: 120px 40px">
+      <div style="text-align: center; max-width: 760px; margin: 0 auto">
+        <p style="margin: 0 0 18px; font-size: 12px; letter-spacing: .34em; text-transform: uppercase; color: #9A2B40">For brands</p>
+        <h2 style="margin: 0; font-family: 'Bodoni Moda', serif; font-weight: 500; font-size: clamp(44px, 5vw, 72px); line-height: 1; letter-spacing: -.015em; color: #3D0A13">Content that feels like a friend’s <span style="font-family: 'Instrument Serif', serif; font-style: italic; color: #B4475C">recommendation.</span></h2>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px; margin-top: 64px">
+        <div style="background: #FBF4EE; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column">
+          <img src="/mockups/awomansmindset/assets/lips.jpg" alt="Close-up of glossy red lips biting a strawberry" style="display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover">
+          <div style="padding: 30px 28px 34px">
+            <p style="margin: 0; font-family: 'Bodoni Moda', serif; font-size: 13px; color: #B4475C">I.</p>
+            <h3 style="margin: 10px 0 0; font-family: 'Bodoni Moda', serif; font-weight: 500; font-size: 30px; color: #3D0A13">UGC Video</h3>
+            <p style="margin: 14px 0 0; font-size: 15px; line-height: 1.7; color: #4D2A30">Unboxings, routines, try-ons and testimonials for paid ads and organic — filmed with a cinematic eye.</p>
+          </div>
+        </div>
+        <div style="background: #FBF4EE; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column">
+          <img src="/mockups/awomansmindset/assets/figs.jpg" alt="Styled still life of figs, a glass of red spritz and an e.l.f. lip product on satin" style="display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover">
+          <div style="padding: 30px 28px 34px">
+            <p style="margin: 0; font-family: 'Bodoni Moda', serif; font-size: 13px; color: #B4475C">II.</p>
+            <h3 style="margin: 10px 0 0; font-family: 'Bodoni Moda', serif; font-weight: 500; font-size: 30px; color: #3D0A13">Photography</h3>
+            <p style="margin: 14px 0 0; font-size: 15px; line-height: 1.7; color: #4D2A30">Styled product stills and on-body lifestyle imagery for your site, socials and campaigns.</p>
+          </div>
+        </div>
+        <div style="background: #FBF4EE; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column">
+          <img src="/mockups/awomansmindset/assets/bar.jpg" alt="Ada in a white lace corset top in a golden-lit cocktail bar" style="display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: 50% 25%">
+          <div style="padding: 30px 28px 34px">
+            <p style="margin: 0; font-family: 'Bodoni Moda', serif; font-size: 13px; color: #B4475C">III.</p>
+            <h3 style="margin: 10px 0 0; font-family: 'Bodoni Moda', serif; font-weight: 500; font-size: 30px; color: #3D0A13">Instagram Collabs</h3>
+            <p style="margin: 14px 0 0; font-size: 15px; line-height: 1.7; color: #4D2A30">Reels, carousels and stories to a loyal community of curvy, curly and 40+ women.</p>
+          </div>
+        </div>
+      </div>
+      <div class="awm-band" style="margin-top: 22px; background: #3D0A13; color: #FBF4EE; border-radius: 6px; padding: 30px 34px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px">
+        <p style="margin: 0; font-family: 'Instrument Serif', serif; font-style: italic; font-size: 30px; line-height: 1.15">One creator, three markets — <span style="color: #EDB2BF">English, Deutsch &amp; Italiano.</span></p>
+        <a href="mailto:adathompson.collabs@gmail.com?subject=Media%20kit%20request" class="awm-btn-cream" style="background: #FBF4EE; color: #5A0F1C; padding: 16px 26px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase">Request media kit</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA ============ -->
+  <section style="background: #5A0F1C; color: #FBF4EE; position: relative">
+    <div class="awm-wrap awm-sec awm-cta" style="max-width: 1100px; margin: 0 auto; padding: 140px 40px; text-align: center; display: flex; flex-direction: column; align-items: center">
+      <div style="width: 120px; height: 120px; border-radius: 48% 52% 45% 55% / 52% 46% 54% 48%; background: radial-gradient(circle at 35% 30%, #A23045, #6A1222 55%, #3A0711); box-shadow: inset 0 0 0 9px rgba(0,0,0,.16), inset 0 0 0 15px rgba(255,255,255,.05), 0 14px 30px rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; transform: rotate(8deg)">
+        <span style="font-family: 'Bodoni Moda', serif; font-style: italic; font-size: 40px; color: #F1C6CF">AT</span>
+      </div>
+      <h2 style="margin: 44px 0 0; font-family: 'Bodoni Moda', serif; font-weight: 500; font-size: clamp(52px, 7vw, 108px); line-height: .95; letter-spacing: -.02em">Let’s work<br><span style="font-family: 'Instrument Serif', serif; font-style: italic; color: #EDB2BF">together.</span></h2>
+      <p style="margin: 28px 0 0; font-size: 14px; letter-spacing: .32em; text-transform: uppercase; color: #E9CDB0">Are you ready to create magic?</p>
+      <a href="mailto:adathompson.collabs@gmail.com" style="margin-top: 44px; font-family: 'Bodoni Moda', serif; font-size: clamp(22px, 2.6vw, 36px); color: #FBF4EE; border-bottom: 1px solid #EDB2BF; padding-bottom: 8px; overflow-wrap: anywhere">adathompson.collabs@gmail.com</a>
+      <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 44px">
+        <a href="mailto:adathompson.collabs@gmail.com" class="awm-btn-cream" style="background: #FBF4EE; color: #5A0F1C; padding: 18px 30px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase">Start a collab</a>
+        <a href="https://www.instagram.com/awomansmindset" style="border: 1px solid rgba(251,244,238,.5); color: #FBF4EE; padding: 18px 30px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase">Follow on Instagram</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer style="background: #2A0910; color: #E9CDB0">
+    <div class="awm-wrap awm-foot" style="max-width: 1320px; margin: 0 auto; padding: 48px 40px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 24px; font-size: 13px">
+      <span style="font-family: 'Bodoni Moda', serif; font-size: 20px; color: #FBF4EE">A Woman’s <span style="font-family: 'Instrument Serif', serif; font-style: italic; color: #EDB2BF">Mindset</span></span>
+      <nav aria-label="Footer" style="display: flex; flex-wrap: wrap; gap: 26px; letter-spacing: .14em; text-transform: uppercase; font-size: 11px">
+        <a href="#about" style="color: #E9CDB0">About</a>
+        <a href="#work" style="color: #E9CDB0">Work</a>
+        <a href="#shop" style="color: #E9CDB0">Shop</a>
+        <a href="#brands" style="color: #E9CDB0">For brands</a>
+        <a href="https://www.instagram.com/awomansmindset" style="color: #E9CDB0">Instagram</a>
+      </nav>
+      <span style="font-size: 12px; color: #C9A9A0">© 2026 Ada Thompson · Germany</span>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":6400}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { filter: 'All', menuOpen: false };
+  }
+  renderVals() {
+    var photos = [
+      { src: '/mockups/awomansmindset/assets/bar.jpg', alt: 'Ada in a lace corset top at a golden-lit bar', title: 'Golden hour, after dark', cat: 'Fashion' },
+      { src: '/mockups/awomansmindset/assets/figs.jpg', alt: 'Figs, red spritz and an e.l.f. lip product on satin', title: 'e.l.f. still life', cat: 'Beauty' },
+      { src: '/mockups/awomansmindset/assets/lilies.jpg', alt: 'Ada in a cream gown with pink lilies', title: 'Lilies & silk', cat: 'Lifestyle' },
+      { src: '/mockups/awomansmindset/assets/lips.jpg', alt: 'Glossy red lips biting a strawberry', title: 'Gloss, bitten', cat: 'Beauty' },
+      { src: '/mockups/awomansmindset/assets/bag.jpg', alt: 'Burgundy croc handbag and pointed heels', title: 'Wine-dark details', cat: 'Fashion' },
+      { src: '/mockups/awomansmindset/assets/knit.jpg', alt: 'Ada in an oatmeal knit on a cream sofa', title: 'Soft Sunday', cat: 'Lifestyle' }
+    ];
+    var f = this.state.filter;
+    var self = this;
+    var tabs = ['All', 'Beauty', 'Fashion', 'Lifestyle'].map(function (l) {
+      return { label: l, isOn: f === l, isOff: f !== l, pick: function () { self.setState({ filter: l }); } };
+    });
+    return {
+      menuOpen: this.state.menuOpen,
+      menuExpanded: this.state.menuOpen ? 'true' : 'false',
+      toggleMenu: function () { self.setState({ menuOpen: !self.state.menuOpen }); },
+      closeMenu: function () { self.setState({ menuOpen: false }); },
+      tabs: tabs,
+      shown: f === 'All' ? photos : photos.filter(function (p) { return p.cat === f; })
+    };
+  }
+}
+</script>
+</body>
+</html>
