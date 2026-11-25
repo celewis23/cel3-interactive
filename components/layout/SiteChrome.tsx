@@ -13,6 +13,7 @@ const CHROME_EXCLUDED_PREFIXES = [
   "/contracts",
   "/estimates",
   "/downloads",
+  "/mockups/riversiderally",
 ];
 
 function shouldShowSiteChrome(pathname: string) {

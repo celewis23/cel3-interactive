@@ -161,6 +161,11 @@ const nextConfig: NextConfig = {
         source: "/mockups/awomansmindset/:path*",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }],
       },
+      {
+        // Personal in-progress rally planner/scouting app — keep out of search indexes.
+        source: "/mockups/riversiderally/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }],
+      },
     ];
   },
 };

@@ -1,0 +1,26 @@
+[data-riverside-rally] {
+  height: 100dvh;
+}
+
+[data-riverside-rally] .leaflet-container {
+  background: #0a0a0a;
+  font-family: inherit;
+}
+
+[data-riverside-rally] .leaflet-popup-content-wrapper,
+[data-riverside-rally] .leaflet-popup-tip {
+  background: #171717;
+  color: #e5e5e5;
+}
+
+[data-riverside-rally] .leaflet-control-attribution {
+  background: rgba(10, 10, 10, 0.7) !important;
+  color: #a3a3a3 !important;
+}
+[data-riverside-rally] .leaflet-control-attribution a {
+  color: #d4d4d4 !important;
+}
+
+[data-riverside-rally] {
+  padding-bottom: env(safe-area-inset-bottom);
+}
