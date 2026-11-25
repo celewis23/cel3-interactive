@@ -150,7 +150,10 @@ export const SEED_DESTINATIONS: Destination[] = [
   },
 ];
 
+export const JAMES_RIVER_RUN_EVENT_ID = "james-river-run";
+
 export const INITIAL_RALLY_STATE: RallyState = {
+  eventId: JAMES_RIVER_RUN_EVENT_ID,
   eventName: "James River Run",
   scoutingDate: "2026-11-25",
   destinations: SEED_DESTINATIONS,

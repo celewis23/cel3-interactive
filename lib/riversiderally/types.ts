@@ -54,6 +54,7 @@ export type ScoutingFlag =
 
 export interface ScoutingNote {
   id: string;
+  eventId?: string; // defaults to "james-river-run" for notes recorded before this field existed.
   destinationId: string;
   recordedAt: string;
   roadQuality: RatingValue;
@@ -77,6 +78,7 @@ export interface ScoutingPhoto {
 }
 
 export interface RallyState {
+  eventId?: string; // which RallyEventDefinition this belongs to; defaults to "james-river-run" for data saved before this field existed.
   eventName: string;
   scoutingDate: string;
   destinations: Destination[];

@@ -16,6 +16,20 @@ import {
 } from "@/lib/riversiderally/storage";
 import { fetchDrivingRoute, RoutingError, type RouteResult } from "@/lib/riversiderally/routing";
 import { routeToGeoJson, routeToGpx } from "@/lib/riversiderally/geoExport";
+import { getActiveEvent } from "@/lib/rally-core/events";
+import type { BoundingBox, Poi, PoiCategory } from "@/lib/places/types";
+import type { PoiWithDistance } from "@/lib/places/route-proximity";
+import { PoiSearchError, searchPois, type SearchMode } from "@/lib/places/poi-search";
+import { loadFavorites, toggleFavorite } from "@/lib/places/favorites";
+import type { ReportType, RoadReport } from "@/lib/reports/report-schema";
+import {
+  createLocalReport,
+  confirmLocalReport,
+  removeExpiredLocalReports,
+  fetchSharedReports,
+  createSharedReport,
+  confirmSharedReport,
+} from "@/lib/reports/report-repository";
 import TopBar from "./components/TopBar";
 import ItinerarySidebar from "./components/ItinerarySidebar";
 import DestinationDrawer from "./components/DestinationDrawer";
@@ -23,6 +37,12 @@ import ScoutingNoteModal from "./components/ScoutingNoteModal";
 import PreDriveInfo from "./components/PreDriveInfo";
 import ScoutingModeBar from "./components/ScoutingModeBar";
 import AddDestinationModal from "./components/AddDestinationModal";
+import DiscoverPanel from "./components/discovery/DiscoverPanel";
+import POIDetailSheet from "./components/map/POIDetailSheet";
+import ReportButton from "./components/reports/ReportButton";
+import ReportForm from "./components/reports/ReportForm";
+import ReportDetails from "./components/reports/ReportDetails";
+import ReportConfirmation from "./components/reports/ReportConfirmation";
 
 const RallyMap = dynamic(() => import("./components/RallyMap"), {
   ssr: false,
@@ -31,7 +51,13 @@ const RallyMap = dynamic(() => import("./components/RallyMap"), {
   ),
 });
 
+const DEFAULT_POI_CATEGORIES: PoiCategory[] = ["gas", "food", "coffee"];
+
 export default function RiversideRallyPage() {
+  // Only one event is configured today, but every persistence call below is namespaced by
+  // its id so a second event's data never bleeds into this one.
+  const activeEvent = getActiveEvent();
+
   const [state, setState] = useState<RallyState | null>(null);
   const [notes, setNotes] = useState<ScoutingNote[]>([]);
   const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
@@ -50,18 +76,42 @@ export default function RiversideRallyPage() {
   const [flyToTarget, setFlyToTarget] = useState<LatLng | null>(null);
   const watchIdRef = useRef<number | null>(null);
 
+  // ---- POI discovery ----
+  const [mapBounds, setMapBounds] = useState<BoundingBox | null>(null);
+  const [discoverOpen, setDiscoverOpen] = useState(false);
+  const [poiCategories, setPoiCategories] = useState<PoiCategory[]>(DEFAULT_POI_CATEGORIES);
+  const [searchMode, setSearchMode] = useState<SearchMode>("along-route");
+  const [maxOffRouteMiles, setMaxOffRouteMiles] = useState(3);
+  const [poiResults, setPoiResults] = useState<PoiWithDistance[]>([]);
+  const [poiLoading, setPoiLoading] = useState(false);
+  const [poiError, setPoiError] = useState<string | null>(null);
+  const [selectedPoi, setSelectedPoi] = useState<PoiWithDistance | null>(null);
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+
+  // ---- Community road reports ----
+  const [reports, setReports] = useState<RoadReport[]>([]);
+  const [showReports, setShowReports] = useState(true);
+  const [selectedReport, setSelectedReport] = useState<RoadReport | null>(null);
+  const [placingReport, setPlacingReport] = useState(false);
+  const [draftReportPosition, setDraftReportPosition] = useState<LatLng | null>(null);
+  const [reportFormOpen, setReportFormOpen] = useState(false);
+  const [reportConfirmation, setReportConfirmation] = useState<{ sharedWithCommunity: boolean } | null>(null);
+  const mapBoundsRef = useRef<BoundingBox | null>(null);
+
   // Load persisted state on mount (client only).
   useEffect(() => {
-    setState(loadRallyState());
-    setNotes(loadScoutingNotes());
+    setState(loadRallyState(activeEvent.id));
+    setNotes(loadScoutingNotes(activeEvent.id));
+    setFavoriteIds(new Set(loadFavorites().map((f) => f.poi.id)));
+    setReports(removeExpiredLocalReports());
   }, []);
 
   useEffect(() => {
-    if (state) saveRallyState(state);
+    if (state) saveRallyState(activeEvent.id, state);
   }, [state]);
 
   useEffect(() => {
-    saveScoutingNotes(notes);
+    saveScoutingNotes(activeEvent.id, notes);
   }, [notes]);
 
   const activeDestinations = useMemo(() => state?.destinations.filter((d) => !d.excluded) ?? [], [state]);
@@ -105,6 +155,7 @@ export default function RiversideRallyPage() {
     () => activeDestinations.filter((d) => d.role === "destination"),
     [activeDestinations],
   );
+  const nextCheckpoint = scoutableStops.find((s) => state && !state.visited[s.id]) ?? null;
 
   // Scouting mode: watch GPS while active.
   useEffect(() => {
@@ -140,6 +191,38 @@ export default function RiversideRallyPage() {
     if (userLocation) setFlyToTarget({ ...userLocation });
     else setLocationError("No location fix yet — make sure location access is allowed.");
   }, [userLocation]);
+
+  // Keep a ref of the latest map bounds for the polling loop below (avoids resetting the
+  // interval every time the user pans/zooms).
+  useEffect(() => {
+    mapBoundsRef.current = mapBounds;
+  }, [mapBounds]);
+
+  // Poll shared road reports (and sweep expired local ones) roughly every 25s while visible.
+  // This is poll-based sync against the shared production database, not a websocket/Realtime
+  // feed — reports are genuinely shared across users, just not instantaneous.
+  useEffect(() => {
+    if (!showReports) return;
+
+    async function refresh() {
+      const bbox = mapBoundsRef.current;
+      const local = removeExpiredLocalReports();
+      if (!bbox) {
+        setReports(local);
+        return;
+      }
+      try {
+        const shared = await fetchSharedReports(bbox);
+        setReports([...local, ...shared]);
+      } catch {
+        setReports(local);
+      }
+    }
+
+    refresh();
+    const interval = setInterval(refresh, 25000);
+    return () => clearInterval(interval);
+  }, [showReports, mapBounds]);
 
   if (!state) {
     return <div className="flex h-dvh items-center justify-center bg-neutral-950 text-neutral-500">Loading Riverside Rally…</div>;
@@ -180,12 +263,12 @@ export default function RiversideRallyPage() {
 
   function handleRestore() {
     if (!window.confirm("Restore the original James River Run route? This replaces your current itinerary edits.")) return;
-    const fresh = resetRallyState();
+    const fresh = resetRallyState(activeEvent.id);
     setState(fresh);
   }
 
   function handleSaveNote(note: ScoutingNote) {
-    setNotes((prev) => [...prev, note]);
+    setNotes((prev) => [...prev, { ...note, eventId: activeEvent.id }]);
     setNoteModalDestId(null);
   }
 
@@ -208,8 +291,14 @@ export default function RiversideRallyPage() {
     reader.onload = () => {
       try {
         const imported = importScoutingExport(String(reader.result));
-        setState({ eventName: imported.eventName, scoutingDate: state!.scoutingDate, destinations: imported.destinations, visited: imported.visited });
-        setNotes(imported.notes);
+        setState({
+          eventId: activeEvent.id,
+          eventName: imported.eventName,
+          scoutingDate: state!.scoutingDate,
+          destinations: imported.destinations,
+          visited: imported.visited,
+        });
+        setNotes(imported.notes.map((n) => ({ ...n, eventId: activeEvent.id })));
         window.alert("Scouting data imported.");
       } catch (err) {
         window.alert(err instanceof Error ? err.message : "Could not import that file.");
@@ -225,6 +314,128 @@ export default function RiversideRallyPage() {
   }
 
   const legDurations = routeResult?.legs.map((l) => l.durationSeconds) ?? null;
+
+  // ---- POI discovery handlers ----
+  async function handleRunPoiSearch() {
+    if (poiCategories.length === 0) {
+      setPoiError("Select at least one category first.");
+      return;
+    }
+    setPoiLoading(true);
+    setPoiError(null);
+    try {
+      const results = await searchPois({
+        mode: searchMode,
+        categories: poiCategories,
+        maxOffRouteMiles,
+        routeCoordinates: routeResult?.coordinates ?? null,
+        userLocation,
+        selectedStopPosition: selectedDestination?.position ?? null,
+        nextCheckpointPosition: nextCheckpoint?.position ?? null,
+        visibleBounds: mapBounds,
+      });
+      setPoiResults(results);
+    } catch (err) {
+      setPoiError(err instanceof PoiSearchError ? err.message : "Could not search for places.");
+      setPoiResults([]);
+    } finally {
+      setPoiLoading(false);
+    }
+  }
+
+  function handleSelectPoi(poi: PoiWithDistance) {
+    setSelectedPoi(poi);
+    setSelectedId(null);
+    setSelectedReport(null);
+  }
+
+  function handleToggleFavoritePoi(poi: Poi) {
+    const next = toggleFavorite(poi);
+    setFavoriteIds(new Set(next.map((f) => f.poi.id)));
+  }
+
+  function handleAddPoiToRally(poi: PoiWithDistance) {
+    const newDestination: Destination = {
+      id: `poi-${poi.id}`,
+      name: poi.name,
+      role: "destination",
+      category: "optional",
+      position: poi.position,
+      address: poi.address,
+      description: `Added from Discover (${poi.category.replace("-", " ")}).`,
+      plannedStopMinutes: 15,
+      optional: true,
+      coordinatesVerified: true, // OSM-sourced coordinates for a real indexed place, not geocoded guesswork
+      roadAccessNotes: "Not yet verified",
+      parkingObservations: "Not yet verified",
+    };
+    updateState((prev) => ({ ...prev, destinations: [...prev.destinations, newDestination] }));
+  }
+
+  // ---- Road report handlers ----
+  function handleMapLongPress(latlng: LatLng) {
+    setDraftReportPosition(latlng);
+    setPlacingReport(false);
+    setReportFormOpen(true);
+  }
+
+  function handleMapClickForReport(latlng: LatLng) {
+    setDraftReportPosition(latlng);
+    setPlacingReport(false);
+    setReportFormOpen(true);
+  }
+
+  async function handleSubmitReport(input: {
+    reportType: ReportType;
+    roadLabel: string;
+    direction: RoadReport["direction"];
+    description: string;
+    keepLocalOnly: boolean;
+  }) {
+    if (!draftReportPosition) return;
+    const base = {
+      reportType: input.reportType,
+      position: draftReportPosition,
+      roadLabel: input.roadLabel || undefined,
+      direction: input.direction,
+      description: input.description || undefined,
+    };
+    try {
+      if (input.keepLocalOnly) {
+        createLocalReport(base);
+        setReports(removeExpiredLocalReports().concat(reports.filter((r) => r.scope === "shared")));
+      } else {
+        const created = await createSharedReport(base);
+        setReports((prev) => [...prev, created]);
+      }
+      setReportFormOpen(false);
+      setDraftReportPosition(null);
+      setReportConfirmation({ sharedWithCommunity: !input.keepLocalOnly });
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : "Could not submit report.");
+    }
+  }
+
+  async function handleConfirmReport(stillThere: boolean) {
+    if (!selectedReport) return;
+    if (selectedReport.scope === "local") {
+      const updated = confirmLocalReport(selectedReport.id, stillThere);
+      setReports((prev) => [...prev.filter((r) => r.scope !== "local"), ...updated]);
+      const refreshed = updated.find((r) => r.id === selectedReport.id) ?? null;
+      setSelectedReport(refreshed && refreshed.status === "active" ? refreshed : null);
+    } else {
+      try {
+        const updated = await confirmSharedReport(selectedReport.id, stillThere);
+        setReports((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+        setSelectedReport(updated.status === "active" ? updated : null);
+      } catch (err) {
+        window.alert(err instanceof Error ? err.message : "Could not update report.");
+      }
+    }
+  }
+
+  const visibleReports = reports.filter((r) => r.status === "active");
+  const poiInRallyIds = new Set(state.destinations.filter((d) => d.id.startsWith("poi-")).map((d) => d.id.replace(/^poi-/, "")));
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-neutral-950 text-white">
@@ -252,11 +463,14 @@ export default function RiversideRallyPage() {
         >
           <ItinerarySidebar
             state={state}
+            subtitle={activeEvent.routeDescription}
             onReorder={handleReorder}
             onToggleOptional={handleToggleOptional}
             onRemove={handleRemove}
             onSelect={(id) => {
               setSelectedId(id);
+              setSelectedPoi(null);
+              setSelectedReport(null);
               setSidebarOpen(false);
             }}
             onRename={handleRename}
@@ -277,10 +491,31 @@ export default function RiversideRallyPage() {
             routeCoordinates={routeResult?.coordinates ?? null}
             routeError={routeError}
             visited={state.visited}
-            currentDestinationId={scoutingMode ? (scoutableStops.find((s) => !state.visited[s.id])?.id ?? null) : null}
-            onSelectDestination={setSelectedId}
+            currentDestinationId={scoutingMode ? (nextCheckpoint?.id ?? null) : null}
+            onSelectDestination={(id) => {
+              setSelectedId(id);
+              setSelectedPoi(null);
+              setSelectedReport(null);
+            }}
             userLocation={userLocation}
             flyToTarget={flyToTarget}
+            pois={poiResults}
+            favoritePoiIds={favoriteIds}
+            onSelectPoi={handleSelectPoi}
+            reports={visibleReports}
+            showReports={showReports}
+            onSelectReport={(report) => {
+              setSelectedReport(report);
+              setSelectedId(null);
+              setSelectedPoi(null);
+            }}
+            onBoundsChange={setMapBounds}
+            onLongPress={handleMapLongPress}
+            draftReportPosition={draftReportPosition}
+            placingReport={placingReport}
+            onMapClick={handleMapClickForReport}
+            initialCenter={activeEvent.region.mapCenter}
+            initialZoom={activeEvent.region.defaultZoom}
           />
 
           {routeLoading && (
@@ -299,6 +534,34 @@ export default function RiversideRallyPage() {
             />
           )}
 
+          <DiscoverPanel
+            open={discoverOpen}
+            onOpenChange={setDiscoverOpen}
+            categories={poiCategories}
+            onCategoriesChange={setPoiCategories}
+            mode={searchMode}
+            onModeChange={setSearchMode}
+            maxDistanceMiles={maxOffRouteMiles}
+            onDistanceChange={setMaxOffRouteMiles}
+            onRunSearch={handleRunPoiSearch}
+            results={poiResults}
+            loading={poiLoading}
+            error={poiError}
+            favoriteIds={favoriteIds}
+            onSelectResult={handleSelectPoi}
+          />
+
+          <button
+            onClick={() => setShowReports((v) => !v)}
+            className={`absolute left-4 top-3 z-[900] rounded-full px-3 py-1.5 text-xs font-medium shadow ${
+              showReports ? "bg-neutral-900/90 text-neutral-300" : "bg-neutral-800/60 text-neutral-500"
+            }`}
+          >
+            {showReports ? "Hide road reports" : "Show road reports"}
+          </button>
+
+          <ReportButton placing={placingReport} onStart={() => setPlacingReport(true)} onCancel={() => setPlacingReport(false)} />
+
           <DestinationDrawer
             destination={selectedDestination}
             visited={!!(selectedDestination && state.visited[selectedDestination.id])}
@@ -306,15 +569,44 @@ export default function RiversideRallyPage() {
             onMarkVisited={handleMarkVisited}
             onAddNote={(id) => setNoteModalDestId(id)}
           />
+
+          {selectedPoi && (
+            <POIDetailSheet
+              poi={selectedPoi}
+              isFavorite={favoriteIds.has(selectedPoi.id)}
+              onClose={() => setSelectedPoi(null)}
+              onToggleFavorite={() => handleToggleFavoritePoi(selectedPoi)}
+              onAddToRally={() => handleAddPoiToRally(selectedPoi)}
+              alreadyInRally={poiInRallyIds.has(selectedPoi.id)}
+            />
+          )}
+
+          {selectedReport && (
+            <ReportDetails report={selectedReport} onClose={() => setSelectedReport(null)} onConfirm={handleConfirmReport} />
+          )}
         </div>
       </div>
 
       {noteModalDestination && (
         <ScoutingNoteModal destination={noteModalDestination} onClose={() => setNoteModalDestId(null)} onSave={handleSaveNote} />
       )}
-      {showPreDrive && <PreDriveInfo scoutingDate={state.scoutingDate} onClose={() => setShowPreDrive(false)} />}
+      {showPreDrive && (
+        <PreDriveInfo
+          scoutingDate={state.scoutingDate}
+          region={activeEvent.region}
+          sunsetNote={activeEvent.scoutingDateSunsetNote}
+          checklistItems={activeEvent.preDriveChecklist}
+          onClose={() => setShowPreDrive(false)}
+        />
+      )}
       {showAddDestination && (
         <AddDestinationModal onClose={() => setShowAddDestination(false)} onAdd={handleAddDestination} />
+      )}
+      {reportFormOpen && draftReportPosition && (
+        <ReportForm position={draftReportPosition} onCancel={() => setReportFormOpen(false)} onSubmit={handleSubmitReport} />
+      )}
+      {reportConfirmation && (
+        <ReportConfirmation sharedWithCommunity={reportConfirmation.sharedWithCommunity} onClose={() => setReportConfirmation(null)} />
       )}
     </div>
   );

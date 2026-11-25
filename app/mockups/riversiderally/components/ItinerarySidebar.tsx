@@ -22,6 +22,7 @@ import { secondsToHoursMinutes, metersToMiles } from "@/lib/riversiderally/routi
 
 interface ItinerarySidebarProps {
   state: RallyState;
+  subtitle: string;
   onReorder: (destinations: Destination[]) => void;
   onToggleOptional: (id: string) => void;
   onRemove: (id: string) => void;
@@ -94,6 +95,7 @@ function SortableRow({
 
 export default function ItinerarySidebar({
   state,
+  subtitle,
   onReorder,
   onToggleOptional,
   onRemove,
@@ -139,7 +141,7 @@ export default function ItinerarySidebar({
             {state.eventName}
           </button>
         )}
-        <p className="text-xs text-neutral-500">Richmond • Powhatan • Goochland</p>
+        <p className="text-xs text-neutral-500">{subtitle}</p>
       </div>
 
       <div className="mb-3 grid grid-cols-2 gap-2 rounded-lg bg-neutral-900 p-2.5 text-center">

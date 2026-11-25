@@ -1,21 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { MapContainer, Marker, Polyline, Popup, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, Marker, Polyline, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import type { Destination, LatLng } from "@/lib/riversiderally/types";
-
-// Leaflet's default marker icons reference image files that don't resolve correctly through
-// Next.js's bundler. Point them at the CDN build that ships with the installed leaflet version.
-const DEFAULT_ICON = L.icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
+import type { BoundingBox } from "@/lib/places/types";
+import type { PoiWithDistance } from "@/lib/places/route-proximity";
+import type { RoadReport } from "@/lib/reports/report-schema";
+import POILayer from "./map/POILayer";
+import RoadReportsLayer from "./map/RoadReportsLayer";
 
 function categoryColor(category: Destination["category"]): string {
   switch (category) {
@@ -74,6 +67,98 @@ export function FlyToLocation({ target }: { target: LatLng | null }) {
   return null;
 }
 
+function BoundsWatcher({ onChange }: { onChange: (bbox: BoundingBox) => void }) {
+  const map = useMap();
+
+  function report() {
+    const b = map.getBounds();
+    onChange({ south: b.getSouth(), west: b.getWest(), north: b.getNorth(), east: b.getEast() });
+  }
+
+  useMapEvents({
+    moveend: report,
+    zoomend: report,
+  });
+
+  useEffect(() => {
+    report();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map]);
+
+  return null;
+}
+
+// Long-press (touch) or right-click (desktop) on the map starts a road report at that spot.
+function LongPressHandler({ onLongPress }: { onLongPress: (latlng: LatLng) => void }) {
+  const map = useMap();
+
+  useMapEvents({
+    contextmenu: (e) => onLongPress({ lat: e.latlng.lat, lon: e.latlng.lng }),
+  });
+
+  useEffect(() => {
+    const container = map.getContainer();
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let startPoint: { x: number; y: number } | null = null;
+    let longPressLatLng: LatLng | null = null;
+
+    function clear() {
+      if (timer) clearTimeout(timer);
+      timer = null;
+      startPoint = null;
+    }
+
+    function handleTouchStart(e: TouchEvent) {
+      if (e.touches.length !== 1) return;
+      const touch = e.touches[0];
+      startPoint = { x: touch.clientX, y: touch.clientY };
+      const point = L.DomEvent.getMousePosition(touch as unknown as MouseEvent, container);
+      const latlng = map.containerPointToLatLng(point);
+      longPressLatLng = { lat: latlng.lat, lon: latlng.lng };
+      timer = setTimeout(() => {
+        if (longPressLatLng) onLongPress(longPressLatLng);
+      }, 600);
+    }
+
+    function handleTouchMove(e: TouchEvent) {
+      if (!startPoint || e.touches.length !== 1) return;
+      const touch = e.touches[0];
+      const dx = touch.clientX - startPoint.x;
+      const dy = touch.clientY - startPoint.y;
+      if (Math.sqrt(dx * dx + dy * dy) > 12) clear();
+    }
+
+    container.addEventListener("touchstart", handleTouchStart, { passive: true });
+    container.addEventListener("touchend", clear);
+    container.addEventListener("touchmove", handleTouchMove, { passive: true });
+
+    return () => {
+      clear();
+      container.removeEventListener("touchstart", handleTouchStart);
+      container.removeEventListener("touchend", clear);
+      container.removeEventListener("touchmove", handleTouchMove);
+    };
+  }, [map, onLongPress]);
+
+  return null;
+}
+
+function ClickHandler({ onClick }: { onClick: (latlng: LatLng) => void }) {
+  useMapEvents({
+    click: (e) => onClick({ lat: e.latlng.lat, lon: e.latlng.lng }),
+  });
+  return null;
+}
+
+function draftReportIcon(): L.DivIcon {
+  return L.divIcon({
+    className: "rr-draft-report-marker",
+    html: `<span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9999px 9999px 9999px 0;transform:rotate(45deg);background:#f59e0b;border:2px solid #0a0a0a;"></span>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 30],
+  });
+}
+
 interface RallyMapProps {
   destinations: Destination[];
   routeCoordinates: LatLng[] | null;
@@ -83,6 +168,19 @@ interface RallyMapProps {
   onSelectDestination: (id: string) => void;
   userLocation: LatLng | null;
   flyToTarget: LatLng | null;
+  pois: PoiWithDistance[];
+  favoritePoiIds: Set<string>;
+  onSelectPoi: (poi: PoiWithDistance) => void;
+  reports: RoadReport[];
+  showReports: boolean;
+  onSelectReport: (report: RoadReport) => void;
+  onBoundsChange: (bbox: BoundingBox) => void;
+  onLongPress: (latlng: LatLng) => void;
+  draftReportPosition: LatLng | null;
+  placingReport: boolean;
+  onMapClick: (latlng: LatLng) => void;
+  initialCenter: LatLng;
+  initialZoom: number;
 }
 
 export default function RallyMap({
@@ -94,6 +192,19 @@ export default function RallyMap({
   onSelectDestination,
   userLocation,
   flyToTarget,
+  pois,
+  favoritePoiIds,
+  onSelectPoi,
+  reports,
+  showReports,
+  onSelectReport,
+  onBoundsChange,
+  onLongPress,
+  draftReportPosition,
+  placingReport,
+  onMapClick,
+  initialCenter,
+  initialZoom,
 }: RallyMapProps) {
   const stopPoints = useMemo(
     () => destinations.filter((d) => d.role === "destination" || d.optional),
@@ -109,10 +220,10 @@ export default function RallyMap({
 
   return (
     <MapContainer
-      center={[37.6, -77.75]}
-      zoom={10}
+      center={[initialCenter.lat, initialCenter.lon]}
+      zoom={initialZoom}
       scrollWheelZoom
-      className="h-full w-full"
+      className={`h-full w-full ${placingReport ? "cursor-crosshair" : ""}`}
       attributionControl
     >
       <TileLayer
@@ -157,8 +268,18 @@ export default function RallyMap({
         </Marker>
       )}
 
+      <POILayer pois={pois} favoriteIds={favoritePoiIds} onSelect={onSelectPoi} />
+      {showReports && <RoadReportsLayer reports={reports} onSelect={onSelectReport} />}
+
+      {draftReportPosition && (
+        <Marker position={[draftReportPosition.lat, draftReportPosition.lon]} icon={draftReportIcon()} />
+      )}
+
       <FitToRoute points={fitPoints} />
       <FlyToLocation target={flyToTarget} />
+      <BoundsWatcher onChange={onBoundsChange} />
+      <LongPressHandler onLongPress={onLongPress} />
+      {placingReport && <ClickHandler onClick={onMapClick} />}
 
       {routeError && (
         <div className="leaflet-top leaflet-left" style={{ pointerEvents: "none" }}>
