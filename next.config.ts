@@ -22,6 +22,7 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
+      { source: "/projectbounce", destination: "/projectbounce/index.html" },
       { source: "/mockups/index.html", destination: "/mockups" },
       { source: "/mockups/electric-sun-society", destination: "/mockups/electric-sun-society/index.html" },
       { source: "/mockups/neejah-styles", destination: "/mockups/neejah-styles/index.html" },
@@ -141,6 +142,10 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      {
+        source: "/projectbounce/sw.js",
+        headers: [{ key: "Cache-Control", value: "no-cache" }],
+      },
       {
         // Spotlight videos show minors; keep this proposal out of search indexes.
         source: "/mockups/ej-piano/:path*",
